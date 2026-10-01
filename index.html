@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Table Rush</title>
+  <meta name="description" content="Practice multiplication facts. No account needed." />
+  <style>
+    :root {
+      --bg: #f3eee4;
+      --ink: #1b2430;
+      --muted: #534c45;
+      --paper: #fffdf8;
+      --line: #e3d7c6;
+      --sand: #efe6d8;
+      --coral: #e15a3a;
+      --forest: #1e7a4d;
+      --on-forest: #f4fff8;
+      --forest-soft: #e4f5eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
+    main {
+      max-width: 32rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 5rem;
+    }
+    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem; }
+    h1 { font-family: Georgia, "Iowan Old Style", serif; font-size: 1.9rem; font-weight: 560; margin: 0; line-height: 1; }
+    h1 span { font-family: "Segoe UI", system-ui, sans-serif; font-weight: 800; }
+    .sub { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.9rem; }
+    .icon {
+      width: 2.75rem; height: 2.75rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    }
+    .stack { display: flex; flex-direction: column; gap: 1.25rem; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 1.5rem; padding: 1.25rem; }
+    .label { margin: 0 0 0.75rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip, .choice {
+      min-height: 2.75rem; border-radius: 0.75rem; border: 1px solid var(--line);
+      background: var(--paper); color: var(--ink); font-weight: 800;
+    }
+    .chip { padding: 0 1rem; border-radius: 999px; background: var(--sand); }
+    .on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 0.75rem; }
+    .num { height: 3rem; border-radius: 0.75rem; font-family: Georgia, serif; font-size: 1.25rem; }
+    .split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .split3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+    .hint { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9rem; }
+    .start, .again {
+      height: 3.5rem; width: 100%; border: 0; border-radius: 1rem;
+      background: var(--coral); color: var(--ink); font-size: 1.1rem; font-weight: 800;
+    }
+    .start:disabled { opacity: 0.4; }
+    .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 1rem; }
+    .eq { text-align: center; padding: 2rem 1rem; }
+    .prompt { font-family: Georgia, serif; font-size: 3rem; margin: 0.4rem 0 0; line-height: 1; }
+    .times { color: var(--coral); padding: 0 0.35rem; }
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
+    .answers button {
+      min-height: 5rem; border-radius: 1rem; border: 1px solid var(--line);
+      background: var(--paper); font-family: Georgia, serif; font-size: 1.8rem;
+    }
+    .answers button small { display: block; font-family: "Segoe UI", system-ui, sans-serif; font-size: 0.7rem; font-weight: 800; opacity: 0.7; margin-top: 0.2rem; }
+    .right { background: var(--forest) !important; color: var(--on-forest); border-color: var(--forest) !important; }
+    .wrong { background: var(--coral) !important; border-color: var(--coral) !important; }
+    .fact { margin: 1rem 0 0; color: var(--forest); font-weight: 800; }
+    .score { font-family: Georgia, serif; font-size: 3.5rem; margin: 0.4rem 0; text-align: center; }
+    .center { text-align: center; }
+    .miss { list-style: none; padding: 0; margin: 0.75rem 0 0; display: grid; gap: 0.5rem; }
+    .miss li { background: var(--sand); border-radius: 0.75rem; padding: 0.5rem 0.75rem; font-family: Georgia, serif; font-size: 1.25rem; }
+    .ghost { height: 3rem; width: 100%; border-radius: 1rem; border: 1px solid var(--line); background: var(--paper); font-weight: 800; }
+    .textbtn { height: 3rem; width: 100%; border: 0; background: transparent; color: var(--muted); font-weight: 800; }
+    .good { background: var(--forest-soft); color: var(--forest); font-weight: 800; text-align: center; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .warn { color: var(--coral); font-size: 0.9rem; margin: 0.75rem 0 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <p id="live" class="sr" aria-live="polite"></p>
+    <header>
+      <div>
+        <h1>Table <span>Rush</span></h1>
+        <p class="sub">Practice multiplication facts.</p>
+      </div>
+      <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
+    </header>
+    <div id="app"></div>
+  </main>
+  <script>
+    const SAVE_KEY = "table-rush-v1";
+    const RUSH_MS = 60000;
+    const QUICK = [
+      ["2–5", [2, 3, 4, 5]],
+      ["6–9", [6, 7, 8, 9]],
+      ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
+    ];
+    const state = {
+      phase: "setup",
+      tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      mode: "product",
+      length: "rush",
+      problem: null,
+      picked: null,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      correct: 0,
+      total: 0,
+      gain: null,
+      msLeft: RUSH_MS,
+      misses: [],
+      best: 0,
+      muted: false,
+      newBest: false,
+      drill: null,
+      lockUntil: 0
+    };
+    let audioCtx = null;
+    let timer = 0;
+    let feedback = 0;
+
+    function loadSave() {
+      try {
+        const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
+        state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
+        state.muted = Boolean(data.muted);
+      } catch (_) {}
+    }
+    function writeSave() {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 1, bestScore: state.best, muted: state.muted }));
+    }
+    function shuffle(items) {
+      const copy = items.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const swap = copy[i];
+        copy[i] = copy[j];
+        copy[j] = swap;
+      }
+      return copy;
+    }
+    function uniqueChoices(answer, candidates) {
+      const chosen = [answer];
+      const seen = new Set([answer]);
+      shuffle(candidates).forEach((n) => {
+        if (chosen.length >= 4 || !Number.isInteger(n) || n <= 0 || seen.has(n)) return;
+        seen.add(n);
+        chosen.push(n);
+      });
+      let step = 1;
+      while (chosen.length < 4 && step < 60) {
+        [answer + step, Math.abs(answer - step)].forEach((n) => {
+          if (chosen.length < 4 && n > 0 && !seen.has(n)) {
+            seen.add(n);
+            chosen.push(n);
+          }
+        });
+        step += 1;
+      }
+      return shuffle(chosen);
+    }
+    function factorChoices(answer, other) {
+      const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter((n, i, all) => n >= 1 && n <= 12 && n !== answer && all.indexOf(n) === i);
+      const rest = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((n) => n !== answer && near.indexOf(n) < 0));
+      const picked = shuffle(near).slice(0, 3);
+      rest.forEach((n) => { if (picked.length < 3) picked.push(n); });
+      return shuffle([answer].concat(picked));
+    }
+    function build(a, b, mode) {
+      const product = a * b;
+      if (mode === "product") {
+        return { a, b, product, mode, answer: product, key: a + "x" + b, choices: uniqueChoices(product, [a * (b + 1), a * Math.max(1, b - 1), (a + 1) * b, Math.max(1, a - 1) * b, product + a, product - a, product + b, product + 10, product - 1, product + 1]) };
+      }
+      return { a, b, product, mode, answer: b, key: a + "x" + b, choices: factorChoices(b, a) };
+    }
+    function makeProblem(avoid) {
+      const tables = state.tables.length ? state.tables : [2];
+      let a = tables[Math.floor(Math.random() * tables.length)];
+      let b = 1 + Math.floor(Math.random() * 12);
+      if (state.drill && state.drill.length) {
+        const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
+        a = pair.a;
+        b = pair.b;
+      }
+      let problem = build(a, b, state.mode);
+      let guard = 0;
+      while (avoid && problem.key === avoid && guard < 6) {
+        if (state.drill && state.drill.length > 1) {
+          const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
+          a = pair.a;
+          b = pair.b;
+        } else if (!state.drill) b = 1 + Math.floor(Math.random() * 12);
+        problem = build(a, b, state.mode);
+        guard += 1;
+      }
+      return problem;
+    }
+    function factLabel(pair) { return pair.a + " × " + pair.b + " = " + (pair.a * pair.b); }
+    function formatMs(ms) {
+      const total = Math.max(0, Math.ceil(ms / 1000));
+      return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+    }
+    function say(text) { document.getElementById("live").textContent = text; }
+    function playTone(ok) {
+      if (state.muted) return;
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioCtx = audioCtx || new Ctx();
+        audioCtx.resume().catch(function () {});
+        const now = audioCtx.currentTime;
+        (ok ? [523, 784] : [196]).forEach(function (freq, i) {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = ok ? "sine" : "triangle";
+          osc.frequency.value = freq;
+          const start = now + i * 0.07;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.05, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(start);
+          osc.stop(start + 0.18);
+        });
+      } catch (_) {}
+    }
+    function uniqueMisses() {
+      const seen = new Set();
+      return state.misses.filter(function (pair) {
+        const key = pair.a + "x" + pair.b;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+    function el(tag, attrs, children) {
+      const node = document.createElement(tag);
+      Object.keys(attrs || {}).forEach(function (key) {
+        if (key === "class") node.className = attrs[key];
+        else if (key === "text") node.textContent = attrs[key];
+        else if (key.slice(0, 2) === "on") node.addEventListener(key.slice(2).toLowerCase(), attrs[key]);
+        else node.setAttribute(key, attrs[key]);
+      });
+      (children || []).forEach(function (child) { if (child) node.appendChild(child); });
+      return node;
+    }
+    function button(label, className, pressed, onClick) {
+      return el("button", { type: "button", class: className + (pressed ? " on" : ""), "aria-pressed": String(!!pressed), text: label, onClick: onClick });
+    }
+    function render() {
+      const app = document.getElementById("app");
+      app.replaceChildren();
+      const mute = document.getElementById("mute");
+      mute.textContent = state.muted ? "Sound" : "Mute";
+      mute.setAttribute("aria-label", state.muted ? "Unmute sounds" : "Mute sounds");
+      mute.setAttribute("aria-pressed", String(state.muted));
+      if (state.phase === "setup") renderSetup(app);
+      else if (state.phase === "play") renderPlay(app);
+      else renderResults(app);
+    }
+    function renderSetup(app) {
+      const stack = el("div", { class: "stack" });
+      const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
+      startBtn.disabled = state.tables.length === 0;
+      stack.appendChild(startBtn);
+      const tables = el("div", { class: "card" });
+      const head = el("div", { class: "row" });
+      head.appendChild(el("p", { class: "label", text: "Tables" }));
+      if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
+      tables.appendChild(head);
+      const quick = el("div", { class: "row" });
+      QUICK.forEach(function (set) {
+        quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
+      });
+      tables.appendChild(quick);
+      const grid = el("div", { class: "grid6" });
+      for (let n = 1; n <= 12; n++) {
+        const value = n;
+        grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
+          const i = state.tables.indexOf(value);
+          if (i >= 0) state.tables.splice(i, 1);
+          else state.tables.push(value);
+          state.tables.sort(function (a, b) { return a - b; });
+          render();
+        }));
+      }
+      tables.appendChild(grid);
+      if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one table." }));
+      stack.appendChild(tables);
+      stack.appendChild(modeCard());
+      stack.appendChild(roundCard());
+      app.appendChild(stack);
+    }
+    function modeCard() {
+      const card = el("div", { class: "card" });
+      card.appendChild(el("p", { class: "label", text: "Ask for" }));
+      const row = el("div", { class: "split2" });
+      row.appendChild(button("The product", "choice", state.mode === "product", function () { state.mode = "product"; render(); }));
+      row.appendChild(button("Missing factor", "choice", state.mode === "factor", function () { state.mode = "factor"; render(); }));
+      card.appendChild(row);
+      card.appendChild(el("p", { class: "hint", text: state.mode === "product" ? "See 7 × 8 and choose 56." : "See 7 × ? = 56 and choose 8." }));
+      return card;
+    }
+    function roundCard() {
+      const card = el("div", { class: "card" });
+      card.appendChild(el("p", { class: "label", text: "Round" }));
+      const row = el("div", { class: "split3" });
+      [["rush", "60 sec"], ["ten", "10 facts"], ["practice", "Practice"]].forEach(function (item) {
+        row.appendChild(button(item[1], "choice", state.length === item[0], function () { state.length = item[0]; render(); }));
+      });
+      card.appendChild(row);
+      return card;
+    }
+    function renderPlay(app) {
+      const problem = state.problem;
+      const hud = el("div", { class: "hud" });
+      const score = el("span", { text: "Score " + state.score });
+      if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
+      hud.appendChild(score);
+      hud.appendChild(el("span", { text: "Streak " + state.streak }));
+      const clock = state.length === "rush" ? formatMs(state.msLeft) : state.length === "ten" ? Math.min(state.total, 10) + " / 10" : state.total + " answered";
+      hud.appendChild(el("span", { text: clock }));
+      app.appendChild(hud);
+      const eq = el("div", { class: "card eq" });
+      eq.appendChild(el("p", { class: "label", text: state.mode === "product" ? "What is the product?" : "What number is missing?" }));
+      const line = el("p", { class: "prompt" });
+      line.appendChild(document.createTextNode(String(problem.a)));
+      line.appendChild(el("span", { class: "times", text: "×" }));
+      if (state.mode === "product") line.appendChild(document.createTextNode(String(problem.b)));
+      else {
+        line.appendChild(el("span", { class: "times", text: "?" }));
+        line.appendChild(document.createTextNode(" = " + problem.product));
+      }
+      eq.appendChild(line);
+      const locked = performance.now() < state.lockUntil;
+      if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
+      app.appendChild(eq);
+      const answers = el("div", { class: "answers", role: "group", "aria-label": "Answers" });
+      problem.choices.forEach(function (choice, index) {
+        const right = locked && choice === problem.answer;
+        const wrong = locked && state.picked === choice && choice !== problem.answer;
+        const btn = el("button", { type: "button", class: right ? "right" : wrong ? "wrong" : "", onClick: function () { answer(choice); } });
+        btn.appendChild(el("span", { text: String(choice) }));
+        btn.appendChild(el("small", { text: "Key " + (index + 1) }));
+        answers.appendChild(btn);
+      });
+      app.appendChild(answers);
+      if (state.length === "practice") app.appendChild(el("button", { class: "ghost", type: "button", text: "Done", style: "margin-top:1rem", onClick: finish }));
+    }
+    function renderResults(app) {
+      const missed = uniqueMisses();
+      const accuracy = state.total ? Math.round((state.correct / state.total) * 100) : 0;
+      const stack = el("div", { class: "stack" });
+      const card = el("div", { class: "card center" });
+      card.appendChild(el("p", { class: "label", text: state.length === "rush" ? "Time's up" : state.length === "ten" ? "Set complete" : "Practice done" }));
+      card.appendChild(el("p", { class: "score", text: String(state.score) }));
+      card.appendChild(el("p", { class: "hint", text: state.correct + " / " + state.total + " correct · " + accuracy + "%" }));
+      card.appendChild(el("p", { class: "hint", text: "Best streak " + state.bestStreak }));
+      if (state.newBest) card.appendChild(el("p", { class: "fact", text: "New best rush score" }));
+      else if (state.length === "rush" && state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
+      stack.appendChild(card);
+      if (missed.length) {
+        const listCard = el("div", { class: "card" });
+        listCard.appendChild(el("p", { class: "label", text: "Practice these" }));
+        const list = el("ul", { class: "miss" });
+        missed.slice(0, 6).forEach(function (pair) { list.appendChild(el("li", { text: factLabel(pair) })); });
+        listCard.appendChild(list);
+        stack.appendChild(listCard);
+      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: "Every fact was correct." }));
+      stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
+      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
+      stack.appendChild(el("button", { class: "textbtn", type: "button", text: "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
+      app.appendChild(stack);
+    }
+    function nextProblem(avoid) {
+      state.problem = makeProblem(avoid);
+      state.picked = null;
+      state.gain = null;
+      state.lockUntil = 0;
+      render();
+    }
+    function finish() {
+      clearTimeout(feedback);
+      cancelAnimationFrame(timer);
+      const beat = state.length === "rush" && state.score > state.best;
+      state.newBest = beat;
+      if (beat) { state.best = state.score; writeSave(); }
+      state.phase = "results";
+      say("Finished. Score " + state.score + ". " + state.correct + " correct out of " + state.total + ".");
+      render();
+    }
+    function start(pairs) {
+      clearTimeout(feedback);
+      cancelAnimationFrame(timer);
+      state.drill = pairs;
+      state.score = 0;
+      state.streak = 0;
+      state.bestStreak = 0;
+      state.correct = 0;
+      state.total = 0;
+      state.misses = [];
+      state.newBest = false;
+      state.msLeft = RUSH_MS;
+      state.phase = "play";
+      state.problem = makeProblem();
+      state.picked = null;
+      state.gain = null;
+      state.lockUntil = 0;
+      say("Started.");
+      render();
+      if (state.length === "rush") {
+        const startedAt = performance.now();
+        let shown = 60;
+        const loop = function (now) {
+          if (state.phase !== "play") return;
+          const left = RUSH_MS - (now - startedAt);
+          if (left <= 0) { state.msLeft = 0; finish(); return; }
+          const nextShown = Math.ceil(left / 1000);
+          if (nextShown !== shown) { shown = nextShown; state.msLeft = left; render(); }
+          timer = requestAnimationFrame(loop);
+        };
+        timer = requestAnimationFrame(loop);
+      }
+    }
+    function answer(choice) {
+      if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
+      const problem = state.problem;
+      const ok = choice === problem.answer;
+      const delay = ok ? 280 : 700;
+      state.lockUntil = performance.now() + delay;
+      state.picked = choice;
+      state.total += 1;
+      playTone(ok);
+      if (ok) {
+        state.streak += 1;
+        state.bestStreak = Math.max(state.bestStreak, state.streak);
+        state.gain = 10 + Math.min(state.streak, 8) * 2;
+        state.score += state.gain;
+        state.correct += 1;
+        say("Correct. " + problem.a + " times " + problem.b + " is " + problem.product + ".");
+      } else {
+        state.streak = 0;
+        state.gain = null;
+        state.misses.push({ a: problem.a, b: problem.b });
+        say("Not quite. " + problem.a + " times " + problem.b + " is " + problem.product + ".");
+      }
+      render();
+      feedback = setTimeout(function () {
+        if (state.phase !== "play") return;
+        if (state.length === "ten" && state.total >= 10) finish();
+        else nextProblem(problem.key);
+      }, delay);
+    }
+    document.getElementById("mute").addEventListener("click", function () {
+      state.muted = !state.muted;
+      writeSave();
+      render();
+    });
+    window.addEventListener("keydown", function (event) {
+      if (state.phase !== "play" || !state.problem) return;
+      const index = ["1", "2", "3", "4"].indexOf(event.key);
+      if (index >= 0 && state.problem.choices[index] !== undefined) {
+        event.preventDefault();
+        answer(state.problem.choices[index]);
+      }
+    });
+    loadSave();
+    render();
+  </script>
+</body>
+</html>

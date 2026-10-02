@@ -294,6 +294,11 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const RUSH_MS = 48000;
+    const PLAY_TRACKS = [
+      { id: "1", label: "Music 1", file: "assets/audio/play1.mp3" },
+      { id: "2", label: "Music 2", file: "assets/audio/play2.mp3" },
+      { id: "3", label: "Music 3", file: "assets/audio/play3.mp3" }
+    ];
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
       ["6–9", [6, 7, 8, 9]],
@@ -950,6 +955,7 @@
       misses: [],
       best: 0,
       muted: false,
+      playMusicId: "1",
       newBest: false,
       drill: null,
       lockUntil: 0
@@ -960,6 +966,7 @@
     let homeMusicAutoplayBlocked = false;
     let homeMusicLoadRetryBound = false;
     let playMusic = null;
+    let playMusicTrackId = null;
     let playMusicUnlockBound = false;
     let timer = 0;
     let feedback = 0;
@@ -969,10 +976,12 @@
         const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
         state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
         state.muted = Boolean(data.muted);
+        const ids = PLAY_TRACKS.map(function (t) { return t.id; });
+        state.playMusicId = ids.indexOf(data.playMusicId) >= 0 ? data.playMusicId : "1";
       } catch (_) {}
     }
     function writeSave() {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 1, bestScore: state.best, muted: state.muted }));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 1, bestScore: state.best, muted: state.muted, playMusicId: state.playMusicId }));
     }
     function shuffle(items) {
       const copy = items.slice();
@@ -2214,15 +2223,41 @@
       updateMuteButton();
       tryPlayHomeMusic(true);
     }
+    function playTrackMeta() {
+      for (let i = 0; i < PLAY_TRACKS.length; i++) {
+        if (PLAY_TRACKS[i].id === state.playMusicId) return PLAY_TRACKS[i];
+      }
+      return PLAY_TRACKS[0];
+    }
     function playMusicSrc() {
+      const file = playTrackMeta().file;
       try {
-        return new URL("assets/audio/play.mp3", document.baseURI || window.location.href).href;
+        return new URL(file, document.baseURI || window.location.href).href;
       } catch (_) {
-        return "assets/audio/play.mp3";
+        return file;
       }
     }
+    function disposePlayMusic() {
+      if (!playMusic) return;
+      try { playMusic.pause(); } catch (_) {}
+      try { playMusic.removeAttribute("src"); playMusic.load(); } catch (_) {}
+      playMusic = null;
+      playMusicTrackId = null;
+    }
+    function setPlayMusicId(id) {
+      const ids = PLAY_TRACKS.map(function (t) { return t.id; });
+      if (ids.indexOf(id) < 0 || state.playMusicId === id) return;
+      const wasPlaying = state.phase === "play" && playMusic && !playMusic.paused && !state.muted;
+      state.playMusicId = id;
+      writeSave();
+      disposePlayMusic();
+      if (wasPlaying) tryPlayPlayMusic();
+      else render();
+    }
     function ensurePlayMusic() {
-      if (playMusic) return playMusic;
+      if (playMusic && playMusicTrackId === state.playMusicId) return playMusic;
+      disposePlayMusic();
+      playMusicTrackId = state.playMusicId;
       playMusic = new Audio(playMusicSrc());
       playMusic.loop = true;
       playMusic.preload = "auto";
@@ -2516,7 +2551,22 @@
 
       if (isMath()) stack.appendChild(modeCard());
       stack.appendChild(roundCard());
+      stack.appendChild(musicCard());
       app.appendChild(stack);
+    }
+
+    function musicCard() {
+      const card = el("div", { class: "card" });
+      card.appendChild(el("p", { class: "label", text: "Play music" }));
+      const row = el("div", { class: "row" });
+      PLAY_TRACKS.forEach(function (track) {
+        row.appendChild(button(track.label, "chip", state.playMusicId === track.id, function () {
+          setPlayMusicId(track.id);
+        }));
+      });
+      card.appendChild(row);
+      card.appendChild(el("p", { class: "hint", text: "Plays during the rush. Choice is saved on this device." }));
+      return card;
     }
 
     function setOperation(op) {

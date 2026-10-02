@@ -1,0 +1,11 @@
+State outline SVGs in assets/states/
+====================================
+
+Source: Wikimedia Commons — "Blank US Map (states only).svg"
+  https://commons.wikimedia.org/wiki/File:Blank_US_Map_(states_only).svg
+Author: Heitordp
+License: Creative Commons CC0 1.0 Universal (public domain dedication)
+  https://creativecommons.org/publicdomain/zero/1.0/
+
+Each file under assets/states/ is a single-state path extracted from that map,
+restyled with a light classroom fill and dark outline for Table Rush.

@@ -7,9 +7,9 @@
   <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, elements, and flags. No account needed." />
   <style>
     :root {
-      --bg: #f3eee4;
+      --bg: #b8d4ea;
       --ink: #1b2430;
-      --muted: #534c45;
+      --muted: #3a4a5c;
       --paper: #fffdf8;
       --line: #e3d7c6;
       --sand: #efe6d8;
@@ -33,6 +33,8 @@
       padding: 1.5rem 1rem 5rem;
     }
     header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .header-actions { display: flex; gap: 0.5rem; align-items: flex-start; flex-shrink: 0; }
+    .header-actions .icon[hidden] { display: none; }
     h1 { font-family: Georgia, "Iowan Old Style", serif; font-size: 1.9rem; font-weight: 560; margin: 0; line-height: 1; }
     h1 span { font-family: "Segoe UI", system-ui, sans-serif; font-weight: 800; }
     .sub { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.9rem; }
@@ -131,7 +133,10 @@
         <h1>Table <span>Rush</span></h1>
         <p class="sub" id="tagline">Practice multiplication, division, and fun facts.</p>
       </div>
-      <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
+      <div class="header-actions">
+        <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
+        <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
+      </div>
     </header>
     <div id="app"></div>
   </main>
@@ -1018,6 +1023,17 @@
     function button(label, className, pressed, onClick) {
       return el("button", { type: "button", class: className + (pressed ? " on" : ""), "aria-pressed": String(!!pressed), text: label, onClick: onClick });
     }
+    function backToSetup() {
+      clearTimeout(feedback);
+      cancelAnimationFrame(timer);
+      state.drill = null;
+      state.phase = "setup";
+      state.problem = null;
+      state.picked = null;
+      state.gain = null;
+      state.lockUntil = 0;
+      render();
+    }
     function render() {
       const app = document.getElementById("app");
       app.replaceChildren();
@@ -1025,6 +1041,8 @@
       mute.textContent = state.muted ? "Sound" : "Mute";
       mute.setAttribute("aria-label", state.muted ? "Unmute sounds" : "Mute sounds");
       mute.setAttribute("aria-pressed", String(state.muted));
+      const back = document.getElementById("back");
+      back.hidden = state.phase === "setup";
       updateTagline();
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
@@ -1288,7 +1306,7 @@
       } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isQuiz() ? "Every answer was correct." : "Every fact was correct." }));
       stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
       if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: isQuiz() ? "Drill missed" : "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
-      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isQuiz() ? "Change set" : "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
+      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isQuiz() ? "Change set" : "Change tables", onClick: backToSetup }));
       app.appendChild(stack);
     }
 
@@ -1386,6 +1404,7 @@
         else nextProblem(problem.key);
       }, delay);
     }
+    document.getElementById("back").addEventListener("click", backToSetup);
     document.getElementById("mute").addEventListener("click", function () {
       state.muted = !state.muted;
       writeSave();

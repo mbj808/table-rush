@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms. No account needed." />
+  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -552,6 +552,47 @@
       ["Antonyms", VOCAB.filter(function (v) { return v.kind === "antonym"; }).map(function (v) { return v.id; })]
     ];
 
+    const PIANO_NOTES = [
+      { id: "c", name: "C", group: "cmajor" },
+      { id: "d", name: "D", group: "cmajor" },
+      { id: "e", name: "E", group: "cmajor" },
+      { id: "f", name: "F", group: "cmajor" },
+      { id: "g", name: "G", group: "cmajor" },
+      { id: "a", name: "A", group: "other" },
+      { id: "b", name: "B", group: "other" }
+    ];
+    const PIANO_BY_ID = PIANO_NOTES.reduce(function (m, n) { m[n.id] = n; return m; }, {});
+    const PIANO_QUICK = [
+      ["All", PIANO_NOTES.map(function (n) { return n.id; })],
+      ["C–G", PIANO_NOTES.filter(function (n) { return n.group === "cmajor"; }).map(function (n) { return n.id; })],
+      ["A–B", PIANO_NOTES.filter(function (n) { return n.group === "other"; }).map(function (n) { return n.id; })]
+    ];
+    const PIANO_PROMPTS = [
+      { id: "c", ask: "Which white key is to the left of the two black keys (and starts the C major scale)?" },
+      { id: "c", ask: "Which note is also called Do in solfège for the C major scale?" },
+      { id: "c", ask: "Which note comes right before D?" },
+      { id: "d", ask: "Which note comes right after C?" },
+      { id: "d", ask: "Which white key sits between C and E?" },
+      { id: "d", ask: "Which note is Re in the C major solfège scale?" },
+      { id: "e", ask: "Which note comes right after D?" },
+      { id: "e", ask: "Which white key sits between D and F?" },
+      { id: "e", ask: "Which note is on the bottom line of the treble clef staff?" },
+      { id: "e", ask: "Which note is Mi in the C major solfège scale?" },
+      { id: "f", ask: "Which white key is to the left of the three black keys?" },
+      { id: "f", ask: "Which note comes right after E?" },
+      { id: "f", ask: "Which note is Fa in the C major solfège scale?" },
+      { id: "g", ask: "Which note does the treble clef (G clef) curl around?" },
+      { id: "g", ask: "Which note comes right after F?" },
+      { id: "g", ask: "Which note is Sol in the C major solfège scale?" },
+      { id: "g", ask: "Which note is on the second line of the treble clef staff?" },
+      { id: "a", ask: "Which note comes right after G?" },
+      { id: "a", ask: "Which note is La in the C major solfège scale?" },
+      { id: "a", ask: "Which white key sits between G and B?" },
+      { id: "b", ask: "Which note comes right after A?" },
+      { id: "b", ask: "Which note comes right before C (going up the scale)?" },
+      { id: "b", ask: "Which note is Ti (or Si) in the C major solfège scale?" }
+    ];
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -565,7 +606,8 @@
       { id: "element", label: "Elements" },
       { id: "flag", label: "Flags" },
       { id: "rhyme", label: "Rhyming" },
-      { id: "synonym", label: "Synonyms & Antonyms" }
+      { id: "synonym", label: "Synonyms & Antonyms" },
+      { id: "piano", label: "Piano Notes" }
     ];
 
     const state = {
@@ -653,6 +695,7 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
+    function isPiano() { return state.operation === "piano"; }
     function isMath() {
       return state.operation === "multiply" || state.operation === "divide"
         || state.operation === "add" || state.operation === "subtract";
@@ -671,6 +714,7 @@
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
+    function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
     function defaultTablesFor(op) {
       if (op === "ocean") return defaultOceanTables();
       if (op === "sport") return defaultSportTables();
@@ -681,6 +725,7 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
+      if (op === "piano") return defaultPianoTables();
       if (op === "add" || op === "subtract") return defaultAddTables();
       return defaultMathTables();
     }
@@ -716,6 +761,7 @@
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
+    function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
 
     function buildClueQuiz(opts) {
       const pool = opts.pool;
@@ -1085,6 +1131,18 @@
     }
 
 
+
+    function buildPiano(avoid) {
+      const pool = selectedPiano();
+      const bodies = pool.length ? pool : PIANO_NOTES.slice();
+      return buildClueQuiz({
+        op: "piano", pool: bodies, prompts: PIANO_PROMPTS, avoid: avoid, byId: PIANO_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function () { return "Which piano note is this?"; },
+        choicesFor: function (answer, pool) { return nameChoices(answer, pool.map(function (b) { return b.name; }), PIANO_NOTES.map(function (b) { return b.name; })); }
+      });
+    }
+
     function vocabDistractors(item, pool) {
       const banned = new Set([item.answer, item.word]);
       const picked = [];
@@ -1272,6 +1330,17 @@
           choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "piano" && PIANO_BY_ID[pair.id]) {
+        const body = PIANO_BY_ID[pair.id];
+        return {
+          operation: "piano", id: body.id,
+          ask: pair.ask || "Which piano note is this?",
+          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(pair.answer || body.name,
+            selectedPiano().map(function (b) { return b.name; }),
+            PIANO_NOTES.map(function (b) { return b.name; }))
+        };
+      }
       if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
         const item = VOCAB_BY_ID[pair.id];
         const ask = pair.ask || (item.kind === "antonym"
@@ -1316,6 +1385,7 @@
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
+        if (isPiano()) return buildPiano(avoid);
       }
       const tables = state.tables.length ? state.tables : (isAdd() || isSubtract() ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2]);
       let a = tables[Math.floor(Math.random() * tables.length)];
@@ -1394,6 +1464,10 @@
         const prompt = pair.promptWord || (fam && fam.words[0]) || "?";
         return prompt + " ↔ " + (pair.answer || (fam && fam.label) || "rhyme");
       }
+      if (pair.operation === "piano" || (isPiano() && pair.id)) {
+        const body = PIANO_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
       if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
         const item = VOCAB_BY_ID[pair.id];
         const word = pair.word || (item && item.word) || "?";
@@ -1431,7 +1505,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "add") {
@@ -1459,6 +1533,7 @@
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
+      else if (isPiano()) tag.textContent = "Practice piano note names.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
       else if (isAdd()) tag.textContent = "Practice addition facts.";
       else if (isSubtract()) tag.textContent = "Practice subtraction facts.";
@@ -1638,6 +1713,12 @@
           "Common short word families for grades 1–3. All selected by default.",
           "Pick at least one word family.",
           true));
+      } else if (isPiano()) {
+        stack.appendChild(checklistCard("Notes",
+          PIANO_NOTES.map(function (x) { return { id: x.id, name: "Note " + x.name }; }),
+          PIANO_QUICK,
+          "Seven natural notes C–B. Keyboard order, solfège, and treble-clef text clues.",
+          "Pick at least one note."));
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -1736,6 +1817,7 @@
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
+      if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
       card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
@@ -1789,6 +1871,7 @@
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
+      if (isPiano()) return "Piano Notes";
       return "Quiz";
     }
 

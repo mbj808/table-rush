@@ -16,4 +16,6 @@ A one-page multiplication, division, facts, vocab, and rhyming game. Open `index
 - **Synonyms & Antonyms** — grades 2–5 vocab: “same as” / “opposite of” with clear distractors; chips for All / Synonyms / Antonyms.
 - **Rhyming** — elementary word families (about 20: -at, -an, -ig, -op, -ug, -ake, -ight, -ee, -ook, -own, and more). Show a word and pick which of four choices rhymes (near-miss distractors), or pick a rhyme from a family like cat/hat/bat.
 
+- **Piano Notes** — natural notes C–B via keyboard order, solfège (Do–Ti), and treble-clef text clues; chips All / C–G / A–B.
+
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Rush / 10 facts / Practice rounds and scoring work the same across modes.

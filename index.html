@@ -837,6 +837,8 @@
     let audioCtx = null;
     let homeMusic = null;
     let homeMusicUnlockBound = false;
+    let homeMusicAutoplayBlocked = false;
+    let homeMusicLoadRetryBound = false;
     let playMusic = null;
     let playMusicUnlockBound = false;
     let timer = 0;
@@ -1929,6 +1931,9 @@
         });
       } catch (_) {}
     }
+    const HOME_MUSIC_VOLUME = 0.55;
+    // Broad first-gesture unlock: scroll/touch/wheel count, not only taps.
+    const HOME_UNLOCK_EVENTS = ["pointerdown", "touchstart", "mousedown", "keydown", "click", "wheel"];
     function homeMusicSrc() {
       try {
         return new URL("assets/audio/home.mp3", document.baseURI || window.location.href).href;
@@ -1941,60 +1946,153 @@
       homeMusic = new Audio(homeMusicSrc());
       homeMusic.loop = true;
       homeMusic.preload = "auto";
-      homeMusic.volume = 0.55;
+      homeMusic.volume = HOME_MUSIC_VOLUME;
+      homeMusic.muted = false;
       homeMusic.playsInline = true;
       homeMusic.setAttribute("playsinline", "");
       homeMusic.setAttribute("webkit-playsinline", "");
+      // One load-race retry only (not after a policy block).
+      if (!homeMusicLoadRetryBound) {
+        homeMusicLoadRetryBound = true;
+        homeMusic.addEventListener("canplay", function onHomeCanPlay() {
+          homeMusic.removeEventListener("canplay", onHomeCanPlay);
+          if (homeMusicAutoplayBlocked) return;
+          if (state.phase === "setup" && !state.muted && homeMusic.paused) tryPlayHomeMusic(false);
+        });
+      }
       return homeMusic;
     }
     function unbindHomeMusicUnlock() {
       if (!homeMusicUnlockBound) return;
-      document.removeEventListener("pointerdown", unlockHomeMusic, true);
-      document.removeEventListener("keydown", unlockHomeMusic, true);
+      HOME_UNLOCK_EVENTS.forEach(function (type) {
+        document.removeEventListener(type, unlockHomeMusic, true);
+      });
+      window.removeEventListener("scroll", unlockHomeMusic, true);
+      document.removeEventListener("touchmove", unlockHomeMusic, true);
       homeMusicUnlockBound = false;
     }
     function unlockHomeMusic(event) {
       // Let the Mute/Music button own its gesture (avoids pointerdown-start then click-mute).
       if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
       // Keep listening until play actually starts (autoplay policies need a gesture).
+      homeMusicAutoplayBlocked = false;
       syncHomeMusic();
     }
     function bindHomeMusicUnlock() {
       if (homeMusicUnlockBound) return;
       homeMusicUnlockBound = true;
-      document.addEventListener("pointerdown", unlockHomeMusic, true);
-      document.addEventListener("keydown", unlockHomeMusic, true);
+      HOME_UNLOCK_EVENTS.forEach(function (type) {
+        document.addEventListener(type, unlockHomeMusic, true);
+      });
+      window.addEventListener("scroll", unlockHomeMusic, true);
+      document.addEventListener("touchmove", unlockHomeMusic, true);
     }
-    function tryPlayHomeMusic() {
+    function markHomeMusicPlaying() {
+      homeMusicAutoplayBlocked = false;
+      const audio = homeMusic;
+      if (audio) {
+        audio.muted = false;
+        audio.volume = HOME_MUSIC_VOLUME;
+      }
+      unbindHomeMusicUnlock();
+      updateMuteButton();
+    }
+    function homeMusicShouldPlay() {
+      return state.phase === "setup" && !state.muted;
+    }
+    function failHomeMusicAutoplay() {
+      // Prefer a clear Music affordance over leaving BGM muted.
+      homeMusicAutoplayBlocked = true;
+      const audio = homeMusic;
+      if (audio) {
+        try { if (!audio.paused) audio.pause(); } catch (_) {}
+        audio.muted = false;
+        audio.volume = HOME_MUSIC_VOLUME;
+      }
+      bindHomeMusicUnlock();
+      updateMuteButton();
+    }
+    // Muted-then-unmute: only accept if we end unmuted AND playing; else abort cleanly.
+    function tryHomeMutedUnmuteTrick() {
       const audio = ensureHomeMusic();
+      if (!homeMusicShouldPlay()) return;
+      audio.muted = true;
+      const attempt = audio.play();
+      function acceptOrAbort() {
+        if (!homeMusicShouldPlay()) {
+          audio.muted = false;
+          try { if (!audio.paused) audio.pause(); } catch (_) {}
+          return;
+        }
+        audio.muted = false;
+        if (!audio.muted && !audio.paused) {
+          markHomeMusicPlaying();
+          return;
+        }
+        failHomeMusicAutoplay();
+      }
+      if (attempt && typeof attempt.then === "function") {
+        attempt.then(acceptOrAbort).catch(function () { failHomeMusicAutoplay(); });
+      } else {
+        acceptOrAbort();
+      }
+    }
+    function tryPlayHomeMusic(allowMutedTrick) {
+      if (allowMutedTrick === undefined) allowMutedTrick = true;
+      const audio = ensureHomeMusic();
+      if (!homeMusicShouldPlay()) return;
+      audio.muted = false;
+      audio.volume = HOME_MUSIC_VOLUME;
       const playAttempt = audio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
-          unbindHomeMusicUnlock();
-          updateMuteButton();
-        }).catch(function () { bindHomeMusicUnlock(); });
+          if (!homeMusicShouldPlay()) return;
+          audio.muted = false;
+          if (!audio.paused && !audio.muted) markHomeMusicPlaying();
+          else if (allowMutedTrick) tryHomeMutedUnmuteTrick();
+          else failHomeMusicAutoplay();
+        }).catch(function () {
+          if (!homeMusicShouldPlay()) return;
+          // Unmuted autoplay blocked. Trick often fails for audible BGM — try once, else Music button.
+          if (allowMutedTrick) tryHomeMutedUnmuteTrick();
+          else failHomeMusicAutoplay();
+        });
       } else if (!audio.paused) {
-        unbindHomeMusicUnlock();
-        updateMuteButton();
+        markHomeMusicPlaying();
+      } else if (allowMutedTrick) {
+        tryHomeMutedUnmuteTrick();
       } else {
-        bindHomeMusicUnlock();
+        failHomeMusicAutoplay();
       }
     }
     function syncHomeMusic() {
       const audio = ensureHomeMusic();
-      const shouldPlay = state.phase === "setup" && !state.muted;
+      const shouldPlay = homeMusicShouldPlay();
       if (!shouldPlay) {
         unbindHomeMusicUnlock();
         if (!audio.paused) audio.pause();
+        audio.muted = false;
         return;
       }
-      if (!audio.paused) {
+      if (!audio.paused && !audio.muted) {
         unbindHomeMusicUnlock();
+        updateMuteButton();
         return;
       }
-      // Bind before play() so the first tap/click unlocks even if the promise rejects late.
+      // Bind before play() so the first scroll/touch/tap unlocks even if the promise rejects late.
       bindHomeMusicUnlock();
-      tryPlayHomeMusic();
+      // After a policy block, skip muted-trick spam on every re-render; gesture resets the flag.
+      tryPlayHomeMusic(!homeMusicAutoplayBlocked);
+    }
+    function primeHomeMusicAutoplay() {
+      // ASAP on load when unmuted: unlock listeners first, then unmuted play().
+      if (!homeMusicShouldPlay()) {
+        updateMuteButton();
+        return;
+      }
+      bindHomeMusicUnlock();
+      updateMuteButton();
+      tryPlayHomeMusic(true);
     }
     function playMusicSrc() {
       try {
@@ -2068,8 +2166,9 @@
       const mute = document.getElementById("mute");
       const home = homeMusic;
       const play = playMusic;
-      const awaitingHome = !state.muted && state.phase === "setup" && (!home || home.paused);
-      const awaitingPlay = !state.muted && state.phase === "play" && (!play || play.paused);
+      // Treat muted-but-playing as still awaiting (muted-unmute trick must not hide Music).
+      const awaitingHome = !state.muted && state.phase === "setup" && (!home || home.paused || home.muted);
+      const awaitingPlay = !state.muted && state.phase === "play" && (!play || play.paused || play.muted);
       const awaitingGesture = awaitingHome || awaitingPlay;
       if (state.muted) {
         mute.textContent = "Unmute";
@@ -2678,16 +2777,19 @@
       if (state.muted) {
         // Unmute: this click is the user gesture that must start BGM (esp. iOS).
         state.muted = false;
+        homeMusicAutoplayBlocked = false;
         writeSave();
         render();
         if (state.phase === "play") tryPlayPlayMusic();
-        else tryPlayHomeMusic();
+        else tryPlayHomeMusic(false);
         updateMuteButton();
         return;
       }
-      if (state.phase === "setup" && home.paused) {
-        // Not muted, but autoplay blocked — first tap on Music starts BGM without muting.
-        tryPlayHomeMusic();
+      if (state.phase === "setup" && (home.paused || home.muted)) {
+        // Not muted, but autoplay blocked — Music button is the clear unmute/start affordance.
+        homeMusicAutoplayBlocked = false;
+        home.muted = false;
+        tryPlayHomeMusic(false);
         updateMuteButton();
         return;
       }
@@ -2709,6 +2811,7 @@
       }
     });
     loadSave();
+    primeHomeMusicAutoplay();
     render();
   </script>
 </body>

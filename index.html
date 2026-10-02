@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, state maps, elements, and flags. No account needed." />
+  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, and rhyming. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -449,6 +449,39 @@
       americas: "Americas", europe: "Europe", africa: "Africa", asia: "Asia", oceania: "Oceania"
     };
 
+
+    const RHYME_FAMILIES = [
+      { id: "at", label: "-at", group: "short", words: ["cat", "hat", "bat", "mat", "rat", "sat"] },
+      { id: "an", label: "-an", group: "short", words: ["can", "man", "pan", "ran", "fan", "van"] },
+      { id: "ap", label: "-ap", group: "short", words: ["cap", "map", "nap", "tap", "lap", "sap"] },
+      { id: "ig", label: "-ig", group: "short", words: ["big", "dig", "pig", "wig", "fig", "rig"] },
+      { id: "in", label: "-in", group: "short", words: ["bin", "pin", "win", "fin", "tin", "spin"] },
+      { id: "ip", label: "-ip", group: "short", words: ["dip", "lip", "tip", "zip", "rip", "sip"] },
+      { id: "op", label: "-op", group: "short", words: ["hop", "top", "mop", "pop", "cop", "stop"] },
+      { id: "ot", label: "-ot", group: "short", words: ["hot", "pot", "got", "not", "cot", "dot"] },
+      { id: "ug", label: "-ug", group: "short", words: ["bug", "hug", "mug", "rug", "dug", "tug"] },
+      { id: "un", label: "-un", group: "short", words: ["sun", "run", "fun", "bun", "spun", "stun"] },
+      { id: "ell", label: "-ell", group: "short", words: ["bell", "tell", "well", "sell", "fell", "shell"] },
+      { id: "ack", label: "-ack", group: "short", words: ["back", "pack", "sack", "tack", "black", "track"] },
+      { id: "ill", label: "-ill", group: "short", words: ["hill", "will", "fill", "mill", "pill", "spill"] },
+      { id: "est", label: "-est", group: "short", words: ["best", "nest", "rest", "test", "vest", "west"] },
+      { id: "ake", label: "-ake", group: "long", words: ["cake", "bake", "lake", "make", "rake", "wake"] },
+      { id: "ame", label: "-ame", group: "long", words: ["game", "name", "same", "tame", "fame", "came"] },
+      { id: "ight", label: "-ight", group: "long", words: ["light", "night", "right", "sight", "tight", "bright"] },
+      { id: "ee", label: "-ee", group: "long", words: ["bee", "see", "tree", "free", "three", "knee"] },
+      { id: "ook", label: "-ook", group: "long", words: ["book", "cook", "look", "hook", "took", "shook"] },
+      { id: "own", label: "-own", group: "long", words: ["down", "town", "brown", "crown", "clown", "gown"] }
+    ];
+    const RHYME_BY_ID = RHYME_FAMILIES.reduce(function (m, f) { m[f.id] = f; return m; }, {});
+    const RHYME_QUICK = [
+      ["All", RHYME_FAMILIES.map(function (f) { return f.id; })],
+      ["Short vowels", RHYME_FAMILIES.filter(function (f) { return f.group === "short"; }).map(function (f) { return f.id; })],
+      ["Long / patterns", RHYME_FAMILIES.filter(function (f) { return f.group === "long"; }).map(function (f) { return f.id; })]
+    ];
+    const ALL_RHYME_WORDS = RHYME_FAMILIES.reduce(function (list, f) {
+      return list.concat(f.words.map(function (w) { return { word: w, family: f.id }; }));
+    }, []);
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -458,7 +491,8 @@
       { id: "capital", label: "Capitals" },
       { id: "state", label: "States" },
       { id: "element", label: "Elements" },
-      { id: "flag", label: "Flags" }
+      { id: "flag", label: "Flags" },
+      { id: "rhyme", label: "Rhyming" }
     ];
 
     const state = {
@@ -542,6 +576,7 @@
     function isState() { return state.operation === "state"; }
     function isElement() { return state.operation === "element"; }
     function isFlag() { return state.operation === "flag"; }
+    function isRhyme() { return state.operation === "rhyme"; }
     function isMath() { return state.operation === "multiply" || state.operation === "divide"; }
     function isQuiz() { return !isMath(); }
 
@@ -553,6 +588,7 @@
     function defaultStateTables() { return CAPITALS.map(function (s) { return s.id; }); }
     function defaultElementTables() { return ELEMENTS.map(function (e) { return e.id; }); }
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
+    function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultTablesFor(op) {
       if (op === "ocean") return defaultOceanTables();
       if (op === "sport") return defaultSportTables();
@@ -561,6 +597,7 @@
       if (op === "state") return defaultStateTables();
       if (op === "element") return defaultElementTables();
       if (op === "flag") return defaultFlagTables();
+      if (op === "rhyme") return defaultRhymeTables();
       return defaultMathTables();
     }
 
@@ -593,6 +630,7 @@
     function selectedStates() { return selectedById(CAPITALS, CAPITAL_BY_ID); }
     function selectedElements() { return selectedById(ELEMENTS, ELEMENT_BY_ID); }
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
+    function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
 
     function buildClueQuiz(opts) {
       const pool = opts.pool;
@@ -834,6 +872,133 @@
       });
     }
 
+
+    function firstLetter(word) {
+      return (word || "").charAt(0).toLowerCase();
+    }
+
+    function rhymeDistractors(promptWord, answer, familyId, poolFamilies) {
+      const banned = new Set([promptWord, answer]);
+      const sameFamily = (RHYME_BY_ID[familyId] && RHYME_BY_ID[familyId].words) || [];
+      sameFamily.forEach(function (w) { banned.add(w); });
+
+      const others = [];
+      const seen = new Set();
+      (poolFamilies || RHYME_FAMILIES).forEach(function (f) {
+        if (f.id === familyId) return;
+        f.words.forEach(function (w) {
+          if (banned.has(w) || seen.has(w)) return;
+          seen.add(w);
+          others.push(w);
+        });
+      });
+      ALL_RHYME_WORDS.forEach(function (entry) {
+        if (entry.family === familyId || banned.has(entry.word) || seen.has(entry.word)) return;
+        seen.add(entry.word);
+        others.push(entry.word);
+      });
+
+      const start = firstLetter(promptWord);
+      const sameStart = others.filter(function (w) { return firstLetter(w) === start; });
+      const similarLen = others.filter(function (w) {
+        return Math.abs(w.length - promptWord.length) <= 1 && firstLetter(w) !== start;
+      });
+      const rest = others.filter(function (w) {
+        return firstLetter(w) !== start && Math.abs(w.length - promptWord.length) > 1;
+      });
+
+      const picked = [];
+      const used = new Set();
+      function takeFrom(list, n) {
+        shuffle(list).forEach(function (w) {
+          if (picked.length >= n || used.has(w)) return;
+          used.add(w);
+          picked.push(w);
+        });
+      }
+      takeFrom(sameStart, 1);
+      takeFrom(similarLen, 2);
+      takeFrom(rest.concat(sameStart).concat(similarLen), 3);
+      while (picked.length < 3) {
+        const filler = "dog";
+        const extras = ["dog", "cup", "pen", "box", "red", "yes", "no", "up", "in", "out"];
+        for (let i = 0; i < extras.length && picked.length < 3; i++) {
+          if (!banned.has(extras[i]) && !used.has(extras[i]) && extras[i] !== answer) {
+            used.add(extras[i]);
+            picked.push(extras[i]);
+          }
+        }
+        break;
+      }
+      return shuffle([answer].concat(picked.slice(0, 3)));
+    }
+
+    function buildRhyme(avoid) {
+      const pool = selectedRhymes();
+      const families = pool.length ? pool : RHYME_FAMILIES.slice();
+      const usable = families.filter(function (f) { return f.words && f.words.length >= 2; });
+      if (!usable.length) {
+        const f = RHYME_FAMILIES[0];
+        return {
+          operation: "rhyme", id: f.id, family: f.id,
+          ask: "Which word rhymes with " + f.words[0] + "?",
+          promptWord: f.words[0], answer: f.words[1],
+          key: "rhyme:" + f.id + ":" + f.words[0] + ":" + f.words[1],
+          choices: rhymeDistractors(f.words[0], f.words[1], f.id, RHYME_FAMILIES)
+        };
+      }
+
+      const candidates = [];
+      usable.forEach(function (f) {
+        f.words.forEach(function (prompt) {
+          const rhymes = f.words.filter(function (w) { return w !== prompt; });
+          rhymes.forEach(function (answer) {
+            // Pattern A: which word rhymes?
+            candidates.push({
+              key: "rhyme:which:" + f.id + ":" + prompt + ":" + answer,
+              family: f, prompt: prompt, answer: answer, pattern: "which"
+            });
+            // Pattern B: family style — show 2 family mates, pick another
+            const mates = rhymes.filter(function (w) { return w !== answer; });
+            if (mates.length >= 2) {
+              const shown = shuffle(mates).slice(0, 2);
+              candidates.push({
+                key: "rhyme:family:" + f.id + ":" + prompt + ":" + answer + ":" + shown.join(","),
+                family: f, prompt: prompt, answer: answer, pattern: "family", shown: shown
+              });
+            } else if (mates.length === 1) {
+              candidates.push({
+                key: "rhyme:family:" + f.id + ":" + prompt + ":" + answer + ":" + mates[0],
+                family: f, prompt: prompt, answer: answer, pattern: "family", shown: mates.slice(0, 1)
+              });
+            }
+          });
+        });
+      });
+
+      let poolQ = candidates;
+      if (avoid) poolQ = candidates.filter(function (c) { return c.key !== avoid; });
+      if (!poolQ.length) poolQ = candidates;
+      const pick = poolQ[Math.floor(Math.random() * poolQ.length)];
+      let ask;
+      if (pick.pattern === "family" && pick.shown && pick.shown.length) {
+        const sample = [pick.prompt].concat(pick.shown);
+        ask = "Which word rhymes with " + sample.join(", ") + "?";
+      } else {
+        ask = "Which word rhymes with " + pick.prompt + "?";
+      }
+      return {
+        operation: "rhyme",
+        id: pick.family.id,
+        family: pick.family.id,
+        ask: ask,
+        promptWord: pick.prompt,
+        answer: pick.answer,
+        key: pick.key,
+        choices: rhymeDistractors(pick.prompt, pick.answer, pick.family.id, families)
+      };
+    }
+
     function build(a, b, mode) {
       const product = a * b;
       if (isDivide()) {
@@ -926,6 +1091,19 @@
           choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "rhyme" && RHYME_BY_ID[pair.id]) {
+        const fam = RHYME_BY_ID[pair.id];
+        const prompt = pair.promptWord || fam.words[0];
+        const rhymes = fam.words.filter(function (w) { return w !== prompt; });
+        const answer = (pair.answer && rhymes.indexOf(pair.answer) >= 0) ? pair.answer : rhymes[0];
+        const ask = pair.ask || ("Which word rhymes with " + prompt + "?");
+        return {
+          operation: "rhyme", id: fam.id, family: fam.id,
+          ask: ask, promptWord: prompt, answer: answer,
+          key: pair.key || ("drill:" + fam.id),
+          choices: rhymeDistractors(prompt, answer, fam.id, selectedRhymes().length ? selectedRhymes() : RHYME_FAMILIES)
+        };
+      }
       return null;
     }
 
@@ -943,6 +1121,7 @@
         if (isState()) return buildState(avoid);
         if (isElement()) return buildElement(avoid);
         if (isFlag()) return buildFlag(avoid);
+        if (isRhyme()) return buildRhyme(avoid);
       }
       const tables = state.tables.length ? state.tables : [2];
       let a = tables[Math.floor(Math.random() * tables.length)];
@@ -999,6 +1178,11 @@
         if (body) return body.name + " (" + CONTINENT_LABEL[body.continent] + ")";
         return pair.answer;
       }
+      if (pair.operation === "rhyme" || (isRhyme() && pair.id)) {
+        const fam = RHYME_BY_ID[pair.id];
+        const prompt = pair.promptWord || (fam && fam.words[0]) || "?";
+        return prompt + " ↔ " + (pair.answer || (fam && fam.label) || "rhyme");
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
       }
@@ -1023,7 +1207,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (isDivide() || op === "divide") {
@@ -1042,6 +1226,7 @@
       else if (isState()) tag.textContent = "Practice U.S. states from outline maps.";
       else if (isElement()) tag.textContent = "Practice chemical elements and symbols.";
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
+      else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
       else tag.textContent = "Practice multiplication facts.";
     }
@@ -1210,6 +1395,13 @@
           FLAG_QUICK,
           "Text clues by continent — no flag images. All selected by default.",
           "Pick at least one country."));
+      } else if (isRhyme()) {
+        stack.appendChild(checklistCard("Word families",
+          RHYME_FAMILIES.map(function (f) { return { id: f.id, name: f.label + " · " + f.words.slice(0, 3).join(", ") }; }),
+          RHYME_QUICK,
+          "Common short word families for grades 1–3. All selected by default.",
+          "Pick at least one word family.",
+          true));
       } else {
         const tables = el("div", { class: "card" });
         const head = el("div", { class: "row" });
@@ -1274,6 +1466,7 @@
       if (isState()) hint = "Identify a state from its outline map, or name its capital.";
       if (isElement()) hint = "Match element symbols and names (both directions).";
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
+      if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
@@ -1315,6 +1508,7 @@
       if (isState()) return "States";
       if (isElement()) return "Elements";
       if (isFlag()) return "Flags";
+      if (isRhyme()) return "Rhyming";
       return "Quiz";
     }
 

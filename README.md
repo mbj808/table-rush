@@ -1,6 +1,6 @@
 # Table Rush
 
-A one-page multiplication, division, and facts game. Open `index.html` or the GitHub Pages site. No account and no install.
+A one-page multiplication, division, facts, and rhyming game. Open `index.html` or the GitHub Pages site. No account and no install.
 
 ## Modes
 
@@ -12,5 +12,6 @@ A one-page multiplication, division, and facts game. Open `index.html` or the Gi
 - **States** — same 50 states with outline map images; ask the capital from the map, or name the state from its shape. SVGs live in `assets/states/` (CC0 Wikimedia outlines).
 - **Elements** — first 20 periodic table elements; symbol ↔ name both ways.
 - **Flags** — world countries by continent (Americas, Europe, Africa, Asia, Oceania) via text geography clues — no external flag images.
+- **Rhyming** — elementary word families (about 20: -at, -an, -ig, -op, -ug, -ake, -ight, -ee, -ook, -own, and more). Show a word and pick which of four choices rhymes (near-miss distractors), or pick a rhyme from a family like cat/hat/bat.
 
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Rush / 10 facts / Practice rounds and scoring work the same across modes.

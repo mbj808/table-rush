@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles. No account needed." />
+  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles; North Shore waves. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -727,6 +727,54 @@
       { id: "blimp", ask: "Which long airship is filled with gas and can float slowly across the sky?" }
     ];
 
+    const NORTH_SHORE = [
+      { id: "pipeline", name: "Pipeline", area: "ehukai" },
+      { id: "backdoor", name: "Backdoor", area: "ehukai" },
+      { id: "offthewall", name: "Off the Wall", area: "ehukai" },
+      { id: "ehukai", name: "Ehukai", area: "ehukai" },
+      { id: "sunset", name: "Sunset Beach", area: "north" },
+      { id: "waimea", name: "Waimea Bay", area: "north" },
+      { id: "rocky", name: "Rocky Point", area: "north" },
+      { id: "velzyland", name: "Velzyland", area: "north" },
+      { id: "laniakea", name: "Laniakea", area: "haleiwa" },
+      { id: "haleiwa", name: "Haleʻiwa", area: "haleiwa" },
+      { id: "chun", name: "Chun's Reef", area: "haleiwa" },
+      { id: "logcabins", name: "Log Cabins", area: "north" },
+      { id: "gaschambers", name: "Gas Chambers", area: "ehukai" },
+      { id: "pupukea", name: "Pūpūkea", area: "north" },
+      { id: "leftovers", name: "Leftovers", area: "haleiwa" },
+      { id: "waterfall", name: "Waterhouses", area: "haleiwa" }
+    ];
+    const NORTH_SHORE_BY_ID = NORTH_SHORE.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const NORTH_SHORE_QUICK = [
+      ["All", NORTH_SHORE.map(function (x) { return x.id; })],
+      ["Ehukai / Pipe", NORTH_SHORE.filter(function (x) { return x.area === "ehukai"; }).map(function (x) { return x.id; })],
+      ["Sunset side", NORTH_SHORE.filter(function (x) { return x.area === "north"; }).map(function (x) { return x.id; })],
+      ["Haleʻiwa side", NORTH_SHORE.filter(function (x) { return x.area === "haleiwa"; }).map(function (x) { return x.id; })]
+    ];
+    const NORTH_SHORE_PROMPTS = [
+      { id: "pipeline", ask: "Which famous Ehukai reef break is also called Banzai Pipeline?" },
+      { id: "pipeline", ask: "Which North Shore spot is known for hollow, powerful right-hand tubes in winter?" },
+      { id: "backdoor", ask: "Which peak breaks the other direction from Pipeline (a left) at the same reef?" },
+      { id: "offthewall", ask: "Which nearby Ehukai peak sits just west of Pipeline and is also for skilled surfers?" },
+      { id: "ehukai", ask: "Which beach park sits in front of Pipeline and is a popular North Shore viewing spot?" },
+      { id: "sunset", ask: "Which long sandy beach is famous for big winter contests and a powerful shorebreak?" },
+      { id: "sunset", ask: "Which North Shore beach shares its name with a famous sunset view and pro surf events?" },
+      { id: "waimea", ask: "Which wide bay is known for huge winter surf and a big jump-rock on calm summer days?" },
+      { id: "waimea", ask: "Which North Shore bay hosts some of the biggest rideable waves when the swell is enormous?" },
+      { id: "rocky", ask: "Which peak between Sunset and Pipeline is popular with shortboarders and photographers?" },
+      { id: "velzyland", ask: "Which reef break east of Sunset is nicknamed V-Land and known for a long right?" },
+      { id: "laniakea", ask: "Which break near Haleʻiwa is famous for turtles on shore and a long right-hand wave?" },
+      { id: "haleiwa", ask: "Which harbor-town break is closest to Haleʻiwa town and Aliʻi Beach Park?" },
+      { id: "haleiwa", ask: "Which North Shore spot is near the harbor and often friendlier than Pipeline for intermediates?" },
+      { id: "chun", ask: "Which reef named after a family is between Waimea and Haleʻiwa and works on many swells?" },
+      { id: "logcabins", ask: "Which Sunset-area reef break is named after old cabins that once stood nearby?" },
+      { id: "gaschambers", ask: "Which shallow Ehukai reef near Pipeline is known for thick, heavy tubes?" },
+      { id: "pupukea", ask: "Which area near Shark's Cove is also a North Shore surf zone by the Foodland side?" },
+      { id: "leftovers", ask: "Which Haleʻiwa-side reef is jokingly named for waves that are 'left over' from other peaks?" },
+      { id: "waterfall", ask: "Which Haleʻiwa-area spot is also called Waterhouses and is near the harbor entrance?" }
+    ];
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -743,7 +791,8 @@
       { id: "synonym", label: "Synonyms & Antonyms" },
       { id: "piano", label: "Piano Notes" },
       { id: "instrument", label: "Instruments" },
-      { id: "vehicle", label: "Vehicles" }
+      { id: "vehicle", label: "Vehicles" },
+      { id: "northshore", label: "North Shore" }
     ];
 
     const state = {
@@ -831,6 +880,7 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
+    function isNorthShore() { return state.operation === "northshore"; }
     function isVehicle() { return state.operation === "vehicle"; }
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
@@ -852,6 +902,7 @@
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
+    function defaultNorthShoreTables() { return NORTH_SHORE.map(function (x) { return x.id; }); }
     function defaultVehicleTables() { return VEHICLES.map(function (x) { return x.id; }); }
     function defaultInstrumentTables() { return INSTRUMENTS.map(function (x) { return x.id; }); }
     function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
@@ -865,6 +916,7 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
+      if (op === "northshore") return defaultNorthShoreTables();
       if (op === "vehicle") return defaultVehicleTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
@@ -903,6 +955,7 @@
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
+    function selectedNorthShore() { return selectedById(NORTH_SHORE, NORTH_SHORE_BY_ID); }
     function selectedVehicles() { return selectedById(VEHICLES, VEHICLE_BY_ID); }
     function selectedInstruments() { return selectedById(INSTRUMENTS, INSTRUMENT_BY_ID); }
     function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
@@ -1328,36 +1381,48 @@
     function buildVehicle(avoid) {
       const pool = selectedVehicles();
       const bodies = pool.length ? pool : VEHICLES.slice();
-
       const extras = [];
-      const famLabel = VEHICLE_TYPE;
-      bodies.forEach(function (item) {
-        const fam = item.type;
-        const label = famLabel[fam] || fam;
+      ["land", "water", "air"].forEach(function (t) {
+        const matches = bodies.filter(function (v) { return v.type === t; });
+        if (!matches.length || bodies.length < 4) return;
         extras.push({
-          id: item.id,
-          ask: "Which family is the " + item.name + " in?",
-          key: "vehicle:fam:" + item.id,
-          dir: "toFamily",
-          familyAnswer: label
+          key: "vehicle:type:" + t,
+          build: function (pool) {
+            const body = matches[Math.floor(Math.random() * matches.length)];
+            const label = VEHICLE_TYPE[t];
+            return {
+              operation: "vehicle", id: body.id,
+              ask: "Which of these is a " + label.toLowerCase() + " vehicle?",
+              answer: body.name,
+              key: "vehicle:type:" + t,
+              choices: nameChoices(
+                body.name,
+                pool.map(function (v) { return v.name; }),
+                VEHICLES.map(function (v) { return v.name; })
+              )
+            };
+          }
         });
       });
       return buildClueQuiz({
-        op: "vehicle", pool: bodies, prompts: VEHICLE_PROMPTS.concat(extras), avoid: avoid, byId: VEHICLE_BY_ID,
-        answerOf: function (item, pick) {
-          if (pick && pick.dir === "toFamily") return pick.familyAnswer || famLabel[item.type] || item.type;
-          return item.name;
-        },
+        op: "vehicle", pool: bodies, prompts: VEHICLE_PROMPTS, avoid: avoid, byId: VEHICLE_BY_ID,
+        extra: extras,
+        answerOf: function (item) { return item.name; },
         fallbackAsk: function () { return "Which vehicle is this?"; },
-        choicesFor: function (answer, pool, pick) {
-          if (pick && pick.dir === "toFamily") {
-            const allFam = Object.keys(famLabel).map(function (k) { return famLabel[k]; });
-            const uniq = [];
-            allFam.forEach(function (n) { if (uniq.indexOf(n) < 0) uniq.push(n); });
-            return nameChoices(answer, uniq, uniq);
-          }
+        choicesFor: function (answer, pool) {
           return nameChoices(answer, pool.map(function (b) { return b.name; }), VEHICLES.map(function (b) { return b.name; }));
         }
+      });
+    }
+
+    function buildNorthShore(avoid) {
+      const pool = selectedNorthShore();
+      const bodies = pool.length ? pool : NORTH_SHORE.slice();
+      return buildClueQuiz({
+        op: "northshore", pool: bodies, prompts: NORTH_SHORE_PROMPTS, avoid: avoid, byId: NORTH_SHORE_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function () { return "Which North Shore break is this?"; },
+        choicesFor: function (answer, pool) { return nameChoices(answer, pool.map(function (b) { return b.name; }), NORTH_SHORE.map(function (b) { return b.name; })); }
       });
     }
 
@@ -1561,13 +1626,18 @@
       }
       if (pair.operation === "instrument" && INSTRUMENT_BY_ID[pair.id]) {
         const body = INSTRUMENT_BY_ID[pair.id];
+        const ans = pair.answer || body.name;
+        const famNames = Object.keys(INSTRUMENT_FAMILY).map(function (k) { return INSTRUMENT_FAMILY[k]; });
+        const useFam = famNames.indexOf(ans) >= 0;
         return {
           operation: "instrument", id: body.id,
           ask: pair.ask || "Which instrument is this?",
-          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
-          choices: nameChoices(pair.answer || body.name,
-            selectedInstruments().map(function (b) { return b.name; }),
-            INSTRUMENTS.map(function (b) { return b.name; }))
+          answer: ans, key: pair.key || ("drill:" + body.id),
+          choices: useFam
+            ? nameChoices(ans, famNames, famNames)
+            : nameChoices(ans,
+              selectedInstruments().map(function (b) { return b.name; }),
+              INSTRUMENTS.map(function (b) { return b.name; }))
         };
       }
       if (pair.operation === "vehicle" && VEHICLE_BY_ID[pair.id]) {
@@ -1579,6 +1649,17 @@
           choices: nameChoices(pair.answer || body.name,
             selectedVehicles().map(function (b) { return b.name; }),
             VEHICLES.map(function (b) { return b.name; }))
+        };
+      }
+      if (pair.operation === "northshore" && NORTH_SHORE_BY_ID[pair.id]) {
+        const body = NORTH_SHORE_BY_ID[pair.id];
+        return {
+          operation: "northshore", id: body.id,
+          ask: pair.ask || "Which North Shore break is this?",
+          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(pair.answer || body.name,
+            selectedNorthShore().map(function (b) { return b.name; }),
+            NORTH_SHORE.map(function (b) { return b.name; }))
         };
       }
       if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
@@ -1625,6 +1706,7 @@
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
+        if (isNorthShore()) return buildNorthShore(avoid);
         if (isVehicle()) return buildVehicle(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
@@ -1718,6 +1800,10 @@
         const body = VEHICLE_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
+      if (pair.operation === "northshore" || (isNorthShore() && pair.id)) {
+        const body = NORTH_SHORE_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
       if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
         const item = VOCAB_BY_ID[pair.id];
         const word = pair.word || (item && item.word) || "?";
@@ -1755,7 +1841,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "northshore") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "add") {
@@ -1783,6 +1869,7 @@
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
+      else if (isNorthShore()) tag.textContent = "Practice North Shore Oʻahu surf breaks.";
       else if (isVehicle()) tag.textContent = "Practice types of vehicles.";
       else if (isInstrument()) tag.textContent = "Practice musical instruments.";
       else if (isPiano()) tag.textContent = "Practice piano note names.";
@@ -1985,6 +2072,13 @@
           "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
           "Pick at least one vehicle.",
           true));
+      } else if (isNorthShore()) {
+        stack.appendChild(checklistCard("Surf breaks",
+          NORTH_SHORE.map(function (x) { return { id: x.id, name: x.name }; }),
+          NORTH_SHORE_QUICK,
+          "Famous North Shore Oʻahu surf breaks. Kid-friendly geography clues — big winter waves, not daredevil tips.",
+          "Pick at least one break.",
+          true));
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -2083,6 +2177,7 @@
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
+      if (isNorthShore()) hint = "Name North Shore Oʻahu surf breaks from classroom-safe clues.";
       if (isVehicle()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
@@ -2139,6 +2234,7 @@
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
+      if (isNorthShore()) return "North Shore";
       if (isVehicle()) return "Vehicles";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";

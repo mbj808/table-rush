@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication facts. No account needed." />
+  <meta name="description" content="Practice multiplication and division facts. No account needed." />
   <style>
     :root {
       --bg: #f3eee4;
@@ -90,7 +90,7 @@
     <header>
       <div>
         <h1>Table <span>Rush</span></h1>
-        <p class="sub">Practice multiplication facts.</p>
+        <p class="sub" id="tagline">Practice multiplication and division facts.</p>
       </div>
       <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
     </header>
@@ -107,6 +107,7 @@
     const state = {
       phase: "setup",
       tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      operation: "multiply",
       mode: "product",
       length: "rush",
       problem: null,
@@ -176,12 +177,19 @@
       rest.forEach((n) => { if (picked.length < 3) picked.push(n); });
       return shuffle([answer].concat(picked));
     }
+    function isDivide() { return state.operation === "divide"; }
     function build(a, b, mode) {
       const product = a * b;
-      if (mode === "product") {
-        return { a, b, product, mode, answer: product, key: a + "x" + b, choices: uniqueChoices(product, [a * (b + 1), a * Math.max(1, b - 1), (a + 1) * b, Math.max(1, a - 1) * b, product + a, product - a, product + b, product + 10, product - 1, product + 1]) };
+      if (isDivide()) {
+        if (mode === "quotient") {
+          return { a: a, b: b, product: product, mode: mode, operation: "divide", answer: b, key: a + "/" + b, choices: factorChoices(b, a) };
+        }
+        return { a: a, b: b, product: product, mode: mode, operation: "divide", answer: a, key: a + "/" + b, choices: factorChoices(a, b) };
       }
-      return { a, b, product, mode, answer: b, key: a + "x" + b, choices: factorChoices(b, a) };
+      if (mode === "product") {
+        return { a: a, b: b, product: product, mode: mode, operation: "multiply", answer: product, key: a + "x" + b, choices: uniqueChoices(product, [a * (b + 1), a * Math.max(1, b - 1), (a + 1) * b, Math.max(1, a - 1) * b, product + a, product - a, product + b, product + 10, product - 1, product + 1]) };
+      }
+      return { a: a, b: b, product: product, mode: mode, operation: "multiply", answer: b, key: a + "x" + b, choices: factorChoices(b, a) };
     }
     function makeProblem(avoid) {
       const tables = state.tables.length ? state.tables : [2];
@@ -205,7 +213,22 @@
       }
       return problem;
     }
-    function factLabel(pair) { return pair.a + " × " + pair.b + " = " + (pair.a * pair.b); }
+    function factLabel(pair) {
+      if (isDivide() || pair.operation === "divide") {
+        return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
+      }
+      return pair.a + " × " + pair.b + " = " + (pair.a * pair.b);
+    }
+    function spokenFact(pair) {
+      if (isDivide() || pair.operation === "divide") {
+        return (pair.a * pair.b) + " divided by " + pair.a + " is " + pair.b + ".";
+      }
+      return pair.a + " times " + pair.b + " is " + pair.product + ".";
+    }
+    function updateTagline() {
+      const tag = document.getElementById("tagline");
+      if (tag) tag.textContent = isDivide() ? "Practice division facts." : "Practice multiplication facts.";
+    }
     function formatMs(ms) {
       const total = Math.max(0, Math.ceil(ms / 1000));
       return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
@@ -238,7 +261,7 @@
     function uniqueMisses() {
       const seen = new Set();
       return state.misses.filter(function (pair) {
-        const key = pair.a + "x" + pair.b;
+        const key = (pair.operation || state.operation) === "divide" ? pair.a + "/" + pair.b : pair.a + "x" + pair.b;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -265,6 +288,7 @@
       mute.textContent = state.muted ? "Sound" : "Mute";
       mute.setAttribute("aria-label", state.muted ? "Unmute sounds" : "Mute sounds");
       mute.setAttribute("aria-pressed", String(state.muted));
+      updateTagline();
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       else renderResults(app);
@@ -274,9 +298,10 @@
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
+      stack.appendChild(operationCard());
       const tables = el("div", { class: "card" });
       const head = el("div", { class: "row" });
-      head.appendChild(el("p", { class: "label", text: "Tables" }));
+      head.appendChild(el("p", { class: "label", text: isDivide() ? "÷ Tables" : "× Tables" }));
       if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
       tables.appendChild(head);
       const quick = el("div", { class: "row" });
@@ -302,14 +327,40 @@
       stack.appendChild(roundCard());
       app.appendChild(stack);
     }
+    function setOperation(op) {
+      state.operation = op;
+      if (op === "divide") {
+        if (state.mode === "product" || state.mode === "factor") state.mode = state.mode === "factor" ? "divisor" : "quotient";
+      } else {
+        if (state.mode === "quotient" || state.mode === "divisor") state.mode = state.mode === "divisor" ? "factor" : "product";
+      }
+      render();
+    }
+    function operationCard() {
+      const card = el("div", { class: "card" });
+      card.appendChild(el("p", { class: "label", text: "Operation" }));
+      const row = el("div", { class: "split2" });
+      row.appendChild(button("Multiplication", "choice", !isDivide(), function () { setOperation("multiply"); }));
+      row.appendChild(button("Division", "choice", isDivide(), function () { setOperation("divide"); }));
+      card.appendChild(row);
+      card.appendChild(el("p", { class: "hint", text: isDivide() ? "Even facts only: dividend ÷ divisor with whole-number answers." : "Classic multiplication table facts." }));
+      return card;
+    }
     function modeCard() {
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Ask for" }));
       const row = el("div", { class: "split2" });
-      row.appendChild(button("The product", "choice", state.mode === "product", function () { state.mode = "product"; render(); }));
-      row.appendChild(button("Missing factor", "choice", state.mode === "factor", function () { state.mode = "factor"; render(); }));
-      card.appendChild(row);
-      card.appendChild(el("p", { class: "hint", text: state.mode === "product" ? "See 7 × 8 and choose 56." : "See 7 × ? = 56 and choose 8." }));
+      if (isDivide()) {
+        row.appendChild(button("The quotient", "choice", state.mode === "quotient", function () { state.mode = "quotient"; render(); }));
+        row.appendChild(button("Missing divisor", "choice", state.mode === "divisor", function () { state.mode = "divisor"; render(); }));
+        card.appendChild(row);
+        card.appendChild(el("p", { class: "hint", text: state.mode === "quotient" ? "See 56 ÷ 7 and choose 8." : "See 56 ÷ ? = 8 and choose 7." }));
+      } else {
+        row.appendChild(button("The product", "choice", state.mode === "product", function () { state.mode = "product"; render(); }));
+        row.appendChild(button("Missing factor", "choice", state.mode === "factor", function () { state.mode = "factor"; render(); }));
+        card.appendChild(row);
+        card.appendChild(el("p", { class: "hint", text: state.mode === "product" ? "See 7 × 8 and choose 56." : "See 7 × ? = 56 and choose 8." }));
+      }
       return card;
     }
     function roundCard() {
@@ -333,14 +384,27 @@
       hud.appendChild(el("span", { text: clock }));
       app.appendChild(hud);
       const eq = el("div", { class: "card eq" });
-      eq.appendChild(el("p", { class: "label", text: state.mode === "product" ? "What is the product?" : "What number is missing?" }));
+      const askLabel = isDivide()
+        ? (state.mode === "quotient" ? "What is the quotient?" : "What number is missing?")
+        : (state.mode === "product" ? "What is the product?" : "What number is missing?");
+      eq.appendChild(el("p", { class: "label", text: askLabel }));
       const line = el("p", { class: "prompt" });
-      line.appendChild(document.createTextNode(String(problem.a)));
-      line.appendChild(el("span", { class: "times", text: "×" }));
-      if (state.mode === "product") line.appendChild(document.createTextNode(String(problem.b)));
-      else {
-        line.appendChild(el("span", { class: "times", text: "?" }));
-        line.appendChild(document.createTextNode(" = " + problem.product));
+      if (isDivide()) {
+        line.appendChild(document.createTextNode(String(problem.product)));
+        line.appendChild(el("span", { class: "times", text: "÷" }));
+        if (state.mode === "quotient") line.appendChild(document.createTextNode(String(problem.a)));
+        else {
+          line.appendChild(el("span", { class: "times", text: "?" }));
+          line.appendChild(document.createTextNode(" = " + problem.b));
+        }
+      } else {
+        line.appendChild(document.createTextNode(String(problem.a)));
+        line.appendChild(el("span", { class: "times", text: "×" }));
+        if (state.mode === "product") line.appendChild(document.createTextNode(String(problem.b)));
+        else {
+          line.appendChild(el("span", { class: "times", text: "?" }));
+          line.appendChild(document.createTextNode(" = " + problem.product));
+        }
       }
       eq.appendChild(line);
       const locked = performance.now() < state.lockUntil;
@@ -403,6 +467,11 @@
     function start(pairs) {
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
+      if (isDivide()) {
+        if (state.mode !== "quotient" && state.mode !== "divisor") state.mode = "quotient";
+      } else if (state.mode !== "product" && state.mode !== "factor") {
+        state.mode = "product";
+      }
       state.drill = pairs;
       state.score = 0;
       state.streak = 0;
@@ -448,12 +517,12 @@
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
         state.correct += 1;
-        say("Correct. " + problem.a + " times " + problem.b + " is " + problem.product + ".");
+        say("Correct. " + spokenFact(problem));
       } else {
         state.streak = 0;
         state.gain = null;
-        state.misses.push({ a: problem.a, b: problem.b });
-        say("Not quite. " + problem.a + " times " + problem.b + " is " + problem.product + ".");
+        state.misses.push({ a: problem.a, b: problem.b, operation: problem.operation || state.operation });
+        say("Not quite. " + spokenFact(problem));
       }
       render();
       feedback = setTimeout(function () {

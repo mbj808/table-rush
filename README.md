@@ -5,6 +5,7 @@ A one-page multiplication, division, facts, vocab, and rhyming game. Open `index
 ## Modes
 
 - **Multiplication** / **Division** — classic table facts (product, factor, quotient, divisor).
+- **Addition** / **Subtraction** — addends 0–12 (chips 0–5 / 0–10 / 0–12); ask for sum or missing addend; subtraction uses even facts so differences stay non-negative (difference or missing part).
 - **Oceans** — quiz on five NOAA oceans plus Mediterranean Sea and Caribbean Sea (seas labeled so kids know they aren't oceans). Clue → name, always 4 choices.
 - **Sports** — kid-friendly ball sports and a few more (basketball, soccer, baseball, tennis, golf, volleyball, hockey, football, cricket, rugby, swimming, track, gymnastics, skating, skiing, boxing). Clue → sport name.
 - **Hawaiian Islands** — the eight main islands with nicknames and landmark clues.

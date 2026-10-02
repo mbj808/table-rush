@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms. No account needed." />
+  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -161,6 +161,11 @@
       ["2–5", [2, 3, 4, 5]],
       ["6–9", [6, 7, 8, 9]],
       ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
+    ];
+    const QUICK_ADD = [
+      ["0–5", [0, 1, 2, 3, 4, 5]],
+      ["0–10", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+      ["0–12", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
     ];
     const OCEAN_BODIES = [
       { id: "pacific", name: "Pacific Ocean", kind: "ocean" },
@@ -550,6 +555,8 @@
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
+      { id: "add", label: "Addition" },
+      { id: "subtract", label: "Subtraction" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
       { id: "hawaii", label: "Hawaiian Islands" },
@@ -635,6 +642,8 @@
       return shuffle([answer].concat(picked));
     }
     function isDivide() { return state.operation === "divide"; }
+    function isAdd() { return state.operation === "add"; }
+    function isSubtract() { return state.operation === "subtract"; }
     function isOcean() { return state.operation === "ocean"; }
     function isSport() { return state.operation === "sport"; }
     function isHawaii() { return state.operation === "hawaii"; }
@@ -644,10 +653,15 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
-    function isMath() { return state.operation === "multiply" || state.operation === "divide"; }
+    function isMath() {
+      return state.operation === "multiply" || state.operation === "divide"
+        || state.operation === "add" || state.operation === "subtract";
+    }
+    function isTimesDivide() { return state.operation === "multiply" || state.operation === "divide"; }
     function isQuiz() { return !isMath(); }
 
     function defaultMathTables() { return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; }
+    function defaultAddTables() { return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; }
     function defaultOceanTables() { return OCEAN_BODIES.map(function (b) { return b.id; }); }
     function defaultSportTables() { return SPORTS.map(function (s) { return s.id; }); }
     function defaultHawaiiTables() { return HAWAII_ISLANDS.map(function (s) { return s.id; }); }
@@ -667,6 +681,7 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
+      if (op === "add" || op === "subtract") return defaultAddTables();
       return defaultMathTables();
     }
 
@@ -1118,7 +1133,54 @@
       };
     }
 
+
+    function addendChoices(answer, other, maxN) {
+      const max = maxN == null ? 12 : maxN;
+      const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter(function (n, i, all) {
+        return n >= 0 && n <= max && n !== answer && all.indexOf(n) === i;
+      });
+      const rest = shuffle([]);
+      for (let n = 0; n <= max; n++) {
+        if (n !== answer && near.indexOf(n) < 0) rest.push(n);
+      }
+      const shuffledRest = shuffle(rest);
+      const picked = shuffle(near).slice(0, 3);
+      shuffledRest.forEach(function (n) { if (picked.length < 3) picked.push(n); });
+      return shuffle([answer].concat(picked));
+    }
+    function sumChoices(answer, a, b) {
+      return uniqueChoices(answer, [
+        a + b + 1, a + b - 1, a + (b + 1), (a + 1) + b,
+        Math.max(0, a + b - 2), a + b + 2, a * b, Math.abs(a - b), a + 10, b + 10
+      ].filter(function (n) { return Number.isInteger(n) && n >= 0; }));
+    }
+
     function build(a, b, mode) {
+      if (isAdd()) {
+        const sum = a + b;
+        if (mode === "addend") {
+          return { a: a, b: b, sum: sum, mode: mode, operation: "add", answer: b, key: a + "+" + b, choices: addendChoices(b, a, 12) };
+        }
+        return { a: a, b: b, sum: sum, mode: mode, operation: "add", answer: sum, key: a + "+" + b, choices: sumChoices(sum, a, b) };
+      }
+      if (isSubtract()) {
+        // Even facts: minuend = a + b, subtrahend = a, difference = b (non-negative)
+        const minuend = a + b;
+        const subtrahend = a;
+        const difference = b;
+        if (mode === "missing") {
+          return {
+            a: minuend, b: subtrahend, difference: difference, mode: mode, operation: "subtract",
+            answer: subtrahend, key: minuend + "-" + subtrahend,
+            choices: addendChoices(subtrahend, difference, minuend)
+          };
+        }
+        return {
+          a: minuend, b: subtrahend, difference: difference, mode: mode, operation: "subtract",
+          answer: difference, key: minuend + "-" + subtrahend,
+          choices: addendChoices(difference, subtrahend, minuend)
+        };
+      }
       const product = a * b;
       if (isDivide()) {
         if (mode === "quotient") {
@@ -1255,9 +1317,21 @@
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
       }
-      const tables = state.tables.length ? state.tables : [2];
+      const tables = state.tables.length ? state.tables : (isAdd() || isSubtract() ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2]);
       let a = tables[Math.floor(Math.random() * tables.length)];
-      let b = 1 + Math.floor(Math.random() * 12);
+      let b;
+      if (isAdd() || isSubtract()) {
+        const maxB = Math.max.apply(null, tables.concat([0]));
+        const poolB = [];
+        for (let n = 0; n <= Math.max(maxB, 12); n++) poolB.push(n);
+        // Prefer second addend also from selected set when possible
+        const fromTables = tables.slice();
+        b = fromTables.length
+          ? fromTables[Math.floor(Math.random() * fromTables.length)]
+          : poolB[Math.floor(Math.random() * poolB.length)];
+      } else {
+        b = 1 + Math.floor(Math.random() * 12);
+      }
       if (state.drill && state.drill.length) {
         const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
         a = pair.a;
@@ -1270,7 +1344,12 @@
           const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
           a = pair.a;
           b = pair.b;
-        } else if (!state.drill) b = 1 + Math.floor(Math.random() * 12);
+        } else if (!state.drill) {
+          if (isAdd() || isSubtract()) {
+            b = tables[Math.floor(Math.random() * tables.length)];
+            a = tables[Math.floor(Math.random() * tables.length)];
+          } else b = 1 + Math.floor(Math.random() * 12);
+        }
         problem = build(a, b, state.mode);
         guard += 1;
       }
@@ -1321,6 +1400,13 @@
         const tag = (pair.kind || (item && item.kind)) === "antonym" ? "opposite" : "same";
         return word + " → " + (pair.answer || (item && item.answer) || "?") + " (" + tag + ")";
       }
+      if (pair.operation === "add" || (isAdd() && pair.a != null && pair.sum != null)) {
+        return pair.a + " + " + pair.b + " = " + (pair.sum != null ? pair.sum : (pair.a + pair.b));
+      }
+      if (pair.operation === "subtract" || (isSubtract() && pair.a != null)) {
+        const diff = pair.difference != null ? pair.difference : (pair.a - pair.b);
+        return pair.a + " − " + pair.b + " = " + diff;
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
       }
@@ -1348,6 +1434,13 @@
       if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
+      if (op === "add") {
+        return pair.a + " plus " + pair.b + " is " + (pair.sum != null ? pair.sum : (pair.a + pair.b)) + ".";
+      }
+      if (op === "subtract") {
+        const diff = pair.difference != null ? pair.difference : (pair.a - pair.b);
+        return pair.a + " minus " + pair.b + " is " + diff + ".";
+      }
       if (isDivide() || op === "divide") {
         return (pair.a * pair.b) + " divided by " + pair.a + " is " + pair.b + ".";
       }
@@ -1367,6 +1460,8 @@
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
+      else if (isAdd()) tag.textContent = "Practice addition facts.";
+      else if (isSubtract()) tag.textContent = "Practice subtraction facts.";
       else tag.textContent = "Practice multiplication facts.";
     }
 
@@ -1406,6 +1501,8 @@
         let key;
         if (op === "multiply") key = pair.a + "x" + pair.b;
         else if (op === "divide") key = pair.a + "/" + pair.b;
+        else if (op === "add") key = pair.a + "+" + pair.b;
+        else if (op === "subtract") key = pair.a + "-" + pair.b;
         else key = op + ":" + (pair.id || pair.answer);
         if (seen.has(key)) return false;
         seen.add(key);
@@ -1554,16 +1651,19 @@
       } else {
         const tables = el("div", { class: "card" });
         const head = el("div", { class: "row" });
-        head.appendChild(el("p", { class: "label", text: isDivide() ? "÷ Tables" : "× Tables" }));
+        const tableLabel = isAdd() ? "+ Addends" : isSubtract() ? "− Numbers" : isDivide() ? "÷ Tables" : "× Tables";
+        head.appendChild(el("p", { class: "label", text: tableLabel }));
         if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
         tables.appendChild(head);
         const quick = el("div", { class: "row" });
-        QUICK.forEach(function (set) {
+        const quickSets = (isAdd() || isSubtract()) ? QUICK_ADD : QUICK;
+        quickSets.forEach(function (set) {
           quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
         });
         tables.appendChild(quick);
         const grid = el("div", { class: "grid6" });
-        for (let n = 1; n <= 12; n++) {
+        const startN = (isAdd() || isSubtract()) ? 0 : 1;
+        for (let n = startN; n <= 12; n++) {
           const value = n;
           grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
             const i = state.tables.indexOf(value);
@@ -1574,7 +1674,7 @@
           }));
         }
         tables.appendChild(grid);
-        if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one table." }));
+        if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one number." }));
         stack.appendChild(tables);
       }
 
@@ -1585,15 +1685,32 @@
 
     function setOperation(op) {
       const wasMath = isMath();
-      const willMath = op === "multiply" || op === "divide";
+      const willMath = op === "multiply" || op === "divide" || op === "add" || op === "subtract";
+      const wasAddSub = state.operation === "add" || state.operation === "subtract";
+      const willAddSub = op === "add" || op === "subtract";
       if (wasMath && !willMath) state.tables = defaultTablesFor(op);
-      else if (!wasMath && willMath) state.tables = defaultMathTables();
+      else if (!wasMath && willMath) state.tables = defaultTablesFor(op);
+      else if (wasAddSub !== willAddSub && willMath) state.tables = defaultTablesFor(op);
       else if (!wasMath && !willMath && state.operation !== op) state.tables = defaultTablesFor(op);
+      else if (wasMath && willMath && ((wasAddSub && !willAddSub) || (!wasAddSub && willAddSub))) state.tables = defaultTablesFor(op);
+      else if (wasMath && willMath && state.operation !== op && willAddSub && wasAddSub) { /* keep range */ }
       state.operation = op;
       if (op === "divide") {
         if (state.mode === "product" || state.mode === "factor") state.mode = state.mode === "factor" ? "divisor" : "quotient";
+        else if (state.mode === "sum" || state.mode === "addend") state.mode = state.mode === "addend" ? "divisor" : "quotient";
+        else if (state.mode === "difference" || state.mode === "missing") state.mode = state.mode === "missing" ? "divisor" : "quotient";
       } else if (op === "multiply") {
         if (state.mode === "quotient" || state.mode === "divisor") state.mode = state.mode === "divisor" ? "factor" : "product";
+        else if (state.mode === "sum" || state.mode === "addend") state.mode = state.mode === "addend" ? "factor" : "product";
+        else if (state.mode === "difference" || state.mode === "missing") state.mode = state.mode === "missing" ? "factor" : "product";
+      } else if (op === "add") {
+        if (state.mode === "product" || state.mode === "quotient" || state.mode === "difference") state.mode = "sum";
+        else if (state.mode === "factor" || state.mode === "divisor" || state.mode === "missing") state.mode = "addend";
+        else if (state.mode !== "sum" && state.mode !== "addend") state.mode = "sum";
+      } else if (op === "subtract") {
+        if (state.mode === "product" || state.mode === "quotient" || state.mode === "sum") state.mode = "difference";
+        else if (state.mode === "factor" || state.mode === "divisor" || state.mode === "addend") state.mode = "missing";
+        else if (state.mode !== "difference" && state.mode !== "missing") state.mode = "difference";
       }
       render();
     }
@@ -1608,6 +1725,8 @@
       card.appendChild(row);
       let hint = "Classic multiplication table facts.";
       if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
+      if (isAdd()) hint = "Practice sums with addends from your selected range (0–12).";
+      if (isSubtract()) hint = "Even facts only: minuend − subtrahend with non-negative answers.";
       if (isOcean()) hint = "Name oceans and seas from clues. Seas are labeled so kids know they aren't oceans.";
       if (isSport()) hint = "Name sports from kid-friendly clues. Four choices each time.";
       if (isHawaii()) hint = "Name the main Hawaiian Islands from clues.";
@@ -1630,6 +1749,16 @@
         row.appendChild(button("Missing divisor", "choice", state.mode === "divisor", function () { state.mode = "divisor"; render(); }));
         card.appendChild(row);
         card.appendChild(el("p", { class: "hint", text: state.mode === "quotient" ? "See 56 ÷ 7 and choose 8." : "See 56 ÷ ? = 8 and choose 7." }));
+      } else if (isAdd()) {
+        row.appendChild(button("The sum", "choice", state.mode === "sum", function () { state.mode = "sum"; render(); }));
+        row.appendChild(button("Missing addend", "choice", state.mode === "addend", function () { state.mode = "addend"; render(); }));
+        card.appendChild(row);
+        card.appendChild(el("p", { class: "hint", text: state.mode === "addend" ? "See 7 + ? = 15 and choose 8." : "See 7 + 8 and choose 15." }));
+      } else if (isSubtract()) {
+        row.appendChild(button("The difference", "choice", state.mode === "difference", function () { state.mode = "difference"; render(); }));
+        row.appendChild(button("Missing part", "choice", state.mode === "missing", function () { state.mode = "missing"; render(); }));
+        card.appendChild(row);
+        card.appendChild(el("p", { class: "hint", text: state.mode === "missing" ? "See 15 − ? = 8 and choose 7." : "See 15 − 7 and choose 8." }));
       } else {
         row.appendChild(button("The product", "choice", state.mode === "product", function () { state.mode = "product"; render(); }));
         row.appendChild(button("Missing factor", "choice", state.mode === "factor", function () { state.mode = "factor"; render(); }));
@@ -1690,9 +1819,11 @@
         }
         eq.appendChild(el("p", { class: "prompt quiz-prompt", text: problem.ask }));
       } else {
-        const askLabel = isDivide()
-          ? (state.mode === "quotient" ? "What is the quotient?" : "What number is missing?")
-          : (state.mode === "product" ? "What is the product?" : "What number is missing?");
+        let askLabel = "What is the product?";
+        if (isDivide()) askLabel = state.mode === "quotient" ? "What is the quotient?" : "What number is missing?";
+        else if (isAdd()) askLabel = state.mode === "sum" ? "What is the sum?" : "What number is missing?";
+        else if (isSubtract()) askLabel = state.mode === "difference" ? "What is the difference?" : "What number is missing?";
+        else if (state.mode === "factor") askLabel = "What number is missing?";
         eq.appendChild(el("p", { class: "label", text: askLabel }));
         const line = el("p", { class: "prompt" });
         if (isDivide()) {
@@ -1702,6 +1833,22 @@
           else {
             line.appendChild(el("span", { class: "times", text: "?" }));
             line.appendChild(document.createTextNode(" = " + problem.b));
+          }
+        } else if (isAdd()) {
+          line.appendChild(document.createTextNode(String(problem.a)));
+          line.appendChild(el("span", { class: "times", text: "+" }));
+          if (state.mode === "sum") line.appendChild(document.createTextNode(String(problem.b)));
+          else {
+            line.appendChild(el("span", { class: "times", text: "?" }));
+            line.appendChild(document.createTextNode(" = " + problem.sum));
+          }
+        } else if (isSubtract()) {
+          line.appendChild(document.createTextNode(String(problem.a)));
+          line.appendChild(el("span", { class: "times", text: "−" }));
+          if (state.mode === "difference") line.appendChild(document.createTextNode(String(problem.b)));
+          else {
+            line.appendChild(el("span", { class: "times", text: "?" }));
+            line.appendChild(document.createTextNode(" = " + problem.difference));
           }
         } else {
           line.appendChild(document.createTextNode(String(problem.a)));
@@ -1780,6 +1927,10 @@
         /* quiz modes have no product/factor modes */
       } else if (isDivide()) {
         if (state.mode !== "quotient" && state.mode !== "divisor") state.mode = "quotient";
+      } else if (isAdd()) {
+        if (state.mode !== "sum" && state.mode !== "addend") state.mode = "sum";
+      } else if (isSubtract()) {
+        if (state.mode !== "difference" && state.mode !== "missing") state.mode = "difference";
       } else if (state.mode !== "product" && state.mode !== "factor") {
         state.mode = "product";
       }
@@ -1832,11 +1983,17 @@
       } else {
         state.streak = 0;
         state.gain = null;
-        if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide")) {
+        if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,
-            kind: problem.kind, key: problem.key,
+            kind: problem.kind, key: problem.key, word: problem.word,
             operation: problem.operation || state.operation
+          });
+        } else if (problem.operation === "subtract" || (isSubtract() && problem.difference != null)) {
+          // Rebuild uses addend-style pair: subtrahend + difference = minuend
+          state.misses.push({
+            a: problem.b, b: problem.difference,
+            operation: "subtract"
           });
         } else {
           state.misses.push({ a: problem.a, b: problem.b, operation: problem.operation || state.operation });

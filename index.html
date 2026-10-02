@@ -62,7 +62,24 @@
       background: var(--coral); color: var(--ink); font-size: 1.1rem; font-weight: 800;
     }
     .start:disabled { opacity: 0.4; }
-    .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 1rem; }
+    .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.65rem; }
+    .timebar-wrap { margin-bottom: 1rem; }
+    .timebar {
+      height: 0.7rem; border-radius: 999px; background: var(--sand);
+      border: 1px solid var(--line); overflow: hidden;
+    }
+    .timebar-fill {
+      display: block; height: 100%; width: 100%;
+      background: linear-gradient(90deg, var(--coral), #ff9a6b);
+      border-radius: 999px;
+      transform-origin: left center;
+      will-change: width;
+    }
+    .timebar-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.75rem; font-weight: 800; color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
     .eq { text-align: center; padding: 2rem 1rem; }
     .prompt { font-family: Georgia, serif; font-size: 3rem; margin: 0.4rem 0 0; line-height: 1; }
     .times { color: var(--coral); padding: 0 0.35rem; }
@@ -156,7 +173,7 @@
   </main>
   <script>
     const SAVE_KEY = "table-rush-v1";
-    const RUSH_MS = 60000;
+    const RUSH_MS = 48000;
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
       ["6–9", [6, 7, 8, 9]],
@@ -820,6 +837,8 @@
     let audioCtx = null;
     let homeMusic = null;
     let homeMusicUnlockBound = false;
+    let playMusic = null;
+    let playMusicUnlockBound = false;
     let timer = 0;
     let feedback = 0;
 
@@ -1977,17 +1996,88 @@
       bindHomeMusicUnlock();
       tryPlayHomeMusic();
     }
+    function playMusicSrc() {
+      try {
+        return new URL("assets/audio/play.mp3", document.baseURI || window.location.href).href;
+      } catch (_) {
+        return "assets/audio/play.mp3";
+      }
+    }
+    function ensurePlayMusic() {
+      if (playMusic) return playMusic;
+      playMusic = new Audio(playMusicSrc());
+      playMusic.loop = true;
+      playMusic.preload = "auto";
+      playMusic.volume = 0.55;
+      playMusic.playsInline = true;
+      playMusic.setAttribute("playsinline", "");
+      playMusic.setAttribute("webkit-playsinline", "");
+      return playMusic;
+    }
+    function unbindPlayMusicUnlock() {
+      if (!playMusicUnlockBound) return;
+      document.removeEventListener("pointerdown", unlockPlayMusic, true);
+      document.removeEventListener("keydown", unlockPlayMusic, true);
+      playMusicUnlockBound = false;
+    }
+    function unlockPlayMusic(event) {
+      if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
+      syncPlayMusic();
+    }
+    function bindPlayMusicUnlock() {
+      if (playMusicUnlockBound) return;
+      playMusicUnlockBound = true;
+      document.addEventListener("pointerdown", unlockPlayMusic, true);
+      document.addEventListener("keydown", unlockPlayMusic, true);
+    }
+    function tryPlayPlayMusic() {
+      const audio = ensurePlayMusic();
+      const playAttempt = audio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(function () {
+          unbindPlayMusicUnlock();
+          updateMuteButton();
+        }).catch(function () { bindPlayMusicUnlock(); });
+      } else if (!audio.paused) {
+        unbindPlayMusicUnlock();
+        updateMuteButton();
+      } else {
+        bindPlayMusicUnlock();
+      }
+    }
+    function syncPlayMusic() {
+      const audio = ensurePlayMusic();
+      const shouldPlay = state.phase === "play" && !state.muted;
+      if (!shouldPlay) {
+        unbindPlayMusicUnlock();
+        if (!audio.paused) audio.pause();
+        // Rewind when leaving play so the next rush starts at the top with the timer.
+        if (state.phase !== "play") {
+          try { audio.currentTime = 0; } catch (_) {}
+        }
+        return;
+      }
+      if (!audio.paused) {
+        unbindPlayMusicUnlock();
+        return;
+      }
+      bindPlayMusicUnlock();
+      tryPlayPlayMusic();
+    }
     function updateMuteButton() {
       const mute = document.getElementById("mute");
-      const audio = homeMusic;
-      const awaitingGesture = !state.muted && state.phase === "setup" && (!audio || audio.paused);
+      const home = homeMusic;
+      const play = playMusic;
+      const awaitingHome = !state.muted && state.phase === "setup" && (!home || home.paused);
+      const awaitingPlay = !state.muted && state.phase === "play" && (!play || play.paused);
+      const awaitingGesture = awaitingHome || awaitingPlay;
       if (state.muted) {
         mute.textContent = "Unmute";
         mute.setAttribute("aria-label", "Unmute sounds and music");
         mute.setAttribute("aria-pressed", "true");
       } else if (awaitingGesture) {
         mute.textContent = "Music";
-        mute.setAttribute("aria-label", "Play home screen music");
+        mute.setAttribute("aria-label", state.phase === "play" ? "Play game music" : "Play home screen music");
         mute.setAttribute("aria-pressed", "false");
       } else {
         mute.textContent = "Mute";
@@ -2047,6 +2137,7 @@
       else if (state.phase === "play") renderPlay(app);
       else renderResults(app);
       syncHomeMusic();
+      syncPlayMusic();
     }
     function checklistCard(label, items, quick, hint, warn, twoCol) {
       const tables = el("div", { class: "card" });
@@ -2302,7 +2393,7 @@
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Round" }));
       const row = el("div", { class: "split3" });
-      [["rush", "60 sec"], ["ten", "10 facts"], ["practice", "Practice"]].forEach(function (item) {
+      [["rush", "48 sec"], ["ten", "10 facts"], ["practice", "Practice"]].forEach(function (item) {
         row.appendChild(button(item[1], "choice", state.length === item[0], function () { state.length = item[0]; render(); }));
       });
       card.appendChild(row);
@@ -2334,8 +2425,30 @@
       hud.appendChild(score);
       hud.appendChild(el("span", { text: "Streak " + state.streak }));
       const clock = state.length === "rush" ? formatMs(state.msLeft) : state.length === "ten" ? Math.min(state.total, 10) + " / 10" : state.total + " answered";
-      hud.appendChild(el("span", { text: clock }));
+      hud.appendChild(el("span", { id: "rush-clock", text: clock }));
       app.appendChild(hud);
+      if (state.length === "rush") {
+        const secsLeft = Math.max(0, Math.ceil(state.msLeft / 1000));
+        const pct = Math.max(0, Math.min(100, (100 * state.msLeft) / RUSH_MS));
+        const wrap = el("div", { class: "timebar-wrap" });
+        const label = el("div", { class: "timebar-label" });
+        label.appendChild(el("span", { text: "Time left" }));
+        label.appendChild(el("span", { id: "rush-secs", text: secsLeft + "s" }));
+        wrap.appendChild(label);
+        const bar = el("div", {
+          class: "timebar",
+          id: "timebar",
+          role: "progressbar",
+          "aria-label": "Time remaining",
+          "aria-valuemin": "0",
+          "aria-valuemax": String(Math.round(RUSH_MS / 1000)),
+          "aria-valuenow": String(secsLeft),
+          "aria-valuetext": secsLeft + " seconds left"
+        });
+        bar.appendChild(el("span", { class: "timebar-fill", id: "timebar-fill", style: "width:" + pct + "%" }));
+        wrap.appendChild(bar);
+        app.appendChild(wrap);
+      }
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
@@ -2486,13 +2599,30 @@
       render();
       if (state.length === "rush") {
         const startedAt = performance.now();
-        let shown = 60;
+        let shown = Math.ceil(RUSH_MS / 1000);
+        const updateTimeBar = function (left) {
+          state.msLeft = left;
+          const secsLeft = Math.max(0, Math.ceil(left / 1000));
+          const pct = Math.max(0, Math.min(100, (100 * left) / RUSH_MS));
+          const fill = document.getElementById("timebar-fill");
+          const bar = document.getElementById("timebar");
+          const secs = document.getElementById("rush-secs");
+          const clock = document.getElementById("rush-clock");
+          if (fill) fill.style.width = pct + "%";
+          if (bar) {
+            bar.setAttribute("aria-valuenow", String(secsLeft));
+            bar.setAttribute("aria-valuetext", secsLeft + " seconds left");
+          }
+          if (secs) secs.textContent = secsLeft + "s";
+          if (clock) clock.textContent = formatMs(left);
+        };
         const loop = function (now) {
           if (state.phase !== "play") return;
           const left = RUSH_MS - (now - startedAt);
-          if (left <= 0) { state.msLeft = 0; finish(); return; }
+          if (left <= 0) { updateTimeBar(0); finish(); return; }
+          updateTimeBar(left);
           const nextShown = Math.ceil(left / 1000);
-          if (nextShown !== shown) { shown = nextShown; state.msLeft = left; render(); }
+          if (nextShown !== shown) { shown = nextShown; render(); }
           timer = requestAnimationFrame(loop);
         };
         timer = requestAnimationFrame(loop);
@@ -2543,19 +2673,26 @@
     }
     document.getElementById("back").addEventListener("click", backToSetup);
     document.getElementById("mute").addEventListener("click", function () {
-      const audio = ensureHomeMusic();
+      const home = ensureHomeMusic();
+      const play = ensurePlayMusic();
       if (state.muted) {
         // Unmute: this click is the user gesture that must start BGM (esp. iOS).
         state.muted = false;
         writeSave();
         render();
+        if (state.phase === "play") tryPlayPlayMusic();
+        else tryPlayHomeMusic();
+        updateMuteButton();
+        return;
+      }
+      if (state.phase === "setup" && home.paused) {
+        // Not muted, but autoplay blocked — first tap on Music starts BGM without muting.
         tryPlayHomeMusic();
         updateMuteButton();
         return;
       }
-      if (state.phase === "setup" && audio.paused) {
-        // Not muted, but autoplay blocked — first tap on Music starts BGM without muting.
-        tryPlayHomeMusic();
+      if (state.phase === "play" && play.paused) {
+        tryPlayPlayMusic();
         updateMuteButton();
         return;
       }

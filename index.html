@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments. No account needed." />
+  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -662,6 +662,71 @@
       { id: "keyboard", ask: "Which portable keyboard plugs in or uses batteries for class and practice?" }
     ];
 
+    const VEHICLE_TYPE = { land: "Land", water: "Water", air: "Air" };
+    const VEHICLES = [
+      { id: "car", name: "Car", type: "land" },
+      { id: "bus", name: "Bus", type: "land" },
+      { id: "train", name: "Train", type: "land" },
+      { id: "bike", name: "Bicycle", type: "land" },
+      { id: "motorcycle", name: "Motorcycle", type: "land" },
+      { id: "truck", name: "Truck", type: "land" },
+      { id: "ambulance", name: "Ambulance", type: "land" },
+      { id: "firetruck", name: "Fire truck", type: "land" },
+      { id: "police", name: "Police car", type: "land" },
+      { id: "scooter", name: "Scooter", type: "land" },
+      { id: "tractor", name: "Tractor", type: "land" },
+      { id: "subway", name: "Subway", type: "land" },
+      { id: "boat", name: "Boat", type: "water" },
+      { id: "ship", name: "Ship", type: "water" },
+      { id: "sailboat", name: "Sailboat", type: "water" },
+      { id: "canoe", name: "Canoe", type: "water" },
+      { id: "kayak", name: "Kayak", type: "water" },
+      { id: "submarine", name: "Submarine", type: "water" },
+      { id: "ferry", name: "Ferry", type: "water" },
+      { id: "jetski", name: "Jet ski", type: "water" },
+      { id: "plane", name: "Airplane", type: "air" },
+      { id: "helicopter", name: "Helicopter", type: "air" },
+      { id: "hotair", name: "Hot air balloon", type: "air" },
+      { id: "glider", name: "Glider", type: "air" },
+      { id: "rocket", name: "Rocket", type: "air" },
+      { id: "blimp", name: "Blimp", type: "air" }
+    ];
+    const VEHICLE_BY_ID = VEHICLES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const VEHICLE_QUICK = [
+      ["All", VEHICLES.map(function (x) { return x.id; })],
+      ["Land", VEHICLES.filter(function (x) { return x.type === "land"; }).map(function (x) { return x.id; })],
+      ["Water", VEHICLES.filter(function (x) { return x.type === "water"; }).map(function (x) { return x.id; })],
+      ["Air", VEHICLES.filter(function (x) { return x.type === "air"; }).map(function (x) { return x.id; })]
+    ];
+    const VEHICLE_PROMPTS = [
+      { id: "car", ask: "Which land vehicle do many families drive on roads every day?" },
+      { id: "bus", ask: "Which long vehicle picks up many students for school?" },
+      { id: "train", ask: "Which vehicle runs on railroad tracks and can pull many cars?" },
+      { id: "bike", ask: "Which two-wheeled vehicle do you pedal with your feet?" },
+      { id: "motorcycle", ask: "Which two-wheeled motor vehicle is faster than a bicycle?" },
+      { id: "truck", ask: "Which large land vehicle hauls heavy loads and cargo?" },
+      { id: "ambulance", ask: "Which emergency vehicle takes sick or hurt people to the hospital?" },
+      { id: "firetruck", ask: "Which red emergency vehicle carries hoses and ladders to put out fires?" },
+      { id: "police", ask: "Which emergency car helps keep people safe and may flash blue lights?" },
+      { id: "scooter", ask: "Which small ride has a platform for your feet and a handlebar to steer?" },
+      { id: "tractor", ask: "Which farm vehicle pulls plows and has big back wheels?" },
+      { id: "subway", ask: "Which train often runs underground in big cities?" },
+      { id: "boat", ask: "Which water vehicle floats and can be rowed, motored, or sailed?" },
+      { id: "ship", ask: "Which large water vehicle can carry people or cargo across oceans?" },
+      { id: "sailboat", ask: "Which boat moves mainly by catching wind in its sails?" },
+      { id: "canoe", ask: "Which narrow open boat is paddled and often used on lakes and rivers?" },
+      { id: "kayak", ask: "Which covered paddle boat do you sit inside with a double-bladed paddle?" },
+      { id: "submarine", ask: "Which water vehicle can travel under the surface of the ocean?" },
+      { id: "ferry", ask: "Which boat carries cars and people across a harbor or channel on a schedule?" },
+      { id: "jetski", ask: "Which small fast watercraft does a rider sit or stand on like a motorcycle?" },
+      { id: "plane", ask: "Which air vehicle has wings and flies people between cities?" },
+      { id: "helicopter", ask: "Which aircraft can hover in place using spinning rotor blades?" },
+      { id: "hotair", ask: "Which aircraft rises when a burner heats the air inside a big colorful bag?" },
+      { id: "glider", ask: "Which aircraft has no engine and soars on air currents?" },
+      { id: "rocket", ask: "Which vehicle blasts upward with powerful engines to reach space?" },
+      { id: "blimp", ask: "Which long airship is filled with gas and can float slowly across the sky?" }
+    ];
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -677,7 +742,8 @@
       { id: "rhyme", label: "Rhyming" },
       { id: "synonym", label: "Synonyms & Antonyms" },
       { id: "piano", label: "Piano Notes" },
-      { id: "instrument", label: "Instruments" }
+      { id: "instrument", label: "Instruments" },
+      { id: "vehicle", label: "Vehicles" }
     ];
 
     const state = {
@@ -765,6 +831,7 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
+    function isVehicle() { return state.operation === "vehicle"; }
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
     function isMath() {
@@ -785,6 +852,7 @@
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
+    function defaultVehicleTables() { return VEHICLES.map(function (x) { return x.id; }); }
     function defaultInstrumentTables() { return INSTRUMENTS.map(function (x) { return x.id; }); }
     function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
     function defaultTablesFor(op) {
@@ -797,6 +865,7 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
+      if (op === "vehicle") return defaultVehicleTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "add" || op === "subtract") return defaultAddTables();
@@ -834,6 +903,7 @@
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
+    function selectedVehicles() { return selectedById(VEHICLES, VEHICLE_BY_ID); }
     function selectedInstruments() { return selectedById(INSTRUMENTS, INSTRUMENT_BY_ID); }
     function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
 
@@ -1254,6 +1324,43 @@
       });
     }
 
+
+    function buildVehicle(avoid) {
+      const pool = selectedVehicles();
+      const bodies = pool.length ? pool : VEHICLES.slice();
+
+      const extras = [];
+      const famLabel = VEHICLE_TYPE;
+      bodies.forEach(function (item) {
+        const fam = item.type;
+        const label = famLabel[fam] || fam;
+        extras.push({
+          id: item.id,
+          ask: "Which family is the " + item.name + " in?",
+          key: "vehicle:fam:" + item.id,
+          dir: "toFamily",
+          familyAnswer: label
+        });
+      });
+      return buildClueQuiz({
+        op: "vehicle", pool: bodies, prompts: VEHICLE_PROMPTS.concat(extras), avoid: avoid, byId: VEHICLE_BY_ID,
+        answerOf: function (item, pick) {
+          if (pick && pick.dir === "toFamily") return pick.familyAnswer || famLabel[item.type] || item.type;
+          return item.name;
+        },
+        fallbackAsk: function () { return "Which vehicle is this?"; },
+        choicesFor: function (answer, pool, pick) {
+          if (pick && pick.dir === "toFamily") {
+            const allFam = Object.keys(famLabel).map(function (k) { return famLabel[k]; });
+            const uniq = [];
+            allFam.forEach(function (n) { if (uniq.indexOf(n) < 0) uniq.push(n); });
+            return nameChoices(answer, uniq, uniq);
+          }
+          return nameChoices(answer, pool.map(function (b) { return b.name; }), VEHICLES.map(function (b) { return b.name; }));
+        }
+      });
+    }
+
     function vocabDistractors(item, pool) {
       const banned = new Set([item.answer, item.word]);
       const picked = [];
@@ -1463,6 +1570,17 @@
             INSTRUMENTS.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "vehicle" && VEHICLE_BY_ID[pair.id]) {
+        const body = VEHICLE_BY_ID[pair.id];
+        return {
+          operation: "vehicle", id: body.id,
+          ask: pair.ask || "Which vehicle is this?",
+          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(pair.answer || body.name,
+            selectedVehicles().map(function (b) { return b.name; }),
+            VEHICLES.map(function (b) { return b.name; }))
+        };
+      }
       if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
         const item = VOCAB_BY_ID[pair.id];
         const ask = pair.ask || (item.kind === "antonym"
@@ -1507,6 +1625,7 @@
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
+        if (isVehicle()) return buildVehicle(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
       }
@@ -1595,6 +1714,10 @@
         const body = INSTRUMENT_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
+      if (pair.operation === "vehicle" || (isVehicle() && pair.id)) {
+        const body = VEHICLE_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
       if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
         const item = VOCAB_BY_ID[pair.id];
         const word = pair.word || (item && item.word) || "?";
@@ -1660,6 +1783,7 @@
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
+      else if (isVehicle()) tag.textContent = "Practice types of vehicles.";
       else if (isInstrument()) tag.textContent = "Practice musical instruments.";
       else if (isPiano()) tag.textContent = "Practice piano note names.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
@@ -1854,6 +1978,13 @@
           "Orchestra and classroom instruments. Clue → name, or instrument → family.",
           "Pick at least one instrument.",
           true));
+      } else if (isVehicle()) {
+        stack.appendChild(checklistCard("Vehicles",
+          VEHICLES.map(function (x) { return { id: x.id, name: x.name + " · " + VEHICLE_TYPE[x.type] }; }),
+          VEHICLE_QUICK,
+          "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
+          "Pick at least one vehicle.",
+          true));
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -1952,6 +2083,7 @@
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
+      if (isVehicle()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
       card.appendChild(el("p", { class: "hint", text: hint }));
@@ -2007,6 +2139,7 @@
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
+      if (isVehicle()) return "Vehicles";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       return "Quiz";

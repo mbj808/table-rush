@@ -20,4 +20,6 @@ A one-page multiplication, division, facts, vocab, and rhyming game. Open `index
 
 - **Instruments** — ~25 classroom/orchestra instruments; clue → name or instrument → family (strings/woodwind/brass/percussion/keyboard); chips by family.
 
+- **Vehicles** — ~26 land/water/air vehicles; clue → name or vehicle → type; chips by land/water/air.
+
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Rush / 10 facts / Practice rounds and scoring work the same across modes.

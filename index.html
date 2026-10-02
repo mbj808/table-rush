@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication and division facts. No account needed." />
+  <meta name="description" content="Practice multiplication, division, and ocean facts. No account needed." />
   <style>
     :root {
       --bg: #f3eee4;
@@ -82,6 +82,37 @@
     .good { background: var(--forest-soft); color: var(--forest); font-weight: 800; text-align: center; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .warn { color: var(--coral); font-size: 0.9rem; margin: 0.75rem 0 0; }
+    .answers.ocean-answers button {
+      font-size: 1.05rem;
+      min-height: 4.5rem;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 0.65rem 0.5rem;
+    }
+    .prompt.ocean-prompt {
+      font-size: 1.4rem;
+      line-height: 1.3;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-weight: 800;
+    }
+    .grid-oceans {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .grid-oceans .num {
+      height: auto;
+      min-height: 2.75rem;
+      width: 100%;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-align: left;
+      padding: 0.55rem 1rem;
+    }
+    .sea-tag { color: var(--coral); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; margin-left: 0.35rem; }
   </style>
 </head>
 <body>
@@ -90,7 +121,7 @@
     <header>
       <div>
         <h1>Table <span>Rush</span></h1>
-        <p class="sub" id="tagline">Practice multiplication and division facts.</p>
+        <p class="sub" id="tagline">Practice multiplication, division, and ocean facts.</p>
       </div>
       <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
     </header>
@@ -103,6 +134,37 @@
       ["2–5", [2, 3, 4, 5]],
       ["6–9", [6, 7, 8, 9]],
       ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
+    ];
+    const OCEAN_BODIES = [
+      { id: "pacific", name: "Pacific Ocean", kind: "ocean" },
+      { id: "atlantic", name: "Atlantic Ocean", kind: "ocean" },
+      { id: "indian", name: "Indian Ocean", kind: "ocean" },
+      { id: "southern", name: "Southern Ocean", kind: "ocean" },
+      { id: "arctic", name: "Arctic Ocean", kind: "ocean" },
+      { id: "mediterranean", name: "Mediterranean Sea", kind: "sea" },
+      { id: "caribbean", name: "Caribbean Sea", kind: "sea" }
+    ];
+    const OCEAN_BY_ID = OCEAN_BODIES.reduce(function (map, body) { map[body.id] = body; return map; }, {});
+    const OCEAN_QUICK = [
+      ["All 7", OCEAN_BODIES.map(function (b) { return b.id; })],
+      ["Oceans", OCEAN_BODIES.filter(function (b) { return b.kind === "ocean"; }).map(function (b) { return b.id; })],
+      ["Seas", OCEAN_BODIES.filter(function (b) { return b.kind === "sea"; }).map(function (b) { return b.id; })]
+    ];
+    const OCEAN_PROMPTS = [
+      { id: "pacific", ask: "Which is the largest ocean?" },
+      { id: "pacific", ask: "Which ocean is west of North and South America?" },
+      { id: "atlantic", ask: "Which ocean lies between the Americas and Europe/Africa?" },
+      { id: "atlantic", ask: "Which ocean is east of North America?" },
+      { id: "indian", ask: "Which ocean is south of Asia and east of Africa?" },
+      { id: "indian", ask: "Which ocean borders India?" },
+      { id: "southern", ask: "Which ocean surrounds Antarctica?" },
+      { id: "southern", ask: "Which ocean is around the South Pole?" },
+      { id: "arctic", ask: "Which is the coldest, northernmost ocean?" },
+      { id: "arctic", ask: "Which ocean surrounds the North Pole?" },
+      { id: "mediterranean", ask: "Which sea sits between Europe, Africa, and Asia?" },
+      { id: "mediterranean", ask: "Name this sea (not an ocean): between Europe and Africa" },
+      { id: "caribbean", ask: "Which sea is south of the US and east of Central America?" },
+      { id: "caribbean", ask: "Name this sea (not an ocean): near the Caribbean islands" }
     ];
     const state = {
       phase: "setup",
@@ -178,6 +240,91 @@
       return shuffle([answer].concat(picked));
     }
     function isDivide() { return state.operation === "divide"; }
+    function isOcean() { return state.operation === "ocean"; }
+    function defaultMathTables() { return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; }
+    function defaultOceanTables() { return OCEAN_BODIES.map(function (b) { return b.id; }); }
+    function selectedOceans() {
+      const ids = state.tables.length ? state.tables : defaultOceanTables();
+      return ids.map(function (id) { return OCEAN_BY_ID[id]; }).filter(Boolean);
+    }
+    function oceanNameChoices(answerName, pool) {
+      const names = pool.map(function (b) { return b.name; });
+      const chosen = [answerName];
+      const seen = new Set([answerName]);
+      shuffle(names).forEach(function (n) {
+        if (chosen.length >= 4 || seen.has(n)) return;
+        seen.add(n);
+        chosen.push(n);
+      });
+      if (chosen.length < 4) {
+        shuffle(OCEAN_BODIES.map(function (b) { return b.name; })).forEach(function (n) {
+          if (chosen.length >= 4 || seen.has(n)) return;
+          seen.add(n);
+          chosen.push(n);
+        });
+      }
+      return shuffle(chosen);
+    }
+    function buildOcean(avoid) {
+      const pool = selectedOceans();
+      const bodies = pool.length ? pool : OCEAN_BODIES.slice();
+      const seas = bodies.filter(function (b) { return b.kind === "sea"; });
+      const oceans = bodies.filter(function (b) { return b.kind === "ocean"; });
+      const kindQs = [];
+      if (seas.length && bodies.length >= 2) {
+        kindQs.push({ type: "kind", kind: "sea", ask: "Which of these is a sea (not an ocean)?" });
+      }
+      if (oceans.length && bodies.length >= 2) {
+        kindQs.push({ type: "kind", kind: "ocean", ask: "Which of these is an ocean?" });
+      }
+      const clueQs = OCEAN_PROMPTS.filter(function (p) {
+        return bodies.some(function (b) { return b.id === p.id; });
+      }).map(function (p) {
+        return { type: "clue", id: p.id, ask: p.ask };
+      });
+      let candidates = clueQs.concat(kindQs);
+      if (avoid) candidates = candidates.filter(function (q) {
+        const key = q.type === "kind" ? "kind:" + q.kind : "clue:" + q.id + ":" + q.ask;
+        return key !== avoid;
+      });
+      if (!candidates.length) candidates = clueQs.concat(kindQs);
+      if (!candidates.length) {
+        const body = bodies[0];
+        return {
+          operation: "ocean",
+          id: body.id,
+          kind: body.kind,
+          ask: "Name this body of water",
+          answer: body.name,
+          key: "clue:" + body.id + ":fallback",
+          choices: oceanNameChoices(body.name, bodies)
+        };
+      }
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      if (pick.type === "kind") {
+        const rightPool = bodies.filter(function (b) { return b.kind === pick.kind; });
+        const body = rightPool[Math.floor(Math.random() * rightPool.length)];
+        return {
+          operation: "ocean",
+          id: body.id,
+          kind: body.kind,
+          ask: pick.ask,
+          answer: body.name,
+          key: "kind:" + pick.kind,
+          choices: oceanNameChoices(body.name, bodies)
+        };
+      }
+      const body = OCEAN_BY_ID[pick.id];
+      return {
+        operation: "ocean",
+        id: body.id,
+        kind: body.kind,
+        ask: pick.ask,
+        answer: body.name,
+        key: "clue:" + pick.id + ":" + pick.ask,
+        choices: oceanNameChoices(body.name, bodies)
+      };
+    }
     function build(a, b, mode) {
       const product = a * b;
       if (isDivide()) {
@@ -192,6 +339,25 @@
       return { a: a, b: b, product: product, mode: mode, operation: "multiply", answer: b, key: a + "x" + b, choices: factorChoices(b, a) };
     }
     function makeProblem(avoid) {
+      if (isOcean()) {
+        if (state.drill && state.drill.length) {
+          const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
+          if (pair && pair.operation === "ocean" && pair.id && OCEAN_BY_ID[pair.id]) {
+            const body = OCEAN_BY_ID[pair.id];
+            const ask = pair.ask || ("Name this " + (body.kind === "sea" ? "sea" : "ocean"));
+            return {
+              operation: "ocean",
+              id: body.id,
+              kind: body.kind,
+              ask: ask,
+              answer: body.name,
+              key: pair.key || ("drill:" + body.id),
+              choices: oceanNameChoices(body.name, selectedOceans().length ? selectedOceans() : OCEAN_BODIES.slice())
+            };
+          }
+        }
+        return buildOcean(avoid);
+      }
       const tables = state.tables.length ? state.tables : [2];
       let a = tables[Math.floor(Math.random() * tables.length)];
       let b = 1 + Math.floor(Math.random() * 12);
@@ -214,12 +380,23 @@
       return problem;
     }
     function factLabel(pair) {
+      if (pair.operation === "ocean" || (isOcean() && pair.id)) {
+        const body = OCEAN_BY_ID[pair.id] || { name: pair.answer || pair.name, kind: pair.kind };
+        const tag = body.kind === "sea" ? " (sea, not ocean)" : "";
+        return (body.name || pair.answer) + tag;
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
       }
       return pair.a + " × " + pair.b + " = " + (pair.a * pair.b);
     }
     function spokenFact(pair) {
+      if (pair.operation === "ocean" || (isOcean() && pair.answer)) {
+        const body = OCEAN_BY_ID[pair.id];
+        const name = pair.answer || (body && body.name) || "that body of water";
+        if (body && body.kind === "sea") return name + " is a sea, not an ocean.";
+        return "The answer is " + name + ".";
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " divided by " + pair.a + " is " + pair.b + ".";
       }
@@ -227,7 +404,10 @@
     }
     function updateTagline() {
       const tag = document.getElementById("tagline");
-      if (tag) tag.textContent = isDivide() ? "Practice division facts." : "Practice multiplication facts.";
+      if (!tag) return;
+      if (isOcean()) tag.textContent = "Practice oceans and seas.";
+      else if (isDivide()) tag.textContent = "Practice division facts.";
+      else tag.textContent = "Practice multiplication facts.";
     }
     function formatMs(ms) {
       const total = Math.max(0, Math.ceil(ms / 1000));
@@ -261,7 +441,8 @@
     function uniqueMisses() {
       const seen = new Set();
       return state.misses.filter(function (pair) {
-        const key = (pair.operation || state.operation) === "divide" ? pair.a + "/" + pair.b : pair.a + "x" + pair.b;
+        const op = pair.operation || state.operation;
+        const key = op === "ocean" ? "ocean:" + (pair.id || pair.answer) : op === "divide" ? pair.a + "/" + pair.b : pair.a + "x" + pair.b;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -301,37 +482,64 @@
       stack.appendChild(operationCard());
       const tables = el("div", { class: "card" });
       const head = el("div", { class: "row" });
-      head.appendChild(el("p", { class: "label", text: isDivide() ? "÷ Tables" : "× Tables" }));
+      const tablesLabel = isOcean() ? "Oceans & seas" : isDivide() ? "÷ Tables" : "× Tables";
+      head.appendChild(el("p", { class: "label", text: tablesLabel }));
       if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
       tables.appendChild(head);
-      const quick = el("div", { class: "row" });
-      QUICK.forEach(function (set) {
-        quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
-      });
-      tables.appendChild(quick);
-      const grid = el("div", { class: "grid6" });
-      for (let n = 1; n <= 12; n++) {
-        const value = n;
-        grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
-          const i = state.tables.indexOf(value);
-          if (i >= 0) state.tables.splice(i, 1);
-          else state.tables.push(value);
-          state.tables.sort(function (a, b) { return a - b; });
-          render();
-        }));
+      if (isOcean()) {
+        const quick = el("div", { class: "row" });
+        OCEAN_QUICK.forEach(function (set) {
+          quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
+        });
+        tables.appendChild(quick);
+        const grid = el("div", { class: "grid-oceans" });
+        OCEAN_BODIES.forEach(function (body) {
+          const id = body.id;
+          const label = body.kind === "sea" ? body.name + " · sea" : body.name;
+          grid.appendChild(button(label, "num", state.tables.indexOf(id) >= 0, function () {
+            const i = state.tables.indexOf(id);
+            if (i >= 0) state.tables.splice(i, 1);
+            else state.tables.push(id);
+            render();
+          }));
+        });
+        tables.appendChild(grid);
+        tables.appendChild(el("p", { class: "hint", text: "Seas are labeled so kids know they aren't oceans. All 7 selected by default." }));
+        if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one ocean or sea." }));
+      } else {
+        const quick = el("div", { class: "row" });
+        QUICK.forEach(function (set) {
+          quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
+        });
+        tables.appendChild(quick);
+        const grid = el("div", { class: "grid6" });
+        for (let n = 1; n <= 12; n++) {
+          const value = n;
+          grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
+            const i = state.tables.indexOf(value);
+            if (i >= 0) state.tables.splice(i, 1);
+            else state.tables.push(value);
+            state.tables.sort(function (a, b) { return a - b; });
+            render();
+          }));
+        }
+        tables.appendChild(grid);
+        if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one table." }));
       }
-      tables.appendChild(grid);
-      if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one table." }));
       stack.appendChild(tables);
-      stack.appendChild(modeCard());
+      if (!isOcean()) stack.appendChild(modeCard());
       stack.appendChild(roundCard());
       app.appendChild(stack);
     }
     function setOperation(op) {
+      const wasOcean = isOcean();
+      const willOcean = op === "ocean";
+      if (wasOcean && !willOcean) state.tables = defaultMathTables();
+      else if (!wasOcean && willOcean) state.tables = defaultOceanTables();
       state.operation = op;
       if (op === "divide") {
         if (state.mode === "product" || state.mode === "factor") state.mode = state.mode === "factor" ? "divisor" : "quotient";
-      } else {
+      } else if (op === "multiply") {
         if (state.mode === "quotient" || state.mode === "divisor") state.mode = state.mode === "divisor" ? "factor" : "product";
       }
       render();
@@ -339,11 +547,15 @@
     function operationCard() {
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Operation" }));
-      const row = el("div", { class: "split2" });
-      row.appendChild(button("Multiplication", "choice", !isDivide(), function () { setOperation("multiply"); }));
-      row.appendChild(button("Division", "choice", isDivide(), function () { setOperation("divide"); }));
+      const row = el("div", { class: "split3" });
+      row.appendChild(button("Multiplication", "choice", state.operation === "multiply", function () { setOperation("multiply"); }));
+      row.appendChild(button("Division", "choice", state.operation === "divide", function () { setOperation("divide"); }));
+      row.appendChild(button("Oceans", "choice", isOcean(), function () { setOperation("ocean"); }));
       card.appendChild(row);
-      card.appendChild(el("p", { class: "hint", text: isDivide() ? "Even facts only: dividend ÷ divisor with whole-number answers." : "Classic multiplication table facts." }));
+      let hint = "Classic multiplication table facts.";
+      if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
+      if (isOcean()) hint = "Name oceans and seas from clues. Seas are labeled so kids know they aren't oceans.";
+      card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
     function modeCard() {
@@ -384,33 +596,38 @@
       hud.appendChild(el("span", { text: clock }));
       app.appendChild(hud);
       const eq = el("div", { class: "card eq" });
-      const askLabel = isDivide()
-        ? (state.mode === "quotient" ? "What is the quotient?" : "What number is missing?")
-        : (state.mode === "product" ? "What is the product?" : "What number is missing?");
-      eq.appendChild(el("p", { class: "label", text: askLabel }));
-      const line = el("p", { class: "prompt" });
-      if (isDivide()) {
-        line.appendChild(document.createTextNode(String(problem.product)));
-        line.appendChild(el("span", { class: "times", text: "÷" }));
-        if (state.mode === "quotient") line.appendChild(document.createTextNode(String(problem.a)));
-        else {
-          line.appendChild(el("span", { class: "times", text: "?" }));
-          line.appendChild(document.createTextNode(" = " + problem.b));
-        }
+      if (isOcean()) {
+        eq.appendChild(el("p", { class: "label", text: "Oceans & seas" }));
+        eq.appendChild(el("p", { class: "prompt ocean-prompt", text: problem.ask }));
       } else {
-        line.appendChild(document.createTextNode(String(problem.a)));
-        line.appendChild(el("span", { class: "times", text: "×" }));
-        if (state.mode === "product") line.appendChild(document.createTextNode(String(problem.b)));
-        else {
-          line.appendChild(el("span", { class: "times", text: "?" }));
-          line.appendChild(document.createTextNode(" = " + problem.product));
+        const askLabel = isDivide()
+          ? (state.mode === "quotient" ? "What is the quotient?" : "What number is missing?")
+          : (state.mode === "product" ? "What is the product?" : "What number is missing?");
+        eq.appendChild(el("p", { class: "label", text: askLabel }));
+        const line = el("p", { class: "prompt" });
+        if (isDivide()) {
+          line.appendChild(document.createTextNode(String(problem.product)));
+          line.appendChild(el("span", { class: "times", text: "÷" }));
+          if (state.mode === "quotient") line.appendChild(document.createTextNode(String(problem.a)));
+          else {
+            line.appendChild(el("span", { class: "times", text: "?" }));
+            line.appendChild(document.createTextNode(" = " + problem.b));
+          }
+        } else {
+          line.appendChild(document.createTextNode(String(problem.a)));
+          line.appendChild(el("span", { class: "times", text: "×" }));
+          if (state.mode === "product") line.appendChild(document.createTextNode(String(problem.b)));
+          else {
+            line.appendChild(el("span", { class: "times", text: "?" }));
+            line.appendChild(document.createTextNode(" = " + problem.product));
+          }
         }
+        eq.appendChild(line);
       }
-      eq.appendChild(line);
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const answers = el("div", { class: "answers", role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isOcean() ? " ocean-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -436,15 +653,15 @@
       stack.appendChild(card);
       if (missed.length) {
         const listCard = el("div", { class: "card" });
-        listCard.appendChild(el("p", { class: "label", text: "Practice these" }));
+        listCard.appendChild(el("p", { class: "label", text: isOcean() ? "Review these" : "Practice these" }));
         const list = el("ul", { class: "miss" });
         missed.slice(0, 6).forEach(function (pair) { list.appendChild(el("li", { text: factLabel(pair) })); });
         listCard.appendChild(list);
         stack.appendChild(listCard);
-      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: "Every fact was correct." }));
+      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isOcean() ? "Every answer was correct." : "Every fact was correct." }));
       stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
-      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
-      stack.appendChild(el("button", { class: "textbtn", type: "button", text: "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
+      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: isOcean() ? "Drill missed" : "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
+      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isOcean() ? "Change set" : "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
       app.appendChild(stack);
     }
     function nextProblem(avoid) {
@@ -467,7 +684,9 @@
     function start(pairs) {
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
-      if (isDivide()) {
+      if (isOcean()) {
+        /* Oceans quiz has no product/factor modes */
+      } else if (isDivide()) {
         if (state.mode !== "quotient" && state.mode !== "divisor") state.mode = "quotient";
       } else if (state.mode !== "product" && state.mode !== "factor") {
         state.mode = "product";
@@ -521,7 +740,11 @@
       } else {
         state.streak = 0;
         state.gain = null;
-        state.misses.push({ a: problem.a, b: problem.b, operation: problem.operation || state.operation });
+        if (isOcean() || problem.operation === "ocean") {
+          state.misses.push({ id: problem.id, ask: problem.ask, answer: problem.answer, kind: problem.kind, key: problem.key, operation: "ocean" });
+        } else {
+          state.misses.push({ a: problem.a, b: problem.b, operation: problem.operation || state.operation });
+        }
         say("Not quite. " + spokenFact(problem));
       }
       render();

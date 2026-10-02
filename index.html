@@ -1910,12 +1910,22 @@
         });
       } catch (_) {}
     }
+    function homeMusicSrc() {
+      try {
+        return new URL("assets/audio/home.mp3", document.baseURI || window.location.href).href;
+      } catch (_) {
+        return "assets/audio/home.mp3";
+      }
+    }
     function ensureHomeMusic() {
       if (homeMusic) return homeMusic;
-      homeMusic = new Audio("assets/audio/home.mp3");
+      homeMusic = new Audio(homeMusicSrc());
       homeMusic.loop = true;
       homeMusic.preload = "auto";
-      homeMusic.volume = 0.4;
+      homeMusic.volume = 0.55;
+      homeMusic.playsInline = true;
+      homeMusic.setAttribute("playsinline", "");
+      homeMusic.setAttribute("webkit-playsinline", "");
       return homeMusic;
     }
     function unbindHomeMusicUnlock() {
@@ -1924,8 +1934,10 @@
       document.removeEventListener("keydown", unlockHomeMusic, true);
       homeMusicUnlockBound = false;
     }
-    function unlockHomeMusic() {
-      unbindHomeMusicUnlock();
+    function unlockHomeMusic(event) {
+      // Let the Mute/Music button own its gesture (avoids pointerdown-start then click-mute).
+      if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
+      // Keep listening until play actually starts (autoplay policies need a gesture).
       syncHomeMusic();
     }
     function bindHomeMusicUnlock() {
@@ -1933,6 +1945,21 @@
       homeMusicUnlockBound = true;
       document.addEventListener("pointerdown", unlockHomeMusic, true);
       document.addEventListener("keydown", unlockHomeMusic, true);
+    }
+    function tryPlayHomeMusic() {
+      const audio = ensureHomeMusic();
+      const playAttempt = audio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(function () {
+          unbindHomeMusicUnlock();
+          updateMuteButton();
+        }).catch(function () { bindHomeMusicUnlock(); });
+      } else if (!audio.paused) {
+        unbindHomeMusicUnlock();
+        updateMuteButton();
+      } else {
+        bindHomeMusicUnlock();
+      }
     }
     function syncHomeMusic() {
       const audio = ensureHomeMusic();
@@ -1942,10 +1969,30 @@
         if (!audio.paused) audio.pause();
         return;
       }
-      if (!audio.paused) return;
-      const playAttempt = audio.play();
-      if (playAttempt && typeof playAttempt.then === "function") {
-        playAttempt.catch(function () { bindHomeMusicUnlock(); });
+      if (!audio.paused) {
+        unbindHomeMusicUnlock();
+        return;
+      }
+      // Bind before play() so the first tap/click unlocks even if the promise rejects late.
+      bindHomeMusicUnlock();
+      tryPlayHomeMusic();
+    }
+    function updateMuteButton() {
+      const mute = document.getElementById("mute");
+      const audio = homeMusic;
+      const awaitingGesture = !state.muted && state.phase === "setup" && (!audio || audio.paused);
+      if (state.muted) {
+        mute.textContent = "Unmute";
+        mute.setAttribute("aria-label", "Unmute sounds and music");
+        mute.setAttribute("aria-pressed", "true");
+      } else if (awaitingGesture) {
+        mute.textContent = "Music";
+        mute.setAttribute("aria-label", "Play home screen music");
+        mute.setAttribute("aria-pressed", "false");
+      } else {
+        mute.textContent = "Mute";
+        mute.setAttribute("aria-label", "Mute sounds and music");
+        mute.setAttribute("aria-pressed", "false");
       }
     }
     function uniqueMisses() {
@@ -1992,10 +2039,7 @@
     function render() {
       const app = document.getElementById("app");
       app.replaceChildren();
-      const mute = document.getElementById("mute");
-      mute.textContent = state.muted ? "Sound" : "Mute";
-      mute.setAttribute("aria-label", state.muted ? "Unmute sounds" : "Mute sounds");
-      mute.setAttribute("aria-pressed", String(state.muted));
+      updateMuteButton();
       const back = document.getElementById("back");
       back.hidden = state.phase === "setup";
       updateTagline();
@@ -2499,7 +2543,23 @@
     }
     document.getElementById("back").addEventListener("click", backToSetup);
     document.getElementById("mute").addEventListener("click", function () {
-      state.muted = !state.muted;
+      const audio = ensureHomeMusic();
+      if (state.muted) {
+        // Unmute: this click is the user gesture that must start BGM (esp. iOS).
+        state.muted = false;
+        writeSave();
+        render();
+        tryPlayHomeMusic();
+        updateMuteButton();
+        return;
+      }
+      if (state.phase === "setup" && audio.paused) {
+        // Not muted, but autoplay blocked — first tap on Music starts BGM without muting.
+        tryPlayHomeMusic();
+        updateMuteButton();
+        return;
+      }
+      state.muted = true;
       writeSave();
       render();
     });

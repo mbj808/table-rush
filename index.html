@@ -312,6 +312,8 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const RUSH_MS = 48000;
+    const CORRECT_FEEDBACK_MS = 280;
+    const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
       { id: "1", label: "Music 1", file: "assets/audio/play1.mp3" },
       { id: "2", label: "Music 2", file: "assets/audio/play2.mp3" },
@@ -988,6 +990,20 @@
     let playMusicUnlockBound = false;
     let timer = 0;
     let feedback = 0;
+    let rushClock = null;
+
+    function pauseRushClock() {
+      if (!rushClock || rushClock.pauseAt) return;
+      rushClock.pauseAt = performance.now();
+    }
+    function resumeRushClock() {
+      if (!rushClock || !rushClock.pauseAt) return;
+      rushClock.pausedTotal += performance.now() - rushClock.pauseAt;
+      rushClock.pauseAt = 0;
+    }
+    function clearRushClock() {
+      rushClock = null;
+    }
 
     function loadSave() {
       try {
@@ -2847,6 +2863,7 @@
     function finish() {
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
+      clearRushClock();
       const beat = state.length === "rush" && state.score > state.best;
       state.newBest = beat;
       if (beat) { state.best = state.score; writeSave(); }
@@ -2857,6 +2874,7 @@
     function start(pairs) {
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
+      clearRushClock();
       if (isQuiz()) {
         /* quiz modes have no product/factor modes */
       } else if (isDivide()) {
@@ -2885,7 +2903,7 @@
       say("Started.");
       render();
       if (state.length === "rush") {
-        const startedAt = performance.now();
+        rushClock = { startedAt: performance.now(), pausedTotal: 0, pauseAt: 0 };
         let shown = Math.ceil(RUSH_MS / 1000);
         const updateTimeBar = function (left) {
           state.msLeft = left;
@@ -2904,8 +2922,9 @@
           if (clock) clock.textContent = formatMs(left);
         };
         const loop = function (now) {
-          if (state.phase !== "play") return;
-          const left = RUSH_MS - (now - startedAt);
+          if (state.phase !== "play" || !rushClock) return;
+          const tick = rushClock.pauseAt || now;
+          const left = RUSH_MS - (tick - rushClock.startedAt - rushClock.pausedTotal);
           if (left <= 0) { updateTimeBar(0); finish(); return; }
           updateTimeBar(left);
           const nextShown = Math.ceil(left / 1000);
@@ -2919,7 +2938,7 @@
       if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
       const problem = state.problem;
       const ok = choice === problem.answer;
-      const delay = ok ? 280 : 700;
+      const delay = ok ? CORRECT_FEEDBACK_MS : MISS_TEACH_MS;
       state.lockUntil = performance.now() + delay;
       state.picked = choice;
       state.total += 1;
@@ -2934,6 +2953,8 @@
       } else {
         state.streak = 0;
         state.gain = null;
+        // Pause rush timer during the 3s teach hold so kids aren't punished for learning.
+        if (state.length === "rush") pauseRushClock();
         if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,
@@ -2953,6 +2974,7 @@
       }
       render();
       feedback = setTimeout(function () {
+        if (state.length === "rush") resumeRushClock();
         if (state.phase !== "play") return;
         if (state.length === "ten" && state.total >= 10) finish();
         else nextProblem(problem.key);

@@ -17,17 +17,18 @@
       --forest: #1e7a4d;
       --forest-deep: #155c3a;
       --on-forest: #f4fff8;
-      --forest-soft: rgba(30, 122, 77, 0.5);
+      --forest-soft: rgba(255, 255, 255, 0.28);
       --primary: #1e7a4d;
       --primary-deep: #155c3a;
       --on-primary: #f4fff8;
       --aqua: rgba(212, 240, 245, 0.35);
       --aqua-soft: rgba(30, 122, 77, 0.42);
-      --btn-face: rgba(30, 122, 77, 0.5);
-      --btn-border: rgba(20, 90, 55, 0.85);
-      --choice-on: rgba(21, 92, 58, 0.82);
-      --icon-bg: rgba(30, 122, 77, 0.5);
-      --icon-border: rgba(20, 90, 55, 0.9);
+      --btn-face: rgba(255, 255, 255, 0.28);
+      --btn-border: rgba(255, 255, 255, 0.55);
+      --choice-on: #1e7a4d;
+      --choice-on-ring: #0f3d28;
+      --icon-bg: rgba(255, 255, 255, 0.28);
+      --icon-border: rgba(255, 255, 255, 0.55);
       --wave-1: rgba(255, 255, 255, 0.55);
       --wave-2: rgba(120, 220, 235, 0.62);
       --wave-3: rgba(20, 110, 130, 0.45);
@@ -117,15 +118,19 @@
     .icon {
       min-width: 2.75rem; height: 2.75rem; border-radius: 999px;
       padding: 0 0.85rem;
-      border: 2px solid var(--icon-border); background: var(--icon-bg); color: var(--btn-text);
+      border: 2px solid var(--icon-border); background: var(--icon-bg); color: var(--ink);
       font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em;
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 2px 8px rgba(15, 60, 40, 0.18);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 2px 8px rgba(15, 60, 40, 0.12);
     }
     .icon[aria-pressed="true"] {
-      background: rgba(21, 92, 58, 0.88);
-      border-color: var(--primary-deep);
+      background: var(--choice-on);
+      border-color: var(--choice-on-ring);
       color: var(--on-primary);
+      box-shadow: 0 0 0 3px rgba(30, 122, 77, 0.55), 0 2px 8px rgba(15, 60, 40, 0.28);
+      text-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .stack { display: flex; flex-direction: column; gap: 1.25rem; }
     .card { background: transparent; border: 1px solid transparent; border-radius: 1.5rem; padding: 1.25rem; }
@@ -133,20 +138,33 @@
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .chip, .choice {
       min-height: 2.75rem; border-radius: 0.75rem; border: 2px solid var(--btn-border);
-      background: var(--btn-face); color: var(--btn-text); font-weight: 800;
+      background: var(--btn-face); color: var(--ink); font-weight: 800;
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 8px rgba(15, 60, 40, 0.15);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 2px 8px rgba(15, 60, 40, 0.12);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
     }
-    .chip { padding: 0 1rem; border-radius: 999px; background: var(--forest-soft); border-color: var(--btn-border); color: var(--btn-text); }
-    .on { background: var(--choice-on); color: var(--on-primary); border-color: var(--primary-deep); }
+    .chip { padding: 0 1rem; border-radius: 999px; background: var(--forest-soft); border-color: var(--btn-border); color: var(--ink); }
+    /* Selected must beat .chip/.choice/.num (same specificity otherwise loses) */
+    .chip.on,
+    .choice.on,
+    .num.on,
+    .on[aria-pressed="true"],
+    button.on {
+      background: var(--choice-on);
+      color: var(--on-primary);
+      border-color: var(--choice-on-ring);
+      box-shadow: 0 0 0 3px rgba(30, 122, 77, 0.5), 0 2px 8px rgba(15, 60, 40, 0.28);
+      text-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
     .grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 0.75rem; }
     .num {
       height: 3rem; border-radius: 0.75rem; font-family: Georgia, serif; font-size: 1.25rem;
-      border: 2px solid var(--btn-border); background: var(--btn-face); color: var(--btn-text); font-weight: 800;
+      border: 2px solid var(--btn-border); background: var(--btn-face); color: var(--ink); font-weight: 800;
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 8px rgba(15, 60, 40, 0.15);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 2px 8px rgba(15, 60, 40, 0.12);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
     }
     .split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     .split3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }

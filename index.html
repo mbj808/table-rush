@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, and rhyming. No account needed." />
+  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -482,6 +482,71 @@
       return list.concat(f.words.map(function (w) { return { word: w, family: f.id }; }));
     }, []);
 
+    const VOCAB = [
+      { id: "happy-syn", word: "happy", kind: "synonym", answer: "glad", distractors: ["sad", "angry", "sleepy"] },
+      { id: "big-syn", word: "big", kind: "synonym", answer: "large", distractors: ["tiny", "narrow", "short"] },
+      { id: "small-syn", word: "small", kind: "synonym", answer: "tiny", distractors: ["huge", "tall", "wide"] },
+      { id: "fast-syn", word: "fast", kind: "synonym", answer: "quick", distractors: ["slow", "lazy", "late"] },
+      { id: "smart-syn", word: "smart", kind: "synonym", answer: "clever", distractors: ["silly", "noisy", "sleepy"] },
+      { id: "begin-syn", word: "begin", kind: "synonym", answer: "start", distractors: ["finish", "stop", "pause"] },
+      { id: "end-syn", word: "end", kind: "synonym", answer: "finish", distractors: ["begin", "open", "build"] },
+      { id: "pretty-syn", word: "pretty", kind: "synonym", answer: "beautiful", distractors: ["ugly", "plain", "messy"] },
+      { id: "scared-syn", word: "scared", kind: "synonym", answer: "afraid", distractors: ["brave", "calm", "proud"] },
+      { id: "angry-syn", word: "angry", kind: "synonym", answer: "mad", distractors: ["happy", "calm", "shy"] },
+      { id: "quiet-syn", word: "quiet", kind: "synonym", answer: "silent", distractors: ["loud", "noisy", "busy"] },
+      { id: "loud-syn", word: "loud", kind: "synonym", answer: "noisy", distractors: ["quiet", "soft", "calm"] },
+      { id: "hard-syn", word: "hard", kind: "synonym", answer: "difficult", distractors: ["easy", "simple", "soft"] },
+      { id: "easy-syn", word: "easy", kind: "synonym", answer: "simple", distractors: ["hard", "tough", "tricky"] },
+      { id: "friend-syn", word: "friend", kind: "synonym", answer: "buddy", distractors: ["enemy", "stranger", "boss"] },
+      { id: "gift-syn", word: "gift", kind: "synonym", answer: "present", distractors: ["bill", "chore", "rule"] },
+      { id: "jump-syn", word: "jump", kind: "synonym", answer: "leap", distractors: ["crawl", "sit", "rest"] },
+      { id: "look-syn", word: "look", kind: "synonym", answer: "see", distractors: ["hide", "cover", "ignore"] },
+      { id: "talk-syn", word: "talk", kind: "synonym", answer: "speak", distractors: ["listen", "whisper", "sleep"] },
+      { id: "help-syn", word: "help", kind: "synonym", answer: "assist", distractors: ["hinder", "ignore", "delay"] },
+      { id: "buy-syn", word: "buy", kind: "synonym", answer: "purchase", distractors: ["sell", "borrow", "lose"] },
+      { id: "sick-syn", word: "sick", kind: "synonym", answer: "ill", distractors: ["healthy", "strong", "fit"] },
+      { id: "rich-syn", word: "rich", kind: "synonym", answer: "wealthy", distractors: ["poor", "empty", "cheap"] },
+      { id: "close-syn", word: "close", kind: "synonym", answer: "shut", distractors: ["open", "lift", "raise"] },
+      { id: "cold-syn", word: "cold", kind: "synonym", answer: "chilly", distractors: ["hot", "warm", "toasty"] },
+      { id: "hot-syn", word: "hot", kind: "synonym", answer: "warm", distractors: ["cold", "icy", "frozen"] },
+      { id: "brave-syn", word: "brave", kind: "synonym", answer: "courageous", distractors: ["scared", "shy", "timid"] },
+      { id: "funny-syn", word: "funny", kind: "synonym", answer: "hilarious", distractors: ["serious", "boring", "sad"] },
+      { id: "hot-ant", word: "hot", kind: "antonym", answer: "cold", distractors: ["warm", "boiling", "spicy"] },
+      { id: "happy-ant", word: "happy", kind: "antonym", answer: "sad", distractors: ["glad", "joyful", "cheerful"] },
+      { id: "big-ant", word: "big", kind: "antonym", answer: "small", distractors: ["huge", "giant", "wide"] },
+      { id: "fast-ant", word: "fast", kind: "antonym", answer: "slow", distractors: ["quick", "speedy", "rapid"] },
+      { id: "up-ant", word: "up", kind: "antonym", answer: "down", distractors: ["high", "above", "over"] },
+      { id: "in-ant", word: "in", kind: "antonym", answer: "out", distractors: ["inside", "into", "within"] },
+      { id: "day-ant", word: "day", kind: "antonym", answer: "night", distractors: ["morning", "noon", "sunset"] },
+      { id: "light-ant", word: "light", kind: "antonym", answer: "dark", distractors: ["bright", "shiny", "pale"] },
+      { id: "open-ant", word: "open", kind: "antonym", answer: "closed", distractors: ["ajar", "wide", "empty"] },
+      { id: "full-ant", word: "full", kind: "antonym", answer: "empty", distractors: ["packed", "stuffed", "loaded"] },
+      { id: "early-ant", word: "early", kind: "antonym", answer: "late", distractors: ["soon", "prompt", "quick"] },
+      { id: "near-ant", word: "near", kind: "antonym", answer: "far", distractors: ["close", "beside", "next"] },
+      { id: "wet-ant", word: "wet", kind: "antonym", answer: "dry", distractors: ["damp", "soaked", "moist"] },
+      { id: "new-ant", word: "new", kind: "antonym", answer: "old", distractors: ["fresh", "modern", "recent"] },
+      { id: "yes-ant", word: "yes", kind: "antonym", answer: "no", distractors: ["maybe", "sure", "okay"] },
+      { id: "love-ant", word: "love", kind: "antonym", answer: "hate", distractors: ["like", "enjoy", "adore"] },
+      { id: "high-ant", word: "high", kind: "antonym", answer: "low", distractors: ["tall", "top", "upper"] },
+      { id: "long-ant", word: "long", kind: "antonym", answer: "short", distractors: ["tall", "wide", "far"] },
+      { id: "strong-ant", word: "strong", kind: "antonym", answer: "weak", distractors: ["tough", "mighty", "firm"] },
+      { id: "clean-ant", word: "clean", kind: "antonym", answer: "dirty", distractors: ["neat", "tidy", "fresh"] },
+      { id: "polite-ant", word: "polite", kind: "antonym", answer: "rude", distractors: ["kind", "nice", "sweet"] },
+      { id: "noisy-ant", word: "noisy", kind: "antonym", answer: "quiet", distractors: ["loud", "busy", "wild"] },
+      { id: "soft-ant", word: "soft", kind: "antonym", answer: "hard", distractors: ["fluffy", "gentle", "smooth"] },
+      { id: "thick-ant", word: "thick", kind: "antonym", answer: "thin", distractors: ["wide", "fat", "heavy"] },
+      { id: "above-ant", word: "above", kind: "antonym", answer: "below", distractors: ["over", "up", "high"] },
+      { id: "before-ant", word: "before", kind: "antonym", answer: "after", distractors: ["earlier", "first", "prior"] },
+      { id: "win-ant", word: "win", kind: "antonym", answer: "lose", distractors: ["beat", "score", "earn"] },
+      { id: "give-ant", word: "give", kind: "antonym", answer: "take", distractors: ["share", "offer", "send"] }
+    ];
+    const VOCAB_BY_ID = VOCAB.reduce(function (m, v) { m[v.id] = v; return m; }, {});
+    const VOCAB_QUICK = [
+      ["All", VOCAB.map(function (v) { return v.id; })],
+      ["Synonyms", VOCAB.filter(function (v) { return v.kind === "synonym"; }).map(function (v) { return v.id; })],
+      ["Antonyms", VOCAB.filter(function (v) { return v.kind === "antonym"; }).map(function (v) { return v.id; })]
+    ];
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -492,7 +557,8 @@
       { id: "state", label: "States" },
       { id: "element", label: "Elements" },
       { id: "flag", label: "Flags" },
-      { id: "rhyme", label: "Rhyming" }
+      { id: "rhyme", label: "Rhyming" },
+      { id: "synonym", label: "Synonyms & Antonyms" }
     ];
 
     const state = {
@@ -577,6 +643,7 @@
     function isElement() { return state.operation === "element"; }
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
+    function isSynonym() { return state.operation === "synonym"; }
     function isMath() { return state.operation === "multiply" || state.operation === "divide"; }
     function isQuiz() { return !isMath(); }
 
@@ -589,6 +656,7 @@
     function defaultElementTables() { return ELEMENTS.map(function (e) { return e.id; }); }
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
+    function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
     function defaultTablesFor(op) {
       if (op === "ocean") return defaultOceanTables();
       if (op === "sport") return defaultSportTables();
@@ -598,6 +666,7 @@
       if (op === "element") return defaultElementTables();
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
+      if (op === "synonym") return defaultSynonymTables();
       return defaultMathTables();
     }
 
@@ -631,6 +700,7 @@
     function selectedElements() { return selectedById(ELEMENTS, ELEMENT_BY_ID); }
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
+    function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
 
     function buildClueQuiz(opts) {
       const pool = opts.pool;
@@ -999,6 +1069,55 @@
       };
     }
 
+
+    function vocabDistractors(item, pool) {
+      const banned = new Set([item.answer, item.word]);
+      const picked = [];
+      const used = new Set();
+      function take(list) {
+        shuffle(list).forEach(function (w) {
+          if (picked.length >= 3 || banned.has(w) || used.has(w)) return;
+          used.add(w);
+          picked.push(w);
+        });
+      }
+      take(item.distractors || []);
+      const related = [];
+      (pool || VOCAB).forEach(function (v) {
+        if (v.id === item.id) return;
+        if (!banned.has(v.answer) && !used.has(v.answer)) related.push(v.answer);
+        if (!banned.has(v.word) && !used.has(v.word) && v.word !== item.answer) related.push(v.word);
+      });
+      take(related);
+      const fillers = ["run", "play", "book", "tree", "blue", "green", "walk", "read"];
+      take(fillers);
+      return shuffle([item.answer].concat(picked.slice(0, 3)));
+    }
+
+    function buildSynonym(avoid) {
+      const pool = selectedVocab();
+      const items = pool.length ? pool : VOCAB.slice();
+      let candidates = items.slice();
+      if (avoid) candidates = candidates.filter(function (v) {
+        return ("synonym:" + v.id) !== avoid && ("vocab:" + v.id) !== avoid;
+      });
+      if (!candidates.length) candidates = items.slice();
+      const item = candidates[Math.floor(Math.random() * candidates.length)];
+      const ask = item.kind === "antonym"
+        ? ("Which word means the opposite of " + item.word + "?")
+        : ("Which word means the same as " + item.word + "?");
+      return {
+        operation: "synonym",
+        id: item.id,
+        kind: item.kind,
+        word: item.word,
+        ask: ask,
+        answer: item.answer,
+        key: "vocab:" + item.id,
+        choices: vocabDistractors(item, items)
+      };
+    }
+
     function build(a, b, mode) {
       const product = a * b;
       if (isDivide()) {
@@ -1091,6 +1210,18 @@
           choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
+        const item = VOCAB_BY_ID[pair.id];
+        const ask = pair.ask || (item.kind === "antonym"
+          ? ("Which word means the opposite of " + item.word + "?")
+          : ("Which word means the same as " + item.word + "?"));
+        return {
+          operation: "synonym", id: item.id, kind: item.kind, word: item.word,
+          ask: ask, answer: item.answer,
+          key: pair.key || ("drill:" + item.id),
+          choices: vocabDistractors(item, selectedVocab().length ? selectedVocab() : VOCAB)
+        };
+      }
       if (pair.operation === "rhyme" && RHYME_BY_ID[pair.id]) {
         const fam = RHYME_BY_ID[pair.id];
         const prompt = pair.promptWord || fam.words[0];
@@ -1122,6 +1253,7 @@
         if (isElement()) return buildElement(avoid);
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
+        if (isSynonym()) return buildSynonym(avoid);
       }
       const tables = state.tables.length ? state.tables : [2];
       let a = tables[Math.floor(Math.random() * tables.length)];
@@ -1183,6 +1315,12 @@
         const prompt = pair.promptWord || (fam && fam.words[0]) || "?";
         return prompt + " ↔ " + (pair.answer || (fam && fam.label) || "rhyme");
       }
+      if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
+        const item = VOCAB_BY_ID[pair.id];
+        const word = pair.word || (item && item.word) || "?";
+        const tag = (pair.kind || (item && item.kind)) === "antonym" ? "opposite" : "same";
+        return word + " → " + (pair.answer || (item && item.answer) || "?") + " (" + tag + ")";
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
       }
@@ -1207,7 +1345,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (isDivide() || op === "divide") {
@@ -1227,6 +1365,7 @@
       else if (isElement()) tag.textContent = "Practice chemical elements and symbols.";
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
+      else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
       else tag.textContent = "Practice multiplication facts.";
     }
@@ -1402,6 +1541,16 @@
           "Common short word families for grades 1–3. All selected by default.",
           "Pick at least one word family.",
           true));
+      } else if (isSynonym()) {
+        stack.appendChild(checklistCard("Vocabulary",
+          VOCAB.map(function (v) {
+            const tag = v.kind === "antonym" ? "opposite" : "same";
+            return { id: v.id, name: v.word + " → " + v.answer + " · " + tag };
+          }),
+          VOCAB_QUICK,
+          "Grades 2–5 synonyms and antonyms. Chips: All / Synonyms / Antonyms.",
+          "Pick at least one word pair.",
+          true));
       } else {
         const tables = el("div", { class: "card" });
         const head = el("div", { class: "row" });
@@ -1467,6 +1616,7 @@
       if (isElement()) hint = "Match element symbols and names (both directions).";
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
+      if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
       card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
@@ -1509,6 +1659,7 @@
       if (isElement()) return "Elements";
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
+      if (isSynonym()) return "Synonyms & Antonyms";
       return "Quiz";
     }
 

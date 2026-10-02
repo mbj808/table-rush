@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, and ocean facts. No account needed." />
+  <meta name="description" content="Practice multiplication, division, oceans, sports, Hawaiian islands, capitals, elements, and flags. No account needed." />
   <style>
     :root {
       --bg: #f3eee4;
@@ -82,7 +82,8 @@
     .good { background: var(--forest-soft); color: var(--forest); font-weight: 800; text-align: center; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .warn { color: var(--coral); font-size: 0.9rem; margin: 0.75rem 0 0; }
-    .answers.ocean-answers button {
+    .answers.ocean-answers button,
+    .answers.quiz-answers button {
       font-size: 1.05rem;
       min-height: 4.5rem;
       font-family: "Segoe UI", system-ui, sans-serif;
@@ -90,19 +91,24 @@
       line-height: 1.2;
       padding: 0.65rem 0.5rem;
     }
-    .prompt.ocean-prompt {
+    .prompt.ocean-prompt,
+    .prompt.quiz-prompt {
       font-size: 1.4rem;
       line-height: 1.3;
       font-family: "Segoe UI", system-ui, sans-serif;
       font-weight: 800;
     }
-    .grid-oceans {
+    .grid-oceans,
+    .grid-check {
       display: grid;
       grid-template-columns: 1fr;
       gap: 0.5rem;
       margin-top: 0.75rem;
     }
-    .grid-oceans .num {
+    .grid-check.two { grid-template-columns: 1fr 1fr; }
+    .grid-check { max-height: 16rem; overflow: auto; }
+    .grid-oceans .num,
+    .grid-check .num {
       height: auto;
       min-height: 2.75rem;
       width: 100%;
@@ -112,6 +118,8 @@
       text-align: left;
       padding: 0.55rem 1rem;
     }
+    .ops { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .ops .choice { flex: 1 1 calc(50% - 0.25rem); min-width: 7.5rem; font-size: 0.92rem; padding: 0.35rem 0.5rem; }
     .sea-tag { color: var(--coral); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; margin-left: 0.35rem; }
   </style>
 </head>
@@ -121,7 +129,7 @@
     <header>
       <div>
         <h1>Table <span>Rush</span></h1>
-        <p class="sub" id="tagline">Practice multiplication, division, and ocean facts.</p>
+        <p class="sub" id="tagline">Practice multiplication, division, and fun facts.</p>
       </div>
       <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
     </header>
@@ -166,6 +174,273 @@
       { id: "caribbean", ask: "Which sea is south of the US and east of Central America?" },
       { id: "caribbean", ask: "Name this sea (not an ocean): near the Caribbean islands" }
     ];
+    const SPORTS = [
+      { id: "basketball", name: "Basketball", group: "ball" },
+      { id: "soccer", name: "Soccer", group: "ball" },
+      { id: "baseball", name: "Baseball", group: "ball" },
+      { id: "tennis", name: "Tennis", group: "ball" },
+      { id: "golf", name: "Golf", group: "ball" },
+      { id: "volleyball", name: "Volleyball", group: "ball" },
+      { id: "hockey", name: "Hockey", group: "ball" },
+      { id: "football", name: "Football", group: "ball" },
+      { id: "cricket", name: "Cricket", group: "ball" },
+      { id: "rugby", name: "Rugby", group: "ball" },
+      { id: "swimming", name: "Swimming", group: "other" },
+      { id: "track", name: "Track", group: "other" },
+      { id: "gymnastics", name: "Gymnastics", group: "other" },
+      { id: "skating", name: "Skating", group: "other" },
+      { id: "skiing", name: "Skiing", group: "other" },
+      { id: "boxing", name: "Boxing", group: "other" }
+    ];
+    const SPORT_BY_ID = SPORTS.reduce(function (m, s) { m[s.id] = s; return m; }, {});
+    const SPORT_QUICK = [
+      ["All", SPORTS.map(function (s) { return s.id; })],
+      ["Ball sports", SPORTS.filter(function (s) { return s.group === "ball"; }).map(function (s) { return s.id; })]
+    ];
+    const SPORT_PROMPTS = [
+      { id: "basketball", ask: "Which sport uses a hoop?" },
+      { id: "basketball", ask: "Which sport scores with dunks and three-pointers?" },
+      { id: "soccer", ask: "Which sport is played with a round ball mostly using the feet?" },
+      { id: "soccer", ask: "Which ball sport is the most popular worldwide?" },
+      { id: "baseball", ask: "Which sport uses a bat, bases, and a diamond field?" },
+      { id: "baseball", ask: "Which sport has home runs and pitchers?" },
+      { id: "tennis", ask: "Which sport uses a racket and a net on a court?" },
+      { id: "tennis", ask: "Which sport scores with love, 15, 30, and 40?" },
+      { id: "golf", ask: "Which sport uses clubs to hit a small ball into holes?" },
+      { id: "golf", ask: "Which sport is played on a course with 18 holes?" },
+      { id: "volleyball", ask: "Which sport hits a ball over a high net with the hands?" },
+      { id: "volleyball", ask: "Which sport has sets, spikes, and digs?" },
+      { id: "hockey", ask: "Played on ice with a puck" },
+      { id: "hockey", ask: "Which sport uses skates and a stick on ice?" },
+      { id: "football", ask: "Which American sport has touchdowns and quarterbacks?" },
+      { id: "football", ask: "Which sport is played on a gridiron with an oval ball?" },
+      { id: "cricket", ask: "Which sport uses a bat, wickets, and overs?" },
+      { id: "cricket", ask: "Which bat-and-ball sport is huge in England, India, and Australia?" },
+      { id: "rugby", ask: "Which sport is like football but players pass the oval ball backward?" },
+      { id: "rugby", ask: "Which contact sport scores tries and conversions?" },
+      { id: "swimming", ask: "Which sport races in a pool with freestyle and butterfly?" },
+      { id: "swimming", ask: "Which sport is done in lanes in the water?" },
+      { id: "track", ask: "Which sport includes running races and hurdles?" },
+      { id: "track", ask: "Which sport has the 100-meter dash?" },
+      { id: "gymnastics", ask: "Which sport uses a balance beam and uneven bars?" },
+      { id: "gymnastics", ask: "Which sport has floor routines and flips?" },
+      { id: "skating", ask: "Which sport glides on ice or rollers with spins and jumps?" },
+      { id: "skating", ask: "Which sport includes figure skating?" },
+      { id: "skiing", ask: "Which winter sport slides down snowy slopes on two long boards?" },
+      { id: "skiing", ask: "Which sport uses ski poles and snowy mountains?" },
+      { id: "boxing", ask: "Which sport uses gloves and a boxing ring?" },
+      { id: "boxing", ask: "Which combat sport scores with punches?" }
+    ];
+
+    const HAWAII_ISLANDS = [
+      { id: "hawaii", name: "Hawaiʻi", nick: "Big Island" },
+      { id: "maui", name: "Maui", nick: "Valley Isle" },
+      { id: "oahu", name: "Oʻahu", nick: "The Gathering Place" },
+      { id: "kauai", name: "Kauaʻi", nick: "Garden Isle" },
+      { id: "molokai", name: "Molokaʻi", nick: "Friendly Isle" },
+      { id: "lanai", name: "Lānaʻi", nick: "Pineapple Isle" },
+      { id: "niihau", name: "Niʻihau", nick: "Forbidden Isle" },
+      { id: "kahoolawe", name: "Kahoʻolawe", nick: "Target Isle" }
+    ];
+    const HAWAII_BY_ID = HAWAII_ISLANDS.reduce(function (m, s) { m[s.id] = s; return m; }, {});
+    const HAWAII_QUICK = [
+      ["All 8", HAWAII_ISLANDS.map(function (s) { return s.id; })],
+      ["Big 4", ["hawaii", "maui", "oahu", "kauai"]]
+    ];
+    const HAWAII_PROMPTS = [
+      { id: "hawaii", ask: "Which is the largest Hawaiian island (the Big Island)?" },
+      { id: "hawaii", ask: "Which island has active volcanoes like Kīlauea?" },
+      { id: "maui", ask: "Which island is nicknamed the Valley Isle?" },
+      { id: "maui", ask: "Which island is home to Haleakalā?" },
+      { id: "oahu", ask: "Which island has Honolulu and Waikīkī?" },
+      { id: "oahu", ask: "Which island is home to Pearl Harbor?" },
+      { id: "kauai", ask: "Which island is nicknamed the Garden Isle?" },
+      { id: "kauai", ask: "Which island has the Nā Pali Coast?" },
+      { id: "molokai", ask: "Which island is nicknamed the Friendly Isle?" },
+      { id: "molokai", ask: "Which island lies between Oʻahu and Maui?" },
+      { id: "lanai", ask: "Which island is nicknamed the Pineapple Isle?" },
+      { id: "lanai", ask: "Which small island is west of Maui?" },
+      { id: "niihau", ask: "Which island is nicknamed the Forbidden Isle?" },
+      { id: "niihau", ask: "Which privately owned island is west of Kauaʻi?" },
+      { id: "kahoolawe", ask: "Which island is the smallest of the eight main islands?" },
+      { id: "kahoolawe", ask: "Which island was once used for military target practice?" }
+    ];
+
+    const CAPITALS = [
+      ["AL", "Alabama", "Montgomery"], ["AK", "Alaska", "Juneau"], ["AZ", "Arizona", "Phoenix"],
+      ["AR", "Arkansas", "Little Rock"], ["CA", "California", "Sacramento"], ["CO", "Colorado", "Denver"],
+      ["CT", "Connecticut", "Hartford"], ["DE", "Delaware", "Dover"], ["FL", "Florida", "Tallahassee"],
+      ["GA", "Georgia", "Atlanta"], ["HI", "Hawaii", "Honolulu"], ["ID", "Idaho", "Boise"],
+      ["IL", "Illinois", "Springfield"], ["IN", "Indiana", "Indianapolis"], ["IA", "Iowa", "Des Moines"],
+      ["KS", "Kansas", "Topeka"], ["KY", "Kentucky", "Frankfort"], ["LA", "Louisiana", "Baton Rouge"],
+      ["ME", "Maine", "Augusta"], ["MD", "Maryland", "Annapolis"], ["MA", "Massachusetts", "Boston"],
+      ["MI", "Michigan", "Lansing"], ["MN", "Minnesota", "Saint Paul"], ["MS", "Mississippi", "Jackson"],
+      ["MO", "Missouri", "Jefferson City"], ["MT", "Montana", "Helena"], ["NE", "Nebraska", "Lincoln"],
+      ["NV", "Nevada", "Carson City"], ["NH", "New Hampshire", "Concord"], ["NJ", "New Jersey", "Trenton"],
+      ["NM", "New Mexico", "Santa Fe"], ["NY", "New York", "Albany"], ["NC", "North Carolina", "Raleigh"],
+      ["ND", "North Dakota", "Bismarck"], ["OH", "Ohio", "Columbus"], ["OK", "Oklahoma", "Oklahoma City"],
+      ["OR", "Oregon", "Salem"], ["PA", "Pennsylvania", "Harrisburg"], ["RI", "Rhode Island", "Providence"],
+      ["SC", "South Carolina", "Columbia"], ["SD", "South Dakota", "Pierre"], ["TN", "Tennessee", "Nashville"],
+      ["TX", "Texas", "Austin"], ["UT", "Utah", "Salt Lake City"], ["VT", "Vermont", "Montpelier"],
+      ["VA", "Virginia", "Richmond"], ["WA", "Washington", "Olympia"], ["WV", "West Virginia", "Charleston"],
+      ["WI", "Wisconsin", "Madison"], ["WY", "Wyoming", "Cheyenne"]
+    ].map(function (row) {
+      return { id: row[0], state: row[1], capital: row[2], region: (
+        ["ME","NH","VT","MA","RI","CT","NY","NJ","PA"].indexOf(row[0]) >= 0 ? "northeast" :
+        ["DE","MD","VA","WV","NC","SC","GA","FL","KY","TN","AL","MS","AR","LA","OK","TX"].indexOf(row[0]) >= 0 ? "south" :
+        ["OH","MI","IN","IL","WI","MN","IA","MO","ND","SD","NE","KS"].indexOf(row[0]) >= 0 ? "midwest" : "west"
+      )};
+    });
+    const CAPITAL_BY_ID = CAPITALS.reduce(function (m, s) { m[s.id] = s; return m; }, {});
+    const CAPITAL_QUICK = [
+      ["All 50", CAPITALS.map(function (s) { return s.id; })],
+      ["Northeast", CAPITALS.filter(function (s) { return s.region === "northeast"; }).map(function (s) { return s.id; })],
+      ["South", CAPITALS.filter(function (s) { return s.region === "south"; }).map(function (s) { return s.id; })],
+      ["Midwest", CAPITALS.filter(function (s) { return s.region === "midwest"; }).map(function (s) { return s.id; })],
+      ["West", CAPITALS.filter(function (s) { return s.region === "west"; }).map(function (s) { return s.id; })]
+    ];
+
+    const ELEMENTS = [
+      { id: "H", symbol: "H", name: "Hydrogen" },
+      { id: "He", symbol: "He", name: "Helium" },
+      { id: "Li", symbol: "Li", name: "Lithium" },
+      { id: "Be", symbol: "Be", name: "Beryllium" },
+      { id: "B", symbol: "B", name: "Boron" },
+      { id: "C", symbol: "C", name: "Carbon" },
+      { id: "N", symbol: "N", name: "Nitrogen" },
+      { id: "O", symbol: "O", name: "Oxygen" },
+      { id: "F", symbol: "F", name: "Fluorine" },
+      { id: "Ne", symbol: "Ne", name: "Neon" },
+      { id: "Na", symbol: "Na", name: "Sodium" },
+      { id: "Mg", symbol: "Mg", name: "Magnesium" },
+      { id: "Al", symbol: "Al", name: "Aluminum" },
+      { id: "Si", symbol: "Si", name: "Silicon" },
+      { id: "P", symbol: "P", name: "Phosphorus" },
+      { id: "S", symbol: "S", name: "Sulfur" },
+      { id: "Cl", symbol: "Cl", name: "Chlorine" },
+      { id: "Ar", symbol: "Ar", name: "Argon" },
+      { id: "K", symbol: "K", name: "Potassium" },
+      { id: "Ca", symbol: "Ca", name: "Calcium" }
+    ];
+    const ELEMENT_BY_ID = ELEMENTS.reduce(function (m, e) { m[e.id] = e; return m; }, {});
+    const ELEMENT_QUICK = [
+      ["All 20", ELEMENTS.map(function (e) { return e.id; })],
+      ["1–10", ELEMENTS.slice(0, 10).map(function (e) { return e.id; })],
+      ["11–20", ELEMENTS.slice(10).map(function (e) { return e.id; })]
+    ];
+
+    const FLAGS = [
+      { id: "usa", name: "United States", continent: "americas" },
+      { id: "canada", name: "Canada", continent: "americas" },
+      { id: "mexico", name: "Mexico", continent: "americas" },
+      { id: "brazil", name: "Brazil", continent: "americas" },
+      { id: "argentina", name: "Argentina", continent: "americas" },
+      { id: "peru", name: "Peru", continent: "americas" },
+      { id: "chile", name: "Chile", continent: "americas" },
+      { id: "cuba", name: "Cuba", continent: "americas" },
+      { id: "france", name: "France", continent: "europe" },
+      { id: "germany", name: "Germany", continent: "europe" },
+      { id: "italy", name: "Italy", continent: "europe" },
+      { id: "spain", name: "Spain", continent: "europe" },
+      { id: "uk", name: "United Kingdom", continent: "europe" },
+      { id: "greece", name: "Greece", continent: "europe" },
+      { id: "norway", name: "Norway", continent: "europe" },
+      { id: "poland", name: "Poland", continent: "europe" },
+      { id: "egypt", name: "Egypt", continent: "africa" },
+      { id: "kenya", name: "Kenya", continent: "africa" },
+      { id: "nigeria", name: "Nigeria", continent: "africa" },
+      { id: "southafrica", name: "South Africa", continent: "africa" },
+      { id: "morocco", name: "Morocco", continent: "africa" },
+      { id: "ghana", name: "Ghana", continent: "africa" },
+      { id: "ethiopia", name: "Ethiopia", continent: "africa" },
+      { id: "japan", name: "Japan", continent: "asia" },
+      { id: "china", name: "China", continent: "asia" },
+      { id: "india", name: "India", continent: "asia" },
+      { id: "southkorea", name: "South Korea", continent: "asia" },
+      { id: "thailand", name: "Thailand", continent: "asia" },
+      { id: "vietnam", name: "Vietnam", continent: "asia" },
+      { id: "indonesia", name: "Indonesia", continent: "asia" },
+      { id: "philippines", name: "Philippines", continent: "asia" },
+      { id: "australia", name: "Australia", continent: "oceania" },
+      { id: "newzealand", name: "New Zealand", continent: "oceania" },
+      { id: "fiji", name: "Fiji", continent: "oceania" },
+      { id: "png", name: "Papua New Guinea", continent: "oceania" },
+      { id: "samoa", name: "Samoa", continent: "oceania" },
+      { id: "tonga", name: "Tonga", continent: "oceania" }
+    ];
+    const FLAG_BY_ID = FLAGS.reduce(function (m, f) { m[f.id] = f; return m; }, {});
+    const FLAG_QUICK = [
+      ["All", FLAGS.map(function (f) { return f.id; })],
+      ["Americas", FLAGS.filter(function (f) { return f.continent === "americas"; }).map(function (f) { return f.id; })],
+      ["Europe", FLAGS.filter(function (f) { return f.continent === "europe"; }).map(function (f) { return f.id; })],
+      ["Africa", FLAGS.filter(function (f) { return f.continent === "africa"; }).map(function (f) { return f.id; })],
+      ["Asia", FLAGS.filter(function (f) { return f.continent === "asia"; }).map(function (f) { return f.id; })],
+      ["Oceania", FLAGS.filter(function (f) { return f.continent === "oceania"; }).map(function (f) { return f.id; })]
+    ];
+    const FLAG_PROMPTS = [
+      { id: "usa", ask: "Which country has a capital named Washington, D.C.?" },
+      { id: "usa", ask: "Which Americas country has 50 states?" },
+      { id: "canada", ask: "Which country has a maple leaf on its flag?" },
+      { id: "canada", ask: "Which country is north of the United States?" },
+      { id: "mexico", ask: "Which country is south of the United States?" },
+      { id: "mexico", ask: "Which Americas country has Mexico City as its capital?" },
+      { id: "brazil", ask: "Which South American country is the largest?" },
+      { id: "brazil", ask: "Which country hosts the Amazon rainforest and speaks Portuguese?" },
+      { id: "argentina", ask: "Which South American country has Buenos Aires as its capital?" },
+      { id: "peru", ask: "Which country is home to Machu Picchu?" },
+      { id: "chile", ask: "Which long, skinny country runs along South America's west coast?" },
+      { id: "cuba", ask: "Which Caribbean island country is closest to Florida?" },
+      { id: "france", ask: "Which European country is home to the Eiffel Tower?" },
+      { id: "france", ask: "Which country has Paris as its capital?" },
+      { id: "germany", ask: "Which European country has Berlin as its capital?" },
+      { id: "italy", ask: "Which boot-shaped country is in southern Europe?" },
+      { id: "italy", ask: "Which country has Rome as its capital?" },
+      { id: "spain", ask: "Which European country has Madrid as its capital?" },
+      { id: "uk", ask: "Which country includes England, Scotland, Wales, and Northern Ireland?" },
+      { id: "uk", ask: "Which European country has London as its capital?" },
+      { id: "greece", ask: "Which European country is known for the ancient Parthenon?" },
+      { id: "norway", ask: "Which northern European country is famous for fjords?" },
+      { id: "poland", ask: "Which European country has Warsaw as its capital?" },
+      { id: "egypt", ask: "Which African country is known for the pyramids?" },
+      { id: "egypt", ask: "Which country has the Nile River and Cairo?" },
+      { id: "kenya", ask: "Which East African country is famous for safari wildlife?" },
+      { id: "nigeria", ask: "Which African country has the largest population?" },
+      { id: "southafrica", ask: "Which country is at the southern tip of Africa?" },
+      { id: "morocco", ask: "Which North African country is across from Spain?" },
+      { id: "ghana", ask: "Which West African country has Accra as its capital?" },
+      { id: "ethiopia", ask: "Which East African country was never colonized and has Addis Ababa?" },
+      { id: "japan", ask: "Which Asian island country has Tokyo as its capital?" },
+      { id: "japan", ask: "Which country is known for Mount Fuji?" },
+      { id: "china", ask: "Which Asian country has the Great Wall?" },
+      { id: "india", ask: "Which Asian country is home to the Taj Mahal?" },
+      { id: "southkorea", ask: "Which Asian country has Seoul as its capital?" },
+      { id: "thailand", ask: "Which Southeast Asian country has Bangkok as its capital?" },
+      { id: "vietnam", ask: "Which Southeast Asian country has Hanoi as its capital?" },
+      { id: "indonesia", ask: "Which Asian country is made of thousands of islands and has Jakarta?" },
+      { id: "philippines", ask: "Which island country in Asia has Manila as its capital?" },
+      { id: "australia", ask: "Which Oceania country is also a continent?" },
+      { id: "australia", ask: "Which country has Sydney and kangaroos?" },
+      { id: "newzealand", ask: "Which Oceania country has North and South Islands and kiwi birds?" },
+      { id: "fiji", ask: "Which Pacific island country is famous for coral reefs and Suva?" },
+      { id: "png", ask: "Which Oceania country shares an island with Indonesia?" },
+      { id: "samoa", ask: "Which Polynesian country has Apia as its capital?" },
+      { id: "tonga", ask: "Which Pacific kingdom is known as the Friendly Islands?" }
+    ];
+    const CONTINENT_LABEL = {
+      americas: "Americas", europe: "Europe", africa: "Africa", asia: "Asia", oceania: "Oceania"
+    };
+
+    const OPS = [
+      { id: "multiply", label: "Multiplication" },
+      { id: "divide", label: "Division" },
+      { id: "ocean", label: "Oceans" },
+      { id: "sport", label: "Sports" },
+      { id: "hawaii", label: "Hawaiian Islands" },
+      { id: "capital", label: "Capitals" },
+      { id: "element", label: "Elements" },
+      { id: "flag", label: "Flags" }
+    ];
+
     const state = {
       phase: "setup",
       tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -241,23 +516,41 @@
     }
     function isDivide() { return state.operation === "divide"; }
     function isOcean() { return state.operation === "ocean"; }
+    function isSport() { return state.operation === "sport"; }
+    function isHawaii() { return state.operation === "hawaii"; }
+    function isCapital() { return state.operation === "capital"; }
+    function isElement() { return state.operation === "element"; }
+    function isFlag() { return state.operation === "flag"; }
+    function isMath() { return state.operation === "multiply" || state.operation === "divide"; }
+    function isQuiz() { return !isMath(); }
+
     function defaultMathTables() { return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; }
     function defaultOceanTables() { return OCEAN_BODIES.map(function (b) { return b.id; }); }
-    function selectedOceans() {
-      const ids = state.tables.length ? state.tables : defaultOceanTables();
-      return ids.map(function (id) { return OCEAN_BY_ID[id]; }).filter(Boolean);
+    function defaultSportTables() { return SPORTS.map(function (s) { return s.id; }); }
+    function defaultHawaiiTables() { return HAWAII_ISLANDS.map(function (s) { return s.id; }); }
+    function defaultCapitalTables() { return CAPITALS.map(function (s) { return s.id; }); }
+    function defaultElementTables() { return ELEMENTS.map(function (e) { return e.id; }); }
+    function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
+    function defaultTablesFor(op) {
+      if (op === "ocean") return defaultOceanTables();
+      if (op === "sport") return defaultSportTables();
+      if (op === "hawaii") return defaultHawaiiTables();
+      if (op === "capital") return defaultCapitalTables();
+      if (op === "element") return defaultElementTables();
+      if (op === "flag") return defaultFlagTables();
+      return defaultMathTables();
     }
-    function oceanNameChoices(answerName, pool) {
-      const names = pool.map(function (b) { return b.name; });
+
+    function nameChoices(answerName, poolNames, fallbackNames) {
       const chosen = [answerName];
       const seen = new Set([answerName]);
-      shuffle(names).forEach(function (n) {
+      shuffle(poolNames).forEach(function (n) {
         if (chosen.length >= 4 || seen.has(n)) return;
         seen.add(n);
         chosen.push(n);
       });
-      if (chosen.length < 4) {
-        shuffle(OCEAN_BODIES.map(function (b) { return b.name; })).forEach(function (n) {
+      if (chosen.length < 4 && fallbackNames) {
+        shuffle(fallbackNames).forEach(function (n) {
           if (chosen.length >= 4 || seen.has(n)) return;
           seen.add(n);
           chosen.push(n);
@@ -265,66 +558,218 @@
       }
       return shuffle(chosen);
     }
+
+    function selectedById(list, byId) {
+      const ids = state.tables.length ? state.tables : list.map(function (x) { return x.id; });
+      return ids.map(function (id) { return byId[id]; }).filter(Boolean);
+    }
+    function selectedOceans() { return selectedById(OCEAN_BODIES, OCEAN_BY_ID); }
+    function selectedSports() { return selectedById(SPORTS, SPORT_BY_ID); }
+    function selectedHawaii() { return selectedById(HAWAII_ISLANDS, HAWAII_BY_ID); }
+    function selectedCapitals() { return selectedById(CAPITALS, CAPITAL_BY_ID); }
+    function selectedElements() { return selectedById(ELEMENTS, ELEMENT_BY_ID); }
+    function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
+
+    function buildClueQuiz(opts) {
+      const pool = opts.pool;
+      const prompts = opts.prompts.filter(function (p) {
+        return pool.some(function (item) { return item.id === p.id; });
+      });
+      let candidates = prompts.slice();
+      if (opts.extra) candidates = candidates.concat(opts.extra);
+      if (opts.avoid) candidates = candidates.filter(function (q) {
+        return (q.key || ("clue:" + q.id + ":" + q.ask)) !== opts.avoid;
+      });
+      if (!candidates.length) candidates = prompts.concat(opts.extra || []);
+      if (!candidates.length) {
+        const item = pool[0];
+        const answer = opts.answerOf(item);
+        return {
+          operation: opts.op,
+          id: item.id,
+          ask: opts.fallbackAsk(item),
+          answer: answer,
+          key: "clue:" + item.id + ":fallback",
+          choices: opts.choicesFor(answer, pool)
+        };
+      }
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      if (pick.build) return pick.build(pool, opts);
+      const item = opts.byId[pick.id];
+      const answer = opts.answerOf(item, pick);
+      return {
+        operation: opts.op,
+        id: item.id,
+        ask: pick.ask,
+        answer: answer,
+        key: pick.key || ("clue:" + pick.id + ":" + pick.ask),
+        choices: opts.choicesFor(answer, pool, pick)
+      };
+    }
+
+    function oceanNameChoices(answerName, pool) {
+      return nameChoices(answerName, pool.map(function (b) { return b.name; }), OCEAN_BODIES.map(function (b) { return b.name; }));
+    }
+
     function buildOcean(avoid) {
       const pool = selectedOceans();
       const bodies = pool.length ? pool : OCEAN_BODIES.slice();
       const seas = bodies.filter(function (b) { return b.kind === "sea"; });
       const oceans = bodies.filter(function (b) { return b.kind === "ocean"; });
-      const kindQs = [];
+      const extra = [];
       if (seas.length && bodies.length >= 2) {
-        kindQs.push({ type: "kind", kind: "sea", ask: "Which of these is a sea (not an ocean)?" });
+        extra.push({
+          key: "kind:sea",
+          build: function (pool) {
+            const body = seas[Math.floor(Math.random() * seas.length)];
+            return {
+              operation: "ocean", id: body.id, kind: body.kind,
+              ask: "Which of these is a sea (not an ocean)?",
+              answer: body.name, key: "kind:sea",
+              choices: oceanNameChoices(body.name, pool)
+            };
+          }
+        });
       }
       if (oceans.length && bodies.length >= 2) {
-        kindQs.push({ type: "kind", kind: "ocean", ask: "Which of these is an ocean?" });
+        extra.push({
+          key: "kind:ocean",
+          build: function (pool) {
+            const body = oceans[Math.floor(Math.random() * oceans.length)];
+            return {
+              operation: "ocean", id: body.id, kind: body.kind,
+              ask: "Which of these is an ocean?",
+              answer: body.name, key: "kind:ocean",
+              choices: oceanNameChoices(body.name, pool)
+            };
+          }
+        });
       }
-      const clueQs = OCEAN_PROMPTS.filter(function (p) {
+      return buildClueQuiz({
+        op: "ocean", pool: bodies, prompts: OCEAN_PROMPTS, extra: extra, avoid: avoid, byId: OCEAN_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function () { return "Name this body of water"; },
+        choicesFor: function (answer, pool) { return oceanNameChoices(answer, pool); }
+      });
+    }
+
+    function buildSport(avoid) {
+      const pool = selectedSports();
+      const bodies = pool.length ? pool : SPORTS.slice();
+      return buildClueQuiz({
+        op: "sport", pool: bodies, prompts: SPORT_PROMPTS, avoid: avoid, byId: SPORT_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function () { return "Which sport is this?"; },
+        choicesFor: function (answer, pool) {
+          return nameChoices(answer, pool.map(function (b) { return b.name; }), SPORTS.map(function (b) { return b.name; }));
+        }
+      });
+    }
+
+    function buildHawaii(avoid) {
+      const pool = selectedHawaii();
+      const bodies = pool.length ? pool : HAWAII_ISLANDS.slice();
+      return buildClueQuiz({
+        op: "hawaii", pool: bodies, prompts: HAWAII_PROMPTS, avoid: avoid, byId: HAWAII_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function () { return "Which Hawaiian island?"; },
+        choicesFor: function (answer, pool) {
+          return nameChoices(answer, pool.map(function (b) { return b.name; }), HAWAII_ISLANDS.map(function (b) { return b.name; }));
+        }
+      });
+    }
+
+    function buildCapital(avoid) {
+      const pool = selectedCapitals();
+      const bodies = pool.length ? pool : CAPITALS.slice();
+      const prompts = [];
+      bodies.forEach(function (s) {
+        prompts.push({ id: s.id, ask: "What is the capital of " + s.state + "?", dir: "toCapital", key: "cap:" + s.id + ":toCapital" });
+        prompts.push({ id: s.id, ask: s.capital + " is the capital of which state?", dir: "toState", key: "cap:" + s.id + ":toState" });
+      });
+      return buildClueQuiz({
+        op: "capital", pool: bodies, prompts: prompts, avoid: avoid, byId: CAPITAL_BY_ID,
+        answerOf: function (item, pick) {
+          if (pick && pick.dir === "toState") return item.state;
+          return item.capital;
+        },
+        fallbackAsk: function (item) { return "What is the capital of " + item.state + "?"; },
+        choicesFor: function (answer, pool, pick) {
+          const names = pool.map(function (s) { return (pick && pick.dir === "toState") ? s.state : s.capital; });
+          const fallback = CAPITALS.map(function (s) { return (pick && pick.dir === "toState") ? s.state : s.capital; });
+          return nameChoices(answer, names, fallback);
+        }
+      });
+    }
+
+    function buildElement(avoid) {
+      const pool = selectedElements();
+      const bodies = pool.length ? pool : ELEMENTS.slice();
+      const prompts = [];
+      bodies.forEach(function (e) {
+        prompts.push({ id: e.id, ask: "What element has the symbol " + e.symbol + "?", dir: "toName", key: "el:" + e.id + ":toName" });
+        prompts.push({ id: e.id, ask: "What is the chemical symbol for " + e.name + "?", dir: "toSymbol", key: "el:" + e.id + ":toSymbol" });
+      });
+      return buildClueQuiz({
+        op: "element", pool: bodies, prompts: prompts, avoid: avoid, byId: ELEMENT_BY_ID,
+        answerOf: function (item, pick) {
+          if (pick && pick.dir === "toSymbol") return item.symbol;
+          return item.name;
+        },
+        fallbackAsk: function (item) { return "What element has the symbol " + item.symbol + "?"; },
+        choicesFor: function (answer, pool, pick) {
+          const names = pool.map(function (e) { return (pick && pick.dir === "toSymbol") ? e.symbol : e.name; });
+          const fallback = ELEMENTS.map(function (e) { return (pick && pick.dir === "toSymbol") ? e.symbol : e.name; });
+          return nameChoices(answer, names, fallback);
+        }
+      });
+    }
+
+    function buildFlag(avoid) {
+      const pool = selectedFlags();
+      const bodies = pool.length ? pool : FLAGS.slice();
+      const extra = [];
+      const continents = {};
+      bodies.forEach(function (f) {
+        continents[f.continent] = continents[f.continent] || [];
+        continents[f.continent].push(f);
+      });
+      Object.keys(continents).forEach(function (c) {
+        if (continents[c].length && bodies.length >= 2) {
+          extra.push({
+            key: "continent:" + c,
+            build: function (pool) {
+              const right = continents[c][Math.floor(Math.random() * continents[c].length)];
+              return {
+                operation: "flag", id: right.id,
+                ask: "Which country is in " + CONTINENT_LABEL[c] + "?",
+                answer: right.name, key: "continent:" + c,
+                choices: nameChoices(right.name, pool.map(function (f) { return f.name; }), FLAGS.map(function (f) { return f.name; }))
+              };
+            }
+          });
+        }
+      });
+      const cluePrompts = FLAG_PROMPTS.filter(function (p) {
         return bodies.some(function (b) { return b.id === p.id; });
       }).map(function (p) {
-        return { type: "clue", id: p.id, ask: p.ask };
-      });
-      let candidates = clueQs.concat(kindQs);
-      if (avoid) candidates = candidates.filter(function (q) {
-        const key = q.type === "kind" ? "kind:" + q.kind : "clue:" + q.id + ":" + q.ask;
-        return key !== avoid;
-      });
-      if (!candidates.length) candidates = clueQs.concat(kindQs);
-      if (!candidates.length) {
-        const body = bodies[0];
+        const item = FLAG_BY_ID[p.id];
         return {
-          operation: "ocean",
-          id: body.id,
-          kind: body.kind,
-          ask: "Name this body of water",
-          answer: body.name,
-          key: "clue:" + body.id + ":fallback",
-          choices: oceanNameChoices(body.name, bodies)
+          id: p.id,
+          ask: p.ask + " (" + CONTINENT_LABEL[item.continent] + ")",
+          key: "clue:" + p.id + ":" + p.ask
         };
-      }
-      const pick = candidates[Math.floor(Math.random() * candidates.length)];
-      if (pick.type === "kind") {
-        const rightPool = bodies.filter(function (b) { return b.kind === pick.kind; });
-        const body = rightPool[Math.floor(Math.random() * rightPool.length)];
-        return {
-          operation: "ocean",
-          id: body.id,
-          kind: body.kind,
-          ask: pick.ask,
-          answer: body.name,
-          key: "kind:" + pick.kind,
-          choices: oceanNameChoices(body.name, bodies)
-        };
-      }
-      const body = OCEAN_BY_ID[pick.id];
-      return {
-        operation: "ocean",
-        id: body.id,
-        kind: body.kind,
-        ask: pick.ask,
-        answer: body.name,
-        key: "clue:" + pick.id + ":" + pick.ask,
-        choices: oceanNameChoices(body.name, bodies)
-      };
+      });
+      return buildClueQuiz({
+        op: "flag", pool: bodies, prompts: cluePrompts, extra: extra, avoid: avoid, byId: FLAG_BY_ID,
+        answerOf: function (item) { return item.name; },
+        fallbackAsk: function (item) { return "Which country is this? (" + CONTINENT_LABEL[item.continent] + ")"; },
+        choicesFor: function (answer, pool) {
+          return nameChoices(answer, pool.map(function (f) { return f.name; }), FLAGS.map(function (f) { return f.name; }));
+        }
+      });
     }
+
     function build(a, b, mode) {
       const product = a * b;
       if (isDivide()) {
@@ -338,25 +783,87 @@
       }
       return { a: a, b: b, product: product, mode: mode, operation: "multiply", answer: b, key: a + "x" + b, choices: factorChoices(b, a) };
     }
+
+    function rebuildQuizFromDrill(pair) {
+      if (!pair || !pair.id) return null;
+      if (pair.operation === "ocean" && OCEAN_BY_ID[pair.id]) {
+        const body = OCEAN_BY_ID[pair.id];
+        return {
+          operation: "ocean", id: body.id, kind: body.kind,
+          ask: pair.ask || ("Name this " + (body.kind === "sea" ? "sea" : "ocean")),
+          answer: body.name, key: pair.key || ("drill:" + body.id),
+          choices: oceanNameChoices(body.name, selectedOceans().length ? selectedOceans() : OCEAN_BODIES.slice())
+        };
+      }
+      if (pair.operation === "sport" && SPORT_BY_ID[pair.id]) {
+        const body = SPORT_BY_ID[pair.id];
+        return {
+          operation: "sport", id: body.id,
+          ask: pair.ask || "Which sport is this?",
+          answer: body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(body.name, selectedSports().map(function (b) { return b.name; }), SPORTS.map(function (b) { return b.name; }))
+        };
+      }
+      if (pair.operation === "hawaii" && HAWAII_BY_ID[pair.id]) {
+        const body = HAWAII_BY_ID[pair.id];
+        return {
+          operation: "hawaii", id: body.id,
+          ask: pair.ask || "Which Hawaiian island?",
+          answer: body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(body.name, selectedHawaii().map(function (b) { return b.name; }), HAWAII_ISLANDS.map(function (b) { return b.name; }))
+        };
+      }
+      if (pair.operation === "capital" && CAPITAL_BY_ID[pair.id]) {
+        const body = CAPITAL_BY_ID[pair.id];
+        const toState = pair.ask && pair.ask.indexOf("is the capital of which state") >= 0;
+        const answer = toState ? body.state : body.capital;
+        const ask = pair.ask || ("What is the capital of " + body.state + "?");
+        return {
+          operation: "capital", id: body.id, ask: ask, answer: answer,
+          key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(answer,
+            selectedCapitals().map(function (s) { return toState ? s.state : s.capital; }),
+            CAPITALS.map(function (s) { return toState ? s.state : s.capital; }))
+        };
+      }
+      if (pair.operation === "element" && ELEMENT_BY_ID[pair.id]) {
+        const body = ELEMENT_BY_ID[pair.id];
+        const toSymbol = pair.ask && pair.ask.indexOf("chemical symbol") >= 0;
+        const answer = toSymbol ? body.symbol : body.name;
+        const ask = pair.ask || ("What element has the symbol " + body.symbol + "?");
+        return {
+          operation: "element", id: body.id, ask: ask, answer: answer,
+          key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(answer,
+            selectedElements().map(function (e) { return toSymbol ? e.symbol : e.name; }),
+            ELEMENTS.map(function (e) { return toSymbol ? e.symbol : e.name; }))
+        };
+      }
+      if (pair.operation === "flag" && FLAG_BY_ID[pair.id]) {
+        const body = FLAG_BY_ID[pair.id];
+        return {
+          operation: "flag", id: body.id,
+          ask: pair.ask || ("Which country is this? (" + CONTINENT_LABEL[body.continent] + ")"),
+          answer: body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
+        };
+      }
+      return null;
+    }
+
     function makeProblem(avoid) {
-      if (isOcean()) {
+      if (isQuiz()) {
         if (state.drill && state.drill.length) {
           const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
-          if (pair && pair.operation === "ocean" && pair.id && OCEAN_BY_ID[pair.id]) {
-            const body = OCEAN_BY_ID[pair.id];
-            const ask = pair.ask || ("Name this " + (body.kind === "sea" ? "sea" : "ocean"));
-            return {
-              operation: "ocean",
-              id: body.id,
-              kind: body.kind,
-              ask: ask,
-              answer: body.name,
-              key: pair.key || ("drill:" + body.id),
-              choices: oceanNameChoices(body.name, selectedOceans().length ? selectedOceans() : OCEAN_BODIES.slice())
-            };
-          }
+          const rebuilt = rebuildQuizFromDrill(pair);
+          if (rebuilt) return rebuilt;
         }
-        return buildOcean(avoid);
+        if (isOcean()) return buildOcean(avoid);
+        if (isSport()) return buildSport(avoid);
+        if (isHawaii()) return buildHawaii(avoid);
+        if (isCapital()) return buildCapital(avoid);
+        if (isElement()) return buildElement(avoid);
+        if (isFlag()) return buildFlag(avoid);
       }
       const tables = state.tables.length ? state.tables : [2];
       let a = tables[Math.floor(Math.random() * tables.length)];
@@ -379,36 +886,81 @@
       }
       return problem;
     }
+
     function factLabel(pair) {
       if (pair.operation === "ocean" || (isOcean() && pair.id)) {
         const body = OCEAN_BY_ID[pair.id] || { name: pair.answer || pair.name, kind: pair.kind };
         const tag = body.kind === "sea" ? " (sea, not ocean)" : "";
         return (body.name || pair.answer) + tag;
       }
+      if (pair.operation === "sport" || (isSport() && pair.id)) {
+        return (SPORT_BY_ID[pair.id] && SPORT_BY_ID[pair.id].name) || pair.answer;
+      }
+      if (pair.operation === "hawaii" || (isHawaii() && pair.id)) {
+        const body = HAWAII_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
+      if (pair.operation === "capital" || (isCapital() && pair.id)) {
+        const body = CAPITAL_BY_ID[pair.id];
+        if (body) return body.state + " → " + body.capital;
+        return pair.answer;
+      }
+      if (pair.operation === "element" || (isElement() && pair.id)) {
+        const body = ELEMENT_BY_ID[pair.id];
+        if (body) return body.symbol + " · " + body.name;
+        return pair.answer;
+      }
+      if (pair.operation === "flag" || (isFlag() && pair.id)) {
+        const body = FLAG_BY_ID[pair.id];
+        if (body) return body.name + " (" + CONTINENT_LABEL[body.continent] + ")";
+        return pair.answer;
+      }
       if (isDivide() || pair.operation === "divide") {
         return (pair.a * pair.b) + " ÷ " + pair.a + " = " + pair.b;
       }
       return pair.a + " × " + pair.b + " = " + (pair.a * pair.b);
     }
+
     function spokenFact(pair) {
-      if (pair.operation === "ocean" || (isOcean() && pair.answer)) {
+      const op = pair.operation || state.operation;
+      if (op === "ocean") {
         const body = OCEAN_BY_ID[pair.id];
         const name = pair.answer || (body && body.name) || "that body of water";
         if (body && body.kind === "sea") return name + " is a sea, not an ocean.";
         return "The answer is " + name + ".";
       }
-      if (isDivide() || pair.operation === "divide") {
+      if (op === "capital") {
+        const body = CAPITAL_BY_ID[pair.id];
+        if (body) return "The capital of " + body.state + " is " + body.capital + ".";
+        return "The answer is " + pair.answer + ".";
+      }
+      if (op === "element") {
+        const body = ELEMENT_BY_ID[pair.id];
+        if (body) return body.symbol + " is " + body.name + ".";
+        return "The answer is " + pair.answer + ".";
+      }
+      if (op === "sport" || op === "hawaii" || op === "flag") {
+        return "The answer is " + (pair.answer || "that") + ".";
+      }
+      if (isDivide() || op === "divide") {
         return (pair.a * pair.b) + " divided by " + pair.a + " is " + pair.b + ".";
       }
       return pair.a + " times " + pair.b + " is " + pair.product + ".";
     }
+
     function updateTagline() {
       const tag = document.getElementById("tagline");
       if (!tag) return;
       if (isOcean()) tag.textContent = "Practice oceans and seas.";
+      else if (isSport()) tag.textContent = "Practice sports facts.";
+      else if (isHawaii()) tag.textContent = "Practice Hawaiian Islands.";
+      else if (isCapital()) tag.textContent = "Practice U.S. state capitals.";
+      else if (isElement()) tag.textContent = "Practice chemical elements and symbols.";
+      else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
       else tag.textContent = "Practice multiplication facts.";
     }
+
     function formatMs(ms) {
       const total = Math.max(0, Math.ceil(ms / 1000));
       return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
@@ -442,7 +994,10 @@
       const seen = new Set();
       return state.misses.filter(function (pair) {
         const op = pair.operation || state.operation;
-        const key = op === "ocean" ? "ocean:" + (pair.id || pair.answer) : op === "divide" ? pair.a + "/" + pair.b : pair.a + "x" + pair.b;
+        let key;
+        if (op === "multiply") key = pair.a + "x" + pair.b;
+        else if (op === "divide") key = pair.a + "/" + pair.b;
+        else key = op + ":" + (pair.id || pair.answer);
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -453,6 +1008,7 @@
       Object.keys(attrs || {}).forEach(function (key) {
         if (key === "class") node.className = attrs[key];
         else if (key === "text") node.textContent = attrs[key];
+        else if (key === "style") node.setAttribute("style", attrs[key]);
         else if (key.slice(0, 2) === "on") node.addEventListener(key.slice(2).toLowerCase(), attrs[key]);
         else node.setAttribute(key, attrs[key]);
       });
@@ -474,39 +1030,87 @@
       else if (state.phase === "play") renderPlay(app);
       else renderResults(app);
     }
+    function checklistCard(label, items, quick, hint, warn, twoCol) {
+      const tables = el("div", { class: "card" });
+      const head = el("div", { class: "row" });
+      head.appendChild(el("p", { class: "label", text: label }));
+      if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
+      tables.appendChild(head);
+      if (quick && quick.length) {
+        const quickRow = el("div", { class: "row" });
+        quick.forEach(function (set) {
+          quickRow.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
+        });
+        tables.appendChild(quickRow);
+      }
+      const grid = el("div", { class: "grid-check" + (twoCol ? " two" : "") });
+      items.forEach(function (item) {
+        const id = item.id;
+        const text = item.name;
+        grid.appendChild(button(text, "num", state.tables.indexOf(id) >= 0, function () {
+          const i = state.tables.indexOf(id);
+          if (i >= 0) state.tables.splice(i, 1);
+          else state.tables.push(id);
+          render();
+        }));
+      });
+      tables.appendChild(grid);
+      if (hint) tables.appendChild(el("p", { class: "hint", text: hint }));
+      if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: warn || "Pick at least one." }));
+      return tables;
+    }
+
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
       stack.appendChild(operationCard());
-      const tables = el("div", { class: "card" });
-      const head = el("div", { class: "row" });
-      const tablesLabel = isOcean() ? "Oceans & seas" : isDivide() ? "÷ Tables" : "× Tables";
-      head.appendChild(el("p", { class: "label", text: tablesLabel }));
-      if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
-      tables.appendChild(head);
+
       if (isOcean()) {
-        const quick = el("div", { class: "row" });
-        OCEAN_QUICK.forEach(function (set) {
-          quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
-        });
-        tables.appendChild(quick);
-        const grid = el("div", { class: "grid-oceans" });
-        OCEAN_BODIES.forEach(function (body) {
-          const id = body.id;
-          const label = body.kind === "sea" ? body.name + " · sea" : body.name;
-          grid.appendChild(button(label, "num", state.tables.indexOf(id) >= 0, function () {
-            const i = state.tables.indexOf(id);
-            if (i >= 0) state.tables.splice(i, 1);
-            else state.tables.push(id);
-            render();
-          }));
-        });
-        tables.appendChild(grid);
-        tables.appendChild(el("p", { class: "hint", text: "Seas are labeled so kids know they aren't oceans. All 7 selected by default." }));
-        if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one ocean or sea." }));
+        stack.appendChild(checklistCard("Oceans & seas",
+          OCEAN_BODIES.map(function (b) { return { id: b.id, name: b.kind === "sea" ? b.name + " · sea" : b.name }; }),
+          OCEAN_QUICK,
+          "Seas are labeled so kids know they aren't oceans. All 7 selected by default.",
+          "Pick at least one ocean or sea."));
+      } else if (isSport()) {
+        stack.appendChild(checklistCard("Sports",
+          SPORTS.map(function (s) { return { id: s.id, name: s.name }; }),
+          SPORT_QUICK,
+          "Ball sports plus a few more. All selected by default.",
+          "Pick at least one sport."));
+      } else if (isHawaii()) {
+        stack.appendChild(checklistCard("Hawaiian Islands",
+          HAWAII_ISLANDS.map(function (s) { return { id: s.id, name: s.name + (s.nick ? " · " + s.nick : "") }; }),
+          HAWAII_QUICK,
+          "Eight main islands. All selected by default.",
+          "Pick at least one island."));
+      } else if (isCapital()) {
+        stack.appendChild(checklistCard("States",
+          CAPITALS.map(function (s) { return { id: s.id, name: s.state }; }),
+          CAPITAL_QUICK,
+          "All 50 states. Quiz goes both ways: state → capital and capital → state.",
+          "Pick at least one state.",
+          true));
+      } else if (isElement()) {
+        stack.appendChild(checklistCard("Elements",
+          ELEMENTS.map(function (e) { return { id: e.id, name: e.symbol + " · " + e.name }; }),
+          ELEMENT_QUICK,
+          "First 20 elements. Quiz goes both ways: symbol ↔ name.",
+          "Pick at least one element.",
+          true));
+      } else if (isFlag()) {
+        stack.appendChild(checklistCard("Countries",
+          FLAGS.map(function (f) { return { id: f.id, name: f.name + " · " + CONTINENT_LABEL[f.continent] }; }),
+          FLAG_QUICK,
+          "Text clues by continent — no flag images. All selected by default.",
+          "Pick at least one country."));
       } else {
+        const tables = el("div", { class: "card" });
+        const head = el("div", { class: "row" });
+        head.appendChild(el("p", { class: "label", text: isDivide() ? "÷ Tables" : "× Tables" }));
+        if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
+        tables.appendChild(head);
         const quick = el("div", { class: "row" });
         QUICK.forEach(function (set) {
           quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
@@ -525,17 +1129,20 @@
         }
         tables.appendChild(grid);
         if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one table." }));
+        stack.appendChild(tables);
       }
-      stack.appendChild(tables);
-      if (!isOcean()) stack.appendChild(modeCard());
+
+      if (isMath()) stack.appendChild(modeCard());
       stack.appendChild(roundCard());
       app.appendChild(stack);
     }
+
     function setOperation(op) {
-      const wasOcean = isOcean();
-      const willOcean = op === "ocean";
-      if (wasOcean && !willOcean) state.tables = defaultMathTables();
-      else if (!wasOcean && willOcean) state.tables = defaultOceanTables();
+      const wasMath = isMath();
+      const willMath = op === "multiply" || op === "divide";
+      if (wasMath && !willMath) state.tables = defaultTablesFor(op);
+      else if (!wasMath && willMath) state.tables = defaultMathTables();
+      else if (!wasMath && !willMath && state.operation !== op) state.tables = defaultTablesFor(op);
       state.operation = op;
       if (op === "divide") {
         if (state.mode === "product" || state.mode === "factor") state.mode = state.mode === "factor" ? "divisor" : "quotient";
@@ -544,20 +1151,27 @@
       }
       render();
     }
+
     function operationCard() {
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Operation" }));
-      const row = el("div", { class: "split3" });
-      row.appendChild(button("Multiplication", "choice", state.operation === "multiply", function () { setOperation("multiply"); }));
-      row.appendChild(button("Division", "choice", state.operation === "divide", function () { setOperation("divide"); }));
-      row.appendChild(button("Oceans", "choice", isOcean(), function () { setOperation("ocean"); }));
+      const row = el("div", { class: "ops" });
+      OPS.forEach(function (op) {
+        row.appendChild(button(op.label, "choice", state.operation === op.id, function () { setOperation(op.id); }));
+      });
       card.appendChild(row);
       let hint = "Classic multiplication table facts.";
       if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
       if (isOcean()) hint = "Name oceans and seas from clues. Seas are labeled so kids know they aren't oceans.";
+      if (isSport()) hint = "Name sports from kid-friendly clues. Four choices each time.";
+      if (isHawaii()) hint = "Name the main Hawaiian Islands from clues.";
+      if (isCapital()) hint = "Match U.S. states and their capitals (both directions).";
+      if (isElement()) hint = "Match element symbols and names (both directions).";
+      if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
+
     function modeCard() {
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Ask for" }));
@@ -575,6 +1189,7 @@
       }
       return card;
     }
+
     function roundCard() {
       const card = el("div", { class: "card" });
       card.appendChild(el("p", { class: "label", text: "Round" }));
@@ -585,6 +1200,17 @@
       card.appendChild(row);
       return card;
     }
+
+    function quizPlayLabel() {
+      if (isOcean()) return "Oceans & seas";
+      if (isSport()) return "Sports";
+      if (isHawaii()) return "Hawaiian Islands";
+      if (isCapital()) return "Capitals";
+      if (isElement()) return "Elements";
+      if (isFlag()) return "Flags";
+      return "Quiz";
+    }
+
     function renderPlay(app) {
       const problem = state.problem;
       const hud = el("div", { class: "hud" });
@@ -596,9 +1222,9 @@
       hud.appendChild(el("span", { text: clock }));
       app.appendChild(hud);
       const eq = el("div", { class: "card eq" });
-      if (isOcean()) {
-        eq.appendChild(el("p", { class: "label", text: "Oceans & seas" }));
-        eq.appendChild(el("p", { class: "prompt ocean-prompt", text: problem.ask }));
+      if (isQuiz()) {
+        eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
+        eq.appendChild(el("p", { class: "prompt quiz-prompt", text: problem.ask }));
       } else {
         const askLabel = isDivide()
           ? (state.mode === "quotient" ? "What is the quotient?" : "What number is missing?")
@@ -627,7 +1253,7 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const answers = el("div", { class: "answers" + (isOcean() ? " ocean-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -639,6 +1265,7 @@
       app.appendChild(answers);
       if (state.length === "practice") app.appendChild(el("button", { class: "ghost", type: "button", text: "Done", style: "margin-top:1rem", onClick: finish }));
     }
+
     function renderResults(app) {
       const missed = uniqueMisses();
       const accuracy = state.total ? Math.round((state.correct / state.total) * 100) : 0;
@@ -653,17 +1280,18 @@
       stack.appendChild(card);
       if (missed.length) {
         const listCard = el("div", { class: "card" });
-        listCard.appendChild(el("p", { class: "label", text: isOcean() ? "Review these" : "Practice these" }));
+        listCard.appendChild(el("p", { class: "label", text: isQuiz() ? "Review these" : "Practice these" }));
         const list = el("ul", { class: "miss" });
         missed.slice(0, 6).forEach(function (pair) { list.appendChild(el("li", { text: factLabel(pair) })); });
         listCard.appendChild(list);
         stack.appendChild(listCard);
-      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isOcean() ? "Every answer was correct." : "Every fact was correct." }));
+      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isQuiz() ? "Every answer was correct." : "Every fact was correct." }));
       stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
-      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: isOcean() ? "Drill missed" : "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
-      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isOcean() ? "Change set" : "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
+      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: isQuiz() ? "Drill missed" : "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
+      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isQuiz() ? "Change set" : "Change tables", onClick: function () { state.drill = null; state.phase = "setup"; render(); } }));
       app.appendChild(stack);
     }
+
     function nextProblem(avoid) {
       state.problem = makeProblem(avoid);
       state.picked = null;
@@ -684,8 +1312,8 @@
     function start(pairs) {
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
-      if (isOcean()) {
-        /* Oceans quiz has no product/factor modes */
+      if (isQuiz()) {
+        /* quiz modes have no product/factor modes */
       } else if (isDivide()) {
         if (state.mode !== "quotient" && state.mode !== "divisor") state.mode = "quotient";
       } else if (state.mode !== "product" && state.mode !== "factor") {
@@ -740,8 +1368,12 @@
       } else {
         state.streak = 0;
         state.gain = null;
-        if (isOcean() || problem.operation === "ocean") {
-          state.misses.push({ id: problem.id, ask: problem.ask, answer: problem.answer, kind: problem.kind, key: problem.key, operation: "ocean" });
+        if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide")) {
+          state.misses.push({
+            id: problem.id, ask: problem.ask, answer: problem.answer,
+            kind: problem.kind, key: problem.key,
+            operation: problem.operation || state.operation
+          });
         } else {
           state.misses.push({ a: problem.a, b: problem.b, operation: problem.operation || state.operation });
         }

@@ -18,4 +18,6 @@ A one-page multiplication, division, facts, vocab, and rhyming game. Open `index
 
 - **Piano Notes** — natural notes C–B via keyboard order, solfège (Do–Ti), and treble-clef text clues; chips All / C–G / A–B.
 
+- **Instruments** — ~25 classroom/orchestra instruments; clue → name or instrument → family (strings/woodwind/brass/percussion/keyboard); chips by family.
+
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Rush / 10 facts / Practice rounds and scoring work the same across modes.

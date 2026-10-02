@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Table Rush</title>
-  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes. No account needed." />
+  <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments. No account needed." />
   <style>
     :root {
       --bg: #b8d4ea;
@@ -593,6 +593,75 @@
       { id: "b", ask: "Which note is Ti (or Si) in the C major solfège scale?" }
     ];
 
+    const INSTRUMENT_FAMILY = {
+      strings: "Strings", woodwind: "Woodwind", brass: "Brass",
+      percussion: "Percussion", keyboard: "Keyboard"
+    };
+    const INSTRUMENTS = [
+      { id: "violin", name: "Violin", family: "strings" },
+      { id: "viola", name: "Viola", family: "strings" },
+      { id: "cello", name: "Cello", family: "strings" },
+      { id: "bass", name: "Double bass", family: "strings" },
+      { id: "guitar", name: "Guitar", family: "strings" },
+      { id: "harp", name: "Harp", family: "strings" },
+      { id: "flute", name: "Flute", family: "woodwind" },
+      { id: "clarinet", name: "Clarinet", family: "woodwind" },
+      { id: "oboe", name: "Oboe", family: "woodwind" },
+      { id: "bassoon", name: "Bassoon", family: "woodwind" },
+      { id: "saxophone", name: "Saxophone", family: "woodwind" },
+      { id: "recorder", name: "Recorder", family: "woodwind" },
+      { id: "trumpet", name: "Trumpet", family: "brass" },
+      { id: "trombone", name: "Trombone", family: "brass" },
+      { id: "frenchhorn", name: "French horn", family: "brass" },
+      { id: "tuba", name: "Tuba", family: "brass" },
+      { id: "snare", name: "Snare drum", family: "percussion" },
+      { id: "bassdrum", name: "Bass drum", family: "percussion" },
+      { id: "timpani", name: "Timpani", family: "percussion" },
+      { id: "xylophone", name: "Xylophone", family: "percussion" },
+      { id: "cymbals", name: "Cymbals", family: "percussion" },
+      { id: "triangle", name: "Triangle", family: "percussion" },
+      { id: "piano", name: "Piano", family: "keyboard" },
+      { id: "organ", name: "Organ", family: "keyboard" },
+      { id: "keyboard", name: "Electronic keyboard", family: "keyboard" }
+    ];
+    const INSTRUMENT_BY_ID = INSTRUMENTS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const INSTRUMENT_QUICK = [
+      ["All", INSTRUMENTS.map(function (x) { return x.id; })],
+      ["Strings", INSTRUMENTS.filter(function (x) { return x.family === "strings"; }).map(function (x) { return x.id; })],
+      ["Woodwind", INSTRUMENTS.filter(function (x) { return x.family === "woodwind"; }).map(function (x) { return x.id; })],
+      ["Brass", INSTRUMENTS.filter(function (x) { return x.family === "brass"; }).map(function (x) { return x.id; })],
+      ["Percussion", INSTRUMENTS.filter(function (x) { return x.family === "percussion"; }).map(function (x) { return x.id; })],
+      ["Keyboard", INSTRUMENTS.filter(function (x) { return x.family === "keyboard"; }).map(function (x) { return x.id; })]
+    ];
+    const INSTRUMENT_PROMPTS = [
+      { id: "violin", ask: "Which small string instrument is held under the chin?" },
+      { id: "violin", ask: "Which string instrument usually plays the highest melody in an orchestra?" },
+      { id: "viola", ask: "Which string instrument is a little larger and lower than a violin?" },
+      { id: "cello", ask: "Which string instrument is held between the knees and played sitting down?" },
+      { id: "bass", ask: "Which huge string instrument is often taller than the player?" },
+      { id: "guitar", ask: "Which popular string instrument usually has six strings and a fretted neck?" },
+      { id: "harp", ask: "Which tall string instrument is plucked with both hands and has many pedals?" },
+      { id: "flute", ask: "Which woodwind is held sideways and played by blowing across a hole?" },
+      { id: "clarinet", ask: "Which woodwind uses a single reed and a black body with silver keys?" },
+      { id: "oboe", ask: "Which woodwind uses a double reed and often gives the orchestra its tuning note A?" },
+      { id: "bassoon", ask: "Which large woodwind uses a double reed and plays low notes?" },
+      { id: "saxophone", ask: "Which brass-looking woodwind with a single reed is common in jazz bands?" },
+      { id: "recorder", ask: "Which simple classroom woodwind do many students learn first?" },
+      { id: "trumpet", ask: "Which brass instrument has three valves and a bright, high sound?" },
+      { id: "trombone", ask: "Which brass instrument changes pitch with a long slide?" },
+      { id: "frenchhorn", ask: "Which coiled brass instrument wraps around the player’s hand?" },
+      { id: "tuba", ask: "Which brass instrument is the largest and plays the lowest brass notes?" },
+      { id: "snare", ask: "Which drum has wires underneath that make a sharp rattling sound?" },
+      { id: "bassdrum", ask: "Which large drum makes the deep boom in a marching band?" },
+      { id: "timpani", ask: "Which large kettle drums can be tuned to different pitches?" },
+      { id: "xylophone", ask: "Which percussion instrument has wooden bars you hit with mallets?" },
+      { id: "cymbals", ask: "Which metal discs crash together for a loud splash of sound?" },
+      { id: "triangle", ask: "Which metal percussion instrument is a bent bar shaped like a triangle?" },
+      { id: "piano", ask: "Which keyboard instrument has black and white keys and hammers that hit strings?" },
+      { id: "organ", ask: "Which keyboard instrument often has pipes and foot pedals in churches?" },
+      { id: "keyboard", ask: "Which portable keyboard plugs in or uses batteries for class and practice?" }
+    ];
+
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "divide", label: "Division" },
@@ -607,7 +676,8 @@
       { id: "flag", label: "Flags" },
       { id: "rhyme", label: "Rhyming" },
       { id: "synonym", label: "Synonyms & Antonyms" },
-      { id: "piano", label: "Piano Notes" }
+      { id: "piano", label: "Piano Notes" },
+      { id: "instrument", label: "Instruments" }
     ];
 
     const state = {
@@ -695,6 +765,7 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
+    function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
     function isMath() {
       return state.operation === "multiply" || state.operation === "divide"
@@ -714,6 +785,7 @@
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
+    function defaultInstrumentTables() { return INSTRUMENTS.map(function (x) { return x.id; }); }
     function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
     function defaultTablesFor(op) {
       if (op === "ocean") return defaultOceanTables();
@@ -725,6 +797,7 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
+      if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "add" || op === "subtract") return defaultAddTables();
       return defaultMathTables();
@@ -761,6 +834,7 @@
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
+    function selectedInstruments() { return selectedById(INSTRUMENTS, INSTRUMENT_BY_ID); }
     function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
 
     function buildClueQuiz(opts) {
@@ -1143,6 +1217,43 @@
       });
     }
 
+
+    function buildInstrument(avoid) {
+      const pool = selectedInstruments();
+      const bodies = pool.length ? pool : INSTRUMENTS.slice();
+
+      const extras = [];
+      const famLabel = INSTRUMENT_FAMILY;
+      bodies.forEach(function (item) {
+        const fam = item.family;
+        const label = famLabel[fam] || fam;
+        extras.push({
+          id: item.id,
+          ask: "Which family is the " + item.name + " in?",
+          key: "instrument:fam:" + item.id,
+          dir: "toFamily",
+          familyAnswer: label
+        });
+      });
+      return buildClueQuiz({
+        op: "instrument", pool: bodies, prompts: INSTRUMENT_PROMPTS.concat(extras), avoid: avoid, byId: INSTRUMENT_BY_ID,
+        answerOf: function (item, pick) {
+          if (pick && pick.dir === "toFamily") return pick.familyAnswer || famLabel[item.family] || item.family;
+          return item.name;
+        },
+        fallbackAsk: function () { return "Which instrument is this?"; },
+        choicesFor: function (answer, pool, pick) {
+          if (pick && pick.dir === "toFamily") {
+            const allFam = Object.keys(famLabel).map(function (k) { return famLabel[k]; });
+            const uniq = [];
+            allFam.forEach(function (n) { if (uniq.indexOf(n) < 0) uniq.push(n); });
+            return nameChoices(answer, uniq, uniq);
+          }
+          return nameChoices(answer, pool.map(function (b) { return b.name; }), INSTRUMENTS.map(function (b) { return b.name; }));
+        }
+      });
+    }
+
     function vocabDistractors(item, pool) {
       const banned = new Set([item.answer, item.word]);
       const picked = [];
@@ -1341,6 +1452,17 @@
             PIANO_NOTES.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "instrument" && INSTRUMENT_BY_ID[pair.id]) {
+        const body = INSTRUMENT_BY_ID[pair.id];
+        return {
+          operation: "instrument", id: body.id,
+          ask: pair.ask || "Which instrument is this?",
+          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
+          choices: nameChoices(pair.answer || body.name,
+            selectedInstruments().map(function (b) { return b.name; }),
+            INSTRUMENTS.map(function (b) { return b.name; }))
+        };
+      }
       if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
         const item = VOCAB_BY_ID[pair.id];
         const ask = pair.ask || (item.kind === "antonym"
@@ -1385,6 +1507,7 @@
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
+        if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
       }
       const tables = state.tables.length ? state.tables : (isAdd() || isSubtract() ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2]);
@@ -1468,6 +1591,10 @@
         const body = PIANO_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
+      if (pair.operation === "instrument" || (isInstrument() && pair.id)) {
+        const body = INSTRUMENT_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
       if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
         const item = VOCAB_BY_ID[pair.id];
         const word = pair.word || (item && item.word) || "?";
@@ -1533,6 +1660,7 @@
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
+      else if (isInstrument()) tag.textContent = "Practice musical instruments.";
       else if (isPiano()) tag.textContent = "Practice piano note names.";
       else if (isDivide()) tag.textContent = "Practice division facts.";
       else if (isAdd()) tag.textContent = "Practice addition facts.";
@@ -1719,6 +1847,13 @@
           PIANO_QUICK,
           "Seven natural notes C–B. Keyboard order, solfège, and treble-clef text clues.",
           "Pick at least one note."));
+      } else if (isInstrument()) {
+        stack.appendChild(checklistCard("Instruments",
+          INSTRUMENTS.map(function (x) { return { id: x.id, name: x.name + " · " + INSTRUMENT_FAMILY[x.family] }; }),
+          INSTRUMENT_QUICK,
+          "Orchestra and classroom instruments. Clue → name, or instrument → family.",
+          "Pick at least one instrument.",
+          true));
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -1817,6 +1952,7 @@
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
+      if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
       card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
@@ -1871,6 +2007,7 @@
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
+      if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       return "Quiz";
     }

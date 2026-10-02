@@ -818,6 +818,8 @@
       lockUntil: 0
     };
     let audioCtx = null;
+    let homeMusic = null;
+    let homeMusicUnlockBound = false;
     let timer = 0;
     let feedback = 0;
 
@@ -1908,6 +1910,44 @@
         });
       } catch (_) {}
     }
+    function ensureHomeMusic() {
+      if (homeMusic) return homeMusic;
+      homeMusic = new Audio("assets/audio/home.mp3");
+      homeMusic.loop = true;
+      homeMusic.preload = "auto";
+      homeMusic.volume = 0.4;
+      return homeMusic;
+    }
+    function unbindHomeMusicUnlock() {
+      if (!homeMusicUnlockBound) return;
+      document.removeEventListener("pointerdown", unlockHomeMusic, true);
+      document.removeEventListener("keydown", unlockHomeMusic, true);
+      homeMusicUnlockBound = false;
+    }
+    function unlockHomeMusic() {
+      unbindHomeMusicUnlock();
+      syncHomeMusic();
+    }
+    function bindHomeMusicUnlock() {
+      if (homeMusicUnlockBound) return;
+      homeMusicUnlockBound = true;
+      document.addEventListener("pointerdown", unlockHomeMusic, true);
+      document.addEventListener("keydown", unlockHomeMusic, true);
+    }
+    function syncHomeMusic() {
+      const audio = ensureHomeMusic();
+      const shouldPlay = state.phase === "setup" && !state.muted;
+      if (!shouldPlay) {
+        unbindHomeMusicUnlock();
+        if (!audio.paused) audio.pause();
+        return;
+      }
+      if (!audio.paused) return;
+      const playAttempt = audio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.catch(function () { bindHomeMusicUnlock(); });
+      }
+    }
     function uniqueMisses() {
       const seen = new Set();
       return state.misses.filter(function (pair) {
@@ -1962,6 +2002,7 @@
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       else renderResults(app);
+      syncHomeMusic();
     }
     function checklistCard(label, items, quick, hint, warn, twoCol) {
       const tables = el("div", { class: "card" });

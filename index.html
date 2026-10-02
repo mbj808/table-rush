@@ -7,28 +7,30 @@
   <meta name="description" content="Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles; North Shore waves. No account needed." />
   <style>
     :root {
-      --bg: #b8d4ea;
+      --bg: #5ec4d6;
       --ink: #1b2430;
       --muted: #3a4a5c;
       --paper: #fffdf8;
-      --line: #c5d6e6;
-      --sand: #e4eef6;
+      --line: #b7d9e4;
+      --sand: #dff3f7;
       --coral: #e15a3a;
       --forest: #1e7a4d;
+      --forest-deep: #155c3a;
       --on-forest: #f4fff8;
       --forest-soft: #e4f5eb;
-      --primary: #0f5f8c;
-      --primary-deep: #0a4a6e;
-      --on-primary: #ffffff;
-      --aqua: #d7ebf7;
-      --aqua-soft: #eef6fb;
+      --primary: #1e7a4d;
+      --primary-deep: #155c3a;
+      --on-primary: #f4fff8;
+      --aqua: #d4f0f5;
+      --aqua-soft: #eaf8fb;
       --btn-face: #f5fafd;
-      --btn-border: #8fb0c8;
-      --choice-on: #164e6f;
-      --icon-bg: #e8f4fb;
-      --icon-border: #6f9bb8;
-      --rain: rgba(255, 255, 255, 0.38);
-      --rain-soft: rgba(210, 235, 250, 0.28);
+      --btn-border: #7ab89a;
+      --choice-on: #1e7a4d;
+      --icon-bg: #e4f5eb;
+      --icon-border: #4a9a6e;
+      --wave-1: rgba(255, 255, 255, 0.34);
+      --wave-2: rgba(180, 230, 240, 0.45);
+      --wave-3: rgba(40, 140, 160, 0.22);
     }
     * { box-sizing: border-box; }
     html, body { min-height: 100%; }
@@ -39,57 +41,60 @@
       font-family: "Segoe UI", system-ui, sans-serif;
       position: relative;
     }
-    /* Calm rain / drip layer — CSS only, Chromebook-light */
-    .rain-bg {
+    /* Soft deep wave layers — CSS/SVG, Chromebook-light */
+    .wave-bg {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
+      background: linear-gradient(180deg, #7ed4e4 0%, var(--bg) 42%, #3fa8bc 100%);
     }
-    .rain-bg::before,
-    .rain-bg::after {
-      content: "";
+    .wave-bg svg {
       position: absolute;
-      left: 0;
-      top: -50%;
-      width: 100%;
-      height: 150%;
-      background-repeat: repeat;
+      left: -20%;
+      width: 140%;
+      height: 42%;
+      min-height: 11rem;
       will-change: transform;
     }
-    .rain-bg::before {
-      background-image:
-        linear-gradient(180deg, transparent 0%, transparent 42%, var(--rain) 50%, transparent 58%, transparent 100%),
-        linear-gradient(180deg, transparent 0%, transparent 35%, var(--rain-soft) 48%, transparent 62%, transparent 100%);
-      background-size: 14px 72px, 22px 96px;
-      background-position: 0 0, 7px 12px;
-      opacity: 0.55;
-      animation: rain-fall 2.4s linear infinite;
+    .wave-bg .w1 {
+      top: 8%;
+      opacity: 0.95;
+      animation: wave-drift 18s ease-in-out infinite;
     }
-    .rain-bg::after {
-      background-image:
-        linear-gradient(180deg, transparent 0%, transparent 45%, rgba(255,255,255,0.22) 52%, transparent 60%, transparent 100%),
-        linear-gradient(180deg, transparent 0%, transparent 38%, rgba(190, 220, 240, 0.2) 50%, transparent 64%, transparent 100%);
-      background-size: 18px 110px, 28px 140px;
-      background-position: 4px 20px, 16px 0;
-      opacity: 0.4;
-      animation: rain-fall 3.6s linear infinite;
-      animation-delay: -1.2s;
+    .wave-bg .w2 {
+      top: 34%;
+      opacity: 0.85;
+      animation: wave-drift 24s ease-in-out infinite reverse;
+      animation-delay: -4s;
     }
-    @keyframes rain-fall {
-      from { transform: translate3d(0, 0, 0); }
-      to { transform: translate3d(0, 33.333%, 0); }
+    .wave-bg .w3 {
+      top: 58%;
+      height: 48%;
+      opacity: 0.9;
+      animation: wave-drift 28s ease-in-out infinite;
+      animation-delay: -9s;
+    }
+    .wave-bg .w4 {
+      bottom: -6%;
+      top: auto;
+      height: 36%;
+      opacity: 0.75;
+      animation: wave-drift 22s ease-in-out infinite reverse;
+      animation-delay: -2s;
+    }
+    @keyframes wave-drift {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      25% { transform: translate3d(4%, -2.5%, 0); }
+      50% { transform: translate3d(-3%, 1.5%, 0); }
+      75% { transform: translate3d(2.5%, -1%, 0); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .rain-bg::before,
-      .rain-bg::after {
-        animation: none;
-        top: 0;
-        height: 100%;
-        opacity: 0.28;
-        transform: none;
+      .wave-bg svg {
+        animation: none !important;
         will-change: auto;
+        transform: none;
       }
     }
     button { font: inherit; cursor: pointer; }
@@ -126,7 +131,7 @@
       min-height: 2.75rem; border-radius: 0.75rem; border: 1.5px solid var(--btn-border);
       background: var(--btn-face); color: var(--ink); font-weight: 800;
     }
-    .chip { padding: 0 1rem; border-radius: 999px; background: var(--aqua); border-color: var(--btn-border); }
+    .chip { padding: 0 1rem; border-radius: 999px; background: var(--forest-soft); border-color: var(--btn-border); color: var(--forest-deep); }
     .on { background: var(--choice-on); color: var(--on-primary); border-color: var(--choice-on); }
     .grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 0.75rem; }
     .num {
@@ -240,7 +245,20 @@
   </style>
 </head>
 <body>
-  <div class="rain-bg" aria-hidden="true"></div>
+  <div class="wave-bg" aria-hidden="true">
+    <svg class="w1" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="var(--wave-1)" d="M0,192 C180,260 360,80 540,160 C720,240 900,280 1080,200 C1260,120 1350,80 1440,140 L1440,320 L0,320 Z"/>
+    </svg>
+    <svg class="w2" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="var(--wave-2)" d="M0,128 C200,40 400,240 600,160 C800,80 1000,40 1200,140 C1320,200 1380,220 1440,180 L1440,320 L0,320 Z"/>
+    </svg>
+    <svg class="w3" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="var(--wave-3)" d="M0,224 C160,120 320,280 520,200 C720,120 880,60 1080,160 C1240,240 1360,260 1440,200 L1440,320 L0,320 Z"/>
+    </svg>
+    <svg class="w4" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="rgba(255,255,255,0.28)" d="M0,160 C220,260 440,60 720,140 C1000,220 1220,280 1440,160 L1440,320 L0,320 Z"/>
+    </svg>
+  </div>
   <main>
     <p id="live" class="sr" aria-live="polite"></p>
     <header>

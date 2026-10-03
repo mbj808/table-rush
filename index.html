@@ -1170,6 +1170,7 @@
     let homeMusicUnlockBound = false;
     let homeMusicAutoplayBlocked = false;
     let homeMusicLoadRetryBound = false;
+    let homeMusicPlayGen = 0;
     let playMusic = null;
     let playMusicTrackId = null;
     let playMusicUnlockBound = false;
@@ -2455,9 +2456,31 @@
     function unlockHomeMusic(event) {
       // Let the Mute/Music button own its gesture (avoids pointerdown-start then click-mute).
       if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
-      // Keep listening until play actually starts (autoplay policies need a gesture).
+      // First click/tap/key must start home.mp3 immediately (not gated by beatsUnlocked).
       homeMusicAutoplayBlocked = false;
-      syncHomeMusic();
+      if (!homeMusicShouldPlay()) return;
+      const audio = ensureHomeMusic();
+      const gen = ++homeMusicPlayGen;
+      audio.muted = false;
+      audio.volume = HOME_MUSIC_VOLUME;
+      // Call play() synchronously in the gesture handler — do not wait for muted-trick races.
+      const playAttempt = audio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(function () {
+          if (gen !== homeMusicPlayGen) return;
+          if (!homeMusicShouldPlay()) return;
+          if (!audio.paused && !audio.muted) markHomeMusicPlaying();
+          else failHomeMusicAutoplay(gen);
+        }).catch(function () {
+          if (gen !== homeMusicPlayGen) return;
+          if (!homeMusicShouldPlay()) return;
+          failHomeMusicAutoplay(gen);
+        });
+      } else if (!audio.paused) {
+        markHomeMusicPlaying();
+      } else {
+        failHomeMusicAutoplay(gen);
+      }
     }
     function bindHomeMusicUnlock() {
       if (homeMusicUnlockBound) return;
@@ -2478,10 +2501,13 @@
       unbindHomeMusicUnlock();
       updateMuteButton();
     }
+    // Home BGM is always available on setup — never tied to the beat challenge lock.
     function homeMusicShouldPlay() {
       return state.phase === "setup" && !state.muted;
     }
-    function failHomeMusicAutoplay() {
+    function failHomeMusicAutoplay(expectedGen) {
+      // Ignore stale autoplay/muted-trick failures after a newer gesture play() started.
+      if (expectedGen !== undefined && expectedGen !== homeMusicPlayGen) return;
       // Prefer a clear Music affordance over leaving BGM muted.
       homeMusicAutoplayBlocked = true;
       const audio = homeMusic;
@@ -2497,9 +2523,11 @@
     function tryHomeMutedUnmuteTrick() {
       const audio = ensureHomeMusic();
       if (!homeMusicShouldPlay()) return;
+      const gen = homeMusicPlayGen;
       audio.muted = true;
       const attempt = audio.play();
       function acceptOrAbort() {
+        if (gen !== homeMusicPlayGen) return;
         if (!homeMusicShouldPlay()) {
           audio.muted = false;
           try { if (!audio.paused) audio.pause(); } catch (_) {}
@@ -2510,10 +2538,10 @@
           markHomeMusicPlaying();
           return;
         }
-        failHomeMusicAutoplay();
+        failHomeMusicAutoplay(gen);
       }
       if (attempt && typeof attempt.then === "function") {
-        attempt.then(acceptOrAbort).catch(function () { failHomeMusicAutoplay(); });
+        attempt.then(acceptOrAbort).catch(function () { failHomeMusicAutoplay(gen); });
       } else {
         acceptOrAbort();
       }
@@ -2522,28 +2550,31 @@
       if (allowMutedTrick === undefined) allowMutedTrick = true;
       const audio = ensureHomeMusic();
       if (!homeMusicShouldPlay()) return;
+      const gen = ++homeMusicPlayGen;
       audio.muted = false;
       audio.volume = HOME_MUSIC_VOLUME;
       const playAttempt = audio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
+          if (gen !== homeMusicPlayGen) return;
           if (!homeMusicShouldPlay()) return;
           audio.muted = false;
           if (!audio.paused && !audio.muted) markHomeMusicPlaying();
           else if (allowMutedTrick) tryHomeMutedUnmuteTrick();
-          else failHomeMusicAutoplay();
+          else failHomeMusicAutoplay(gen);
         }).catch(function () {
+          if (gen !== homeMusicPlayGen) return;
           if (!homeMusicShouldPlay()) return;
           // Unmuted autoplay blocked. Trick often fails for audible BGM — try once, else Music button.
           if (allowMutedTrick) tryHomeMutedUnmuteTrick();
-          else failHomeMusicAutoplay();
+          else failHomeMusicAutoplay(gen);
         });
       } else if (!audio.paused) {
         markHomeMusicPlaying();
       } else if (allowMutedTrick) {
         tryHomeMutedUnmuteTrick();
       } else {
-        failHomeMusicAutoplay();
+        failHomeMusicAutoplay(gen);
       }
     }
     function syncHomeMusic() {
@@ -2562,8 +2593,8 @@
       }
       // Bind before play() so the first scroll/touch/tap unlocks even if the promise rejects late.
       bindHomeMusicUnlock();
-      // After a policy block, skip muted-trick spam on every re-render; gesture resets the flag.
-      tryPlayHomeMusic(!homeMusicAutoplayBlocked);
+      // After a policy block, skip muted-trick spam on every re-render; gesture plays via unlockHomeMusic.
+      if (!homeMusicAutoplayBlocked) tryPlayHomeMusic(true);
     }
     function primeHomeMusicAutoplay() {
       // ASAP on load when unmuted: unlock listeners first, then unmuted play().

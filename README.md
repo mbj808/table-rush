@@ -1,6 +1,6 @@
-# Table Rush
+# Mad Facts Challenge
 
-A one-page multiplication, division, facts, vocab, and rhyming game. Open `index.html` or the GitHub Pages site. No account and no install.
+Table Rush is the secondary name. This is a one-page multiplication, division, facts, vocab, and rhyming game. Open `index.html` or the GitHub Pages site (https://mbj808.github.io/table-rush/). No account and no install.
 
 ## Modes
 

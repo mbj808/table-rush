@@ -1419,8 +1419,9 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
-      // Do not switch playback during play. The selected beat (or silence) keeps playing.
-      // The player picks a newly unlocked beat on the setup page after they go back.
+      // Make the newly unlocked beat the active choice immediately. setPlayMusicId
+      // keeps manual beat changes working in both setup and play, and respects mute.
+      setPlayMusicId(unlockedNow);
       writeSave();
       return unlockedNow;
     }

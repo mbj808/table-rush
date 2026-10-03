@@ -268,6 +268,48 @@
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 2px 8px rgba(15, 60, 40, 0.12);
     }
+    .mini-player {
+      position: relative;
+      width: 2.7rem;
+      min-width: 2.7rem;
+      height: 2.35rem;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 0.8rem;
+      background: linear-gradient(145deg, rgba(255,255,255,0.45), rgba(30,122,77,0.42));
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 3px 10px rgba(15, 60, 40, 0.2);
+    }
+    .mini-player::after {
+      content: "";
+      position: absolute;
+      right: 0.32rem;
+      bottom: 0.28rem;
+      width: 0.3rem;
+      height: 0.3rem;
+      border-radius: 50%;
+      background: #c8f7d8;
+      box-shadow: 0 0 0 2px rgba(21,92,58,0.28), 0 0 7px rgba(200,247,216,0.9);
+    }
+    .transport-icon {
+      display: block;
+      width: 0;
+      height: 0;
+      margin-left: 0.12rem;
+      border-top: 0.48rem solid transparent;
+      border-bottom: 0.48rem solid transparent;
+      border-left: 0.7rem solid currentColor;
+      filter: drop-shadow(0 1px 0 rgba(255,255,255,0.35));
+    }
+    .mini-player[data-playing="true"] .transport-icon {
+      width: 0.72rem;
+      height: 0.72rem;
+      margin-left: 0;
+      border: 0;
+      border-radius: 0.12rem;
+      background: currentColor;
+    }
+    .mini-player:active { transform: translateY(1px); }
     .icon[aria-pressed="true"] {
       background: var(--choice-on);
       border-color: var(--choice-on-ring);
@@ -317,6 +359,18 @@
     .chip.locked small { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.01em; }
     button.chip.locked:disabled { opacity: 0.8; }
     .beats-title { position: relative; }
+    .beat-unlock-note {
+      margin: -0.15rem 0 0.65rem;
+      color: rgba(31, 58, 69, 0.72);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .beat-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.45rem;
+    }
     .chip.beat-chip {
       width: 7.15rem;
       height: 7.15rem;
@@ -375,11 +429,11 @@
     }
     .start:disabled { opacity: 0.4; box-shadow: none; }
     .reset-challenge {
-      min-height: 2.75rem; padding: 0 1rem; border: 2px solid var(--btn-border); border-radius: 0.75rem;
-      background: rgba(30, 122, 77, 0.55); color: var(--on-primary); font-weight: 800;
+      min-height: 2rem; padding: 0.2rem 0.72rem; border: 1px solid rgba(255,255,255,0.48); border-radius: 999px;
+      background: rgba(30, 122, 77, 0.34); color: var(--on-primary); font-size: 0.72rem; font-weight: 700;
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 0 rgba(21, 92, 58, 0.65);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.28);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 1px 0 rgba(21, 92, 58, 0.5);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.22);
     }
     .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.65rem; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
     .eq { text-align: center; padding: 2rem 1rem; background: transparent; }
@@ -568,7 +622,10 @@
         <div class="brand-meta">
           <div class="header-actions">
             <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
-            <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
+            <button id="mute" class="icon mini-player" type="button" aria-pressed="false" aria-label="Stop sounds and music" title="Stop sounds and music">
+              <span class="transport-icon" aria-hidden="true"></span>
+              <span class="sr">Music control</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2770,17 +2827,20 @@
       const hasPlayAudio = !!(playMeta && playMeta.file);
       const awaitingPlay = !state.muted && state.phase === "play" && hasPlayAudio && (!play || play.paused || play.muted);
       const awaitingGesture = awaitingHome || awaitingPlay;
+      const playing = !state.muted && !awaitingGesture;
+      mute.dataset.playing = String(playing);
       if (state.muted) {
-        mute.textContent = "Unmute";
-        mute.setAttribute("aria-label", "Unmute sounds and music");
+        mute.setAttribute("aria-label", "Play sounds and music");
+        mute.setAttribute("title", "Play sounds and music");
         mute.setAttribute("aria-pressed", "true");
       } else if (awaitingGesture) {
-        mute.textContent = "Music";
-        mute.setAttribute("aria-label", state.phase === "play" ? "Play game music" : "Play home screen music");
+        const label = state.phase === "play" ? "Play game music" : "Play home screen music";
+        mute.setAttribute("aria-label", label);
+        mute.setAttribute("title", label);
         mute.setAttribute("aria-pressed", "false");
       } else {
-        mute.textContent = "Mute";
-        mute.setAttribute("aria-label", "Mute sounds and music");
+        mute.setAttribute("aria-label", "Stop sounds and music");
+        mute.setAttribute("title", "Stop sounds and music");
         mute.setAttribute("aria-pressed", "false");
       }
     }
@@ -3043,6 +3103,7 @@
     function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
       card.appendChild(beatsTitle());
+      card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of 15." }));
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
         const locked = !state.beatsUnlocked[track.id];
@@ -3066,19 +3127,20 @@
         label.appendChild(document.createTextNode(track.label));
         btn.appendChild(label);
         if (locked) {
-          btn.appendChild(el("small", { text: String(track.unlockAt) }));
           btn.addEventListener("click", function (event) { event.preventDefault(); });
         }
         row.appendChild(btn);
       });
       card.appendChild(row);
       if (includeReset) {
-        card.appendChild(el("button", {
+        const resetWrap = el("div", { class: "beat-actions" });
+        resetWrap.appendChild(el("button", {
           class: "reset-challenge",
           type: "button",
           text: "Reset challenge",
           onClick: resetMusicChallenge
         }));
+        card.appendChild(resetWrap);
       }
       return card;
     }

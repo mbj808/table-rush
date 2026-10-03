@@ -846,27 +846,28 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: min(92vw, 40rem);
+      width: min(96vw, 52rem);
       margin: 0;
       text-align: center;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.4rem, 8vw, 5.2rem);
+      font-size: clamp(3rem, 11vw, 7rem);
       font-weight: 800;
       line-height: 1.05;
       letter-spacing: 0.01em;
       color: #fffef8;
       text-shadow:
-        0 0 18px rgba(255, 220, 140, 0.95),
-        0 0 48px rgba(255, 140, 40, 0.85),
+        0 0 28px rgba(255, 250, 220, 1),
+        0 0 64px rgba(255, 196, 60, 0.98),
+        0 0 120px rgba(255, 120, 20, 0.85),
         0 2px 0 #3b1d6e;
-      animation: supernova-type 3.2s ease-out forwards;
+      animation: supernova-type 5s ease-out forwards;
     }
     @keyframes supernova-type {
       0% { opacity: 0; transform: translate(-50%, -46%) scale(0.72); }
-      14% { opacity: 0; transform: translate(-50%, -46%) scale(0.78); }
-      30% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -54%) scale(1.05); }
+      9% { opacity: 0; transform: translate(-50%, -46%) scale(0.82); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+      74% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -54%) scale(1.16); }
     }
   </style>
 </head>
@@ -1670,6 +1671,37 @@
     let playMusicTrackId = null;
     let playMusicUnlockBound = false;
     let feedback = 0;
+    let unlockVoiceIndex = 0;
+    const UNLOCK_PHRASES = ["Superstar", "You did it", "Congratulations"];
+    function roboticUnlockVoice() {
+      if (!window.speechSynthesis || typeof speechSynthesis.getVoices !== "function") return null;
+      const voices = speechSynthesis.getVoices() || [];
+      const hint = /robot|synthetic|computer|zarvox|trinoids/i;
+      for (let i = 0; i < voices.length; i++) {
+        const name = (voices[i].name || "") + " " + (voices[i].voiceURI || "");
+        if (hint.test(name) && /^en([-_]|$)/i.test(voices[i].lang || "en")) return voices[i];
+      }
+      for (let i = 0; i < voices.length; i++) {
+        const name = (voices[i].name || "") + " " + (voices[i].voiceURI || "");
+        if (hint.test(name)) return voices[i];
+      }
+      return null;
+    }
+    function speakUnlockLine() {
+      if (state.muted) return;
+      if (!window.speechSynthesis || typeof SpeechSynthesisUtterance !== "function") return;
+      const phrase = UNLOCK_PHRASES[unlockVoiceIndex % UNLOCK_PHRASES.length];
+      unlockVoiceIndex += 1;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(phrase);
+      utter.lang = "en-US";
+      utter.rate = 1.25;
+      utter.pitch = 1.7;
+      utter.volume = 1;
+      const voice = roboticUnlockVoice();
+      if (voice) utter.voice = voice;
+      window.speechSynthesis.speak(utter);
+    }
     function trackIsFree(track) {
       return !!(track && (track.free || track.unlockAt === 0));
     }
@@ -1730,6 +1762,7 @@
     }
 
     function playBeatSupernova(beatId) {
+      speakUnlockLine();
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       var old = document.getElementById("beat-supernova");
       if (old) old.remove();
@@ -1748,7 +1781,7 @@
 
       var ctx = canvas.getContext("2d");
       if (!ctx) {
-        setTimeout(function () { if (root.parentNode) root.remove(); }, 3200);
+        setTimeout(function () { if (root.parentNode) root.remove(); }, 5000);
         return;
       }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1759,20 +1792,20 @@
       var colors = ["#fffef8", "#ffe9a0", "#ffd36a", "#ffb703", "#ff7a18", "#ff4d2e", "#e9d5ff", "#c084fc", "#7c3aed", "#60a5fa", "#1e3a8a"];
       var particles = [];
       var i;
-      for (i = 0; i < 168; i++) {
+      for (i = 0; i < 220; i++) {
         particles.push({
           a: Math.random() * Math.PI * 2,
-          v: 0.18 + Math.pow(Math.random(), 0.72) * 0.95,
-          r: 1.1 + Math.random() * 3.6,
+          v: 0.28 + Math.pow(Math.random(), 0.65) * 1.15,
+          r: 1.8 + Math.random() * 5.2,
           color: colors[(Math.random() * colors.length) | 0],
-          delay: Math.random() * 0.22,
-          life: 0.7 + Math.random() * 0.3,
+          delay: Math.random() * 0.28,
+          life: 0.72 + Math.random() * 0.28,
           tw: Math.random() * Math.PI * 2,
-          star: Math.random() > 0.62
+          star: Math.random() > 0.5
         });
       }
       var start = performance.now();
-      var duration = 3200;
+      var duration = 5000;
       var raf = 0;
       function frame(now) {
         var t = (now - start) / 1000;
@@ -1780,52 +1813,52 @@
         var ch = canvas.height;
         var cx = cw / 2;
         var cy = ch / 2;
-        var fade = t < 2.35 ? 1 : Math.max(0, 1 - (t - 2.35) / 0.85);
+        var fade = t < 3.65 ? 1 : Math.max(0, 1 - (t - 3.65) / 1.35);
         ctx.clearRect(0, 0, cw, ch);
 
-        ctx.globalAlpha = fade * (t < 0.12 ? t / 0.12 : 0.78);
-        var wash = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(cw, ch) * 0.75);
-        wash.addColorStop(0, "rgba(255, 248, 220, 0.96)");
-        wash.addColorStop(0.16, "rgba(255, 150, 40, 0.62)");
-        wash.addColorStop(0.38, "rgba(109, 40, 217, 0.5)");
-        wash.addColorStop(0.68, "rgba(15, 40, 120, 0.72)");
-        wash.addColorStop(1, "rgba(4, 8, 28, 0.88)");
+        ctx.globalAlpha = fade * (t < 0.1 ? t / 0.1 : 0.94);
+        var wash = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(cw, ch) * 0.98);
+        wash.addColorStop(0, "rgba(255, 252, 236, 1)");
+        wash.addColorStop(0.14, "rgba(255, 186, 48, 0.9)");
+        wash.addColorStop(0.36, "rgba(140, 60, 255, 0.72)");
+        wash.addColorStop(0.66, "rgba(20, 48, 160, 0.82)");
+        wash.addColorStop(1, "rgba(4, 8, 28, 0.94)");
         ctx.fillStyle = wash;
         ctx.fillRect(0, 0, cw, ch);
 
-        var flash = t < 0.16 ? 1 : t < 0.72 ? Math.max(0, 1 - (t - 0.16) / 0.56) : 0;
+        var flash = t < 0.22 ? 1 : t < 1.05 ? Math.max(0, 1 - (t - 0.22) / 0.83) : 0;
         if (flash > 0) {
-          ctx.globalAlpha = flash * fade;
-          var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(cw, ch) * 0.62);
+          ctx.globalAlpha = Math.min(1, flash * fade * 1.15);
+          var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(cw, ch) * 0.92);
           core.addColorStop(0, "#ffffff");
-          core.addColorStop(0.18, "rgba(255, 244, 210, 0.98)");
-          core.addColorStop(0.42, "rgba(255, 176, 48, 0.55)");
+          core.addColorStop(0.16, "rgba(255, 250, 220, 1)");
+          core.addColorStop(0.4, "rgba(255, 190, 60, 0.82)");
           core.addColorStop(1, "rgba(255, 176, 48, 0)");
           ctx.fillStyle = core;
           ctx.fillRect(0, 0, cw, ch);
         }
 
-        var maxR = Math.hypot(cw, ch) * 0.56;
+        var maxR = Math.hypot(cw, ch) * 0.92;
         var ring;
-        for (ring = 0; ring < 3; ring++) {
-          var rt = t - 0.08 - ring * 0.16;
+        for (ring = 0; ring < 4; ring++) {
+          var rt = t - 0.06 - ring * 0.18;
           if (rt <= 0) continue;
-          var prog = Math.min(1, rt / 1.45);
-          var radius = maxR * (0.03 + prog * 0.97);
-          ctx.globalAlpha = Math.pow(1 - prog, 1.6) * fade * 0.95;
+          var prog = Math.min(1, rt / 2.15);
+          var radius = maxR * (0.02 + prog * 0.98);
+          ctx.globalAlpha = Math.pow(1 - prog, 1.35) * fade;
           ctx.beginPath();
           ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-          ctx.strokeStyle = ring === 0 ? "#fff6d0" : ring === 1 ? "#ffb020" : "#c4b5fd";
-          ctx.lineWidth = (22 - ring * 5) * dpr * (1 - prog * 0.6);
+          ctx.strokeStyle = ring === 0 ? "#fffef6" : ring === 1 ? "#ffe08a" : ring === 2 ? "#ffb020" : "#e9d5ff";
+          ctx.lineWidth = (34 - ring * 6) * dpr * (1 - prog * 0.45);
           ctx.stroke();
         }
 
-        var reach = Math.max(cw, ch) * 0.52;
+        var reach = Math.max(cw, ch) * 0.86;
         for (i = 0; i < particles.length; i++) {
           var ptl = particles[i];
-          var pt = t - 0.12 - ptl.delay;
+          var pt = t - 0.08 - ptl.delay;
           if (pt <= 0) continue;
-          var u = pt / (2.55 * ptl.life);
+          var u = pt / (4.05 * ptl.life);
           if (u >= 1) continue;
           var ease = 1 - Math.pow(1 - Math.min(1, u * 1.05), 2.15);
           var dist = reach * ptl.v * ease;

@@ -22,6 +22,4 @@ Table Rush is the secondary name. This is a one-page multiplication, division, f
 
 - **Vehicles** — ~26 land/water/air vehicles; clue → name or vehicle → type; chips by land/water/air.
 
-- **North Shore** — famous Oʻahu North Shore surf breaks (Pipeline, Sunset, Waimea, Haleʻiwa, and more); clue → break name; chips by area.
-
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Rush / 10 facts / Practice rounds and scoring work the same across modes.

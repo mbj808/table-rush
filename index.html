@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mad Facts Challenge</title>
-  <meta name="description" content="Mad Facts Challenge (Table Rush). Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles; North Shore waves. No account needed." />
+  <meta name="description" content="Mad Facts Challenge (Table Rush). Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles. No account needed." />
   <style>
     :root {
       --bg: #5ec4d6;
@@ -113,6 +113,17 @@
       }
       .title-svg .stars,
       .title-svg .stars-b { opacity: 0.92; }
+      .title-svg .title-challenge {
+        animation: none !important;
+        filter: none !important;
+        transform: none !important;
+        will-change: auto;
+      }
+      .beat-chip .beat-note {
+        animation: none !important;
+        opacity: 0.55;
+        transform: none;
+      }
     }
     button { font: inherit; cursor: pointer; }
     button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
@@ -155,6 +166,85 @@
     @keyframes star-twinkle {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.32; }
+    }
+    .title-svg .title-challenge {
+      transform-box: view-box;
+      transform-origin: 330px 220px;
+      animation: challenge-pulse 1.85s ease-in-out infinite;
+      will-change: transform, filter;
+    }
+    @keyframes challenge-pulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      50% {
+        transform: scale(1.12);
+        filter: brightness(1.5);
+      }
+    }
+    .beat-chip {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      min-width: 5.75rem;
+      z-index: 0;
+    }
+    .beat-chip .beat-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .beat-chip .beat-staff {
+      position: absolute;
+      left: -4%;
+      right: -4%;
+      top: 50%;
+      height: 1.15rem;
+      transform: translateY(-50%);
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(16, 32, 56, 0.28) 0 1.5px,
+        transparent 1.5px 0.28rem
+      );
+      opacity: 0.55;
+    }
+    .beat-chip.on .beat-staff {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.42) 0 1.5px,
+        transparent 1.5px 0.28rem
+      );
+      opacity: 0.7;
+    }
+    .beat-chip .beat-note {
+      position: absolute;
+      font-size: 0.78rem;
+      line-height: 1;
+      color: rgba(16, 32, 56, 0.55);
+      text-shadow: none;
+      animation: beat-note-float var(--beat-dur, 2.8s) ease-in-out infinite;
+      animation-delay: var(--beat-delay, 0s);
+      opacity: 0;
+    }
+    .beat-chip.on .beat-note { color: rgba(255, 255, 255, 0.9); }
+    .beat-chip.locked .beat-note { color: rgba(31, 58, 69, 0.4); }
+    .beat-chip .beat-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.05rem;
+    }
+    @keyframes beat-note-float {
+      0% { transform: translate(0, 0.35rem) scale(0.85); opacity: 0; }
+      18% { opacity: 0.85; }
+      55% { opacity: 0.75; }
+      100% { transform: translate(var(--beat-dx, 0.4rem), -1.15rem) scale(1.05); opacity: 0; }
     }
     .sub { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.9rem; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
     .icon {
@@ -402,11 +492,9 @@
           <span class="sr">Mad Facts Challenge</span>
           <svg class="title-svg" viewBox="-16 -16 692 320" role="img" aria-hidden="true" focusable="false">
             <defs>
-              <clipPath id="mf-letters"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></clipPath>
-            </defs>
-            <g fill="#102038" stroke="#102038" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></g>
-            <g clip-path="url(#mf-letters)">
-              <g class="nebula">
+              <clipPath id="mf-letters-mad"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text></clipPath>
+              <clipPath id="mf-letters-chal"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></clipPath>
+              <g id="mf-nebula">
                 <rect x="-500" y="-420" width="1700" height="1300" fill="#07091a"/>
                 <ellipse cx="90" cy="90" rx="340" ry="200" fill="#6d28d9" opacity="0.95"/>
                 <ellipse cx="500" cy="200" rx="380" ry="220" fill="#1d4ed8" opacity="0.92"/>
@@ -416,10 +504,27 @@
                 <ellipse cx="560" cy="250" rx="200" ry="120" fill="#818cf8" opacity="0.75"/>
                 <ellipse cx="340" cy="270" rx="160" ry="80" fill="#f0abfc" opacity="0.45"/>
               </g>
-              <g class="stars"><circle cx="55" cy="70" r="7.6" fill="#fff" opacity="0.4"/><circle cx="55" cy="70" r="5.2" fill="#fff"/><circle cx="140" cy="100" r="6.0" fill="#fff6c2" opacity="0.4"/><circle cx="140" cy="100" r="3.6" fill="#fff6c2"/><circle cx="230" cy="52" r="6.8" fill="#fff" opacity="0.4"/><circle cx="230" cy="52" r="4.4" fill="#fff"/><circle cx="320" cy="108" r="5.8" fill="#fff" opacity="0.4"/><circle cx="320" cy="108" r="3.4" fill="#fff"/><circle cx="410" cy="48" r="7.4" fill="#fff8d4" opacity="0.4"/><circle cx="410" cy="48" r="5.0" fill="#fff8d4"/><circle cx="500" cy="96" r="6.2" fill="#fff" opacity="0.4"/><circle cx="500" cy="96" r="3.8" fill="#fff"/><circle cx="590" cy="64" r="7.0" fill="#fff" opacity="0.4"/><circle cx="590" cy="64" r="4.6" fill="#fff"/><circle cx="100" cy="200" r="6.6" fill="#fff" opacity="0.4"/><circle cx="100" cy="200" r="4.2" fill="#fff"/><circle cx="200" cy="236" r="7.8" fill="#fff6c2" opacity="0.4"/><circle cx="200" cy="236" r="5.4" fill="#fff6c2"/><circle cx="310" cy="176" r="6.0" fill="#fff" opacity="0.4"/><circle cx="310" cy="176" r="3.6" fill="#fff"/><circle cx="420" cy="230" r="7.2" fill="#fff" opacity="0.4"/><circle cx="420" cy="230" r="4.8" fill="#fff"/><circle cx="530" cy="188" r="5.9" fill="#fff8d4" opacity="0.4"/><circle cx="530" cy="188" r="3.5" fill="#fff8d4"/><circle cx="610" cy="240" r="6.8" fill="#fff" opacity="0.4"/><circle cx="610" cy="240" r="4.4" fill="#fff"/></g>
-              <g class="stars stars-b"><circle cx="95" cy="46" r="5.6" fill="#fff" opacity="0.4"/><circle cx="95" cy="46" r="3.2" fill="#fff"/><circle cx="185" cy="112" r="7.2" fill="#fff" opacity="0.4"/><circle cx="185" cy="112" r="4.8" fill="#fff"/><circle cx="275" cy="60" r="5.8" fill="#fff6c2" opacity="0.4"/><circle cx="275" cy="60" r="3.4" fill="#fff6c2"/><circle cx="365" cy="100" r="7.6" fill="#fff" opacity="0.4"/><circle cx="365" cy="100" r="5.2" fill="#fff"/><circle cx="455" cy="70" r="5.6" fill="#fff" opacity="0.4"/><circle cx="455" cy="70" r="3.2" fill="#fff"/><circle cx="555" cy="108" r="6.4" fill="#fff" opacity="0.4"/><circle cx="555" cy="108" r="4.0" fill="#fff"/><circle cx="70" cy="230" r="5.8" fill="#fff" opacity="0.4"/><circle cx="70" cy="230" r="3.4" fill="#fff"/><circle cx="165" cy="170" r="7.0" fill="#fff8d4" opacity="0.4"/><circle cx="165" cy="170" r="4.6" fill="#fff8d4"/><circle cx="255" cy="246" r="5.6" fill="#fff" opacity="0.4"/><circle cx="255" cy="246" r="3.2" fill="#fff"/><circle cx="360" cy="200" r="7.4" fill="#fff" opacity="0.4"/><circle cx="360" cy="200" r="5.0" fill="#fff"/><circle cx="470" cy="250" r="6.0" fill="#fff" opacity="0.4"/><circle cx="470" cy="250" r="3.6" fill="#fff"/><circle cx="575" cy="168" r="6.8" fill="#fff6c2" opacity="0.4"/><circle cx="575" cy="168" r="4.4" fill="#fff6c2"/></g>
+              <g id="mf-stars"><circle cx="55" cy="70" r="7.6" fill="#fff" opacity="0.4"/><circle cx="55" cy="70" r="5.2" fill="#fff"/><circle cx="140" cy="100" r="6.0" fill="#fff6c2" opacity="0.4"/><circle cx="140" cy="100" r="3.6" fill="#fff6c2"/><circle cx="230" cy="52" r="6.8" fill="#fff" opacity="0.4"/><circle cx="230" cy="52" r="4.4" fill="#fff"/><circle cx="320" cy="108" r="5.8" fill="#fff" opacity="0.4"/><circle cx="320" cy="108" r="3.4" fill="#fff"/><circle cx="410" cy="48" r="7.4" fill="#fff8d4" opacity="0.4"/><circle cx="410" cy="48" r="5.0" fill="#fff8d4"/><circle cx="500" cy="96" r="6.2" fill="#fff" opacity="0.4"/><circle cx="500" cy="96" r="3.8" fill="#fff"/><circle cx="590" cy="64" r="7.0" fill="#fff" opacity="0.4"/><circle cx="590" cy="64" r="4.6" fill="#fff"/><circle cx="100" cy="200" r="6.6" fill="#fff" opacity="0.4"/><circle cx="100" cy="200" r="4.2" fill="#fff"/><circle cx="200" cy="236" r="7.8" fill="#fff6c2" opacity="0.4"/><circle cx="200" cy="236" r="5.4" fill="#fff6c2"/><circle cx="310" cy="176" r="6.0" fill="#fff" opacity="0.4"/><circle cx="310" cy="176" r="3.6" fill="#fff"/><circle cx="420" cy="230" r="7.2" fill="#fff" opacity="0.4"/><circle cx="420" cy="230" r="4.8" fill="#fff"/><circle cx="530" cy="188" r="5.9" fill="#fff8d4" opacity="0.4"/><circle cx="530" cy="188" r="3.5" fill="#fff8d4"/><circle cx="610" cy="240" r="6.8" fill="#fff" opacity="0.4"/><circle cx="610" cy="240" r="4.4" fill="#fff"/></g>
+              <g id="mf-stars-b"><circle cx="95" cy="46" r="5.6" fill="#fff" opacity="0.4"/><circle cx="95" cy="46" r="3.2" fill="#fff"/><circle cx="185" cy="112" r="7.2" fill="#fff" opacity="0.4"/><circle cx="185" cy="112" r="4.8" fill="#fff"/><circle cx="275" cy="60" r="5.8" fill="#fff6c2" opacity="0.4"/><circle cx="275" cy="60" r="3.4" fill="#fff6c2"/><circle cx="365" cy="100" r="7.6" fill="#fff" opacity="0.4"/><circle cx="365" cy="100" r="5.2" fill="#fff"/><circle cx="455" cy="70" r="5.6" fill="#fff" opacity="0.4"/><circle cx="455" cy="70" r="3.2" fill="#fff"/><circle cx="555" cy="108" r="6.4" fill="#fff" opacity="0.4"/><circle cx="555" cy="108" r="4.0" fill="#fff"/><circle cx="70" cy="230" r="5.8" fill="#fff" opacity="0.4"/><circle cx="70" cy="230" r="3.4" fill="#fff"/><circle cx="165" cy="170" r="7.0" fill="#fff8d4" opacity="0.4"/><circle cx="165" cy="170" r="4.6" fill="#fff8d4"/><circle cx="255" cy="246" r="5.6" fill="#fff" opacity="0.4"/><circle cx="255" cy="246" r="3.2" fill="#fff"/><circle cx="360" cy="200" r="7.4" fill="#fff" opacity="0.4"/><circle cx="360" cy="200" r="5.0" fill="#fff"/><circle cx="470" cy="250" r="6.0" fill="#fff" opacity="0.4"/><circle cx="470" cy="250" r="3.6" fill="#fff"/><circle cx="575" cy="168" r="6.8" fill="#fff6c2" opacity="0.4"/><circle cx="575" cy="168" r="4.4" fill="#fff6c2"/></g>
+            </defs>
+            <g class="title-mad">
+              <g fill="#102038" stroke="#102038" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text></g>
+              <g clip-path="url(#mf-letters-mad)">
+                <use href="#mf-nebula" class="nebula"/>
+                <use href="#mf-stars" class="stars"/>
+                <use href="#mf-stars-b" class="stars stars-b"/>
+              </g>
+              <g fill="none" stroke="#f4fbff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text></g>
             </g>
-            <g fill="none" stroke="#f4fbff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="124">MAD FACTS</text><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></g>
+            <g class="title-challenge">
+              <g fill="#102038" stroke="#102038" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></g>
+              <g clip-path="url(#mf-letters-chal)">
+                <use href="#mf-nebula" class="nebula"/>
+                <use href="#mf-stars" class="stars"/>
+                <use href="#mf-stars-b" class="stars stars-b"/>
+              </g>
+              <g fill="none" stroke="#f4fbff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><text x="330" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="620" lengthAdjust="spacingAndGlyphs" y="258">CHALLENGE</text></g>
+            </g>
           </svg>
         </h1>
         <div class="brand-meta">
@@ -1016,53 +1121,6 @@
       { id: "blimp", ask: "Which long airship is filled with gas and can float slowly across the sky?" }
     ];
 
-    const NORTH_SHORE = [
-      { id: "pipeline", name: "Pipeline", area: "ehukai" },
-      { id: "backdoor", name: "Backdoor", area: "ehukai" },
-      { id: "offthewall", name: "Off the Wall", area: "ehukai" },
-      { id: "ehukai", name: "Ehukai", area: "ehukai" },
-      { id: "sunset", name: "Sunset Beach", area: "north" },
-      { id: "waimea", name: "Waimea Bay", area: "north" },
-      { id: "rocky", name: "Rocky Point", area: "north" },
-      { id: "velzyland", name: "Velzyland", area: "north" },
-      { id: "laniakea", name: "Laniakea", area: "haleiwa" },
-      { id: "haleiwa", name: "Haleʻiwa", area: "haleiwa" },
-      { id: "chun", name: "Chun's Reef", area: "haleiwa" },
-      { id: "logcabins", name: "Log Cabins", area: "north" },
-      { id: "gaschambers", name: "Gas Chambers", area: "ehukai" },
-      { id: "pupukea", name: "Pūpūkea", area: "north" },
-      { id: "leftovers", name: "Leftovers", area: "haleiwa" },
-      { id: "waterfall", name: "Waterhouses", area: "haleiwa" }
-    ];
-    const NORTH_SHORE_BY_ID = NORTH_SHORE.reduce(function (m, x) { m[x.id] = x; return m; }, {});
-    const NORTH_SHORE_QUICK = [
-      ["All", NORTH_SHORE.map(function (x) { return x.id; })],
-      ["Ehukai / Pipe", NORTH_SHORE.filter(function (x) { return x.area === "ehukai"; }).map(function (x) { return x.id; })],
-      ["Sunset side", NORTH_SHORE.filter(function (x) { return x.area === "north"; }).map(function (x) { return x.id; })],
-      ["Haleʻiwa side", NORTH_SHORE.filter(function (x) { return x.area === "haleiwa"; }).map(function (x) { return x.id; })]
-    ];
-    const NORTH_SHORE_PROMPTS = [
-      { id: "pipeline", ask: "Which famous Ehukai reef break is also called Banzai Pipeline?" },
-      { id: "pipeline", ask: "Which North Shore spot is known for hollow, powerful right-hand tubes in winter?" },
-      { id: "backdoor", ask: "Which peak breaks the other direction from Pipeline (a left) at the same reef?" },
-      { id: "offthewall", ask: "Which nearby Ehukai peak sits just west of Pipeline and is also for skilled surfers?" },
-      { id: "ehukai", ask: "Which beach park sits in front of Pipeline and is a popular North Shore viewing spot?" },
-      { id: "sunset", ask: "Which long sandy beach is famous for big winter contests and a powerful shorebreak?" },
-      { id: "sunset", ask: "Which North Shore beach shares its name with a famous sunset view and pro surf events?" },
-      { id: "waimea", ask: "Which wide bay is known for huge winter surf and a big jump-rock on calm summer days?" },
-      { id: "waimea", ask: "Which North Shore bay hosts some of the biggest rideable waves when the swell is enormous?" },
-      { id: "rocky", ask: "Which peak between Sunset and Pipeline is popular with shortboarders and photographers?" },
-      { id: "velzyland", ask: "Which reef break east of Sunset is nicknamed V-Land and known for a long right?" },
-      { id: "laniakea", ask: "Which break near Haleʻiwa is famous for turtles on shore and a long right-hand wave?" },
-      { id: "haleiwa", ask: "Which harbor-town break is closest to Haleʻiwa town and Aliʻi Beach Park?" },
-      { id: "haleiwa", ask: "Which North Shore spot is near the harbor and often friendlier than Pipeline for intermediates?" },
-      { id: "chun", ask: "Which reef named after a family is between Waimea and Haleʻiwa and works on many swells?" },
-      { id: "logcabins", ask: "Which Sunset-area reef break is named after old cabins that once stood nearby?" },
-      { id: "gaschambers", ask: "Which shallow Ehukai reef near Pipeline is known for thick, heavy tubes?" },
-      { id: "pupukea", ask: "Which area near Shark's Cove is also a North Shore surf zone by the Foodland side?" },
-      { id: "leftovers", ask: "Which Haleʻiwa-side reef is jokingly named for waves that are 'left over' from other peaks?" },
-      { id: "waterfall", ask: "Which Haleʻiwa-area spot is also called Waterhouses and is near the harbor entrance?" }
-    ];
 
     const OPS = [
       { id: "multiply", label: "Multiplication" },
@@ -1080,8 +1138,7 @@
       { id: "synonym", label: "Synonyms & Antonyms" },
       { id: "piano", label: "Piano Notes" },
       { id: "instrument", label: "Instruments" },
-      { id: "vehicle", label: "Vehicles" },
-      { id: "northshore", label: "North Shore" }
+      { id: "vehicle", label: "Vehicles" }
     ];
 
     const state = {
@@ -1347,7 +1404,6 @@
     function isFlag() { return state.operation === "flag"; }
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
-    function isNorthShore() { return state.operation === "northshore"; }
     function isVehicle() { return state.operation === "vehicle"; }
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
@@ -1369,7 +1425,6 @@
     function defaultFlagTables() { return FLAGS.map(function (f) { return f.id; }); }
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
-    function defaultNorthShoreTables() { return NORTH_SHORE.map(function (x) { return x.id; }); }
     function defaultVehicleTables() { return VEHICLES.map(function (x) { return x.id; }); }
     function defaultInstrumentTables() { return INSTRUMENTS.map(function (x) { return x.id; }); }
     function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
@@ -1383,7 +1438,6 @@
       if (op === "flag") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
-      if (op === "northshore") return defaultNorthShoreTables();
       if (op === "vehicle") return defaultVehicleTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
@@ -1422,7 +1476,6 @@
     function selectedFlags() { return selectedById(FLAGS, FLAG_BY_ID); }
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
-    function selectedNorthShore() { return selectedById(NORTH_SHORE, NORTH_SHORE_BY_ID); }
     function selectedVehicles() { return selectedById(VEHICLES, VEHICLE_BY_ID); }
     function selectedInstruments() { return selectedById(INSTRUMENTS, INSTRUMENT_BY_ID); }
     function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
@@ -1882,16 +1935,6 @@
       });
     }
 
-    function buildNorthShore(avoid) {
-      const pool = selectedNorthShore();
-      const bodies = pool.length ? pool : NORTH_SHORE.slice();
-      return buildClueQuiz({
-        op: "northshore", pool: bodies, prompts: NORTH_SHORE_PROMPTS, avoid: avoid, byId: NORTH_SHORE_BY_ID,
-        answerOf: function (item) { return item.name; },
-        fallbackAsk: function () { return "Which North Shore break is this?"; },
-        choicesFor: function (answer, pool) { return nameChoices(answer, pool.map(function (b) { return b.name; }), NORTH_SHORE.map(function (b) { return b.name; })); }
-      });
-    }
 
     function vocabDistractors(item, pool) {
       const banned = new Set([item.answer, item.word]);
@@ -2118,17 +2161,6 @@
             VEHICLES.map(function (b) { return b.name; }))
         };
       }
-      if (pair.operation === "northshore" && NORTH_SHORE_BY_ID[pair.id]) {
-        const body = NORTH_SHORE_BY_ID[pair.id];
-        return {
-          operation: "northshore", id: body.id,
-          ask: pair.ask || "Which North Shore break is this?",
-          answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
-          choices: nameChoices(pair.answer || body.name,
-            selectedNorthShore().map(function (b) { return b.name; }),
-            NORTH_SHORE.map(function (b) { return b.name; }))
-        };
-      }
       if (pair.operation === "synonym" && VOCAB_BY_ID[pair.id]) {
         const item = VOCAB_BY_ID[pair.id];
         const ask = pair.ask || (item.kind === "antonym"
@@ -2173,7 +2205,6 @@
         if (isFlag()) return buildFlag(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
-        if (isNorthShore()) return buildNorthShore(avoid);
         if (isVehicle()) return buildVehicle(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
@@ -2267,10 +2298,6 @@
         const body = VEHICLE_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
-      if (pair.operation === "northshore" || (isNorthShore() && pair.id)) {
-        const body = NORTH_SHORE_BY_ID[pair.id];
-        return (body && body.name) || pair.answer;
-      }
       if (pair.operation === "synonym" || (isSynonym() && pair.id)) {
         const item = VOCAB_BY_ID[pair.id];
         const word = pair.word || (item && item.word) || "?";
@@ -2308,7 +2335,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "northshore") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "add") {
@@ -2336,7 +2363,6 @@
       else if (isFlag()) tag.textContent = "Practice world countries by continent.";
       else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
       else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
-      else if (isNorthShore()) tag.textContent = "Practice North Shore Oʻahu surf breaks.";
       else if (isVehicle()) tag.textContent = "Practice types of vehicles.";
       else if (isInstrument()) tag.textContent = "Practice musical instruments.";
       else if (isPiano()) tag.textContent = "Practice piano note names.";
@@ -2751,6 +2777,7 @@
 
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
+      stack.appendChild(musicCard());
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -2828,13 +2855,6 @@
           "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
           "Pick at least one vehicle.",
           true));
-      } else if (isNorthShore()) {
-        stack.appendChild(checklistCard("Surf breaks",
-          NORTH_SHORE.map(function (x) { return { id: x.id, name: x.name }; }),
-          NORTH_SHORE_QUICK,
-          "Famous North Shore Oʻahu surf breaks. Kid-friendly geography clues — big winter waves, not daredevil tips.",
-          "Pick at least one break.",
-          true));
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -2877,35 +2897,60 @@
 
       if (isMath()) stack.appendChild(modeCard());
       stack.appendChild(roundCard());
-      stack.appendChild(musicCard());
       app.appendChild(stack);
+    }
+
+    function beatNoteStage() {
+      const stage = el("span", { class: "beat-stage", "aria-hidden": "true" });
+      stage.appendChild(el("span", { class: "beat-staff" }));
+      const notes = [
+        { ch: "♪", left: "8%", delay: "0s", dur: "2.6s", dx: "0.55rem" },
+        { ch: "♫", left: "28%", delay: "0.45s", dur: "3.1s", dx: "-0.35rem" },
+        { ch: "♩", left: "52%", delay: "0.9s", dur: "2.8s", dx: "0.4rem" },
+        { ch: "♬", left: "74%", delay: "1.3s", dur: "3.3s", dx: "-0.5rem" }
+      ];
+      notes.forEach(function (n) {
+        const note = el("span", { class: "beat-note", text: n.ch });
+        note.style.left = n.left;
+        note.style.bottom = "0.2rem";
+        note.style.setProperty("--beat-delay", n.delay);
+        note.style.setProperty("--beat-dur", n.dur);
+        note.style.setProperty("--beat-dx", n.dx);
+        stage.appendChild(note);
+      });
+      return stage;
     }
 
     function musicCard() {
       const card = el("div", { class: "card" });
-      card.appendChild(el("p", { class: "label", text: "Play music" }));
+      card.appendChild(el("p", { class: "label", text: "Beats" }));
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
         const locked = track.id === "3" && !state.music3Unlocked;
+        const selected = !locked && state.playMusicId === track.id;
+        const btn = el("button", {
+          type: "button",
+          class: "chip beat-chip" + (locked ? " locked" : "") + (selected ? " on" : ""),
+          "aria-pressed": locked ? "false" : String(selected)
+        });
         if (locked) {
-          const btn = el("button", {
-            type: "button",
-            class: "chip locked",
-            disabled: "disabled",
-            "aria-disabled": "true",
-            "aria-label": "Music 3 locked. Get 8 correct in one rush to unlock."
-          });
-          btn.appendChild(document.createTextNode("Music 3"));
-          btn.appendChild(el("small", { text: "8 in a rush" }));
-          btn.addEventListener("click", function (event) {
-            event.preventDefault();
-          });
-          row.appendChild(btn);
-          return;
+          btn.disabled = true;
+          btn.setAttribute("disabled", "disabled");
+          btn.setAttribute("aria-disabled", "true");
+          btn.setAttribute("aria-label", "Music 3 locked. Get 8 correct in one rush to unlock.");
+        } else {
+          btn.setAttribute("aria-label", track.label);
+          btn.addEventListener("click", function () { setPlayMusicId(track.id); });
         }
-        row.appendChild(button(track.label, "chip", state.playMusicId === track.id, function () {
-          setPlayMusicId(track.id);
-        }));
+        btn.appendChild(beatNoteStage());
+        const label = el("span", { class: "beat-label" });
+        label.appendChild(document.createTextNode(track.label));
+        if (locked) label.appendChild(el("small", { text: "8 in a rush" }));
+        btn.appendChild(label);
+        if (locked) {
+          btn.addEventListener("click", function (event) { event.preventDefault(); });
+        }
+        row.appendChild(btn);
       });
       card.appendChild(row);
       card.appendChild(el("p", { class: "hint", text: "Plays during the rush. Choice is saved on this device." }));
@@ -2971,7 +3016,6 @@
       if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
-      if (isNorthShore()) hint = "Name North Shore Oʻahu surf breaks from classroom-safe clues.";
       if (isVehicle()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
@@ -3028,7 +3072,6 @@
       if (isFlag()) return "Flags";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
-      if (isNorthShore()) return "North Shore";
       if (isVehicle()) return "Vehicles";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";

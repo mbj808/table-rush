@@ -228,6 +228,13 @@
       text-shadow: 0 1px 1px rgba(0,0,0,0.28);
     }
     .start:disabled { opacity: 0.4; box-shadow: none; }
+    .reset-challenge {
+      min-height: 2.75rem; padding: 0 1rem; border: 2px solid var(--btn-border); border-radius: 0.75rem;
+      background: rgba(30, 122, 77, 0.55); color: var(--on-primary); font-weight: 800;
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 0 rgba(21, 92, 58, 0.65);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.28);
+    }
     .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.65rem; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
     .timebar-wrap { margin-bottom: 1rem; }
     .timebar {
@@ -2563,6 +2570,16 @@
       if (wasPlaying) tryPlayPlayMusic();
       else render();
     }
+    function resetMusicChallenge() {
+      state.music3Unlocked = false;
+      state.music3JustUnlocked = false;
+      if (state.playMusicId === "3") {
+        state.playMusicId = "1";
+        disposePlayMusic();
+      }
+      writeSave();
+      render();
+    }
     function ensurePlayMusic() {
       if (playMusic && playMusicTrackId === state.playMusicId) return playMusic;
       disposePlayMusic();
@@ -2892,6 +2909,12 @@
       });
       card.appendChild(row);
       card.appendChild(el("p", { class: "hint", text: "Plays during the rush. Choice is saved on this device." }));
+      card.appendChild(el("button", {
+        class: "reset-challenge",
+        type: "button",
+        text: "Reset challenge",
+        onClick: resetMusicChallenge
+      }));
       return card;
     }
 

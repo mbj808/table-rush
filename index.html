@@ -700,16 +700,8 @@
       text-shadow: 0 1px 1px rgba(0,0,0,0.22);
     }
     .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.45rem; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
-    .streak-live {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 2.4rem; padding: 0.15rem 0.8rem; border-radius: 999px;
-      border: 2px solid #102038; background: #ffe56a; color: #102038;
-      font-weight: 900; font-size: 1rem; letter-spacing: 0.01em;
-      box-shadow: 0 2px 0 #102038; white-space: nowrap;
-    }
-    .streak-live[hidden] { display: none; }
     .streak-banner {
-      margin: 0 0 0.75rem;
+      margin: 0.15rem 0 0.75rem;
       padding: 0.45rem 0.9rem 0.65rem;
       border-radius: 1rem;
       border: 2px solid rgba(255, 255, 255, 0.62);
@@ -1030,7 +1022,6 @@
         </h1>
         <div class="brand-meta">
           <div class="header-actions">
-            <span id="streak-live" class="streak-live" hidden>Streak 0</span>
             <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
             <button id="mute" class="icon mini-player" type="button" aria-pressed="false" aria-label="Stop sounds and music" title="Stop sounds and music">
               <span class="transport-icon" aria-hidden="true"></span>
@@ -3332,11 +3323,6 @@
       updateMuteButton();
       const back = document.getElementById("back");
       back.hidden = state.phase === "setup";
-      const streakLive = document.getElementById("streak-live");
-      if (streakLive) {
-        streakLive.hidden = state.phase !== "play";
-        streakLive.textContent = "Streak " + state.streak;
-      }
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       syncHomeMusic();
@@ -3735,8 +3721,8 @@
       if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
       hud.appendChild(score);
       app.appendChild(hud);
-      app.appendChild(streakBanner());
       app.appendChild(musicCard(false));
+      app.appendChild(streakBanner());
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {

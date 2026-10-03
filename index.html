@@ -365,7 +365,6 @@
       text-shadow: 0 1px 0 rgba(255,255,255,0.35);
     }
     .split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .split3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
     .hint { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9rem; }
     .start, .again {
       height: 3.5rem; width: 100%; border: 2px solid var(--btn-border); border-radius: 1rem;
@@ -603,10 +602,10 @@
     const PLAY_TRACKS = [
       { id: "replay", label: "Replay", file: "assets/audio/f11362.mp3", unlockAt: 0, free: true },
       { id: "rise", label: "Rise", file: "assets/audio/replay.mp3", unlockAt: 15 },
-      { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: 30 },
-      { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 45 },
-      { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 60 },
-      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 75 }
+      { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: 15 },
+      { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 15 },
+      { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 15 },
+      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -1442,22 +1441,25 @@
     }
 
     function maybeUnlockBeats() {
-      if (state.length !== "rush" || state.phase !== "play") return;
+      if (state.phase !== "play") return "";
+      // Unlock the next locked beat each time the natural streak hits a multiple of 15.
+      if (state.streak < 15 || state.streak % 15 !== 0) return "";
       let unlockedNow = "";
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         const track = PLAY_TRACKS[i];
         if (trackIsFree(track)) continue;
         if (state.beatsUnlocked[track.id]) continue;
-        if (state.correct < track.unlockAt) continue;
         state.beatsUnlocked[track.id] = true;
         unlockedNow = track.id;
         playBeatSupernova(track.label);
+        break;
       }
-      if (!unlockedNow) return;
+      if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
       // Do not switch playback mid-rush. The selected beat (or silence) keeps playing.
       // The player picks a newly unlocked beat on the setup page after they go back.
       writeSave();
+      return unlockedNow;
     }
     function shuffle(items) {
       const copy = items.slice();
@@ -3026,7 +3028,6 @@
       }
 
       if (isMath()) stack.appendChild(modeCard());
-      stack.appendChild(roundCard());
       app.appendChild(stack);
     }
 
@@ -3093,7 +3094,7 @@
           btn.disabled = true;
           btn.setAttribute("disabled", "disabled");
           btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("aria-label", track.label + ", locked until " + track.unlockAt + " correct");
+          btn.setAttribute("aria-label", track.label + ", locked until a streak of " + track.unlockAt);
         } else {
           btn.setAttribute("aria-label", track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
@@ -3208,17 +3209,6 @@
       return card;
     }
 
-    function roundCard() {
-      const card = el("div", { class: "card" });
-      card.appendChild(el("p", { class: "label", text: "Round" }));
-      const row = el("div", { class: "split3" });
-      [["rush", "48 sec"], ["ten", "10 facts"], ["practice", "Practice"]].forEach(function (item) {
-        row.appendChild(button(item[1], "choice", state.length === item[0], function () { state.length = item[0]; render(); }));
-      });
-      card.appendChild(row);
-      return card;
-    }
-
     function quizPlayLabel() {
       if (isOcean()) return "Oceans & seas";
       if (isSport()) return "Sports";
@@ -3242,32 +3232,29 @@
       if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
       hud.appendChild(score);
       hud.appendChild(el("span", { text: "Streak " + state.streak }));
-      const clock = state.length === "rush" ? formatMs(state.msLeft) : state.length === "ten" ? Math.min(state.total, 10) + " / 10" : state.total + " answered";
-      hud.appendChild(el("span", { id: "rush-clock", text: clock }));
+      hud.appendChild(el("span", { id: "rush-clock", text: formatMs(state.msLeft) }));
       app.appendChild(hud);
-      if (state.length === "rush") {
-        const secsLeft = Math.max(0, Math.ceil(state.msLeft / 1000));
-        const pct = Math.max(0, Math.min(100, (100 * state.msLeft) / RUSH_MS));
-        const wrap = el("div", { class: "timebar-wrap" });
-        const label = el("div", { class: "timebar-label" });
-        label.appendChild(el("span", { text: "Time left" }));
-        label.appendChild(el("span", { id: "rush-secs", text: secsLeft + "s" }));
-        wrap.appendChild(label);
-        const bar = el("div", {
-          class: "timebar",
-          id: "timebar",
-          role: "progressbar",
-          "aria-label": "Time remaining",
-          "aria-valuemin": "0",
-          "aria-valuemax": String(Math.round(RUSH_MS / 1000)),
-          "aria-valuenow": String(secsLeft),
-          "aria-valuetext": secsLeft + " seconds left"
-        });
-        bar.appendChild(el("span", { class: "timebar-fill", id: "timebar-fill", style: "width:" + pct + "%" }));
-        wrap.appendChild(bar);
-        app.appendChild(wrap);
-      }
-      if (state.length === "rush") app.appendChild(musicCard(false));
+      const secsLeft = Math.max(0, Math.ceil(state.msLeft / 1000));
+      const pct = Math.max(0, Math.min(100, (100 * state.msLeft) / RUSH_MS));
+      const wrap = el("div", { class: "timebar-wrap" });
+      const label = el("div", { class: "timebar-label" });
+      label.appendChild(el("span", { text: "Time left" }));
+      label.appendChild(el("span", { id: "rush-secs", text: secsLeft + "s" }));
+      wrap.appendChild(label);
+      const bar = el("div", {
+        class: "timebar",
+        id: "timebar",
+        role: "progressbar",
+        "aria-label": "Time remaining",
+        "aria-valuemin": "0",
+        "aria-valuemax": String(Math.round(RUSH_MS / 1000)),
+        "aria-valuenow": String(secsLeft),
+        "aria-valuetext": secsLeft + " seconds left"
+      });
+      bar.appendChild(el("span", { class: "timebar-fill", id: "timebar-fill", style: "width:" + pct + "%" }));
+      wrap.appendChild(bar);
+      app.appendChild(wrap);
+      app.appendChild(musicCard(false));
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {
@@ -3341,7 +3328,6 @@
         answers.appendChild(btn);
       });
       app.appendChild(answers);
-      if (state.length === "practice") app.appendChild(el("button", { class: "ghost", type: "button", text: "Done", style: "margin-top:1rem", onClick: finish }));
     }
 
     function renderResults(app) {
@@ -3349,12 +3335,12 @@
       const accuracy = state.total ? Math.round((state.correct / state.total) * 100) : 0;
       const stack = el("div", { class: "stack" });
       const card = el("div", { class: "card center" });
-      card.appendChild(el("p", { class: "label", text: state.length === "rush" ? "Time's up" : state.length === "ten" ? "Set complete" : "Practice done" }));
+      card.appendChild(el("p", { class: "label", text: "Time's up" }));
       card.appendChild(el("p", { class: "score", text: String(state.score) }));
       card.appendChild(el("p", { class: "hint", text: state.correct + " / " + state.total + " correct · " + accuracy + "%" }));
       card.appendChild(el("p", { class: "hint", text: "Best streak " + state.bestStreak }));
       if (state.newBest) card.appendChild(el("p", { class: "fact", text: "New best rush score" }));
-      else if (state.length === "rush" && state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
+      else if (state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
       if (state.beatJustUnlocked) card.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       stack.appendChild(card);
       if (missed.length) {
@@ -3366,7 +3352,6 @@
         stack.appendChild(listCard);
       } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isQuiz() ? "Every answer was correct." : "Every fact was correct." }));
       stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
-      if (missed.length) stack.appendChild(el("button", { class: "ghost", type: "button", text: isQuiz() ? "Drill missed" : "Drill missed facts", onClick: function () { state.length = "practice"; start(missed); } }));
       stack.appendChild(el("button", { class: "textbtn", type: "button", text: isQuiz() ? "Change set" : "Change tables", onClick: backToSetup }));
       app.appendChild(stack);
     }
@@ -3382,7 +3367,7 @@
       clearTimeout(feedback);
       cancelAnimationFrame(timer);
       clearRushClock();
-      const beat = state.length === "rush" && state.score > state.best;
+      const beat = state.score > state.best;
       state.newBest = beat;
       if (beat) { state.best = state.score; writeSave(); }
       state.phase = "results";
@@ -3404,6 +3389,7 @@
       } else if (state.mode !== "product" && state.mode !== "factor") {
         state.mode = "product";
       }
+      state.length = "rush";
       state.drill = pairs;
       state.score = 0;
       state.streak = 0;
@@ -3421,37 +3407,35 @@
       state.lockUntil = 0;
       say("Started.");
       render();
-      if (state.length === "rush") {
-        rushClock = { startedAt: performance.now(), pausedTotal: 0, pauseAt: 0 };
-        let shown = Math.ceil(RUSH_MS / 1000);
-        const updateTimeBar = function (left) {
-          state.msLeft = left;
-          const secsLeft = Math.max(0, Math.ceil(left / 1000));
-          const pct = Math.max(0, Math.min(100, (100 * left) / RUSH_MS));
-          const fill = document.getElementById("timebar-fill");
-          const bar = document.getElementById("timebar");
-          const secs = document.getElementById("rush-secs");
-          const clock = document.getElementById("rush-clock");
-          if (fill) fill.style.width = pct + "%";
-          if (bar) {
-            bar.setAttribute("aria-valuenow", String(secsLeft));
-            bar.setAttribute("aria-valuetext", secsLeft + " seconds left");
-          }
-          if (secs) secs.textContent = secsLeft + "s";
-          if (clock) clock.textContent = formatMs(left);
-        };
-        const loop = function (now) {
-          if (state.phase !== "play" || !rushClock) return;
-          const tick = rushClock.pauseAt || now;
-          const left = RUSH_MS - (tick - rushClock.startedAt - rushClock.pausedTotal);
-          if (left <= 0) { updateTimeBar(0); finish(); return; }
-          updateTimeBar(left);
-          const nextShown = Math.ceil(left / 1000);
-          if (nextShown !== shown) { shown = nextShown; render(); }
-          timer = requestAnimationFrame(loop);
-        };
+      rushClock = { startedAt: performance.now(), pausedTotal: 0, pauseAt: 0 };
+      let shown = Math.ceil(RUSH_MS / 1000);
+      const updateTimeBar = function (left) {
+        state.msLeft = left;
+        const secsLeft = Math.max(0, Math.ceil(left / 1000));
+        const pct = Math.max(0, Math.min(100, (100 * left) / RUSH_MS));
+        const fill = document.getElementById("timebar-fill");
+        const bar = document.getElementById("timebar");
+        const secs = document.getElementById("rush-secs");
+        const clock = document.getElementById("rush-clock");
+        if (fill) fill.style.width = pct + "%";
+        if (bar) {
+          bar.setAttribute("aria-valuenow", String(secsLeft));
+          bar.setAttribute("aria-valuetext", secsLeft + " seconds left");
+        }
+        if (secs) secs.textContent = secsLeft + "s";
+        if (clock) clock.textContent = formatMs(left);
+      };
+      const loop = function (now) {
+        if (state.phase !== "play" || !rushClock) return;
+        const tick = rushClock.pauseAt || now;
+        const left = RUSH_MS - (tick - rushClock.startedAt - rushClock.pausedTotal);
+        if (left <= 0) { updateTimeBar(0); finish(); return; }
+        updateTimeBar(left);
+        const nextShown = Math.ceil(left / 1000);
+        if (nextShown !== shown) { shown = nextShown; render(); }
         timer = requestAnimationFrame(loop);
-      }
+      };
+      timer = requestAnimationFrame(loop);
     }
     function answer(choice) {
       if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
@@ -3468,17 +3452,19 @@
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
         state.correct += 1;
-        maybeUnlockBeats();
+        var unlockedId = maybeUnlockBeats();
         var justBeat = null;
-        for (var bi = 0; bi < PLAY_TRACKS.length; bi++) {
-          if (PLAY_TRACKS[bi].id === state.beatJustUnlocked && state.correct === PLAY_TRACKS[bi].unlockAt) justBeat = PLAY_TRACKS[bi];
+        if (unlockedId) {
+          for (var bi = 0; bi < PLAY_TRACKS.length; bi++) {
+            if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
+          }
         }
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : ""));
       } else {
         state.streak = 0;
         state.gain = null;
         // Pause rush timer during the 3s teach hold so kids aren't punished for learning.
-        if (state.length === "rush") pauseRushClock();
+        pauseRushClock();
         if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,
@@ -3498,10 +3484,9 @@
       }
       render();
       feedback = setTimeout(function () {
-        if (state.length === "rush") resumeRushClock();
+        resumeRushClock();
         if (state.phase !== "play") return;
-        if (state.length === "ten" && state.total >= 10) finish();
-        else nextProblem(problem.key);
+        nextProblem(problem.key);
       }, delay);
     }
     document.getElementById("back").addEventListener("click", backToSetup);

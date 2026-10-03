@@ -1573,14 +1573,14 @@
       const chosen = [answer];
       const seen = new Set([answer]);
       shuffle(candidates).forEach((n) => {
-        if (chosen.length >= 4 || !Number.isInteger(n) || n <= 0 || seen.has(n)) return;
+        if (chosen.length >= 2 || !Number.isInteger(n) || n <= 0 || seen.has(n)) return;
         seen.add(n);
         chosen.push(n);
       });
       let step = 1;
-      while (chosen.length < 4 && step < 60) {
+      while (chosen.length < 2 && step < 60) {
         [answer + step, Math.abs(answer - step)].forEach((n) => {
-          if (chosen.length < 4 && n > 0 && !seen.has(n)) {
+          if (chosen.length < 2 && n > 0 && !seen.has(n)) {
             seen.add(n);
             chosen.push(n);
           }
@@ -1592,8 +1592,8 @@
     function factorChoices(answer, other) {
       const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter((n, i, all) => n >= 1 && n <= 12 && n !== answer && all.indexOf(n) === i);
       const rest = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((n) => n !== answer && near.indexOf(n) < 0));
-      const picked = shuffle(near).slice(0, 3);
-      rest.forEach((n) => { if (picked.length < 3) picked.push(n); });
+      const picked = shuffle(near).slice(0, 1);
+      rest.forEach((n) => { if (picked.length < 1) picked.push(n); });
       return shuffle([answer].concat(picked));
     }
     function isDivide() { return state.operation === "divide"; }
@@ -1653,13 +1653,13 @@
       const chosen = [answerName];
       const seen = new Set([answerName]);
       shuffle(poolNames).forEach(function (n) {
-        if (chosen.length >= 4 || seen.has(n)) return;
+        if (chosen.length >= 2 || seen.has(n)) return;
         seen.add(n);
         chosen.push(n);
       });
-      if (chosen.length < 4 && fallbackNames) {
+      if (chosen.length < 2 && fallbackNames) {
         shuffle(fallbackNames).forEach(function (n) {
-          if (chosen.length >= 4 || seen.has(n)) return;
+          if (chosen.length >= 2 || seen.has(n)) return;
           seen.add(n);
           chosen.push(n);
         });
@@ -1971,10 +1971,10 @@
       takeFrom(sameStart, 1);
       takeFrom(similarLen, 2);
       takeFrom(rest.concat(sameStart).concat(similarLen), 3);
-      while (picked.length < 3) {
+      while (picked.length < 1) {
         const filler = "dog";
         const extras = ["dog", "cup", "pen", "box", "red", "yes", "no", "up", "in", "out"];
-        for (let i = 0; i < extras.length && picked.length < 3; i++) {
+        for (let i = 0; i < extras.length && picked.length < 1; i++) {
           if (!banned.has(extras[i]) && !used.has(extras[i]) && extras[i] !== answer) {
             used.add(extras[i]);
             picked.push(extras[i]);
@@ -1982,7 +1982,7 @@
         }
         break;
       }
-      return shuffle([answer].concat(picked.slice(0, 3)));
+      return shuffle([answer].concat(picked.slice(0, 1)));
     }
 
     function buildRhyme(avoid) {
@@ -2146,7 +2146,7 @@
       const used = new Set();
       function take(list) {
         shuffle(list).forEach(function (w) {
-          if (picked.length >= 3 || banned.has(w) || used.has(w)) return;
+          if (picked.length >= 1 || banned.has(w) || used.has(w)) return;
           used.add(w);
           picked.push(w);
         });
@@ -2161,7 +2161,7 @@
       take(related);
       const fillers = ["run", "play", "book", "tree", "blue", "green", "walk", "read"];
       take(fillers);
-      return shuffle([item.answer].concat(picked.slice(0, 3)));
+      return shuffle([item.answer].concat(picked.slice(0, 1)));
     }
 
     function buildSynonym(avoid) {
@@ -2199,8 +2199,9 @@
         if (n !== answer && near.indexOf(n) < 0) rest.push(n);
       }
       const shuffledRest = shuffle(rest);
-      const picked = shuffle(near).slice(0, 3);
-      shuffledRest.forEach(function (n) { if (picked.length < 3) picked.push(n); });
+      const picked = shuffle(near).slice(0, 1);
+      shuffledRest.forEach(function (n) { if (picked.length < 1) picked.push(n); });
+      if (!picked.length) picked.push(answer === 0 ? 1 : answer - 1);
       return shuffle([answer].concat(picked));
     }
     function sumChoices(answer, a, b) {

@@ -1377,10 +1377,15 @@
         if (state.correct < track.unlockAt) continue;
         state.beatsUnlocked[track.id] = true;
         unlockedNow = track.id;
-        writeSave();
         playBeatSupernova(track.id);
       }
-      if (unlockedNow) state.beatJustUnlocked = unlockedNow;
+      if (!unlockedNow) return;
+      state.beatJustUnlocked = unlockedNow;
+      // Play this beat now. Already-unlocked beats are skipped above, so a later rush
+      // does not restart them unless the player selects that beat.
+      state.playMusicId = unlockedNow;
+      writeSave();
+      disposePlayMusic();
     }
     function shuffle(items) {
       const copy = items.slice();

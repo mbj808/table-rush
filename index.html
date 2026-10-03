@@ -180,6 +180,15 @@
       text-shadow: 0 1px 0 rgba(255,255,255,0.35);
     }
     .chip { padding: 0 1rem; border-radius: 999px; background: var(--forest-soft); border-color: var(--btn-border); color: var(--ink); }
+    .chip.locked {
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.05rem; line-height: 1.05; padding: 0.28rem 0.85rem;
+      background: rgba(31, 58, 69, 0.12); color: rgba(31, 58, 69, 0.62);
+      border-color: rgba(31, 58, 69, 0.38); border-style: dashed;
+      box-shadow: none; text-shadow: none; cursor: not-allowed; opacity: 0.8;
+    }
+    .chip.locked small { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.01em; }
+    button.chip.locked:disabled { opacity: 0.8; }
     /* Selected must beat .chip/.choice/.num (same specificity otherwise loses) */
     .chip.on,
     .choice.on,
@@ -375,6 +384,7 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const RUSH_MS = 48000;
+    const RUSH_MUSIC_UNLOCK = 8;
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
@@ -1039,6 +1049,8 @@
       best: 0,
       muted: false,
       playMusicId: "1",
+      music3Unlocked: false,
+      music3JustUnlocked: false,
       newBest: false,
       drill: null,
       lockUntil: 0
@@ -1073,12 +1085,30 @@
         const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
         state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
         state.muted = Boolean(data.muted);
+        state.music3Unlocked = data.music3Unlocked === true;
         const ids = PLAY_TRACKS.map(function (t) { return t.id; });
-        state.playMusicId = ids.indexOf(data.playMusicId) >= 0 ? data.playMusicId : "1";
+        let playId = ids.indexOf(data.playMusicId) >= 0 ? data.playMusicId : "1";
+        if (playId === "3" && !state.music3Unlocked) playId = "1";
+        state.playMusicId = playId;
+        if (data.playMusicId === "3" && !state.music3Unlocked) writeSave();
       } catch (_) {}
     }
     function writeSave() {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 1, bestScore: state.best, muted: state.muted, playMusicId: state.playMusicId }));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        version: 1,
+        bestScore: state.best,
+        muted: state.muted,
+        playMusicId: state.playMusicId,
+        music3Unlocked: state.music3Unlocked === true
+      }));
+    }
+    function maybeUnlockMusic3() {
+      if (state.length !== "rush" || state.phase !== "play") return;
+      if (state.music3Unlocked) return;
+      if (state.correct < RUSH_MUSIC_UNLOCK) return;
+      state.music3Unlocked = true;
+      state.music3JustUnlocked = true;
+      writeSave();
     }
     function shuffle(items) {
       const copy = items.slice();
@@ -2344,6 +2374,7 @@
     function setPlayMusicId(id) {
       const ids = PLAY_TRACKS.map(function (t) { return t.id; });
       if (ids.indexOf(id) < 0 || state.playMusicId === id) return;
+      if (id === "3" && !state.music3Unlocked) return;
       const wasPlaying = state.phase === "play" && playMusic && !playMusic.paused && !state.muted;
       state.playMusicId = id;
       writeSave();
@@ -2657,6 +2688,23 @@
       card.appendChild(el("p", { class: "label", text: "Play music" }));
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
+        const locked = track.id === "3" && !state.music3Unlocked;
+        if (locked) {
+          const btn = el("button", {
+            type: "button",
+            class: "chip locked",
+            disabled: "disabled",
+            "aria-disabled": "true",
+            "aria-label": "Music 3 locked. Get 8 correct in one rush to unlock."
+          });
+          btn.appendChild(document.createTextNode("Music 3"));
+          btn.appendChild(el("small", { text: "8 in a rush" }));
+          btn.addEventListener("click", function (event) {
+            event.preventDefault();
+          });
+          row.appendChild(btn);
+          return;
+        }
         row.appendChild(button(track.label, "chip", state.playMusicId === track.id, function () {
           setPlayMusicId(track.id);
         }));
@@ -2815,6 +2863,7 @@
         wrap.appendChild(bar);
         app.appendChild(wrap);
       }
+      if (state.music3JustUnlocked) app.appendChild(el("p", { class: "fact", text: "Music 3 unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
@@ -2901,6 +2950,7 @@
       card.appendChild(el("p", { class: "hint", text: "Best streak " + state.bestStreak }));
       if (state.newBest) card.appendChild(el("p", { class: "fact", text: "New best rush score" }));
       else if (state.length === "rush" && state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
+      if (state.music3JustUnlocked) card.appendChild(el("p", { class: "fact", text: "Music 3 unlocked" }));
       stack.appendChild(card);
       if (missed.length) {
         const listCard = el("div", { class: "card" });
@@ -2957,6 +3007,7 @@
       state.total = 0;
       state.misses = [];
       state.newBest = false;
+      state.music3JustUnlocked = false;
       state.msLeft = RUSH_MS;
       state.phase = "play";
       state.problem = makeProblem();
@@ -3012,7 +3063,8 @@
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
         state.correct += 1;
-        say("Correct. " + spokenFact(problem));
+        maybeUnlockMusic3();
+        say("Correct. " + spokenFact(problem) + (state.music3JustUnlocked && state.correct === RUSH_MUSIC_UNLOCK ? " Music 3 unlocked." : ""));
       } else {
         state.streak = 0;
         state.gain = null;

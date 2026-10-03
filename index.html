@@ -541,13 +541,14 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const RUSH_MS = 48000;
-    const RUSH_MUSIC_UNLOCK = 8;
+    const BEAT_IDS = ["1", "2", "3", "4"];
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
-      { id: "1", label: "1", file: "assets/audio/play1.mp3" },
-      { id: "2", label: "2", file: "assets/audio/play2.mp3" },
-      { id: "3", label: "3", file: "assets/audio/play3.mp3" }
+      { id: "1", label: "1", file: "assets/audio/play1.mp3", unlockAt: 5 },
+      { id: "2", label: "2", file: "assets/audio/play2.mp3", unlockAt: 10 },
+      { id: "3", label: "3", file: "assets/audio/play3.mp3", unlockAt: 15 },
+      { id: "4", label: "4", file: "", unlockAt: 20 }
     ];
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
@@ -1157,9 +1158,9 @@
       misses: [],
       best: 0,
       muted: false,
-      playMusicId: "1",
-      music3Unlocked: false,
-      music3JustUnlocked: false,
+      playMusicId: "",
+      beatsUnlocked: { "1": false, "2": false, "3": false, "4": false },
+      beatJustUnlocked: "",
       newBest: false,
       drill: null,
       lockUntil: 0
@@ -1189,35 +1190,58 @@
       rushClock = null;
     }
 
+    function emptyBeatsUnlocked() {
+      return { "1": false, "2": false, "3": false, "4": false };
+    }
+    function lowestUnlockedBeatId() {
+      for (let i = 0; i < BEAT_IDS.length; i++) {
+        if (state.beatsUnlocked[BEAT_IDS[i]]) return BEAT_IDS[i];
+      }
+      return "";
+    }
     function loadSave() {
       try {
         const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
         state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
         state.muted = Boolean(data.muted);
-        state.music3Unlocked = data.music3Unlocked === true;
-        const ids = PLAY_TRACKS.map(function (t) { return t.id; });
-        let playId = ids.indexOf(data.playMusicId) >= 0 ? data.playMusicId : "1";
-        if (playId === "3" && !state.music3Unlocked) playId = "1";
+        const hadBeats = data.beatsUnlocked && typeof data.beatsUnlocked === "object";
+        state.beatsUnlocked = emptyBeatsUnlocked();
+        if (hadBeats) {
+          BEAT_IDS.forEach(function (id) {
+            state.beatsUnlocked[id] = data.beatsUnlocked[id] === true;
+          });
+        } else if (data.music3Unlocked === true) {
+          state.beatsUnlocked["1"] = true;
+          state.beatsUnlocked["2"] = true;
+          state.beatsUnlocked["3"] = true;
+        }
+        let playId = "";
+        if (BEAT_IDS.indexOf(data.playMusicId) >= 0) {
+          playId = state.beatsUnlocked[data.playMusicId] ? data.playMusicId : lowestUnlockedBeatId();
+        }
         state.playMusicId = playId;
-        if (data.playMusicId === "3" && !state.music3Unlocked) writeSave();
+        const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
+        if ((!hadBeats && data.music3Unlocked === true) || playId !== savedPlayId) writeSave();
       } catch (_) {}
     }
     function writeSave() {
+      const beats = emptyBeatsUnlocked();
+      BEAT_IDS.forEach(function (id) { beats[id] = state.beatsUnlocked[id] === true; });
       localStorage.setItem(SAVE_KEY, JSON.stringify({
         version: 1,
         bestScore: state.best,
         muted: state.muted,
-        playMusicId: state.playMusicId,
-        music3Unlocked: state.music3Unlocked === true
+        playMusicId: state.playMusicId || "",
+        beatsUnlocked: beats
       }));
     }
 
-    function playMusic3Supernova() {
+    function playBeatSupernova(beatId) {
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      var old = document.getElementById("music3-supernova");
+      var old = document.getElementById("beat-supernova");
       if (old) old.remove();
       var root = document.createElement("div");
-      root.id = "music3-supernova";
+      root.id = "beat-supernova";
       root.className = "supernova";
       root.setAttribute("aria-hidden", "true");
       var canvas = document.createElement("canvas");
@@ -1225,7 +1249,7 @@
       root.appendChild(canvas);
       var label = document.createElement("p");
       label.className = "supernova-label";
-      label.textContent = "Music 3 unlocked";
+      label.textContent = "Beat " + beatId + " unlocked";
       root.appendChild(label);
       document.body.appendChild(root);
 
@@ -1344,14 +1368,19 @@
       }, duration + 60);
     }
 
-    function maybeUnlockMusic3() {
+    function maybeUnlockBeats() {
       if (state.length !== "rush" || state.phase !== "play") return;
-      if (state.music3Unlocked) return;
-      if (state.correct < RUSH_MUSIC_UNLOCK) return;
-      state.music3Unlocked = true;
-      state.music3JustUnlocked = true;
-      writeSave();
-      playMusic3Supernova();
+      let unlockedNow = "";
+      for (let i = 0; i < PLAY_TRACKS.length; i++) {
+        const track = PLAY_TRACKS[i];
+        if (state.beatsUnlocked[track.id]) continue;
+        if (state.correct < track.unlockAt) continue;
+        state.beatsUnlocked[track.id] = true;
+        unlockedNow = track.id;
+        writeSave();
+        playBeatSupernova(track.id);
+      }
+      if (unlockedNow) state.beatJustUnlocked = unlockedNow;
     }
     function shuffle(items) {
       const copy = items.slice();
@@ -2545,10 +2574,12 @@
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         if (PLAY_TRACKS[i].id === state.playMusicId) return PLAY_TRACKS[i];
       }
-      return PLAY_TRACKS[0];
+      return null;
     }
     function playMusicSrc() {
-      const file = playTrackMeta().file;
+      const meta = playTrackMeta();
+      const file = meta && meta.file;
+      if (!file) return "";
       try {
         return new URL(file, document.baseURI || window.location.href).href;
       } catch (_) {
@@ -2565,25 +2596,31 @@
     function setPlayMusicId(id) {
       const ids = PLAY_TRACKS.map(function (t) { return t.id; });
       if (ids.indexOf(id) < 0 || state.playMusicId === id) return;
-      if (id === "3" && !state.music3Unlocked) return;
+      if (!state.beatsUnlocked[id]) return;
       const wasPlaying = state.phase === "play" && playMusic && !playMusic.paused && !state.muted;
       state.playMusicId = id;
       writeSave();
       disposePlayMusic();
-      if (wasPlaying) tryPlayPlayMusic();
+      const track = playTrackMeta();
+      if (wasPlaying && track && track.file) tryPlayPlayMusic();
       else render();
     }
     function resetMusicChallenge() {
-      state.music3Unlocked = false;
-      state.music3JustUnlocked = false;
-      if (state.playMusicId === "3") {
-        state.playMusicId = "1";
+      state.beatsUnlocked = emptyBeatsUnlocked();
+      state.beatJustUnlocked = "";
+      if (BEAT_IDS.indexOf(state.playMusicId) >= 0) {
+        state.playMusicId = "";
         disposePlayMusic();
       }
       writeSave();
       render();
     }
     function ensurePlayMusic() {
+      const meta = playTrackMeta();
+      if (!meta || !meta.file) {
+        disposePlayMusic();
+        return null;
+      }
       if (playMusic && playMusicTrackId === state.playMusicId) return playMusic;
       disposePlayMusic();
       playMusicTrackId = state.playMusicId;
@@ -2614,6 +2651,7 @@
     }
     function tryPlayPlayMusic() {
       const audio = ensurePlayMusic();
+      if (!audio) return;
       const playAttempt = audio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
@@ -2628,7 +2666,14 @@
       }
     }
     function syncPlayMusic() {
+      const meta = playTrackMeta();
+      if (!meta || !meta.file) {
+        unbindPlayMusicUnlock();
+        disposePlayMusic();
+        return;
+      }
       const audio = ensurePlayMusic();
+      if (!audio) return;
       const shouldPlay = state.phase === "play" && !state.muted;
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
@@ -2652,7 +2697,9 @@
       const play = playMusic;
       // Treat muted-but-playing as still awaiting (muted-unmute trick must not hide Music).
       const awaitingHome = !state.muted && state.phase === "setup" && (!home || home.paused || home.muted);
-      const awaitingPlay = !state.muted && state.phase === "play" && (!play || play.paused || play.muted);
+      const playMeta = playTrackMeta();
+      const hasPlayAudio = !!(playMeta && playMeta.file);
+      const awaitingPlay = !state.muted && state.phase === "play" && hasPlayAudio && (!play || play.paused || play.muted);
       const awaitingGesture = awaitingHome || awaitingPlay;
       if (state.muted) {
         mute.textContent = "Unmute";
@@ -2902,7 +2949,7 @@
       card.appendChild(el("p", { class: "label", text: "Beats" }));
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
-        const locked = track.id === "3" && !state.music3Unlocked;
+        const locked = !state.beatsUnlocked[track.id];
         const selected = !locked && state.playMusicId === track.id;
         const btn = el("button", {
           type: "button",
@@ -2913,15 +2960,14 @@
           btn.disabled = true;
           btn.setAttribute("disabled", "disabled");
           btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("aria-label", "3 locked. Get 8 correct in one rush to unlock.");
+          btn.setAttribute("aria-label", "Beat " + track.label + " locked");
         } else {
-          btn.setAttribute("aria-label", track.label);
+          btn.setAttribute("aria-label", "Beat " + track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
         }
         btn.appendChild(beatNoteStage());
         const label = el("span", { class: "beat-label" });
         label.appendChild(document.createTextNode(track.label));
-        if (locked) label.appendChild(el("small", { text: "8 in a rush" }));
         btn.appendChild(label);
         if (locked) {
           btn.addEventListener("click", function (event) { event.preventDefault(); });
@@ -3085,7 +3131,7 @@
         wrap.appendChild(bar);
         app.appendChild(wrap);
       }
-      if (state.music3JustUnlocked) app.appendChild(el("p", { class: "fact", text: "Music 3 unlocked" }));
+      if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
@@ -3172,7 +3218,7 @@
       card.appendChild(el("p", { class: "hint", text: "Best streak " + state.bestStreak }));
       if (state.newBest) card.appendChild(el("p", { class: "fact", text: "New best rush score" }));
       else if (state.length === "rush" && state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
-      if (state.music3JustUnlocked) card.appendChild(el("p", { class: "fact", text: "Music 3 unlocked" }));
+      if (state.beatJustUnlocked) card.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       stack.appendChild(card);
       if (missed.length) {
         const listCard = el("div", { class: "card" });
@@ -3229,7 +3275,7 @@
       state.total = 0;
       state.misses = [];
       state.newBest = false;
-      state.music3JustUnlocked = false;
+      state.beatJustUnlocked = "";
       state.msLeft = RUSH_MS;
       state.phase = "play";
       state.problem = makeProblem();
@@ -3285,8 +3331,12 @@
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
         state.correct += 1;
-        maybeUnlockMusic3();
-        say("Correct. " + spokenFact(problem) + (state.music3JustUnlocked && state.correct === RUSH_MUSIC_UNLOCK ? " Music 3 unlocked." : ""));
+        maybeUnlockBeats();
+        var justBeat = null;
+        for (var bi = 0; bi < PLAY_TRACKS.length; bi++) {
+          if (PLAY_TRACKS[bi].id === state.beatJustUnlocked && state.correct === PLAY_TRACKS[bi].unlockAt) justBeat = PLAY_TRACKS[bi];
+        }
+        say("Correct. " + spokenFact(problem) + (justBeat ? " Beat " + justBeat.id + " unlocked." : ""));
       } else {
         state.streak = 0;
         state.gain = null;
@@ -3340,7 +3390,7 @@
         updateMuteButton();
         return;
       }
-      if (state.phase === "play" && play.paused) {
+      if (state.phase === "play" && play && play.paused) {
         tryPlayPlayMusic();
         updateMuteButton();
         return;

@@ -267,6 +267,7 @@
     .stack { display: flex; flex-direction: column; gap: 1.25rem; }
     .card { background: transparent; border: 1px solid transparent; border-radius: 1.5rem; padding: 1.25rem; }
     .label { margin: 0 0 0.75rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 800; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
+    .beats-card .label { font-size: 2.35rem; letter-spacing: 0.02em; color: #8b0000; }
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .chip, .choice {
       min-height: 2.75rem; border-radius: 0.75rem; border: 2px solid var(--btn-border);
@@ -528,9 +529,6 @@
           </svg>
         </h1>
         <div class="brand-meta">
-          <div>
-            <p class="sub" id="tagline">Practice multiplication, division, and fun facts.</p>
-          </div>
           <div class="header-actions">
             <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
             <button id="mute" class="icon" type="button" aria-pressed="false" aria-label="Mute sounds">Mute</button>
@@ -547,9 +545,9 @@
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
-      { id: "1", label: "Music 1", file: "assets/audio/play1.mp3" },
-      { id: "2", label: "Music 2", file: "assets/audio/play2.mp3" },
-      { id: "3", label: "Music 3", file: "assets/audio/play3.mp3" }
+      { id: "1", label: "1", file: "assets/audio/play1.mp3" },
+      { id: "2", label: "2", file: "assets/audio/play2.mp3" },
+      { id: "3", label: "3", file: "assets/audio/play3.mp3" }
     ];
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
@@ -2351,27 +2349,6 @@
       return pair.a + " times " + pair.b + " is " + pair.product + ".";
     }
 
-    function updateTagline() {
-      const tag = document.getElementById("tagline");
-      if (!tag) return;
-      if (isOcean()) tag.textContent = "Practice oceans and seas.";
-      else if (isSport()) tag.textContent = "Practice sports facts.";
-      else if (isHawaii()) tag.textContent = "Practice Hawaiian Islands.";
-      else if (isCapital()) tag.textContent = "Practice U.S. state capitals.";
-      else if (isState()) tag.textContent = "Practice U.S. states from outline maps.";
-      else if (isElement()) tag.textContent = "Practice chemical elements and symbols.";
-      else if (isFlag()) tag.textContent = "Practice world countries by continent.";
-      else if (isRhyme()) tag.textContent = "Practice rhyming word families.";
-      else if (isSynonym()) tag.textContent = "Practice synonyms and antonyms.";
-      else if (isVehicle()) tag.textContent = "Practice types of vehicles.";
-      else if (isInstrument()) tag.textContent = "Practice musical instruments.";
-      else if (isPiano()) tag.textContent = "Practice piano note names.";
-      else if (isDivide()) tag.textContent = "Practice division facts.";
-      else if (isAdd()) tag.textContent = "Practice addition facts.";
-      else if (isSubtract()) tag.textContent = "Practice subtraction facts.";
-      else tag.textContent = "Practice multiplication facts.";
-    }
-
     function formatMs(ms) {
       const total = Math.max(0, Math.ceil(ms / 1000));
       return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
@@ -2738,7 +2715,6 @@
       updateMuteButton();
       const back = document.getElementById("back");
       back.hidden = state.phase === "setup";
-      updateTagline();
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       else renderResults(app);
@@ -2922,7 +2898,7 @@
     }
 
     function musicCard() {
-      const card = el("div", { class: "card" });
+      const card = el("div", { class: "card beats-card" });
       card.appendChild(el("p", { class: "label", text: "Beats" }));
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
@@ -2937,7 +2913,7 @@
           btn.disabled = true;
           btn.setAttribute("disabled", "disabled");
           btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("aria-label", "Music 3 locked. Get 8 correct in one rush to unlock.");
+          btn.setAttribute("aria-label", "3 locked. Get 8 correct in one rush to unlock.");
         } else {
           btn.setAttribute("aria-label", track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
@@ -2953,7 +2929,6 @@
         row.appendChild(btn);
       });
       card.appendChild(row);
-      card.appendChild(el("p", { class: "hint", text: "Plays during the rush. Choice is saved on this device." }));
       card.appendChild(el("button", {
         class: "reset-challenge",
         type: "button",

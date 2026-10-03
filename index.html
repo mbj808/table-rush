@@ -596,16 +596,17 @@
   </main>
   <script>
     const SAVE_KEY = "table-rush-v1";
+    const SAVE_VERSION = 3;
     const RUSH_MS = 48000;
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
-      { id: "replay", label: "Replay", file: "assets/audio/replay.mp3", unlockAt: 0, free: true },
-      { id: "7c0a99", label: "7c0a99", file: "assets/audio/7c0a99.mp3", unlockAt: 15 },
-      { id: "925ad2", label: "925ad2", file: "assets/audio/925ad2.mp3", unlockAt: 30 },
-      { id: "62a317", label: "62a317", file: "assets/audio/62a317.mp3", unlockAt: 45 },
-      { id: "3027b7", label: "3027b7", file: "assets/audio/3027b7.mp3", unlockAt: 60 },
-      { id: "f11362", label: "f11362", file: "assets/audio/f11362.mp3", unlockAt: 75 }
+      { id: "replay", label: "Replay", file: "assets/audio/f11362.mp3", unlockAt: 0, free: true },
+      { id: "rise", label: "Rise", file: "assets/audio/replay.mp3", unlockAt: 15 },
+      { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: 30 },
+      { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 45 },
+      { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 60 },
+      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 75 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -1217,7 +1218,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "7c0a99": false, "925ad2": false, "62a317": false, "3027b7": false, "f11362": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -1276,7 +1277,8 @@
         const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
         state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
         state.muted = Boolean(data.muted);
-        const hadBeats = data.beatsUnlocked && typeof data.beatsUnlocked === "object";
+        const currentSave = data.version === SAVE_VERSION;
+        const hadBeats = currentSave && data.beatsUnlocked && typeof data.beatsUnlocked === "object";
         state.beatsUnlocked = emptyBeatsUnlocked();
         if (hadBeats) {
           BEAT_IDS.forEach(function (id) {
@@ -1287,19 +1289,19 @@
           if (trackIsFree(track)) state.beatsUnlocked[track.id] = true;
         });
         let playId = freeBeatId();
-        if (BEAT_IDS.indexOf(data.playMusicId) >= 0 && state.beatsUnlocked[data.playMusicId]) {
+        if (currentSave && BEAT_IDS.indexOf(data.playMusicId) >= 0 && state.beatsUnlocked[data.playMusicId]) {
           playId = data.playMusicId;
         }
         state.playMusicId = playId;
         const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
-        if ((!hadBeats && data.music3Unlocked === true) || playId !== savedPlayId) writeSave();
+        if (!currentSave || !hadBeats || playId !== savedPlayId) writeSave();
       } catch (_) {}
     }
     function writeSave() {
       const beats = emptyBeatsUnlocked();
       BEAT_IDS.forEach(function (id) { beats[id] = state.beatsUnlocked[id] === true; });
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         bestScore: state.best,
         muted: state.muted,
         playMusicId: state.playMusicId || "",
@@ -2905,7 +2907,7 @@
 
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
-      stack.appendChild(musicCard());
+      stack.appendChild(musicCard(true));
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -3075,7 +3077,7 @@
       wrap.appendChild(svg);
       return wrap;
     }
-    function musicCard() {
+    function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
       card.appendChild(beatsTitle());
       const row = el("div", { class: "row" });
@@ -3107,12 +3109,14 @@
         row.appendChild(btn);
       });
       card.appendChild(row);
-      card.appendChild(el("button", {
-        class: "reset-challenge",
-        type: "button",
-        text: "Reset challenge",
-        onClick: resetMusicChallenge
-      }));
+      if (includeReset) {
+        card.appendChild(el("button", {
+          class: "reset-challenge",
+          type: "button",
+          text: "Reset challenge",
+          onClick: resetMusicChallenge
+        }));
+      }
       return card;
     }
 
@@ -3263,6 +3267,7 @@
         wrap.appendChild(bar);
         app.appendChild(wrap);
       }
+      if (state.length === "rush") app.appendChild(musicCard(false));
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isQuiz()) {

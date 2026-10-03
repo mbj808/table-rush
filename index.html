@@ -99,6 +99,12 @@
         will-change: auto;
         transform: none;
       }
+      .supernova,
+      .supernova-label {
+        animation: none !important;
+        display: none !important;
+      }
+
       .title-svg .nebula,
       .title-svg .stars,
       .title-svg .stars-b {
@@ -323,6 +329,47 @@
     }
     .eq.has-map { padding: 1.25rem 1rem 1.5rem; }
     .sea-tag { color: var(--coral); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; margin-left: 0.35rem; }
+
+    .supernova {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .supernova-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .supernova-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(92vw, 40rem);
+      margin: 0;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 8vw, 5.2rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      color: #fffef8;
+      text-shadow:
+        0 0 18px rgba(255, 220, 140, 0.95),
+        0 0 48px rgba(255, 140, 40, 0.85),
+        0 2px 0 #3b1d6e;
+      animation: supernova-type 3.2s ease-out forwards;
+    }
+    @keyframes supernova-type {
+      0% { opacity: 0; transform: translate(-50%, -46%) scale(0.72); }
+      14% { opacity: 0; transform: translate(-50%, -46%) scale(0.78); }
+      30% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -54%) scale(1.05); }
+    }
   </style>
 </head>
 <body>
@@ -1102,6 +1149,139 @@
         music3Unlocked: state.music3Unlocked === true
       }));
     }
+
+    function playMusic3Supernova() {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var old = document.getElementById("music3-supernova");
+      if (old) old.remove();
+      var root = document.createElement("div");
+      root.id = "music3-supernova";
+      root.className = "supernova";
+      root.setAttribute("aria-hidden", "true");
+      var canvas = document.createElement("canvas");
+      canvas.className = "supernova-canvas";
+      root.appendChild(canvas);
+      var label = document.createElement("p");
+      label.className = "supernova-label";
+      label.textContent = "Music 3 unlocked";
+      root.appendChild(label);
+      document.body.appendChild(root);
+
+      var ctx = canvas.getContext("2d");
+      if (!ctx) {
+        setTimeout(function () { if (root.parentNode) root.remove(); }, 3200);
+        return;
+      }
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = Math.max(1, window.innerWidth);
+      var h = Math.max(1, window.innerHeight);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      var colors = ["#fffef8", "#ffe9a0", "#ffd36a", "#ffb703", "#ff7a18", "#ff4d2e", "#e9d5ff", "#c084fc", "#7c3aed", "#60a5fa", "#1e3a8a"];
+      var particles = [];
+      var i;
+      for (i = 0; i < 168; i++) {
+        particles.push({
+          a: Math.random() * Math.PI * 2,
+          v: 0.18 + Math.pow(Math.random(), 0.72) * 0.95,
+          r: 1.1 + Math.random() * 3.6,
+          color: colors[(Math.random() * colors.length) | 0],
+          delay: Math.random() * 0.22,
+          life: 0.7 + Math.random() * 0.3,
+          tw: Math.random() * Math.PI * 2,
+          star: Math.random() > 0.62
+        });
+      }
+      var start = performance.now();
+      var duration = 3200;
+      var raf = 0;
+      function frame(now) {
+        var t = (now - start) / 1000;
+        var cw = canvas.width;
+        var ch = canvas.height;
+        var cx = cw / 2;
+        var cy = ch / 2;
+        var fade = t < 2.35 ? 1 : Math.max(0, 1 - (t - 2.35) / 0.85);
+        ctx.clearRect(0, 0, cw, ch);
+
+        ctx.globalAlpha = fade * (t < 0.12 ? t / 0.12 : 0.78);
+        var wash = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(cw, ch) * 0.75);
+        wash.addColorStop(0, "rgba(255, 248, 220, 0.96)");
+        wash.addColorStop(0.16, "rgba(255, 150, 40, 0.62)");
+        wash.addColorStop(0.38, "rgba(109, 40, 217, 0.5)");
+        wash.addColorStop(0.68, "rgba(15, 40, 120, 0.72)");
+        wash.addColorStop(1, "rgba(4, 8, 28, 0.88)");
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, 0, cw, ch);
+
+        var flash = t < 0.16 ? 1 : t < 0.72 ? Math.max(0, 1 - (t - 0.16) / 0.56) : 0;
+        if (flash > 0) {
+          ctx.globalAlpha = flash * fade;
+          var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(cw, ch) * 0.62);
+          core.addColorStop(0, "#ffffff");
+          core.addColorStop(0.18, "rgba(255, 244, 210, 0.98)");
+          core.addColorStop(0.42, "rgba(255, 176, 48, 0.55)");
+          core.addColorStop(1, "rgba(255, 176, 48, 0)");
+          ctx.fillStyle = core;
+          ctx.fillRect(0, 0, cw, ch);
+        }
+
+        var maxR = Math.hypot(cw, ch) * 0.56;
+        var ring;
+        for (ring = 0; ring < 3; ring++) {
+          var rt = t - 0.08 - ring * 0.16;
+          if (rt <= 0) continue;
+          var prog = Math.min(1, rt / 1.45);
+          var radius = maxR * (0.03 + prog * 0.97);
+          ctx.globalAlpha = Math.pow(1 - prog, 1.6) * fade * 0.95;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.strokeStyle = ring === 0 ? "#fff6d0" : ring === 1 ? "#ffb020" : "#c4b5fd";
+          ctx.lineWidth = (22 - ring * 5) * dpr * (1 - prog * 0.6);
+          ctx.stroke();
+        }
+
+        var reach = Math.max(cw, ch) * 0.52;
+        for (i = 0; i < particles.length; i++) {
+          var ptl = particles[i];
+          var pt = t - 0.12 - ptl.delay;
+          if (pt <= 0) continue;
+          var u = pt / (2.55 * ptl.life);
+          if (u >= 1) continue;
+          var ease = 1 - Math.pow(1 - Math.min(1, u * 1.05), 2.15);
+          var dist = reach * ptl.v * ease;
+          var x = cx + Math.cos(ptl.a) * dist;
+          var y = cy + Math.sin(ptl.a) * dist * 0.92;
+          var alphaP = fade * (u < 0.12 ? u / 0.12 : Math.max(0, 1 - (u - 0.12) / 0.88));
+          var rad = ptl.r * dpr * (1.35 - u * 0.55) * (0.8 + 0.2 * Math.sin(ptl.tw + t * 16));
+          ctx.globalAlpha = Math.max(0, alphaP);
+          ctx.fillStyle = ptl.color;
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(0.5, rad), 0, Math.PI * 2);
+          ctx.fill();
+          if (ptl.star && u < 0.75) {
+            ctx.globalAlpha = alphaP * 0.8;
+            ctx.strokeStyle = ptl.color;
+            ctx.lineWidth = Math.max(1, dpr * 0.8);
+            ctx.beginPath();
+            ctx.moveTo(x - rad * 2.6, y);
+            ctx.lineTo(x + rad * 2.6, y);
+            ctx.moveTo(x, y - rad * 2.6);
+            ctx.lineTo(x, y + rad * 2.6);
+            ctx.stroke();
+          }
+        }
+        ctx.globalAlpha = 1;
+        if (now - start < duration) raf = requestAnimationFrame(frame);
+        else if (root.parentNode) root.remove();
+      }
+      raf = requestAnimationFrame(frame);
+      setTimeout(function () {
+        cancelAnimationFrame(raf);
+        if (root.parentNode) root.remove();
+      }, duration + 60);
+    }
+
     function maybeUnlockMusic3() {
       if (state.length !== "rush" || state.phase !== "play") return;
       if (state.music3Unlocked) return;
@@ -1109,6 +1289,7 @@
       state.music3Unlocked = true;
       state.music3JustUnlocked = true;
       writeSave();
+      playMusic3Supernova();
     }
     function shuffle(items) {
       const copy = items.slice();

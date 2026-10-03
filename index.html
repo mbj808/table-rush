@@ -119,10 +119,15 @@
         transform: none !important;
         will-change: auto;
       }
-      .beat-chip .beat-note {
+      .beat-chip .speaker-wave {
         animation: none !important;
-        opacity: 0.55;
-        transform: none;
+        opacity: 0.45;
+        transform: translateY(-50%);
+      }
+      .beats-title-svg .nebula,
+      .beats-title-svg .stars,
+      .beats-title-svg .stars-b {
+        animation: none !important;
       }
     }
     button { font: inherit; cursor: pointer; }
@@ -187,50 +192,55 @@
       position: relative;
       overflow: hidden;
       isolation: isolate;
-      min-width: 5.75rem;
+      width: 7.15rem;
+      height: 7.15rem;
+      min-width: 7.15rem;
+      min-height: 7.15rem;
+      padding: 0.4rem 0.35rem 0.45rem;
+      border-radius: 50%;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12rem;
       z-index: 0;
     }
-    .beat-chip .beat-stage {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
+    .beat-chip .speaker-face {
+      position: relative;
+      width: 2.55rem;
+      height: 2.15rem;
+      flex: none;
+      color: inherit;
     }
-    .beat-chip .beat-staff {
+    .beat-chip .speaker-cone {
       position: absolute;
-      left: -4%;
-      right: -4%;
+      left: 0;
       top: 50%;
-      height: 1.15rem;
+      width: 1.05rem;
+      height: 1.35rem;
       transform: translateY(-50%);
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(16, 32, 56, 0.28) 0 1.5px,
-        transparent 1.5px 0.28rem
-      );
-      opacity: 0.55;
+      background: currentColor;
+      clip-path: polygon(0 32%, 38% 32%, 100% 0, 100% 100%, 38% 68%, 0 68%);
     }
-    .beat-chip.on .beat-staff {
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.42) 0 1.5px,
-        transparent 1.5px 0.28rem
-      );
-      opacity: 0.7;
-    }
-    .beat-chip .beat-note {
+    .beat-chip .speaker-wave {
       position: absolute;
-      font-size: 0.78rem;
-      line-height: 1;
-      color: rgba(16, 32, 56, 0.55);
-      text-shadow: none;
-      animation: beat-note-float var(--beat-dur, 2.8s) ease-in-out infinite;
-      animation-delay: var(--beat-delay, 0s);
-      opacity: 0;
+      right: 0;
+      top: 50%;
+      border: 2.5px solid currentColor;
+      border-left: none;
+      border-radius: 0 80% 80% 0;
+      transform: translateY(-50%);
+      opacity: 0.35;
+      animation: speaker-pulse 1.25s ease-out infinite;
     }
-    .beat-chip.on .beat-note { color: rgba(255, 255, 255, 0.9); }
-    .beat-chip.locked .beat-note { color: rgba(31, 58, 69, 0.4); }
+    .beat-chip .speaker-wave.w1 { width: 0.42rem; height: 0.62rem; right: 0.72rem; animation-delay: 0s; }
+    .beat-chip .speaker-wave.w2 { width: 0.62rem; height: 1.05rem; right: 0.38rem; animation-delay: 0.2s; }
+    .beat-chip .speaker-wave.w3 { width: 0.82rem; height: 1.5rem; right: 0.02rem; animation-delay: 0.4s; }
+    .beat-chip.on .speaker-wave { animation-duration: 0.8s; }
+    .beat-chip.locked .speaker-wave {
+      animation: none;
+      opacity: 0.28;
+    }
     .beat-chip .beat-label {
       position: relative;
       z-index: 1;
@@ -238,13 +248,16 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.05rem;
+      max-width: 6.2rem;
+      font-size: 0.68rem;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      text-align: center;
     }
-    @keyframes beat-note-float {
-      0% { transform: translate(0, 0.35rem) scale(0.85); opacity: 0; }
-      18% { opacity: 0.85; }
-      55% { opacity: 0.75; }
-      100% { transform: translate(var(--beat-dx, 0.4rem), -1.15rem) scale(1.05); opacity: 0; }
+    @keyframes speaker-pulse {
+      0% { opacity: 0.12; transform: translateY(-50%) scale(0.72); }
+      35% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-50%) scale(1.08); }
     }
     .sub { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.9rem; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
     .icon {
@@ -267,7 +280,24 @@
     .stack { display: flex; flex-direction: column; gap: 1.25rem; }
     .card { background: transparent; border: 1px solid transparent; border-radius: 1.5rem; padding: 1.25rem; }
     .label { margin: 0 0 0.75rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 800; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
-    .beats-card .label { font-size: 2.35rem; letter-spacing: 0.02em; color: #8b0000; }
+    .beats-card .beats-title-svg {
+      display: block;
+      width: min(100%, 18rem);
+      height: auto;
+      margin: 0 0 0.45rem;
+      overflow: visible;
+    }
+    .beats-card .sr-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .chip, .choice {
       min-height: 2.75rem; border-radius: 0.75rem; border: 2px solid var(--btn-border);
@@ -286,6 +316,32 @@
     }
     .chip.locked small { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.01em; }
     button.chip.locked:disabled { opacity: 0.8; }
+    .beats-title { position: relative; }
+    .chip.beat-chip {
+      width: 7.15rem;
+      height: 7.15rem;
+      min-width: 7.15rem;
+      min-height: 7.15rem;
+      max-width: 7.15rem;
+      flex: 0 0 7.15rem;
+      padding: 0.35rem 0.28rem 0.4rem;
+      border-radius: 50%;
+      line-height: 1.05;
+    }
+    .chip.beat-chip.locked {
+      border-radius: 50%;
+      border-style: dashed;
+      padding: 0.3rem 0.28rem 0.28rem;
+    }
+    .chip.beat-chip.locked small {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+    .chip.beat-chip.on {
+      box-shadow: 0 0 0 3px #0f3d28, 0 0 0 6px rgba(255, 255, 255, 0.72);
+    }
     /* Selected must beat .chip/.choice/.num (same specificity otherwise loses) */
     .chip.on,
     .choice.on,
@@ -541,15 +597,17 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const RUSH_MS = 48000;
-    const BEAT_IDS = ["1", "2", "3", "4"];
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
-      { id: "1", label: "1", file: "assets/audio/play1.mp3", unlockAt: 15 },
-      { id: "2", label: "2", file: "assets/audio/play2.mp3", unlockAt: 30 },
-      { id: "3", label: "3", file: "assets/audio/play3.mp3", unlockAt: 45 },
-      { id: "4", label: "4", file: "assets/audio/play4.mp3", unlockAt: 60 }
+      { id: "replay", label: "Replay", file: "assets/audio/replay.mp3", unlockAt: 0, free: true },
+      { id: "7c0a99", label: "7c0a99", file: "assets/audio/7c0a99.mp3", unlockAt: 15 },
+      { id: "925ad2", label: "925ad2", file: "assets/audio/925ad2.mp3", unlockAt: 30 },
+      { id: "62a317", label: "62a317", file: "assets/audio/62a317.mp3", unlockAt: 45 },
+      { id: "3027b7", label: "3027b7", file: "assets/audio/3027b7.mp3", unlockAt: 60 },
+      { id: "f11362", label: "f11362", file: "assets/audio/f11362.mp3", unlockAt: 75 }
     ];
+    const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
       ["6–9", [6, 7, 8, 9]],
@@ -1158,8 +1216,8 @@
       misses: [],
       best: 0,
       muted: false,
-      playMusicId: "",
-      beatsUnlocked: { "1": false, "2": false, "3": false, "4": false },
+      playMusicId: "replay",
+      beatsUnlocked: { "replay": true, "7c0a99": false, "925ad2": false, "62a317": false, "3027b7": false, "f11362": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -1191,8 +1249,21 @@
       rushClock = null;
     }
 
+    function trackIsFree(track) {
+      return !!(track && (track.free || track.unlockAt === 0));
+    }
+    function freeBeatId() {
+      for (let i = 0; i < PLAY_TRACKS.length; i++) {
+        if (trackIsFree(PLAY_TRACKS[i])) return PLAY_TRACKS[i].id;
+      }
+      return BEAT_IDS[0] || "";
+    }
     function emptyBeatsUnlocked() {
-      return { "1": false, "2": false, "3": false, "4": false };
+      const beats = {};
+      PLAY_TRACKS.forEach(function (track) {
+        beats[track.id] = trackIsFree(track);
+      });
+      return beats;
     }
     function lowestUnlockedBeatId() {
       for (let i = 0; i < BEAT_IDS.length; i++) {
@@ -1209,16 +1280,15 @@
         state.beatsUnlocked = emptyBeatsUnlocked();
         if (hadBeats) {
           BEAT_IDS.forEach(function (id) {
-            state.beatsUnlocked[id] = data.beatsUnlocked[id] === true;
+            if (data.beatsUnlocked[id] === true) state.beatsUnlocked[id] = true;
           });
-        } else if (data.music3Unlocked === true) {
-          state.beatsUnlocked["1"] = true;
-          state.beatsUnlocked["2"] = true;
-          state.beatsUnlocked["3"] = true;
         }
-        let playId = "";
-        if (BEAT_IDS.indexOf(data.playMusicId) >= 0) {
-          playId = state.beatsUnlocked[data.playMusicId] ? data.playMusicId : lowestUnlockedBeatId();
+        PLAY_TRACKS.forEach(function (track) {
+          if (trackIsFree(track)) state.beatsUnlocked[track.id] = true;
+        });
+        let playId = freeBeatId();
+        if (BEAT_IDS.indexOf(data.playMusicId) >= 0 && state.beatsUnlocked[data.playMusicId]) {
+          playId = data.playMusicId;
         }
         state.playMusicId = playId;
         const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
@@ -1250,7 +1320,7 @@
       root.appendChild(canvas);
       var label = document.createElement("p");
       label.className = "supernova-label";
-      label.textContent = "Beat " + beatId + " unlocked";
+      label.textContent = beatId + " unlocked";
       root.appendChild(label);
       document.body.appendChild(root);
 
@@ -1374,11 +1444,12 @@
       let unlockedNow = "";
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         const track = PLAY_TRACKS[i];
+        if (trackIsFree(track)) continue;
         if (state.beatsUnlocked[track.id]) continue;
         if (state.correct < track.unlockAt) continue;
         state.beatsUnlocked[track.id] = true;
         unlockedNow = track.id;
-        playBeatSupernova(track.id);
+        playBeatSupernova(track.label);
       }
       if (!unlockedNow) return;
       state.beatJustUnlocked = unlockedNow;
@@ -2642,8 +2713,8 @@
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.beatJustUnlocked = "";
-      if (BEAT_IDS.indexOf(state.playMusicId) >= 0) {
-        state.playMusicId = "";
+      if (!state.beatsUnlocked[state.playMusicId]) {
+        state.playMusicId = freeBeatId();
         disposePlayMusic();
       }
       writeSave();
@@ -2978,9 +3049,35 @@
       return stage;
     }
 
+    function speakerFace() {
+      const face = el("span", { class: "speaker-face", "aria-hidden": "true" });
+      face.appendChild(el("span", { class: "speaker-cone" }));
+      face.appendChild(el("span", { class: "speaker-wave w1" }));
+      face.appendChild(el("span", { class: "speaker-wave w2" }));
+      face.appendChild(el("span", { class: "speaker-wave w3" }));
+      return face;
+    }
+    function beatsTitle() {
+      const wrap = el("div", { class: "beats-title" });
+      wrap.appendChild(el("span", { class: "sr-label", text: "Beats" }));
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "beats-title-svg title-svg");
+      svg.setAttribute("viewBox", "40 20 580 132");
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("focusable", "false");
+      const textAttrs = 'x="330" y="124" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="500" lengthAdjust="spacingAndGlyphs"';
+      svg.innerHTML = ''
+        + '<defs><clipPath id="beats-letters"><text ' + textAttrs + '>BEATS</text></clipPath></defs>'
+        + '<g fill="#102038" stroke="#102038" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"><text ' + textAttrs + '>BEATS</text></g>'
+        + '<g clip-path="url(#beats-letters)"><use href="#mf-nebula" class="nebula"/><use href="#mf-stars" class="stars"/><use href="#mf-stars-b" class="stars stars-b"/></g>'
+        + '<g fill="none" stroke="#f4fbff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><text ' + textAttrs + '>BEATS</text></g>';
+      wrap.appendChild(svg);
+      return wrap;
+    }
     function musicCard() {
       const card = el("div", { class: "card beats-card" });
-      card.appendChild(el("p", { class: "label", text: "Beats" }));
+      card.appendChild(beatsTitle());
       const row = el("div", { class: "row" });
       PLAY_TRACKS.forEach(function (track) {
         const locked = !state.beatsUnlocked[track.id];
@@ -2994,16 +3091,17 @@
           btn.disabled = true;
           btn.setAttribute("disabled", "disabled");
           btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("aria-label", "Beat " + track.label + " locked");
+          btn.setAttribute("aria-label", track.label + ", locked until " + track.unlockAt + " correct");
         } else {
-          btn.setAttribute("aria-label", "Beat " + track.label);
+          btn.setAttribute("aria-label", track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
         }
-        btn.appendChild(beatNoteStage());
+        btn.appendChild(speakerFace());
         const label = el("span", { class: "beat-label" });
         label.appendChild(document.createTextNode(track.label));
         btn.appendChild(label);
         if (locked) {
+          btn.appendChild(el("small", { text: String(track.unlockAt) }));
           btn.addEventListener("click", function (event) { event.preventDefault(); });
         }
         row.appendChild(btn);
@@ -3370,7 +3468,7 @@
         for (var bi = 0; bi < PLAY_TRACKS.length; bi++) {
           if (PLAY_TRACKS[bi].id === state.beatJustUnlocked && state.correct === PLAY_TRACKS[bi].unlockAt) justBeat = PLAY_TRACKS[bi];
         }
-        say("Correct. " + spokenFact(problem) + (justBeat ? " Beat " + justBeat.id + " unlocked." : ""));
+        say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : ""));
       } else {
         state.streak = 0;
         state.gain = null;

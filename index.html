@@ -382,24 +382,6 @@
       text-shadow: 0 1px 1px rgba(0,0,0,0.28);
     }
     .hud { display: flex; justify-content: space-between; gap: 0.5rem; font-weight: 800; font-size: 0.9rem; margin-bottom: 0.65rem; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
-    .timebar-wrap { margin-bottom: 1rem; }
-    .timebar {
-      height: 0.7rem; border-radius: 999px; background: rgba(255, 255, 255, 0.28);
-      border: 1px solid rgba(255, 255, 255, 0.4); overflow: hidden;
-      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    }
-    .timebar-fill {
-      display: block; height: 100%; width: 100%;
-      background: linear-gradient(90deg, var(--coral), #ff9a6b);
-      border-radius: 999px;
-      transform-origin: left center;
-      will-change: width;
-    }
-    .timebar-label {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.75rem; font-weight: 800; color: var(--muted);
-      margin-bottom: 0.35rem;
-    }
     .eq { text-align: center; padding: 2rem 1rem; background: transparent; }
     .prompt { font-family: Georgia, serif; font-size: 3rem; margin: 0.4rem 0 0; line-height: 1; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
     .times { color: var(--coral); padding: 0 0.35rem; }
@@ -596,7 +578,6 @@
   <script>
     const SAVE_KEY = "table-rush-v1";
     const SAVE_VERSION = 3;
-    const RUSH_MS = 48000;
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
     const PLAY_TRACKS = [
@@ -1203,7 +1184,6 @@
       tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       operation: "multiply",
       mode: "product",
-      length: "rush",
       problem: null,
       picked: null,
       score: 0,
@@ -1212,7 +1192,6 @@
       correct: 0,
       total: 0,
       gain: null,
-      msLeft: RUSH_MS,
       misses: [],
       best: 0,
       muted: false,
@@ -1232,23 +1211,7 @@
     let playMusic = null;
     let playMusicTrackId = null;
     let playMusicUnlockBound = false;
-    let timer = 0;
     let feedback = 0;
-    let rushClock = null;
-
-    function pauseRushClock() {
-      if (!rushClock || rushClock.pauseAt) return;
-      rushClock.pauseAt = performance.now();
-    }
-    function resumeRushClock() {
-      if (!rushClock || !rushClock.pauseAt) return;
-      rushClock.pausedTotal += performance.now() - rushClock.pauseAt;
-      rushClock.pauseAt = 0;
-    }
-    function clearRushClock() {
-      rushClock = null;
-    }
-
     function trackIsFree(track) {
       return !!(track && (track.free || track.unlockAt === 0));
     }
@@ -1456,7 +1419,7 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
-      // Do not switch playback mid-rush. The selected beat (or silence) keeps playing.
+      // Do not switch playback during play. The selected beat (or silence) keeps playing.
       // The player picks a newly unlocked beat on the setup page after they go back.
       writeSave();
       return unlockedNow;
@@ -2457,10 +2420,6 @@
       return pair.a + " times " + pair.b + " is " + pair.product + ".";
     }
 
-    function formatMs(ms) {
-      const total = Math.max(0, Math.ceil(ms / 1000));
-      return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
-    }
     function say(text) { document.getElementById("live").textContent = text; }
     function playTone(ok) {
       if (state.muted) return;
@@ -2787,7 +2746,7 @@
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
         if (!audio.paused) audio.pause();
-        // Rewind when leaving play so the next rush starts at the top with the timer.
+        // Rewind when leaving play so the next game starts at the top.
         if (state.phase !== "play") {
           try { audio.currentTime = 0; } catch (_) {}
         }
@@ -2856,7 +2815,10 @@
     }
     function backToSetup() {
       clearTimeout(feedback);
-      cancelAnimationFrame(timer);
+      if (state.phase === "play" && state.score > state.best) {
+        state.best = state.score;
+        writeSave();
+      }
       state.drill = null;
       state.phase = "setup";
       state.problem = null;
@@ -2873,7 +2835,6 @@
       back.hidden = state.phase === "setup";
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
-      else renderResults(app);
       syncHomeMusic();
       syncPlayMusic();
     }
@@ -2881,7 +2842,7 @@
       const tables = el("div", { class: "card" });
       const head = el("div", { class: "row" });
       head.appendChild(el("p", { class: "label", text: label }));
-      if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
+      if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best score " + state.best }));
       tables.appendChild(head);
       if (quick && quick.length) {
         const quickRow = el("div", { class: "row" });
@@ -3002,7 +2963,7 @@
         const head = el("div", { class: "row" });
         const tableLabel = isAdd() ? "+ Addends" : isSubtract() ? "− Numbers" : isDivide() ? "÷ Tables" : "× Tables";
         head.appendChild(el("p", { class: "label", text: tableLabel }));
-        if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best rush " + state.best }));
+        if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best score " + state.best }));
         tables.appendChild(head);
         const quick = el("div", { class: "row" });
         const quickSets = (isAdd() || isSubtract()) ? QUICK_ADD : QUICK;
@@ -3232,28 +3193,7 @@
       if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
       hud.appendChild(score);
       hud.appendChild(el("span", { text: "Streak " + state.streak }));
-      hud.appendChild(el("span", { id: "rush-clock", text: formatMs(state.msLeft) }));
       app.appendChild(hud);
-      const secsLeft = Math.max(0, Math.ceil(state.msLeft / 1000));
-      const pct = Math.max(0, Math.min(100, (100 * state.msLeft) / RUSH_MS));
-      const wrap = el("div", { class: "timebar-wrap" });
-      const label = el("div", { class: "timebar-label" });
-      label.appendChild(el("span", { text: "Time left" }));
-      label.appendChild(el("span", { id: "rush-secs", text: secsLeft + "s" }));
-      wrap.appendChild(label);
-      const bar = el("div", {
-        class: "timebar",
-        id: "timebar",
-        role: "progressbar",
-        "aria-label": "Time remaining",
-        "aria-valuemin": "0",
-        "aria-valuemax": String(Math.round(RUSH_MS / 1000)),
-        "aria-valuenow": String(secsLeft),
-        "aria-valuetext": secsLeft + " seconds left"
-      });
-      bar.appendChild(el("span", { class: "timebar-fill", id: "timebar-fill", style: "width:" + pct + "%" }));
-      wrap.appendChild(bar);
-      app.appendChild(wrap);
       app.appendChild(musicCard(false));
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
@@ -3330,32 +3270,6 @@
       app.appendChild(answers);
     }
 
-    function renderResults(app) {
-      const missed = uniqueMisses();
-      const accuracy = state.total ? Math.round((state.correct / state.total) * 100) : 0;
-      const stack = el("div", { class: "stack" });
-      const card = el("div", { class: "card center" });
-      card.appendChild(el("p", { class: "label", text: "Time's up" }));
-      card.appendChild(el("p", { class: "score", text: String(state.score) }));
-      card.appendChild(el("p", { class: "hint", text: state.correct + " / " + state.total + " correct · " + accuracy + "%" }));
-      card.appendChild(el("p", { class: "hint", text: "Best streak " + state.bestStreak }));
-      if (state.newBest) card.appendChild(el("p", { class: "fact", text: "New best rush score" }));
-      else if (state.best > 0) card.appendChild(el("p", { class: "hint", text: "Best rush score " + state.best }));
-      if (state.beatJustUnlocked) card.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
-      stack.appendChild(card);
-      if (missed.length) {
-        const listCard = el("div", { class: "card" });
-        listCard.appendChild(el("p", { class: "label", text: isQuiz() ? "Review these" : "Practice these" }));
-        const list = el("ul", { class: "miss" });
-        missed.slice(0, 6).forEach(function (pair) { list.appendChild(el("li", { text: factLabel(pair) })); });
-        listCard.appendChild(list);
-        stack.appendChild(listCard);
-      } else if (state.total > 0) stack.appendChild(el("p", { class: "card good", text: isQuiz() ? "Every answer was correct." : "Every fact was correct." }));
-      stack.appendChild(el("button", { class: "again", type: "button", text: "Play again", onClick: function () { start(state.drill); } }));
-      stack.appendChild(el("button", { class: "textbtn", type: "button", text: isQuiz() ? "Change set" : "Change tables", onClick: backToSetup }));
-      app.appendChild(stack);
-    }
-
     function nextProblem(avoid) {
       state.problem = makeProblem(avoid);
       state.picked = null;
@@ -3363,21 +3277,8 @@
       state.lockUntil = 0;
       render();
     }
-    function finish() {
-      clearTimeout(feedback);
-      cancelAnimationFrame(timer);
-      clearRushClock();
-      const beat = state.score > state.best;
-      state.newBest = beat;
-      if (beat) { state.best = state.score; writeSave(); }
-      state.phase = "results";
-      say("Finished. Score " + state.score + ". " + state.correct + " correct out of " + state.total + ".");
-      render();
-    }
     function start(pairs) {
       clearTimeout(feedback);
-      cancelAnimationFrame(timer);
-      clearRushClock();
       if (isQuiz()) {
         /* quiz modes have no product/factor modes */
       } else if (isDivide()) {
@@ -3389,7 +3290,6 @@
       } else if (state.mode !== "product" && state.mode !== "factor") {
         state.mode = "product";
       }
-      state.length = "rush";
       state.drill = pairs;
       state.score = 0;
       state.streak = 0;
@@ -3399,7 +3299,6 @@
       state.misses = [];
       state.newBest = false;
       state.beatJustUnlocked = "";
-      state.msLeft = RUSH_MS;
       state.phase = "play";
       state.problem = makeProblem();
       state.picked = null;
@@ -3407,35 +3306,6 @@
       state.lockUntil = 0;
       say("Started.");
       render();
-      rushClock = { startedAt: performance.now(), pausedTotal: 0, pauseAt: 0 };
-      let shown = Math.ceil(RUSH_MS / 1000);
-      const updateTimeBar = function (left) {
-        state.msLeft = left;
-        const secsLeft = Math.max(0, Math.ceil(left / 1000));
-        const pct = Math.max(0, Math.min(100, (100 * left) / RUSH_MS));
-        const fill = document.getElementById("timebar-fill");
-        const bar = document.getElementById("timebar");
-        const secs = document.getElementById("rush-secs");
-        const clock = document.getElementById("rush-clock");
-        if (fill) fill.style.width = pct + "%";
-        if (bar) {
-          bar.setAttribute("aria-valuenow", String(secsLeft));
-          bar.setAttribute("aria-valuetext", secsLeft + " seconds left");
-        }
-        if (secs) secs.textContent = secsLeft + "s";
-        if (clock) clock.textContent = formatMs(left);
-      };
-      const loop = function (now) {
-        if (state.phase !== "play" || !rushClock) return;
-        const tick = rushClock.pauseAt || now;
-        const left = RUSH_MS - (tick - rushClock.startedAt - rushClock.pausedTotal);
-        if (left <= 0) { updateTimeBar(0); finish(); return; }
-        updateTimeBar(left);
-        const nextShown = Math.ceil(left / 1000);
-        if (nextShown !== shown) { shown = nextShown; render(); }
-        timer = requestAnimationFrame(loop);
-      };
-      timer = requestAnimationFrame(loop);
     }
     function answer(choice) {
       if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
@@ -3463,8 +3333,6 @@
       } else {
         state.streak = 0;
         state.gain = null;
-        // Pause rush timer during the 3s teach hold so kids aren't punished for learning.
-        pauseRushClock();
         if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,
@@ -3484,7 +3352,6 @@
       }
       render();
       feedback = setTimeout(function () {
-        resumeRushClock();
         if (state.phase !== "play") return;
         nextProblem(problem.key);
       }, delay);

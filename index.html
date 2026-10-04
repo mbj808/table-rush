@@ -450,24 +450,25 @@
     .header-actions {
       position: relative;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 0.65rem;
       width: 100%;
       min-height: 5.25rem;
     }
     .header-actions .icon[hidden] { display: none; }
     #back.icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       position: static;
-      transform: none;
-      width: 14rem;
-      min-width: 14rem;
-      height: 3.4rem;
-      padding: 0 1rem;
+      margin: 0 0 0.55rem;
+      min-width: 6.75rem;
+      width: auto;
+      height: 3.25rem;
+      padding: 0 1.15rem;
       border-radius: 0.35rem;
       border: 2px solid rgba(255,255,255,0.62);
-      background: rgba(30, 122, 77, 0.55);
+      background: rgba(30, 122, 77, 0.72);
       color: var(--on-forest);
       font-size: 1.2rem;
       font-weight: 800;
@@ -475,6 +476,7 @@
       text-shadow: 0 1px 1px rgba(0,0,0,0.28);
       box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 0 rgba(21, 92, 58, 0.65);
     }
+    #back.icon[hidden] { display: none; }
     #back.icon:active { transform: translateY(1px); }
     h1 { margin: 0; line-height: 0; }
     .title-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -1234,6 +1236,7 @@
     <p id="live" class="sr" aria-live="polite"></p>
     <header>
       <div class="brand-block">
+        <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
         <h1>
           <span class="sr">Mad Facts Challenge</span>
           <svg class="title-svg" viewBox="-16 -16 692 320" role="img" aria-hidden="true" focusable="false">
@@ -1275,7 +1278,6 @@
         </h1>
         <div class="brand-meta">
           <div class="header-actions">
-            <button id="back" class="icon" type="button" hidden aria-label="Back to setup">Back</button>
             <button id="mute" class="icon mini-player" type="button" aria-pressed="false" aria-label="Stop sounds and music" title="Stop sounds and music">
               <span class="transport-icon" aria-hidden="true"></span>
               <span class="sr">Music control</span>

@@ -224,48 +224,65 @@
       50% { opacity: 1; transform: translate3d(var(--dx, 8px), var(--dy, -10px), 0) rotate(45deg) scale(1.15); }
     }
 
-    /* Bitwave (level 4) and Smile (level 5): psychedelic warp. Earlier levels unchanged. */
+    /* Rise (level 1) opens the warp. Each later beat is bolder, faster, and darker. Replay stays aqua. */
+    .wave-bg[data-level="2"] {
+      background: linear-gradient(180deg, #146070 0%, #10243c 42%, #241048 100%);
+    }
+    .wave-bg[data-level="3"] {
+      background: linear-gradient(180deg, #0c3e4c 0%, #0c1428 40%, #1c0838 100%);
+    }
     .wave-bg[data-level="4"] {
-      background: linear-gradient(180deg, #b9fbff 0%, #5ec8ea 28%, #7a3dff 100%);
+      background: linear-gradient(180deg, #082830 0%, #080c18 38%, #140428 100%);
     }
     .wave-bg[data-level="5"] {
-      background: linear-gradient(180deg, #fff6c4 0%, #ff7ad4 34%, #5b35ff 100%);
+      background: linear-gradient(180deg, #04141c 0%, #05060e 34%, #1a0420 100%);
     }
-    .wave-bg[data-level="4"] .w1 { animation-duration: 6.2s; }
-    .wave-bg[data-level="4"] .w2 { animation-duration: 7.4s; }
-    .wave-bg[data-level="4"] .w3 { animation-duration: 8.2s; }
-    .wave-bg[data-level="4"] .w4 { animation-duration: 6.6s; }
-    .wave-bg[data-level="4"] .w5 { animation-duration: 5.2s; }
-    .wave-bg[data-level="4"] .w6 { animation-duration: 4.4s; }
-    .wave-bg[data-level="4"] .w7 { animation-duration: 5.8s; }
-    .wave-bg[data-level="4"] .w8 { animation-duration: 3.1s; }
-    .wave-bg[data-level="5"] .w1 { animation-duration: 3.6s; }
-    .wave-bg[data-level="5"] .w2 { animation-duration: 4.2s; }
-    .wave-bg[data-level="5"] .w3 { animation-duration: 4.8s; }
-    .wave-bg[data-level="5"] .w4 { animation-duration: 3.8s; }
-    .wave-bg[data-level="5"] .w5 { animation-duration: 3.1s; }
-    .wave-bg[data-level="5"] .w6 { animation-duration: 2.6s; }
-    .wave-bg[data-level="5"] .w7 { animation-duration: 3.4s; }
-    .wave-bg[data-level="5"] .w8 { animation-duration: 2.1s; }
-    .wave-bg[data-level="5"] .w9 { animation-duration: 1.7s; }
-    .wave-bg[data-level="4"] .spark.bit,
-    .wave-bg[data-level="5"] .spark.bit {
-      width: 3px;
-      height: 22px;
-      background: #f4fffd;
-      box-shadow: 0 0 8px #9dfff0, 0 0 16px rgba(255,255,255,0.85);
-    }
-    .wave-bg[data-level="5"] .spark.smile {
-      width: 7px;
-      height: 7px;
-      background: #fff;
-      box-shadow: 0 0 10px #fff, 0 0 18px #ff8ad8, 0 0 28px #ffe07a;
-    }
+    .wave-bg[data-level="1"] .w1 { animation-duration: 9s; }
+    .wave-bg[data-level="1"] .w2 { animation-duration: 12s; }
+    .wave-bg[data-level="1"] .w3 { animation-duration: 13.5s; }
+    .wave-bg[data-level="1"] .w4 { animation-duration: 10.5s; }
+    .wave-bg[data-level="1"] .w5 { animation-duration: 8s; }
+    .wave-bg[data-level="2"] .w1 { animation-duration: 7s; }
+    .wave-bg[data-level="2"] .w2 { animation-duration: 8.5s; }
+    .wave-bg[data-level="2"] .w3 { animation-duration: 9.5s; }
+    .wave-bg[data-level="2"] .w4 { animation-duration: 7.6s; }
+    .wave-bg[data-level="2"] .w5 { animation-duration: 6.2s; }
+    .wave-bg[data-level="2"] .w6 { animation-duration: 5.2s; }
+    .wave-bg[data-level="3"] .w1 { animation-duration: 5.4s; }
+    .wave-bg[data-level="3"] .w2 { animation-duration: 6.4s; }
+    .wave-bg[data-level="3"] .w3 { animation-duration: 7s; }
+    .wave-bg[data-level="3"] .w4 { animation-duration: 5.8s; }
+    .wave-bg[data-level="3"] .w5 { animation-duration: 4.8s; }
+    .wave-bg[data-level="3"] .w6 { animation-duration: 4s; }
+    .wave-bg[data-level="3"] .w7 { animation-duration: 4.6s; }
+    .wave-bg[data-level="4"] .w1 { animation-duration: 4s; }
+    .wave-bg[data-level="4"] .w2 { animation-duration: 4.6s; }
+    .wave-bg[data-level="4"] .w3 { animation-duration: 5.1s; }
+    .wave-bg[data-level="4"] .w4 { animation-duration: 4.2s; }
+    .wave-bg[data-level="4"] .w5 { animation-duration: 3.5s; }
+    .wave-bg[data-level="4"] .w6 { animation-duration: 3s; }
+    .wave-bg[data-level="4"] .w7 { animation-duration: 3.4s; }
+    .wave-bg[data-level="4"] .w8 { animation-duration: 2.4s; }
+    .wave-bg[data-level="5"] .w1 { animation-duration: 2.6s; }
+    .wave-bg[data-level="5"] .w2 { animation-duration: 3s; }
+    .wave-bg[data-level="5"] .w3 { animation-duration: 3.3s; }
+    .wave-bg[data-level="5"] .w4 { animation-duration: 2.7s; }
+    .wave-bg[data-level="5"] .w5 { animation-duration: 2.3s; }
+    .wave-bg[data-level="5"] .w6 { animation-duration: 2s; }
+    .wave-bg[data-level="5"] .w7 { animation-duration: 2.2s; }
+    .wave-bg[data-level="5"] .w8 { animation-duration: 1.6s; }
+    .wave-bg[data-level="5"] .w9 { animation-duration: 1.25s; }
     .wave-bg .warp {
       position: absolute;
       inset: 0;
       overflow: hidden;
       pointer-events: none;
+    }
+    .warp-shade {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(8, 0, 24, 0.12);
     }
     .warp-spin,
     .warp-spin-b,
@@ -285,75 +302,110 @@
     .warp-spin {
       background: repeating-conic-gradient(
         from 0deg,
-        rgba(255,255,255,0) 0deg 10deg,
-        rgba(255, 70, 190, 0.55) 10deg 13deg,
-        rgba(70, 255, 230, 0.5) 13deg 16deg,
-        rgba(255, 230, 70, 0.55) 16deg 20deg,
-        rgba(120, 80, 255, 0.45) 20deg 24deg
+        rgba(20, 0, 40, 0) 0deg 10deg,
+        rgba(210, 30, 150, 0.55) 10deg 13deg,
+        rgba(20, 200, 180, 0.5) 13deg 16deg,
+        rgba(220, 160, 20, 0.5) 16deg 20deg,
+        rgba(90, 40, 210, 0.48) 20deg 24deg
       );
       -webkit-mask-image: radial-gradient(circle, transparent 0 6%, #000 22%, #000 58%, transparent 78%);
       mask-image: radial-gradient(circle, transparent 0 6%, #000 22%, #000 58%, transparent 78%);
       animation: warp-spin 8s linear infinite;
-      opacity: 0.9;
+      opacity: 0.82;
     }
     .warp-rush {
       background: repeating-radial-gradient(
         circle at 50% 50%,
-        rgba(255,255,255,0) 0 22px,
-        rgba(255,255,255,0.72) 22px 24px,
-        rgba(255, 90, 210, 0.28) 24px 36px,
-        rgba(90, 255, 240, 0.22) 36px 48px
+        rgba(0,0,0,0) 0 22px,
+        rgba(255, 40, 160, 0.45) 22px 25px,
+        rgba(10, 180, 160, 0.28) 25px 40px
       );
       -webkit-mask-image: radial-gradient(circle, transparent 0 4%, #000 18%, transparent 70%);
       mask-image: radial-gradient(circle, transparent 0 4%, #000 18%, transparent 70%);
-      animation: warp-rush 2.5s linear infinite;
-      opacity: 0.85;
+      animation: warp-rush 2.6s linear infinite;
+      opacity: 0.75;
     }
     .warp-glow {
       width: 120vmax;
       height: 120vmax;
       margin-left: -60vmax;
       margin-top: -60vmax;
-      background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255, 180, 60, 0.28) 18%, rgba(140, 60, 255, 0.18) 42%, transparent 68%);
+      background: radial-gradient(circle, rgba(255, 80, 170, 0.28) 0%, rgba(90, 20, 180, 0.16) 28%, transparent 64%);
       animation: warp-pulse 2.8s ease-in-out infinite;
     }
-    .warp-peak .warp-spin {
-      animation-duration: 4.6s;
-      opacity: 1;
-    }
-    .warp-peak .warp-spin-b {
+    .warp-spin-b {
       background: repeating-conic-gradient(
         from 8deg,
-        rgba(255,255,255,0) 0deg 6deg,
-        rgba(255, 255, 255, 0.55) 6deg 8deg,
-        rgba(255, 40, 140, 0.7) 8deg 11deg,
-        rgba(40, 255, 200, 0.65) 11deg 14deg,
-        rgba(255, 210, 40, 0.7) 14deg 18deg
+        rgba(0,0,0,0) 0deg 7deg,
+        rgba(255, 20, 110, 0.72) 7deg 11deg,
+        rgba(0, 190, 160, 0.62) 11deg 15deg,
+        rgba(230, 140, 0, 0.66) 15deg 19deg
       );
-      -webkit-mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 64%, transparent 86%);
-      mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 64%, transparent 86%);
-      animation: warp-spin-rev 3.4s linear infinite;
-      opacity: 0.95;
+      -webkit-mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 66%, transparent 84%);
+      mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 66%, transparent 84%);
+      animation: warp-spin-rev 5.2s linear infinite;
+      opacity: 0.8;
     }
-    .warp-peak .warp-rush {
-      animation-duration: 1.25s;
-      opacity: 1;
-    }
-    .warp-peak .warp-rush-in {
+    .warp-rush-in {
       background: repeating-radial-gradient(
         circle at 50% 50%,
-        rgba(255,255,255,0.8) 0 2px,
-        rgba(255, 60, 200, 0.35) 8px 14px,
-        rgba(255,255,255,0) 18px 34px
+        rgba(255, 30, 120, 0.7) 0 3px,
+        rgba(0,0,0,0) 10px 28px
       );
-      -webkit-mask-image: radial-gradient(circle, #000 0 8%, #000 40%, transparent 72%);
-      mask-image: radial-gradient(circle, #000 0 8%, #000 40%, transparent 72%);
-      animation: warp-rush-in 1.05s linear infinite;
-      opacity: 0.95;
+      -webkit-mask-image: radial-gradient(circle, #000 0 8%, #000 46%, transparent 74%);
+      mask-image: radial-gradient(circle, #000 0 8%, #000 46%, transparent 74%);
+      animation: warp-rush-in 1.7s linear infinite;
+      opacity: 0.8;
     }
-    .warp-peak .warp-glow {
-      animation-duration: 1.4s;
-      background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255, 220, 80, 0.5) 16%, rgba(255, 60, 180, 0.35) 38%, transparent 70%);
+    .wave-bg[data-level="2"] .warp { filter: saturate(1.35); }
+    .wave-bg[data-level="2"] .warp-shade { background: rgba(16, 2, 36, 0.34); }
+    .wave-bg[data-level="2"] .warp-spin { animation-duration: 6s; opacity: 0.92; }
+    .wave-bg[data-level="2"] .warp-rush { animation-duration: 1.9s; opacity: 0.88; }
+    .wave-bg[data-level="2"] .warp-glow { animation-duration: 2.2s; }
+    .wave-bg[data-level="3"] .warp { filter: saturate(1.6); }
+    .wave-bg[data-level="3"] .warp-shade { background: rgba(10, 0, 22, 0.5); }
+    .wave-bg[data-level="3"] .warp-spin { animation-duration: 4.5s; opacity: 1; }
+    .wave-bg[data-level="3"] .warp-rush { animation-duration: 1.4s; opacity: 0.95; }
+    .wave-bg[data-level="3"] .warp-spin-b { animation-duration: 3.8s; opacity: 0.9; }
+    .wave-bg[data-level="3"] .warp-glow { animation-duration: 1.7s; }
+    .wave-bg[data-level="4"] .warp { filter: saturate(1.9); }
+    .wave-bg[data-level="4"] .warp-shade { background: rgba(6, 0, 14, 0.64); }
+    .wave-bg[data-level="4"] .warp-spin {
+      animation-duration: 3.2s;
+      opacity: 1;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(0,0,0,0) 0deg 6deg,
+        rgba(230, 0, 120, 0.92) 6deg 10deg,
+        rgba(0, 170, 140, 0.85) 10deg 14deg,
+        rgba(210, 90, 0, 0.9) 14deg 18deg,
+        rgba(70, 0, 180, 0.88) 18deg 22deg
+      );
+    }
+    .wave-bg[data-level="4"] .warp-rush { animation-duration: 1.05s; opacity: 1; }
+    .wave-bg[data-level="4"] .warp-spin-b { animation-duration: 2.6s; opacity: 1; }
+    .wave-bg[data-level="4"] .warp-rush-in { animation-duration: 1.15s; opacity: 0.95; }
+    .wave-bg[data-level="4"] .warp-glow { animation-duration: 1.3s; }
+    .wave-bg[data-level="5"] .warp { filter: saturate(2.3) contrast(1.15); }
+    .wave-bg[data-level="5"] .warp-shade { background: rgba(2, 0, 8, 0.8); }
+    .wave-bg[data-level="5"] .warp-spin {
+      animation-duration: 2.1s;
+      opacity: 1;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(0,0,0,0) 0deg 4deg,
+        rgba(255, 0, 90, 1) 4deg 8deg,
+        rgba(0, 150, 110, 0.98) 8deg 12deg,
+        rgba(190, 50, 0, 1) 12deg 16deg,
+        rgba(50, 0, 140, 1) 16deg 20deg
+      );
+    }
+    .wave-bg[data-level="5"] .warp-rush { animation-duration: 0.72s; opacity: 1; }
+    .wave-bg[data-level="5"] .warp-spin-b { animation-duration: 1.7s; opacity: 1; }
+    .wave-bg[data-level="5"] .warp-rush-in { animation-duration: 0.62s; opacity: 1; }
+    .wave-bg[data-level="5"] .warp-glow {
+      animation-duration: 0.95s;
+      background: radial-gradient(circle, rgba(180, 0, 80, 0.55) 0%, rgba(40, 0, 70, 0.4) 30%, transparent 62%);
     }
     @keyframes warp-spin {
       from { transform: rotate(0deg) scale(1); }
@@ -364,11 +416,11 @@
       to { transform: rotate(0deg) scale(0.92); }
     }
     @keyframes warp-rush {
-      from { transform: scale(0.35); opacity: 0.15; }
-      to { transform: scale(1.85); opacity: 0.95; }
+      from { transform: scale(0.35); opacity: 0.2; }
+      to { transform: scale(1.85); opacity: 1; }
     }
     @keyframes warp-rush-in {
-      from { transform: scale(1.7); opacity: 0.95; }
+      from { transform: scale(1.7); opacity: 1; }
       to { transform: scale(0.25); opacity: 0.15; }
     }
     @keyframes warp-pulse {
@@ -389,6 +441,7 @@
       }
       .spark.sq { transform: rotate(45deg); }
       .warp,
+      .warp-shade,
       .warp-spin,
       .warp-spin-b,
       .warp-rush,
@@ -396,6 +449,7 @@
       .warp-glow {
         animation: none !important;
         transform: none;
+        filter: none;
       }
       .supernova,
       .supernova-label {
@@ -1141,17 +1195,13 @@
       <span class="spark lv lv-5 smile" style="left:56.4%;top:12.8%;--dx:-15px;--dy:-10px;animation-delay:-2.88s;animation-duration:1.49s;"></span>
     </div>
 
-    <div class="warp lv lv-4" aria-hidden="true">
+    <div class="warp lv lv-1" aria-hidden="true">
+      <div class="warp-shade"></div>
       <div class="warp-glow"></div>
       <div class="warp-spin"></div>
       <div class="warp-rush"></div>
-    </div>
-    <div class="warp warp-peak lv lv-5" aria-hidden="true">
-      <div class="warp-glow"></div>
-      <div class="warp-spin"></div>
-      <div class="warp-spin-b"></div>
-      <div class="warp-rush"></div>
-      <div class="warp-rush-in"></div>
+      <div class="warp-spin-b lv lv-3"></div>
+      <div class="warp-rush-in lv lv-4"></div>
     </div>
   </div>
   <main>

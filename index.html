@@ -465,6 +465,28 @@
       box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset;
     }
     .page-bar[hidden] { display: none; }
+    a.maze-reward {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 3.1rem;
+      margin: 0 0 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.35rem;
+      border: 2px solid #ffe58a;
+      background: rgba(21, 92, 58, 0.94);
+      color: #fffef6;
+      font-size: 1.08rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.28);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 0 rgba(21, 92, 58, 0.65);
+    }
+    a.maze-reward:active { transform: translateY(1px); }
     body.play-screen { height: 100vh; overflow: hidden; }
     body.play-screen main {
       height: 100vh;
@@ -3794,9 +3816,22 @@
       return tables;
     }
 
+    function smileUnlocked() {
+      return !!(state.beatsUnlocked && state.beatsUnlocked.cry);
+    }
+    function mazeRewardLink() {
+      return el("a", {
+        class: "maze-reward",
+        href: "https://nova-fire-bamboo-heart.grok.me",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        text: "Smile unlocked! Tap to play the maze"
+      });
+    }
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
       stack.appendChild(musicCard(true));
+      if (smileUnlocked()) stack.appendChild(mazeRewardLink());
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -4337,6 +4372,7 @@
     }
 
     function renderPlay(app) {
+      if (smileUnlocked()) app.appendChild(mazeRewardLink());
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;
@@ -4498,7 +4534,8 @@
             if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
           }
         }
-        say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : ""));
+        var mazeNote = justBeat && justBeat.id === "cry" ? " Maze game unlocked. Tap Smile unlocked to play the maze." : "";
+        say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         state.streak = 0;
         state.gain = null;

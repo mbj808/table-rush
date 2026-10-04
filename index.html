@@ -418,6 +418,7 @@
         transform: none !important;
         will-change: auto;
       }
+      .ocean-world .hl { animation: none !important; }
       .beat-chip.playing .woofer-cone {
         animation: none !important;
         transform: none;
@@ -485,6 +486,18 @@
     body.play-screen .hud { margin-bottom: 0.25rem; }
     body.play-screen #back.icon { margin-bottom: 0.25rem; }
     body.play-screen[data-play-page="beats"] .brand-meta { margin-top: 0.1rem; }
+    body.play-screen .eq .prompt.quiz-prompt,
+    body.play-screen .eq .prompt.multiples-prompt { font-size: 1.25rem; line-height: 1.25; }
+    .ocean-world, .flag-svg, .vehicle-svg, .piano-svg {
+      display: block; width: 100%; height: auto; margin: 0.1rem auto 0.2rem;
+    }
+    .ocean-world { max-height: 10.5rem; border-radius: 1rem; }
+    .flag-svg, .vehicle-svg { max-height: 7.6rem; }
+    .piano-svg { max-height: 6.8rem; }
+    body.play-screen .state-map { max-width: 100%; max-height: 8rem; }
+    .answers.ink-answers button { color: #000; font-weight: 800; }
+    .answers.ink-answers button.right { color: var(--on-forest); }
+    .answers.ink-answers button.wrong { color: #1a1208; }
 
     .brand-block { min-width: 0; }
     .brand-meta { position: relative; min-height: 5.25rem; margin-top: 0.35rem; }
@@ -1740,19 +1753,24 @@
     ];
 
     const PIANO_NOTES = [
-      { id: "c", name: "C", group: "cmajor" },
-      { id: "d", name: "D", group: "cmajor" },
-      { id: "e", name: "E", group: "cmajor" },
-      { id: "f", name: "F", group: "cmajor" },
-      { id: "g", name: "G", group: "cmajor" },
-      { id: "a", name: "A", group: "other" },
-      { id: "b", name: "B", group: "other" }
+      { id: "c", name: "C", group: "white" },
+      { id: "cs", name: "C#", group: "black" },
+      { id: "d", name: "D", group: "white" },
+      { id: "ds", name: "D#", group: "black" },
+      { id: "e", name: "E", group: "white" },
+      { id: "f", name: "F", group: "white" },
+      { id: "fs", name: "F#", group: "black" },
+      { id: "g", name: "G", group: "white" },
+      { id: "gs", name: "G#", group: "black" },
+      { id: "a", name: "A", group: "white" },
+      { id: "as", name: "A#", group: "black" },
+      { id: "b", name: "B", group: "white" }
     ];
     const PIANO_BY_ID = PIANO_NOTES.reduce(function (m, n) { m[n.id] = n; return m; }, {});
     const PIANO_QUICK = [
-      ["All", PIANO_NOTES.map(function (n) { return n.id; })],
-      ["C–G", PIANO_NOTES.filter(function (n) { return n.group === "cmajor"; }).map(function (n) { return n.id; })],
-      ["A–B", PIANO_NOTES.filter(function (n) { return n.group === "other"; }).map(function (n) { return n.id; })]
+      ["All 12", PIANO_NOTES.map(function (n) { return n.id; })],
+      ["White keys", PIANO_NOTES.filter(function (n) { return n.group === "white"; }).map(function (n) { return n.id; })],
+      ["Black keys", PIANO_NOTES.filter(function (n) { return n.group === "black"; }).map(function (n) { return n.id; })]
     ];
     const PIANO_PROMPTS = [
       { id: "c", ask: "Which white key is to the left of the two black keys (and starts the C major scale)?" },
@@ -1918,21 +1936,24 @@
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "multiples", label: "Multiples" },
+      { id: "oceanmap", label: "Ocean map" },
       { id: "divide", label: "Division" },
       { id: "add", label: "Addition" },
       { id: "subtract", label: "Subtraction" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
       { id: "hawaii", label: "Hawaiian Islands" },
-      { id: "capital", label: "Capitals" },
-      { id: "state", label: "States" },
+      { id: "capital", label: "Capital trivia" },
+      { id: "state", label: "Capital map" },
       { id: "element", label: "Elements" },
       { id: "flag", label: "Flags" },
+      { id: "flagtrivia", label: "Flag trivia" },
       { id: "rhyme", label: "Rhyming" },
       { id: "synonym", label: "Synonyms & Antonyms" },
       { id: "piano", label: "Piano Notes" },
       { id: "instrument", label: "Instruments" },
-      { id: "vehicle", label: "Vehicles" }
+      { id: "vehicle", label: "Vehicles" },
+      { id: "vehicletrivia", label: "Vehicle trivia" }
     ];
 
     const state = {
@@ -1958,6 +1979,10 @@
       drill: null,
       lockUntil: 0,
       multiplesIndex: 0,
+      oceanMapIndex: 0,
+      flagIndex: 0,
+      pianoIndex: 0,
+      vehicleIndex: 0,
       playPage: "question"
     };
     let audioCtx = null;
@@ -2234,6 +2259,9 @@
     function isRhyme() { return state.operation === "rhyme"; }
     function isSynonym() { return state.operation === "synonym"; }
     function isVehicle() { return state.operation === "vehicle"; }
+    function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
+    function isFlagTrivia() { return state.operation === "flagtrivia"; }
+    function isOceanMap() { return state.operation === "oceanmap"; }
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
     function isMath() {
@@ -2264,10 +2292,13 @@
       if (op === "capital") return defaultCapitalTables();
       if (op === "state") return defaultStateTables();
       if (op === "element") return defaultElementTables();
-      if (op === "flag") return defaultFlagTables();
+      if (op === "oceanmap") return defaultOceanTables();
+      if (op === "flag") return FLAG_PICTURE_IDS.slice();
+      if (op === "flagtrivia") return defaultFlagTables();
       if (op === "rhyme") return defaultRhymeTables();
       if (op === "synonym") return defaultSynonymTables();
       if (op === "vehicle") return defaultVehicleTables();
+      if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "add" || op === "subtract") return defaultAddTables();
@@ -2450,36 +2481,25 @@
     function buildState(avoid) {
       const pool = selectedStates();
       const bodies = pool.length ? pool : CAPITALS.slice();
-      const prompts = [];
-      bodies.forEach(function (s) {
-        prompts.push({
-          id: s.id,
-          ask: "What's the capital of this state?",
-          dir: "toCapital",
-          key: "map:" + s.id + ":toCapital"
-        });
-        prompts.push({
-          id: s.id,
-          ask: "Which state is this?",
-          dir: "toState",
-          key: "map:" + s.id + ":toState"
-        });
-      });
-      const problem = buildClueQuiz({
-        op: "state", pool: bodies, prompts: prompts, avoid: avoid, byId: CAPITAL_BY_ID,
-        answerOf: function (item, pick) {
-          if (pick && pick.dir === "toState") return item.state;
-          return item.capital;
-        },
-        fallbackAsk: function () { return "What's the capital of this state?"; },
-        choicesFor: function (answer, pool, pick) {
-          const names = pool.map(function (s) { return (pick && pick.dir === "toState") ? s.state : s.capital; });
-          const fallback = CAPITALS.map(function (s) { return (pick && pick.dir === "toState") ? s.state : s.capital; });
-          return nameChoices(answer, names, fallback);
-        }
-      });
-      if (problem && problem.id) problem.image = stateMapSrc(problem.id);
-      return problem;
+      let item = bodies[Math.floor(Math.random() * bodies.length)];
+      let guard = 0;
+      while (avoid && ("capmap:" + item.id) === avoid && bodies.length > 1 && guard < 8) {
+        item = bodies[Math.floor(Math.random() * bodies.length)];
+        guard += 1;
+      }
+      return {
+        operation: "state",
+        id: item.id,
+        ask: "Which capital is the star?",
+        answer: item.capital,
+        image: stateMapSrc(item.id),
+        key: "capmap:" + item.id,
+        choices: nameChoices(
+          item.capital,
+          bodies.map(function (s) { return s.capital; }),
+          CAPITALS.map(function (s) { return s.capital; })
+        )
+      };
     }
 
     function buildElement(avoid) {
@@ -2505,7 +2525,7 @@
       });
     }
 
-    function buildFlag(avoid) {
+    function buildFlagTrivia(avoid) {
       const pool = selectedFlags();
       const bodies = pool.length ? pool : FLAGS.slice();
       const extra = [];
@@ -2521,7 +2541,7 @@
             build: function (pool) {
               const right = continents[c][Math.floor(Math.random() * continents[c].length)];
               return {
-                operation: "flag", id: right.id,
+                operation: "flagtrivia", id: right.id,
                 ask: "Which country is in " + CONTINENT_LABEL[c] + "?",
                 answer: right.name, key: "continent:" + c,
                 choices: nameChoices(right.name, pool.map(function (f) { return f.name; }), FLAGS.map(function (f) { return f.name; }))
@@ -2541,7 +2561,7 @@
         };
       });
       return buildClueQuiz({
-        op: "flag", pool: bodies, prompts: cluePrompts, extra: extra, avoid: avoid, byId: FLAG_BY_ID,
+        op: "flagtrivia", pool: bodies, prompts: cluePrompts, extra: extra, avoid: avoid, byId: FLAG_BY_ID,
         answerOf: function (item) { return item.name; },
         fallbackAsk: function (item) { return "Which country is this? (" + CONTINENT_LABEL[item.continent] + ")"; },
         choicesFor: function (answer, pool) {
@@ -2679,15 +2699,25 @@
 
 
 
-    function buildPiano(avoid) {
-      const pool = selectedPiano();
+    function buildPiano() {
+      const selected = selectedPiano();
+      const allow = {};
+      (selected.length ? selected : PIANO_NOTES).forEach(function (n) { allow[n.id] = true; });
+      const pool = PIANO_NOTES.filter(function (n) { return allow[n.id]; });
       const bodies = pool.length ? pool : PIANO_NOTES.slice();
-      return buildClueQuiz({
-        op: "piano", pool: bodies, prompts: PIANO_PROMPTS, avoid: avoid, byId: PIANO_BY_ID,
-        answerOf: function (item) { return item.name; },
-        fallbackAsk: function () { return "Which piano note is this?"; },
-        choicesFor: function (answer, pool) { return nameChoices(answer, pool.map(function (b) { return b.name; }), PIANO_NOTES.map(function (b) { return b.name; })); }
-      });
+      const idx = ((state.pianoIndex || 0) % bodies.length + bodies.length) % bodies.length;
+      const note = bodies[idx];
+      state.pianoIndex = idx + 1;
+      const others = bodies.map(function (n) { return n.name; }).filter(function (n) { return n !== note.name; });
+      const wrong = others[(idx * 5 + 3) % others.length];
+      return {
+        operation: "piano",
+        id: note.id,
+        ask: "Which note is highlighted?",
+        answer: note.name,
+        key: "piano:" + note.id,
+        choices: shuffle([note.name, wrong])
+      };
     }
 
 
@@ -2728,7 +2758,7 @@
     }
 
 
-    function buildVehicle(avoid) {
+    function buildVehicleTrivia(avoid) {
       const pool = selectedVehicles();
       const bodies = pool.length ? pool : VEHICLES.slice();
       const extras = [];
@@ -2741,7 +2771,7 @@
             const body = matches[Math.floor(Math.random() * matches.length)];
             const label = VEHICLE_TYPE[t];
             return {
-              operation: "vehicle", id: body.id,
+              operation: "vehicletrivia", id: body.id,
               ask: "Which of these is a " + label.toLowerCase() + " vehicle?",
               answer: body.name,
               key: "vehicle:type:" + t,
@@ -2755,7 +2785,7 @@
         });
       });
       return buildClueQuiz({
-        op: "vehicle", pool: bodies, prompts: VEHICLE_PROMPTS, avoid: avoid, byId: VEHICLE_BY_ID,
+        op: "vehicletrivia", pool: bodies, prompts: VEHICLE_PROMPTS, avoid: avoid, byId: VEHICLE_BY_ID,
         extra: extras,
         answerOf: function (item) { return item.name; },
         fallbackAsk: function () { return "Which vehicle is this?"; },
@@ -2920,16 +2950,15 @@
       }
       if (pair.operation === "state" && CAPITAL_BY_ID[pair.id]) {
         const body = CAPITAL_BY_ID[pair.id];
-        const toState = pair.ask && pair.ask.indexOf("Which state is this") >= 0;
-        const answer = toState ? body.state : body.capital;
-        const ask = pair.ask || (toState ? "Which state is this?" : "What's the capital of this state?");
         return {
-          operation: "state", id: body.id, ask: ask, answer: answer,
+          operation: "state", id: body.id,
+          ask: "Which capital is the star?",
+          answer: body.capital,
           image: stateMapSrc(body.id),
-          key: pair.key || ("drill:" + body.id),
-          choices: nameChoices(answer,
-            selectedStates().map(function (s) { return toState ? s.state : s.capital; }),
-            CAPITALS.map(function (s) { return toState ? s.state : s.capital; }))
+          key: pair.key || ("capmap:" + body.id),
+          choices: nameChoices(body.capital,
+            selectedStates().map(function (s) { return s.capital; }),
+            CAPITALS.map(function (s) { return s.capital; }))
         };
       }
       if (pair.operation === "element" && ELEMENT_BY_ID[pair.id]) {
@@ -2948,7 +2977,15 @@
       if (pair.operation === "flag" && FLAG_BY_ID[pair.id]) {
         const body = FLAG_BY_ID[pair.id];
         return {
-          operation: "flag", id: body.id,
+          operation: "flag", id: body.id, pictureOnly: true, ask: "",
+          answer: body.name, key: pair.key || ("flagpic:" + body.id),
+          choices: nameChoices(body.name, pictureFlags().map(function (b) { return b.name; }), pictureFlags().map(function (b) { return b.name; }))
+        };
+      }
+      if (pair.operation === "flagtrivia" && FLAG_BY_ID[pair.id]) {
+        const body = FLAG_BY_ID[pair.id];
+        return {
+          operation: "flagtrivia", id: body.id,
           ask: pair.ask || ("Which country is this? (" + CONTINENT_LABEL[body.continent] + ")"),
           answer: body.name, key: pair.key || ("drill:" + body.id),
           choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
@@ -2984,7 +3021,17 @@
       if (pair.operation === "vehicle" && VEHICLE_BY_ID[pair.id]) {
         const body = VEHICLE_BY_ID[pair.id];
         return {
-          operation: "vehicle", id: body.id,
+          operation: "vehicle", id: body.id, pictureOnly: true, ask: "",
+          answer: body.name, key: pair.key || ("vehpic:" + body.id),
+          choices: nameChoices(body.name,
+            selectedVehicles().map(function (b) { return b.name; }),
+            VEHICLES.map(function (b) { return b.name; }))
+        };
+      }
+      if (pair.operation === "vehicletrivia" && VEHICLE_BY_ID[pair.id]) {
+        const body = VEHICLE_BY_ID[pair.id];
+        return {
+          operation: "vehicletrivia", id: body.id,
           ask: pair.ask || "Which vehicle is this?",
           answer: pair.answer || body.name, key: pair.key || ("drill:" + body.id),
           choices: nameChoices(pair.answer || body.name,
@@ -3070,10 +3117,13 @@
         if (isCapital()) return buildCapital(avoid);
         if (isState()) return buildState(avoid);
         if (isElement()) return buildElement(avoid);
+        if (isOceanMap()) return buildOceanMapProblem();
         if (isFlag()) return buildFlag(avoid);
+        if (isFlagTrivia()) return buildFlagTrivia(avoid);
         if (isRhyme()) return buildRhyme(avoid);
         if (isSynonym()) return buildSynonym(avoid);
         if (isVehicle()) return buildVehicle(avoid);
+        if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
       }
@@ -3117,6 +3167,9 @@
     }
 
     function factLabel(pair) {
+      if (pair.operation === "oceanmap" || isOceanMap()) {
+        return pair.answer || (OCEAN_BY_ID[pair.id] && OCEAN_BY_ID[pair.id].name) || "that ocean";
+      }
       if (pair.operation === "ocean" || (isOcean() && pair.id)) {
         const body = OCEAN_BY_ID[pair.id] || { name: pair.answer || pair.name, kind: pair.kind };
         const tag = body.kind === "sea" ? " (sea, not ocean)" : "";
@@ -3144,7 +3197,7 @@
         if (body) return body.symbol + " · " + body.name;
         return pair.answer;
       }
-      if (pair.operation === "flag" || (isFlag() && pair.id)) {
+      if (pair.operation === "flagtrivia" || isFlagTrivia() || pair.operation === "flag" || (isFlag() && pair.id)) {
         const body = FLAG_BY_ID[pair.id];
         if (body) return body.name + " (" + CONTINENT_LABEL[body.continent] + ")";
         return pair.answer;
@@ -3162,7 +3215,7 @@
         const body = INSTRUMENT_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
-      if (pair.operation === "vehicle" || (isVehicle() && pair.id)) {
+      if (pair.operation === "vehicletrivia" || isVehicleTrivia() || pair.operation === "vehicle" || (isVehicle() && pair.id)) {
         const body = VEHICLE_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
@@ -3190,7 +3243,7 @@
 
     function spokenFact(pair) {
       const op = pair.operation || state.operation;
-      if (op === "ocean") {
+      if (op === "ocean" || op === "oceanmap") {
         const body = OCEAN_BY_ID[pair.id];
         const name = pair.answer || (body && body.name) || "that body of water";
         if (body && body.kind === "sea") return name + " is a sea, not an ocean.";
@@ -3206,7 +3259,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -3711,7 +3764,11 @@
       stack.appendChild(startBtn);
       stack.appendChild(operationCard());
 
-      if (isOcean()) {
+      if (isOceanMap()) {
+        const note = el("div", { class: "card" });
+        note.appendChild(el("p", { class: "hint", text: "A world map highlights one ocean or sea. Choose its name. They repeat in order: Pacific, Atlantic, Indian, Southern, Arctic, Mediterranean Sea, Caribbean Sea." }));
+        stack.appendChild(note);
+      } else if (isOcean()) {
         stack.appendChild(checklistCard("Oceans & seas",
           OCEAN_BODIES.map(function (b) { return { id: b.id, name: b.kind === "sea" ? b.name + " · sea" : b.name }; }),
           OCEAN_QUICK,
@@ -3752,6 +3809,12 @@
           true));
       } else if (isFlag()) {
         stack.appendChild(checklistCard("Countries",
+          FLAG_PICTURE_IDS.map(function (id) { const f = FLAG_BY_ID[id]; return { id: f.id, name: f.name }; }),
+          [["All 15", FLAG_PICTURE_IDS.slice()]],
+          "See the flag and choose the country. Fifteen flags.",
+          "Pick at least one country."));
+      } else if (isFlagTrivia()) {
+        stack.appendChild(checklistCard("Countries",
           FLAGS.map(function (f) { return { id: f.id, name: f.name + " · " + CONTINENT_LABEL[f.continent] }; }),
           FLAG_QUICK,
           "Text clues by continent — no flag images. All selected by default.",
@@ -3767,7 +3830,7 @@
         stack.appendChild(checklistCard("Notes",
           PIANO_NOTES.map(function (x) { return { id: x.id, name: "Note " + x.name }; }),
           PIANO_QUICK,
-          "Seven natural notes C–B. Keyboard order, solfège, and treble-clef text clues.",
+          "One octave, 12 keys. A highlighted key, then two note names.",
           "Pick at least one note."));
       } else if (isInstrument()) {
         stack.appendChild(checklistCard("Instruments",
@@ -3777,6 +3840,13 @@
           "Pick at least one instrument.",
           true));
       } else if (isVehicle()) {
+        stack.appendChild(checklistCard("Vehicles",
+          VEHICLES.map(function (x) { return { id: x.id, name: x.name + " · " + VEHICLE_TYPE[x.type] }; }),
+          VEHICLE_QUICK,
+          "See the picture and choose the vehicle. Two names each time.",
+          "Pick at least one vehicle.",
+          true));
+      } else if (isVehicleTrivia()) {
         stack.appendChild(checklistCard("Vehicles",
           VEHICLES.map(function (x) { return { id: x.id, name: x.name + " · " + VEHICLE_TYPE[x.type] }; }),
           VEHICLE_QUICK,
@@ -3969,14 +4039,17 @@
       if (isSport()) hint = "Name sports from kid-friendly clues. Four choices each time.";
       if (isHawaii()) hint = "Name the main Hawaiian Islands from clues.";
       if (isCapital()) hint = "Match U.S. states and their capitals (both directions).";
-      if (isState()) hint = "Identify a state from its outline map, or name its capital.";
+      if (isOceanMap()) hint = "One ocean or sea glows on the world map. Choose its name.";
+      if (isState()) hint = "See the state outline and the star on its capital. Choose that capital.";
       if (isElement()) hint = "Match element symbols and names (both directions).";
-      if (isFlag()) hint = "Name countries from geography clues, grouped by continent.";
+      if (isFlag()) hint = "See only the flag, then choose the country. Fifteen countries.";
+      if (isFlagTrivia()) hint = "Name countries from geography clues, grouped by continent.";
       if (isRhyme()) hint = "Pick words that rhyme from common word families (cat/hat/bat style).";
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
-      if (isVehicle()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
+      if (isVehicle()) hint = "See the picture and choose the vehicle's name.";
+      if (isVehicleTrivia()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
-      if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
+      if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
       if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
@@ -4012,13 +4085,16 @@
       if (isOcean()) return "Oceans & seas";
       if (isSport()) return "Sports";
       if (isHawaii()) return "Hawaiian Islands";
-      if (isCapital()) return "Capitals";
-      if (isState()) return "States";
+      if (isOceanMap()) return "Ocean map";
+      if (isCapital()) return "Capital trivia";
+      if (isState()) return "Capital map";
       if (isElement()) return "Elements";
       if (isFlag()) return "Flags";
+      if (isFlagTrivia()) return "Flag trivia";
       if (isRhyme()) return "Rhyming";
       if (isSynonym()) return "Synonyms & Antonyms";
       if (isVehicle()) return "Vehicles";
+      if (isVehicleTrivia()) return "Vehicle trivia";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       return "Quiz";
@@ -4072,6 +4148,189 @@
       bar.textContent = onBeats ? "Question" : "Beats";
       bar.setAttribute("aria-label", onBeats ? "Show the question" : "Show the beats");
     }
+
+    const FLAG_PICTURE_IDS = ["usa","canada","mexico","brazil","uk","france","germany","italy","spain","china","japan","india","australia","southkorea","egypt"];
+    function svgPicture(cls, label, inner, viewBox) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", cls);
+      svg.setAttribute("viewBox", viewBox || "0 0 320 200");
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-label", label);
+      svg.setAttribute("focusable", "false");
+      svg.innerHTML = inner;
+      return svg;
+    }
+    function cycleItem(list, keyName) {
+      const idx = ((state[keyName] || 0) % list.length + list.length) % list.length;
+      state[keyName] = idx + 1;
+      return { item: list[idx], idx: idx };
+    }
+    function pairChoices(answer, names, salt) {
+      const others = names.filter(function (n) { return n !== answer; });
+      const wrong = others.length ? others[(salt || 0) % others.length] : names[0];
+      return shuffle([answer, wrong]);
+    }
+    function buildOceanMapProblem() {
+      const bodies = OCEAN_BODIES.slice();
+      const picked = cycleItem(bodies, "oceanMapIndex");
+      const body = picked.item;
+      const wrongBody = bodies[(picked.idx + 1 + (picked.idx % 3)) % bodies.length];
+      const wrong = wrongBody.id === body.id ? bodies[(picked.idx + 2) % bodies.length] : wrongBody;
+      return {
+        operation: "oceanmap", id: body.id, kind: body.kind,
+        ask: body.kind === "sea" ? "Which sea is highlighted?" : "Which ocean is highlighted?",
+        answer: body.name, key: "omap:" + body.id,
+        choices: shuffle([body.name, wrong.name])
+      };
+    }
+    function pictureFlags() {
+      const selected = selectedFlags();
+      const allow = {};
+      const base = selected.length ? selected : FLAG_PICTURE_IDS.map(function (id) { return FLAG_BY_ID[id]; });
+      base.forEach(function (f) { if (f && FLAG_PICTURE_IDS.indexOf(f.id) >= 0) allow[f.id] = true; });
+      const pool = FLAG_PICTURE_IDS.map(function (id) { return FLAG_BY_ID[id]; }).filter(function (f) { return f && allow[f.id]; });
+      return pool.length ? pool : FLAG_PICTURE_IDS.map(function (id) { return FLAG_BY_ID[id]; });
+    }
+    function buildFlag() {
+      const bodies = pictureFlags();
+      let picked = cycleItem(bodies, "flagIndex");
+      if (bodies.length > 1) {
+        let guard = 0;
+        while (guard < 3) { guard += 1; break; }
+      }
+      const body = picked.item;
+      return {
+        operation: "flag", id: body.id, pictureOnly: true, ask: "",
+        answer: body.name, key: "flagpic:" + body.id,
+        choices: pairChoices(body.name, bodies.map(function (f) { return f.name; }), picked.idx * 3 + 1)
+      };
+    }
+    function buildVehicle() {
+      const selected = selectedVehicles();
+      const bodies = selected.length ? selected : VEHICLES.slice();
+      const picked = cycleItem(bodies, "vehicleIndex");
+      const body = picked.item;
+      return {
+        operation: "vehicle", id: body.id, pictureOnly: true, ask: "",
+        answer: body.name, key: "vehpic:" + body.id,
+        choices: pairChoices(body.name, bodies.map(function (v) { return v.name; }), picked.idx * 3 + 2)
+      };
+    }
+
+    function pianoSvg(id) {
+      const whites = ["c","d","e","f","g","a","b"];
+      const blacks = { cs: 0, ds: 1, fs: 3, gs: 4, as: 5 };
+      let markup = '<rect width="320" height="168" rx="16" fill="#12324a"/><rect x="8" y="10" width="304" height="148" rx="10" fill="#0d2233"/>';
+      whites.forEach(function (n, i) {
+        const on = n === id;
+        const x = 16 + i * 41;
+        markup += '<rect x="' + x + '" y="18" width="38" height="132" rx="4" fill="' + (on ? "#ffe14a" : "#fffef8") + '" stroke="#102038" stroke-width="2"/>';
+        if (on) markup += '<rect x="' + (x + 6) + '" y="28" width="26" height="14" rx="3" fill="#fff" opacity="0.75"/>';
+      });
+      Object.keys(blacks).forEach(function (n) {
+        const i = blacks[n];
+        const on = n === id;
+        const x = 16 + (i + 1) * 41 - 13;
+        markup += '<rect x="' + x + '" y="18" width="24" height="78" rx="3" fill="' + (on ? "#ffe14a" : "#1b1f24") + '" stroke="' + (on ? "#102038" : "#050607") + '" stroke-width="2"/>';
+      });
+      return svgPicture("piano-svg", "Piano keyboard with one key highlighted", markup, "0 0 320 168");
+    }
+    function oceanWorldMap(id) {
+      const svg = svgPicture("ocean-world", "World map with one body of water highlighted", OCEAN_MAP_INNER, "0 0 800 440");
+      const node = svg.querySelector(".hl-" + id);
+      if (node) node.setAttribute("opacity", "1");
+      return svg;
+    }
+    const OCEAN_MAP_INNER = `<style>.land{fill:url(#land-fill);stroke:#12361c;stroke-width:2.2;stroke-linejoin:round}.ice{fill:#f7fbff;stroke:#d7f3ff;stroke-width:2}</style>
+<defs>
+  <linearGradient id="sea-fill" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#7ee7ff"/>
+    <stop offset="0.35" stop-color="#1aa4e0"/>
+    <stop offset="0.72" stop-color="#0868b8"/>
+    <stop offset="1" stop-color="#063a78"/>
+  </linearGradient>
+  <linearGradient id="land-fill" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e9ffb0"/>
+    <stop offset="0.45" stop-color="#7dce4a"/>
+    <stop offset="1" stop-color="#2f8a32"/>
+  </linearGradient>
+  <radialGradient id="sea-gloss" cx="50%" cy="18%" r="65%">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.72"/>
+    <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.08"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="hl-glow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<rect width="800" height="440" rx="28" fill="url(#sea-fill)"/>
+<rect width="800" height="440" rx="28" fill="url(#sea-gloss)"/>
+<g fill="#9af6ff" stroke="#fff6b0" stroke-width="3" filter="url(#hl-glow)" opacity="0.9"><g class="hl hl-pacific" opacity="0"><ellipse cx="66.7" cy="236.1" rx="78" ry="120"/><ellipse cx="773.3" cy="222.5" rx="70" ry="115"/></g><g class="hl hl-atlantic" opacity="0"><ellipse cx="311.1" cy="195.1" rx="62" ry="108"/></g><g class="hl hl-indian" opacity="0"><ellipse cx="566.7" cy="290.8" rx="70" ry="88"/></g><g class="hl hl-southern" opacity="0"><rect x="0" y="394.7" width="800" height="46" rx="8"/></g><g class="hl hl-arctic" opacity="0"><rect x="0" y="8" width="800" height="42" rx="8"/></g><g class="hl hl-mediterranean" opacity="0"><ellipse cx="435.6" cy="137.7" rx="36" ry="12"/></g><g class="hl hl-caribbean" opacity="0"><ellipse cx="233.3" cy="192.4" rx="28" ry="16"/></g></g>
+<path class="land" d="M111.1 88.5 L124.4 102.2 L124.4 126.8 L140.0 148.7 L155.6 170.5 L164.4 176.0 L184.4 192.4 L197.8 192.4 L206.7 200.6 L220.0 214.3 L228.9 214.3 L222.2 167.8 L217.8 154.1 L222.2 148.7 L231.1 140.5 L235.6 129.5 L244.4 121.3 L251.1 115.9 L266.7 110.4 L275.6 96.7 L262.2 77.6 L248.9 66.7 L226.7 55.7 L200.0 50.3 L166.7 55.7 L128.9 72.1 L111.1 88.5 Z"/><path class="land" d="M222.2 214.3 L228.9 219.7 L244.4 247.1 L262.2 263.5 L271.1 285.3 L284.4 312.7 L293.3 312.7 L311.1 296.3 L322.2 258.0 L322.2 249.8 L311.1 230.7 L293.3 236.1 L284.4 230.7 L266.7 214.3 L244.4 203.3 L228.9 214.3 L222.2 214.3 Z"/><path class="land" d="M362.2 195.1 L364.4 178.7 L380.0 148.7 L388.9 137.7 L422.2 135.0 L424.4 145.9 L455.6 148.7 L471.1 151.4 L495.6 203.3 L513.3 203.3 L497.8 230.7 L493.3 277.1 L477.8 307.2 L471.1 315.4 L442.2 331.8 L440.0 326.3 L426.7 285.3 L428.9 249.8 L420.0 225.2 L388.9 222.5 L382.2 225.2 L364.4 203.3 Z"/><path class="land" d="M380.0 135.0 L380.0 121.3 L382.2 115.9 L395.6 118.6 L400.0 96.7 L388.9 99.5 L388.9 77.6 L411.1 66.7 L417.8 83.1 L426.7 88.5 L440.0 85.8 L453.3 72.1 L462.2 72.1 L466.7 110.4 L462.2 124.1 L444.4 126.8 L435.6 129.5 L422.2 115.9 L406.7 118.6 L388.9 137.7 Z"/><path class="land" d="M471.1 151.4 L480.0 137.7 L497.8 126.8 L506.7 121.3 L511.1 107.7 L533.3 85.8 L555.6 85.8 L577.8 99.5 L600.0 104.9 L631.1 99.5 L648.9 94.0 L688.9 88.5 L711.1 77.6 L755.6 72.1 L777.8 55.7 L800.0 55.7 L777.8 72.1 L722.2 118.6 L715.6 140.5 L688.9 145.9 L671.1 154.1 L668.9 167.8 L642.2 197.9 L631.1 233.4 L622.2 214.3 L617.8 192.4 L611.1 176.0 L595.6 176.0 L577.8 192.4 L571.1 214.3 L562.2 214.3 L560.0 176.0 L551.1 170.5 L533.3 167.8 L524.4 162.3 L513.3 167.8 L506.7 159.6 L497.8 203.3 L495.6 203.3 L471.1 151.4 Z"/><path class="land" d="M651.1 296.3 L671.1 285.3 L684.4 274.4 L702.2 268.9 L715.6 266.2 L724.4 282.6 L740.0 309.9 L733.3 340.0 L724.4 342.7 L711.1 340.0 L700.0 331.8 L684.4 323.6 L675.6 326.3 L655.6 331.8 L653.3 318.1 L651.1 296.3 Z"/><path class="land" d="M262.2 28.4 L248.9 28.4 L237.8 22.9 L266.7 9.3 L311.1 9.3 L351.1 17.5 L355.6 39.3 L328.9 50.3 L302.2 44.8 L277.8 39.3 L262.2 28.4 Z"/>
+<path class="ice" d="M0.0 432.9 L800.0 432.9 L800.0 482.1 L0.0 482.1 Z"/>
+<g fill="#ffffff" opacity="0.55">
+  <ellipse cx="210" cy="70" rx="90" ry="18"/>
+  <ellipse cx="540" cy="96" rx="120" ry="16"/>
+</g>
+`;
+    const FLAG_ART = {
+      usa: '<rect y="0.0" width="320" height="15.9" fill="#b22234"/><rect y="15.4" width="320" height="15.9" fill="#fff"/><rect y="30.8" width="320" height="15.9" fill="#b22234"/><rect y="46.2" width="320" height="15.9" fill="#fff"/><rect y="61.5" width="320" height="15.9" fill="#b22234"/><rect y="76.9" width="320" height="15.9" fill="#fff"/><rect y="92.3" width="320" height="15.9" fill="#b22234"/><rect y="107.7" width="320" height="15.9" fill="#fff"/><rect y="123.1" width="320" height="15.9" fill="#b22234"/><rect y="138.5" width="320" height="15.9" fill="#fff"/><rect y="153.8" width="320" height="15.9" fill="#b22234"/><rect y="169.2" width="320" height="15.9" fill="#fff"/><rect y="184.6" width="320" height="15.9" fill="#b22234"/><rect width="140" height="108" fill="#3c3b6e"/><circle cx="14" cy="14" r="3" fill="#fff"/><circle cx="36" cy="14" r="3" fill="#fff"/><circle cx="58" cy="14" r="3" fill="#fff"/><circle cx="80" cy="14" r="3" fill="#fff"/><circle cx="102" cy="14" r="3" fill="#fff"/><circle cx="124" cy="14" r="3" fill="#fff"/><circle cx="25" cy="32" r="3" fill="#fff"/><circle cx="47" cy="32" r="3" fill="#fff"/><circle cx="69" cy="32" r="3" fill="#fff"/><circle cx="91" cy="32" r="3" fill="#fff"/><circle cx="113" cy="32" r="3" fill="#fff"/><circle cx="14" cy="50" r="3" fill="#fff"/><circle cx="36" cy="50" r="3" fill="#fff"/><circle cx="58" cy="50" r="3" fill="#fff"/><circle cx="80" cy="50" r="3" fill="#fff"/><circle cx="102" cy="50" r="3" fill="#fff"/><circle cx="124" cy="50" r="3" fill="#fff"/><circle cx="25" cy="68" r="3" fill="#fff"/><circle cx="47" cy="68" r="3" fill="#fff"/><circle cx="69" cy="68" r="3" fill="#fff"/><circle cx="91" cy="68" r="3" fill="#fff"/><circle cx="113" cy="68" r="3" fill="#fff"/><circle cx="14" cy="86" r="3" fill="#fff"/><circle cx="36" cy="86" r="3" fill="#fff"/><circle cx="58" cy="86" r="3" fill="#fff"/><circle cx="80" cy="86" r="3" fill="#fff"/><circle cx="102" cy="86" r="3" fill="#fff"/><circle cx="124" cy="86" r="3" fill="#fff"/>',
+      canada: '<rect width="82" height="200" fill="#d00"/><rect x="238" width="82" height="200" fill="#d00"/><rect x="82" width="156" height="200" fill="#fff"/><path fill="#d00" d="M160 46 l10 24 h26 l-20 14 8 24 -24-16 -24 16 8-24 -20-14 h26 z"/>',
+      mexico: '<rect x="0.0" width="107.2" height="200" fill="#006847"/><rect x="106.7" width="107.2" height="200" fill="#fff"/><rect x="213.3" width="107.2" height="200" fill="#ce1126"/><circle cx="160" cy="100" r="22" fill="none" stroke="#8d6b2f" stroke-width="4"/><path d="M160 84 l6 16 h16 l-12 10 5 16 -15-10 -15 10 5-16 -12-10 h16 z" fill="#1f7a3a"/>',
+      brazil: '<rect width="320" height="200" fill="#009c3b"/><polygon points="160,26 294,100 160,174 26,100" fill="#ffdf00"/><circle cx="160" cy="100" r="42" fill="#002776"/><path d="M118 110 q42 -30 84 0" fill="none" stroke="#fff" stroke-width="6"/>',
+      france: '<rect x="0.0" width="107.2" height="200" fill="#0055a4"/><rect x="106.7" width="107.2" height="200" fill="#fff"/><rect x="213.3" width="107.2" height="200" fill="#ef4135"/>',
+      germany: '<rect y="0.0" width="320" height="67.2" fill="#000"/><rect y="66.7" width="320" height="67.2" fill="#dd0000"/><rect y="133.3" width="320" height="67.2" fill="#ffce00"/>',
+      italy: '<rect x="0.0" width="107.2" height="200" fill="#009246"/><rect x="106.7" width="107.2" height="200" fill="#fff"/><rect x="213.3" width="107.2" height="200" fill="#ce2b37"/>',
+      spain: '<rect width="320" height="200" fill="#c60b1e"/><rect y="50" width="320" height="100" fill="#ffc400"/>',
+      china: '<rect width="320" height="200" fill="#de2910"/><polygon points="56,28 66,56 38,40 74,40 46,56" fill="#ffde00"/><polygon points="108,26 112,36 102,30 118,30 108,36" fill="#ffde00"/><polygon points="122,44 126,54 116,48 132,48 122,54" fill="#ffde00"/><polygon points="122,68 126,78 116,72 132,72 122,78" fill="#ffde00"/><polygon points="108,84 112,94 102,88 118,88 108,94" fill="#ffde00"/>',
+      japan: '<rect width="320" height="200" fill="#fff"/><circle cx="160" cy="100" r="50" fill="#bc002d"/>',
+      india: '<rect y="0.0" width="320" height="67.2" fill="#ff9933"/><rect y="66.7" width="320" height="67.2" fill="#fff"/><rect y="133.3" width="320" height="67.2" fill="#138808"/><circle cx="160" cy="100" r="18" fill="none" stroke="#000080" stroke-width="3"/><line x1="160" y1="100" x2="176.0" y2="100.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="173.9" y2="108.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="168.0" y2="113.9" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="160.0" y2="116.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="152.0" y2="113.9" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="146.1" y2="108.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="144.0" y2="100.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="146.1" y2="92.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="152.0" y2="86.1" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="160.0" y2="84.0" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="168.0" y2="86.1" stroke="#000080" stroke-width="1.5"/><line x1="160" y1="100" x2="173.9" y2="92.0" stroke="#000080" stroke-width="1.5"/>',
+      uk: '<rect width="320" height="200" fill="#012169"/>\n<polygon points="0,0 40,0 320,160 320,200 280,200 0,40" fill="#fff"/>\n<polygon points="320,0 280,0 0,160 0,200 40,200 320,40" fill="#fff"/>\n<path d="M0 0 L320 200 M320 0 L0 200" stroke="#c8102e" stroke-width="16"/>\n<path d="M160 0 V200 M0 100 H320" stroke="#fff" stroke-width="42"/>\n<path d="M160 0 V200 M0 100 H320" stroke="#c8102e" stroke-width="24"/>',
+      australia: '<rect width="320" height="200" fill="#012169"/><g transform="translate(0,0) scale(0.42)"><rect width="320" height="200" fill="#012169"/>\n<polygon points="0,0 40,0 320,160 320,200 280,200 0,40" fill="#fff"/>\n<polygon points="320,0 280,0 0,160 0,200 40,200 320,40" fill="#fff"/>\n<path d="M0 0 L320 200 M320 0 L0 200" stroke="#c8102e" stroke-width="16"/>\n<path d="M160 0 V200 M0 100 H320" stroke="#fff" stroke-width="42"/>\n<path d="M160 0 V200 M0 100 H320" stroke="#c8102e" stroke-width="24"/></g><polygon points="250,36 258,58 280,58 262,72 270,94 250,80 230,94 238,72 220,58 242,58" fill="#fff"/><circle cx="92" cy="148" r="9" fill="#fff"/><circle cx="240" cy="150" r="6" fill="#fff"/><circle cx="270" cy="126" r="6" fill="#fff"/><circle cx="292" cy="156" r="6" fill="#fff"/><circle cx="264" cy="178" r="5" fill="#fff"/>',
+      southkorea: '<rect width="320" height="200" fill="#fff"/><circle cx="160" cy="100" r="40" fill="#cd2e3a"/><path d="M160 60 a40 40 0 0 1 0 80 a20 20 0 0 1 0 -40 a20 20 0 0 0 0 -40" fill="#0047a0"/>\n<g stroke="#111" stroke-width="4" stroke-linecap="round"><line x1="46" y1="44" x2="96" y2="74"/><line x1="38" y1="58" x2="88" y2="88"/><line x1="54" y1="30" x2="104" y2="60"/><line x1="224" y1="126" x2="274" y2="156"/><line x1="216" y1="140" x2="266" y2="170"/><line x1="232" y1="112" x2="282" y2="142"/></g>',
+      egypt: '<rect y="0.0" width="320" height="67.2" fill="#ce1126"/><rect y="66.7" width="320" height="67.2" fill="#fff"/><rect y="133.3" width="320" height="67.2" fill="#000"/><polygon points="160,78 174,100 160,122 146,100" fill="#c9a227"/>',
+    };
+    const VEHICLE_ART = {
+      car: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="70" y="108" width="180" height="46" rx="12" fill="#e23b3b"/><path d="M110 108 l22-32 h70 l24 32z" fill="#c81e1e"/><rect x="128" y="82" width="70" height="26" rx="6" fill="#d7f4ff"/><circle cx="112" cy="156" r="16" fill="#222"/><circle cx="210" cy="156" r="16" fill="#222"/><circle cx="112" cy="156" r="6" fill="#ddd"/><circle cx="210" cy="156" r="6" fill="#ddd"/>',
+      bus: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="48" y="78" width="224" height="78" rx="12" fill="#f5c400"/><rect x="64" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="110" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="156" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="202" y="90" width="36" height="26" fill="#d7f4ff"/><circle cx="100" cy="160" r="14" fill="#222"/><circle cx="220" cy="160" r="14" fill="#222"/>',
+      train: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="40" y="96" width="70" height="58" rx="8" fill="#1f4e89"/><rect x="118" y="104" width="54" height="50" fill="#3d7ec4"/><rect x="178" y="104" width="54" height="50" fill="#3d7ec4"/><rect x="238" y="104" width="48" height="50" fill="#3d7ec4"/><rect x="52" y="76" width="28" height="22" fill="#16375f"/><rect x="56" y="108" width="38" height="20" fill="#d7f4ff"/><rect y="154" width="320" height="6" fill="#555"/>',
+      bike: '<rect width="320" height="200" fill="#e8f7ff"/><circle cx="100" cy="140" r="36" fill="none" stroke="#222" stroke-width="6"/><circle cx="220" cy="140" r="36" fill="none" stroke="#222" stroke-width="6"/><path d="M100 140 L150 140 L186 92 L220 140 M168 92 L132 92" fill="none" stroke="#1a1a1a" stroke-width="5"/><circle cx="150" cy="140" r="8" fill="#e23b3b"/>',
+      motorcycle: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="108" cy="150" r="26" fill="#222"/><circle cx="220" cy="150" r="26" fill="#222"/><path d="M108 150 L150 112 L196 112 L220 150" fill="none" stroke="#222" stroke-width="6"/><rect x="150" y="96" width="54" height="22" rx="8" fill="#e23b3b"/><rect x="168" y="78" width="8" height="22" fill="#222"/>',
+      truck: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="40" y="96" width="140" height="58" rx="6" fill="#f08a24"/><rect x="180" y="112" width="90" height="42" rx="8" fill="#2f6fba"/><rect x="196" y="122" width="36" height="20" fill="#d7f4ff"/><circle cx="86" cy="158" r="16" fill="#222"/><circle cx="140" cy="158" r="16" fill="#222"/><circle cx="230" cy="158" r="16" fill="#222"/>',
+      ambulance: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="60" y="100" width="190" height="54" rx="10" fill="#f7f7f7" stroke="#bbb"/><rect x="150" y="116" width="28" height="8" fill="#e23b3b"/><rect x="160" y="106" width="8" height="28" fill="#e23b3b"/><circle cx="110" cy="158" r="15" fill="#222"/><circle cx="200" cy="158" r="15" fill="#222"/>',
+      firetruck: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="46" y="108" width="200" height="48" rx="8" fill="#d31212"/><rect x="60" y="88" width="70" height="24" fill="#d31212"/><rect x="150" y="92" width="70" height="8" fill="#f0d24a"/><circle cx="96" cy="160" r="15" fill="#222"/><circle cx="190" cy="160" r="15" fill="#222"/>',
+      police: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="70" y="108" width="180" height="46" rx="10" fill="#f4f4f4"/><path d="M108 108 l22-28 h64 l22 28z" fill="#1d4e89"/><rect x="128" y="84" width="64" height="22" fill="#d7f4ff"/><rect x="120" y="76" width="80" height="8" rx="3" fill="#1d4e89"/><circle cx="132" cy="76" r="5" fill="#3aa0ff"/><circle cx="190" cy="76" r="5" fill="#e23b3b"/><circle cx="114" cy="156" r="15" fill="#222"/><circle cx="206" cy="156" r="15" fill="#222"/>',
+      scooter: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="120" cy="150" r="18" fill="#222"/><circle cx="196" cy="150" r="18" fill="#222"/><path d="M120 150 L160 150 L176 96" fill="none" stroke="#222" stroke-width="6"/><rect x="150" y="78" width="50" height="8" rx="3" fill="#333"/><rect x="150" y="128" width="36" height="10" rx="4" fill="#e23b3b"/>',
+      tractor: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="110" cy="148" r="18" fill="#222"/><circle cx="200" cy="142" r="32" fill="#222"/><circle cx="200" cy="142" r="14" fill="#888"/><rect x="78" y="100" width="90" height="40" rx="6" fill="#2f9e44"/><rect x="118" y="78" width="46" height="28" fill="#237a34"/><rect x="126" y="84" width="28" height="14" fill="#d7f4ff"/>',
+      subway: '<rect width="320" height="200" fill="#5c6570"/><rect x="24" y="70" width="272" height="90" rx="16" fill="#d7dde3"/><rect x="48" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="110" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="172" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="234" y="88" width="40" height="36" fill="#9fd7ee"/><rect y="160" width="320" height="10" fill="#222"/>',
+      boat: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M70 120 L250 120 L220 160 L100 160Z" fill="#f4f4f4" stroke="#234"/><rect x="150" y="78" width="8" height="42" fill="#333"/><path d="M158 84 L210 118 L158 118Z" fill="#e23b3b"/>',
+      ship: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M36 126 L284 126 L250 168 L70 168Z" fill="#2b3a4a"/><rect x="90" y="86" width="70" height="40" fill="#d9dee4"/><rect x="170" y="96" width="50" height="30" fill="#c5ccd4"/><rect x="108" y="96" width="16" height="12" fill="#7fd3f2"/><rect x="132" y="96" width="16" height="12" fill="#7fd3f2"/>',
+      sailboat: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M90 140 L230 140 L200 168 L120 168Z" fill="#f7f1e3"/><rect x="156" y="48" width="6" height="92" fill="#333"/><path d="M162 54 L220 132 L162 132Z" fill="#fff" stroke="#ccd"/><path d="M156 70 L108 132 L156 132Z" fill="#e23b3b"/>',
+      canoe: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M48 120 Q160 156 272 120 Q160 150 48 120" fill="#c47a3a"/><line x1="150" y1="70" x2="186" y2="128" stroke="#6b3a10" stroke-width="4"/>',
+      kayak: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M50 124 Q160 104 270 124 Q160 148 50 124" fill="#e23b3b"/><ellipse cx="160" cy="124" rx="16" ry="8" fill="#222"/><line x1="120" y1="70" x2="210" y2="150" stroke="#333" stroke-width="4"/>',
+      submarine: '<rect width="320" height="200" fill="#0e6ea8"/><ellipse cx="160" cy="116" rx="110" ry="32" fill="#c5ced6"/><rect x="150" y="72" width="28" height="24" rx="4" fill="#9aa7b2"/><rect x="160" y="48" width="6" height="28" fill="#6d7882"/><circle cx="210" cy="112" r="8" fill="#7fd3f2" stroke="#334"/>',
+      ferry: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M40 132 L280 132 L248 172 L72 172Z" fill="#f4f4f4" stroke="#888"/><rect x="70" y="96" width="180" height="36" fill="#fff" stroke="#bbb"/><rect x="90" y="72" width="120" height="24" fill="#d9dde2"/><rect x="100" y="104" width="22" height="16" fill="#9fd7ee"/><rect x="136" y="104" width="22" height="16" fill="#9fd7ee"/><rect x="172" y="104" width="22" height="16" fill="#9fd7ee"/>',
+      jetski: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M90 130 Q160 100 240 128 L220 146 Q160 128 100 146Z" fill="#e23b3b"/><rect x="168" y="104" width="10" height="24" fill="#222"/>',
+      plane: '<rect width="320" height="200" fill="#c5ecff"/><path d="M40 112 L250 96 L280 104 L250 112 L40 124Z" fill="#f7f7f7" stroke="#888"/><path d="M120 108 L150 58 L170 58 L156 108Z" fill="#d0d5dc"/><path d="M150 116 L190 156 L176 156 L140 116Z" fill="#d0d5dc"/><path d="M250 96 L292 80 L292 120 L250 112Z" fill="#e23b3b"/>',
+      helicopter: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="150" cy="120" rx="70" ry="28" fill="#f08a24"/><rect x="214" y="108" width="50" height="8" fill="#333"/><rect x="40" y="86" width="230" height="6" fill="#222"/><rect x="148" y="70" width="8" height="22" fill="#222"/>',
+      hotair: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="160" cy="90" rx="70" ry="62" fill="#e23b3b"/><path d="M112 92 Q160 40 208 92" fill="#f5c400"/><path d="M122 104 Q160 62 198 104" fill="#3d7ec4"/><rect x="148" y="146" width="24" height="14" rx="3" fill="#6b3a10"/>',
+      glider: '<rect width="320" height="200" fill="#c5ecff"/><path d="M30 108 L250 96 L290 108 L250 116 L30 124Z" fill="#f7f7f7" stroke="#9ab"/><path d="M150 104 L176 68 L188 76 L160 112Z" fill="#d5dbe2"/>',
+      rocket: '<rect width="320" height="200" fill="#0b1d3a"/><rect x="146" y="28" width="28" height="110" rx="14" fill="#f4f4f4"/><polygon points="146,70 120,110 146,100" fill="#e23b3b"/><polygon points="174,70 200,110 174,100" fill="#e23b3b"/><polygon points="146,150 160,178 174,150" fill="#f5c400"/><circle cx="160" cy="70" r="8" fill="#7fd3f2"/>',
+      blimp: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="160" cy="90" rx="120" ry="42" fill="#f4f4f4" stroke="#bbb"/><rect x="150" y="128" width="36" height="16" rx="3" fill="#3d7ec4"/>',
+    };
+
+    function flagSvg(id) { return svgPicture("flag-svg", "A country flag", FLAG_ART[id] || FLAG_ART.usa, "0 0 320 200"); }
+    function vehicleSvg(id) { return svgPicture("vehicle-svg", "A vehicle", VEHICLE_ART[id] || VEHICLE_ART.car, "0 0 320 200"); }
+    function pictureForProblem(problem) {
+      const op = (problem && problem.operation) || state.operation;
+      if (op === "oceanmap") return oceanWorldMap(problem.id);
+      if (op === "flag") return flagSvg(problem.id);
+      if (op === "piano") return pianoSvg(problem.id);
+      if (op === "vehicle") return vehicleSvg(problem.id);
+      return null;
+    }
+
     function renderPlay(app) {
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
@@ -4091,19 +4350,23 @@
         eq.appendChild(el("p", { class: "prompt multiples-prompt", text: problem.ask }));
       } else if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
-        if (problem.image) {
+        const pic = pictureForProblem(problem);
+        if (pic) {
+          eq.className = "card eq has-map";
+          eq.appendChild(pic);
+        } else if (problem.image) {
           eq.className = "card eq has-map";
           const img = el("img", {
             class: "state-map",
             src: problem.image,
-            alt: "Outline map of a U.S. state",
+            alt: "State outline with a star marking the capital",
             width: "176",
             height: "136",
             decoding: "async"
           });
           eq.appendChild(img);
         }
-        eq.appendChild(el("p", { class: "prompt quiz-prompt", text: problem.ask }));
+        if (problem.ask && !problem.pictureOnly) eq.appendChild(el("p", { class: "prompt quiz-prompt", text: problem.ask }));
       } else {
         let askLabel = "What is the product?";
         if (isDivide()) askLabel = state.mode === "quotient" ? "What is the quotient?" : "What number is missing?";
@@ -4150,7 +4413,8 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const answers = el("div", { class: "answers" + (isMultiples() ? " multiples-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle();
+      const answers = el("div", { class: "answers" + (isMultiples() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -4192,6 +4456,10 @@
       state.newBest = false;
       state.beatJustUnlocked = "";
       state.multiplesIndex = 0;
+      state.oceanMapIndex = 0;
+      state.flagIndex = 0;
+      state.pianoIndex = 0;
+      state.vehicleIndex = 0;
       state.playPage = "question";
       state.phase = "play";
       state.problem = makeProblem();

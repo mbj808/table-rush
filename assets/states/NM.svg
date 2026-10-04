@@ -2,4 +2,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="226.30 300.90 141.91 146.51" role="img" aria-label="NM">
   <!-- Extracted from Wikimedia Blank US Map (states only).svg — CC0 1.0 -->
   <path fill="#d6e8f5" stroke="#1b2430" stroke-width="1.758" stroke-linejoin="round" d="m 357.5,332.9 h -.8 l -7.9,99.3 -31.8,-2.6 -34.4,-3.6 -.3,3 2,2.2 -30.8,-4.1 -1.4,10.2 -15.7,-2.2 17.4,-124.1 52.6,6.5 51.7,4.8 z"/>
+<g class="capital-star"><circle cx="302.38" cy="349.35" r="12.32" fill="#fffef6" stroke="#102038" stroke-width="1.10"/><polygon points="302.38,340.22 304.63,346.25 311.06,346.53 306.02,350.53 307.74,356.73 302.38,353.18 297.01,356.73 298.73,350.53 293.69,346.53 300.12,346.25" fill="#ffe14a" stroke="#102038" stroke-width="1.10" stroke-linejoin="round"/></g>
 </svg>

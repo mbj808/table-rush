@@ -2,4 +2,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="223.43 120.73 141.64 120.84" role="img" aria-label="WY">
   <!-- Extracted from Wikimedia Blank US Map (states only).svg — CC0 1.0 -->
   <path fill="#d6e8f5" stroke="#1b2430" stroke-width="1.700" stroke-linejoin="round" d="m 355.3,143.7 -51,-5.3 -57.3,-7.9 -2,10.7 -8.5,54.8 -3.3,21.9 32.1,4.8 44.9,5.7 37.5,3.4 3.7,-44.2 z"/>
+<g class="capital-star"><circle cx="337.31" cy="229.55" r="10.26" fill="#fffef6" stroke="#102038" stroke-width="0.91"/><polygon points="337.31,221.96 339.19,226.97 344.54,227.21 340.35,230.54 341.78,235.70 337.31,232.75 332.85,235.70 334.28,230.54 330.09,227.21 335.44,226.97" fill="#ffe14a" stroke="#102038" stroke-width="0.91" stroke-linejoin="round"/></g>
 </svg>

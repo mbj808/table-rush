@@ -488,12 +488,40 @@
     body.play-screen[data-play-page="beats"] .brand-meta { margin-top: 0.1rem; }
     body.play-screen .eq .prompt.quiz-prompt,
     body.play-screen .eq .prompt.multiples-prompt { font-size: 1.25rem; line-height: 1.25; }
-    .ocean-world, .flag-svg, .vehicle-svg, .piano-svg {
+    .flag-svg, .piano-svg {
       display: block; width: 100%; height: auto; margin: 0.1rem auto 0.2rem;
     }
-    .ocean-world { max-height: 10.5rem; border-radius: 1rem; }
-    .flag-svg, .vehicle-svg { max-height: 7.6rem; }
+    .ocean-world {
+      position: relative;
+      width: 100%;
+      max-height: 10.5rem;
+      aspect-ratio: 1000 / 507;
+      margin: 0.1rem auto 0.2rem;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: linear-gradient(180deg, #9adcf3 0%, #1a7ec4 46%, #0b4f86 100%);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45);
+    }
+    .ocean-world .ocean-hl,
+    .ocean-world img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .ocean-world img { object-fit: fill; z-index: 2; }
+    .ocean-world .ocean-hl { z-index: 1; }
+    .flag-svg { max-height: 7.6rem; }
     .piano-svg { max-height: 6.8rem; }
+    .vehicle-photo {
+      display: block;
+      width: 100%;
+      max-height: 8.2rem;
+      margin: 0.1rem auto 0.15rem;
+      object-fit: contain;
+      background: #eef6fb;
+      border-radius: 0.75rem;
+    }
     body.play-screen .state-map { max-width: 100%; max-height: 8rem; }
     .answers.ink-answers button { color: #000; font-weight: 800; }
     .answers.ink-answers button.right { color: var(--on-forest); }
@@ -2699,24 +2727,34 @@
 
 
 
-    function buildPiano() {
+    function buildPiano(avoid) {
       const selected = selectedPiano();
       const allow = {};
       (selected.length ? selected : PIANO_NOTES).forEach(function (n) { allow[n.id] = true; });
-      const pool = PIANO_NOTES.filter(function (n) { return allow[n.id]; });
-      const bodies = pool.length ? pool : PIANO_NOTES.slice();
-      const idx = ((state.pianoIndex || 0) % bodies.length + bodies.length) % bodies.length;
-      const note = bodies[idx];
-      state.pianoIndex = idx + 1;
-      const others = bodies.map(function (n) { return n.name; }).filter(function (n) { return n !== note.name; });
-      const wrong = others[(idx * 5 + 3) % others.length];
+      const bodies = PIANO_NOTES.filter(function (n) { return allow[n.id]; });
+      const pool = bodies.length ? bodies : PIANO_NOTES.slice();
+      const bagKey = pool.map(function (n) { return n.id; }).join(",");
+      if (!state.pianoBag || state.pianoBagKey !== bagKey || !state.pianoBag.length) {
+        state.pianoBag = shuffle(pool.map(function (n) { return n.id; }));
+        state.pianoBagKey = bagKey;
+      }
+      let id = state.pianoBag.shift();
+      if (avoid && ("piano:" + id) === avoid && pool.length > 1) {
+        if (!state.pianoBag.length) state.pianoBag = shuffle(pool.map(function (n) { return n.id; }).filter(function (n) { return n !== id; }));
+        const held = id;
+        id = state.pianoBag.shift();
+        state.pianoBag.push(held);
+      }
+      const note = PIANO_BY_ID[id];
+      const others = pool.filter(function (n) { return n.id !== note.id; });
+      const wrong = others.length ? others[Math.floor(Math.random() * others.length)] : note;
       return {
         operation: "piano",
         id: note.id,
         ask: "Which note is highlighted?",
         answer: note.name,
         key: "piano:" + note.id,
-        choices: shuffle([note.name, wrong])
+        choices: shuffle([note.name, wrong.name])
       };
     }
 
@@ -4235,45 +4273,35 @@
       });
       return svgPicture("piano-svg", "Piano keyboard with one key highlighted", markup, "0 0 320 168");
     }
+    const OCEAN_HL = {
+      pacific: '<ellipse cx="83" cy="250" rx="72" ry="100" fill="#7ef6ff" fill-opacity="0.62" stroke="#ffe58a" stroke-width="4"/><ellipse cx="956" cy="228" rx="50" ry="86" fill="#7ef6ff" fill-opacity="0.62" stroke="#ffe58a" stroke-width="4"/>',
+      atlantic: '<ellipse cx="430" cy="240" rx="62" ry="108" fill="#7ef6ff" fill-opacity="0.58" stroke="#ffe58a" stroke-width="4"/>',
+      indian: '<ellipse cx="730" cy="305" rx="70" ry="82" fill="#7ef6ff" fill-opacity="0.58" stroke="#ffe58a" stroke-width="4"/>',
+      southern: '<rect x="0" y="408" width="1000" height="36" fill="#7ef6ff" fill-opacity="0.55" stroke="#ffe58a" stroke-width="3"/>',
+      arctic: '<rect x="40" y="8" width="920" height="32" rx="10" fill="#e9fbff" fill-opacity="0.72" stroke="#ffe58a" stroke-width="3"/>',
+      mediterranean: '<ellipse cx="548" cy="142" rx="34" ry="13" fill="#ffe58a" fill-opacity="0.78" stroke="#fffef6" stroke-width="2.5"/>',
+      caribbean: '<ellipse cx="318" cy="208" rx="30" ry="18" fill="#ffe58a" fill-opacity="0.8" stroke="#fffef6" stroke-width="2.5"/>'
+    };
     function oceanWorldMap(id) {
-      const svg = svgPicture("ocean-world", "World map with one body of water highlighted", OCEAN_MAP_INNER, "0 0 800 440");
-      const node = svg.querySelector(".hl-" + id);
-      if (node) node.setAttribute("opacity", "1");
-      return svg;
+      const wrap = document.createElement("div");
+      wrap.className = "ocean-world";
+      wrap.setAttribute("role", "img");
+      wrap.setAttribute("aria-label", "World map with one body of water highlighted");
+      const hl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      hl.setAttribute("class", "ocean-hl");
+      hl.setAttribute("viewBox", "0 0 1000 507");
+      hl.setAttribute("preserveAspectRatio", "none");
+      hl.setAttribute("aria-hidden", "true");
+      hl.innerHTML = OCEAN_HL[id] || "";
+      const img = document.createElement("img");
+      img.src = "assets/maps/world-land.svg";
+      img.alt = "";
+      img.setAttribute("aria-hidden", "true");
+      wrap.appendChild(hl);
+      wrap.appendChild(img);
+      return wrap;
     }
-    const OCEAN_MAP_INNER = `<style>.land{fill:url(#land-fill);stroke:#12361c;stroke-width:2.2;stroke-linejoin:round}.ice{fill:#f7fbff;stroke:#d7f3ff;stroke-width:2}</style>
-<defs>
-  <linearGradient id="sea-fill" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#7ee7ff"/>
-    <stop offset="0.35" stop-color="#1aa4e0"/>
-    <stop offset="0.72" stop-color="#0868b8"/>
-    <stop offset="1" stop-color="#063a78"/>
-  </linearGradient>
-  <linearGradient id="land-fill" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#e9ffb0"/>
-    <stop offset="0.45" stop-color="#7dce4a"/>
-    <stop offset="1" stop-color="#2f8a32"/>
-  </linearGradient>
-  <radialGradient id="sea-gloss" cx="50%" cy="18%" r="65%">
-    <stop offset="0" stop-color="#ffffff" stop-opacity="0.72"/>
-    <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.08"/>
-    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-  </radialGradient>
-  <filter id="hl-glow" x="-30%" y="-30%" width="160%" height="160%">
-    <feGaussianBlur stdDeviation="5" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-</defs>
-<rect width="800" height="440" rx="28" fill="url(#sea-fill)"/>
-<rect width="800" height="440" rx="28" fill="url(#sea-gloss)"/>
-<g fill="#9af6ff" stroke="#fff6b0" stroke-width="3" filter="url(#hl-glow)" opacity="0.9"><g class="hl hl-pacific" opacity="0"><ellipse cx="66.7" cy="236.1" rx="78" ry="120"/><ellipse cx="773.3" cy="222.5" rx="70" ry="115"/></g><g class="hl hl-atlantic" opacity="0"><ellipse cx="311.1" cy="195.1" rx="62" ry="108"/></g><g class="hl hl-indian" opacity="0"><ellipse cx="566.7" cy="290.8" rx="70" ry="88"/></g><g class="hl hl-southern" opacity="0"><rect x="0" y="394.7" width="800" height="46" rx="8"/></g><g class="hl hl-arctic" opacity="0"><rect x="0" y="8" width="800" height="42" rx="8"/></g><g class="hl hl-mediterranean" opacity="0"><ellipse cx="435.6" cy="137.7" rx="36" ry="12"/></g><g class="hl hl-caribbean" opacity="0"><ellipse cx="233.3" cy="192.4" rx="28" ry="16"/></g></g>
-<path class="land" d="M111.1 88.5 L124.4 102.2 L124.4 126.8 L140.0 148.7 L155.6 170.5 L164.4 176.0 L184.4 192.4 L197.8 192.4 L206.7 200.6 L220.0 214.3 L228.9 214.3 L222.2 167.8 L217.8 154.1 L222.2 148.7 L231.1 140.5 L235.6 129.5 L244.4 121.3 L251.1 115.9 L266.7 110.4 L275.6 96.7 L262.2 77.6 L248.9 66.7 L226.7 55.7 L200.0 50.3 L166.7 55.7 L128.9 72.1 L111.1 88.5 Z"/><path class="land" d="M222.2 214.3 L228.9 219.7 L244.4 247.1 L262.2 263.5 L271.1 285.3 L284.4 312.7 L293.3 312.7 L311.1 296.3 L322.2 258.0 L322.2 249.8 L311.1 230.7 L293.3 236.1 L284.4 230.7 L266.7 214.3 L244.4 203.3 L228.9 214.3 L222.2 214.3 Z"/><path class="land" d="M362.2 195.1 L364.4 178.7 L380.0 148.7 L388.9 137.7 L422.2 135.0 L424.4 145.9 L455.6 148.7 L471.1 151.4 L495.6 203.3 L513.3 203.3 L497.8 230.7 L493.3 277.1 L477.8 307.2 L471.1 315.4 L442.2 331.8 L440.0 326.3 L426.7 285.3 L428.9 249.8 L420.0 225.2 L388.9 222.5 L382.2 225.2 L364.4 203.3 Z"/><path class="land" d="M380.0 135.0 L380.0 121.3 L382.2 115.9 L395.6 118.6 L400.0 96.7 L388.9 99.5 L388.9 77.6 L411.1 66.7 L417.8 83.1 L426.7 88.5 L440.0 85.8 L453.3 72.1 L462.2 72.1 L466.7 110.4 L462.2 124.1 L444.4 126.8 L435.6 129.5 L422.2 115.9 L406.7 118.6 L388.9 137.7 Z"/><path class="land" d="M471.1 151.4 L480.0 137.7 L497.8 126.8 L506.7 121.3 L511.1 107.7 L533.3 85.8 L555.6 85.8 L577.8 99.5 L600.0 104.9 L631.1 99.5 L648.9 94.0 L688.9 88.5 L711.1 77.6 L755.6 72.1 L777.8 55.7 L800.0 55.7 L777.8 72.1 L722.2 118.6 L715.6 140.5 L688.9 145.9 L671.1 154.1 L668.9 167.8 L642.2 197.9 L631.1 233.4 L622.2 214.3 L617.8 192.4 L611.1 176.0 L595.6 176.0 L577.8 192.4 L571.1 214.3 L562.2 214.3 L560.0 176.0 L551.1 170.5 L533.3 167.8 L524.4 162.3 L513.3 167.8 L506.7 159.6 L497.8 203.3 L495.6 203.3 L471.1 151.4 Z"/><path class="land" d="M651.1 296.3 L671.1 285.3 L684.4 274.4 L702.2 268.9 L715.6 266.2 L724.4 282.6 L740.0 309.9 L733.3 340.0 L724.4 342.7 L711.1 340.0 L700.0 331.8 L684.4 323.6 L675.6 326.3 L655.6 331.8 L653.3 318.1 L651.1 296.3 Z"/><path class="land" d="M262.2 28.4 L248.9 28.4 L237.8 22.9 L266.7 9.3 L311.1 9.3 L351.1 17.5 L355.6 39.3 L328.9 50.3 L302.2 44.8 L277.8 39.3 L262.2 28.4 Z"/>
-<path class="ice" d="M0.0 432.9 L800.0 432.9 L800.0 482.1 L0.0 482.1 Z"/>
-<g fill="#ffffff" opacity="0.55">
-  <ellipse cx="210" cy="70" rx="90" ry="18"/>
-  <ellipse cx="540" cy="96" rx="120" ry="16"/>
-</g>
-`;
+
     const FLAG_ART = {
       usa: '<rect y="0.0" width="320" height="15.9" fill="#b22234"/><rect y="15.4" width="320" height="15.9" fill="#fff"/><rect y="30.8" width="320" height="15.9" fill="#b22234"/><rect y="46.2" width="320" height="15.9" fill="#fff"/><rect y="61.5" width="320" height="15.9" fill="#b22234"/><rect y="76.9" width="320" height="15.9" fill="#fff"/><rect y="92.3" width="320" height="15.9" fill="#b22234"/><rect y="107.7" width="320" height="15.9" fill="#fff"/><rect y="123.1" width="320" height="15.9" fill="#b22234"/><rect y="138.5" width="320" height="15.9" fill="#fff"/><rect y="153.8" width="320" height="15.9" fill="#b22234"/><rect y="169.2" width="320" height="15.9" fill="#fff"/><rect y="184.6" width="320" height="15.9" fill="#b22234"/><rect width="140" height="108" fill="#3c3b6e"/><circle cx="14" cy="14" r="3" fill="#fff"/><circle cx="36" cy="14" r="3" fill="#fff"/><circle cx="58" cy="14" r="3" fill="#fff"/><circle cx="80" cy="14" r="3" fill="#fff"/><circle cx="102" cy="14" r="3" fill="#fff"/><circle cx="124" cy="14" r="3" fill="#fff"/><circle cx="25" cy="32" r="3" fill="#fff"/><circle cx="47" cy="32" r="3" fill="#fff"/><circle cx="69" cy="32" r="3" fill="#fff"/><circle cx="91" cy="32" r="3" fill="#fff"/><circle cx="113" cy="32" r="3" fill="#fff"/><circle cx="14" cy="50" r="3" fill="#fff"/><circle cx="36" cy="50" r="3" fill="#fff"/><circle cx="58" cy="50" r="3" fill="#fff"/><circle cx="80" cy="50" r="3" fill="#fff"/><circle cx="102" cy="50" r="3" fill="#fff"/><circle cx="124" cy="50" r="3" fill="#fff"/><circle cx="25" cy="68" r="3" fill="#fff"/><circle cx="47" cy="68" r="3" fill="#fff"/><circle cx="69" cy="68" r="3" fill="#fff"/><circle cx="91" cy="68" r="3" fill="#fff"/><circle cx="113" cy="68" r="3" fill="#fff"/><circle cx="14" cy="86" r="3" fill="#fff"/><circle cx="36" cy="86" r="3" fill="#fff"/><circle cx="58" cy="86" r="3" fill="#fff"/><circle cx="80" cy="86" r="3" fill="#fff"/><circle cx="102" cy="86" r="3" fill="#fff"/><circle cx="124" cy="86" r="3" fill="#fff"/>',
       canada: '<rect width="82" height="200" fill="#d00"/><rect x="238" width="82" height="200" fill="#d00"/><rect x="82" width="156" height="200" fill="#fff"/><path fill="#d00" d="M160 46 l10 24 h26 l-20 14 8 24 -24-16 -24 16 8-24 -20-14 h26 z"/>',
@@ -4291,37 +4319,14 @@
       southkorea: '<rect width="320" height="200" fill="#fff"/><circle cx="160" cy="100" r="40" fill="#cd2e3a"/><path d="M160 60 a40 40 0 0 1 0 80 a20 20 0 0 1 0 -40 a20 20 0 0 0 0 -40" fill="#0047a0"/>\n<g stroke="#111" stroke-width="4" stroke-linecap="round"><line x1="46" y1="44" x2="96" y2="74"/><line x1="38" y1="58" x2="88" y2="88"/><line x1="54" y1="30" x2="104" y2="60"/><line x1="224" y1="126" x2="274" y2="156"/><line x1="216" y1="140" x2="266" y2="170"/><line x1="232" y1="112" x2="282" y2="142"/></g>',
       egypt: '<rect y="0.0" width="320" height="67.2" fill="#ce1126"/><rect y="66.7" width="320" height="67.2" fill="#fff"/><rect y="133.3" width="320" height="67.2" fill="#000"/><polygon points="160,78 174,100 160,122 146,100" fill="#c9a227"/>',
     };
-    const VEHICLE_ART = {
-      car: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="70" y="108" width="180" height="46" rx="12" fill="#e23b3b"/><path d="M110 108 l22-32 h70 l24 32z" fill="#c81e1e"/><rect x="128" y="82" width="70" height="26" rx="6" fill="#d7f4ff"/><circle cx="112" cy="156" r="16" fill="#222"/><circle cx="210" cy="156" r="16" fill="#222"/><circle cx="112" cy="156" r="6" fill="#ddd"/><circle cx="210" cy="156" r="6" fill="#ddd"/>',
-      bus: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="48" y="78" width="224" height="78" rx="12" fill="#f5c400"/><rect x="64" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="110" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="156" y="90" width="36" height="26" fill="#d7f4ff"/><rect x="202" y="90" width="36" height="26" fill="#d7f4ff"/><circle cx="100" cy="160" r="14" fill="#222"/><circle cx="220" cy="160" r="14" fill="#222"/>',
-      train: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="40" y="96" width="70" height="58" rx="8" fill="#1f4e89"/><rect x="118" y="104" width="54" height="50" fill="#3d7ec4"/><rect x="178" y="104" width="54" height="50" fill="#3d7ec4"/><rect x="238" y="104" width="48" height="50" fill="#3d7ec4"/><rect x="52" y="76" width="28" height="22" fill="#16375f"/><rect x="56" y="108" width="38" height="20" fill="#d7f4ff"/><rect y="154" width="320" height="6" fill="#555"/>',
-      bike: '<rect width="320" height="200" fill="#e8f7ff"/><circle cx="100" cy="140" r="36" fill="none" stroke="#222" stroke-width="6"/><circle cx="220" cy="140" r="36" fill="none" stroke="#222" stroke-width="6"/><path d="M100 140 L150 140 L186 92 L220 140 M168 92 L132 92" fill="none" stroke="#1a1a1a" stroke-width="5"/><circle cx="150" cy="140" r="8" fill="#e23b3b"/>',
-      motorcycle: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="108" cy="150" r="26" fill="#222"/><circle cx="220" cy="150" r="26" fill="#222"/><path d="M108 150 L150 112 L196 112 L220 150" fill="none" stroke="#222" stroke-width="6"/><rect x="150" y="96" width="54" height="22" rx="8" fill="#e23b3b"/><rect x="168" y="78" width="8" height="22" fill="#222"/>',
-      truck: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="40" y="96" width="140" height="58" rx="6" fill="#f08a24"/><rect x="180" y="112" width="90" height="42" rx="8" fill="#2f6fba"/><rect x="196" y="122" width="36" height="20" fill="#d7f4ff"/><circle cx="86" cy="158" r="16" fill="#222"/><circle cx="140" cy="158" r="16" fill="#222"/><circle cx="230" cy="158" r="16" fill="#222"/>',
-      ambulance: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="60" y="100" width="190" height="54" rx="10" fill="#f7f7f7" stroke="#bbb"/><rect x="150" y="116" width="28" height="8" fill="#e23b3b"/><rect x="160" y="106" width="8" height="28" fill="#e23b3b"/><circle cx="110" cy="158" r="15" fill="#222"/><circle cx="200" cy="158" r="15" fill="#222"/>',
-      firetruck: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="46" y="108" width="200" height="48" rx="8" fill="#d31212"/><rect x="60" y="88" width="70" height="24" fill="#d31212"/><rect x="150" y="92" width="70" height="8" fill="#f0d24a"/><circle cx="96" cy="160" r="15" fill="#222"/><circle cx="190" cy="160" r="15" fill="#222"/>',
-      police: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><rect x="70" y="108" width="180" height="46" rx="10" fill="#f4f4f4"/><path d="M108 108 l22-28 h64 l22 28z" fill="#1d4e89"/><rect x="128" y="84" width="64" height="22" fill="#d7f4ff"/><rect x="120" y="76" width="80" height="8" rx="3" fill="#1d4e89"/><circle cx="132" cy="76" r="5" fill="#3aa0ff"/><circle cx="190" cy="76" r="5" fill="#e23b3b"/><circle cx="114" cy="156" r="15" fill="#222"/><circle cx="206" cy="156" r="15" fill="#222"/>',
-      scooter: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="120" cy="150" r="18" fill="#222"/><circle cx="196" cy="150" r="18" fill="#222"/><path d="M120 150 L160 150 L176 96" fill="none" stroke="#222" stroke-width="6"/><rect x="150" y="78" width="50" height="8" rx="3" fill="#333"/><rect x="150" y="128" width="36" height="10" rx="4" fill="#e23b3b"/>',
-      tractor: '<rect width="320" height="200" rx="16" fill="#b9ecff"/><rect y="132" width="320" height="68" fill="#8fd18a"/><circle cx="110" cy="148" r="18" fill="#222"/><circle cx="200" cy="142" r="32" fill="#222"/><circle cx="200" cy="142" r="14" fill="#888"/><rect x="78" y="100" width="90" height="40" rx="6" fill="#2f9e44"/><rect x="118" y="78" width="46" height="28" fill="#237a34"/><rect x="126" y="84" width="28" height="14" fill="#d7f4ff"/>',
-      subway: '<rect width="320" height="200" fill="#5c6570"/><rect x="24" y="70" width="272" height="90" rx="16" fill="#d7dde3"/><rect x="48" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="110" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="172" y="88" width="48" height="36" fill="#9fd7ee"/><rect x="234" y="88" width="40" height="36" fill="#9fd7ee"/><rect y="160" width="320" height="10" fill="#222"/>',
-      boat: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M70 120 L250 120 L220 160 L100 160Z" fill="#f4f4f4" stroke="#234"/><rect x="150" y="78" width="8" height="42" fill="#333"/><path d="M158 84 L210 118 L158 118Z" fill="#e23b3b"/>',
-      ship: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M36 126 L284 126 L250 168 L70 168Z" fill="#2b3a4a"/><rect x="90" y="86" width="70" height="40" fill="#d9dee4"/><rect x="170" y="96" width="50" height="30" fill="#c5ccd4"/><rect x="108" y="96" width="16" height="12" fill="#7fd3f2"/><rect x="132" y="96" width="16" height="12" fill="#7fd3f2"/>',
-      sailboat: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M90 140 L230 140 L200 168 L120 168Z" fill="#f7f1e3"/><rect x="156" y="48" width="6" height="92" fill="#333"/><path d="M162 54 L220 132 L162 132Z" fill="#fff" stroke="#ccd"/><path d="M156 70 L108 132 L156 132Z" fill="#e23b3b"/>',
-      canoe: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M48 120 Q160 156 272 120 Q160 150 48 120" fill="#c47a3a"/><line x1="150" y1="70" x2="186" y2="128" stroke="#6b3a10" stroke-width="4"/>',
-      kayak: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M50 124 Q160 104 270 124 Q160 148 50 124" fill="#e23b3b"/><ellipse cx="160" cy="124" rx="16" ry="8" fill="#222"/><line x1="120" y1="70" x2="210" y2="150" stroke="#333" stroke-width="4"/>',
-      submarine: '<rect width="320" height="200" fill="#0e6ea8"/><ellipse cx="160" cy="116" rx="110" ry="32" fill="#c5ced6"/><rect x="150" y="72" width="28" height="24" rx="4" fill="#9aa7b2"/><rect x="160" y="48" width="6" height="28" fill="#6d7882"/><circle cx="210" cy="112" r="8" fill="#7fd3f2" stroke="#334"/>',
-      ferry: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M40 132 L280 132 L248 172 L72 172Z" fill="#f4f4f4" stroke="#888"/><rect x="70" y="96" width="180" height="36" fill="#fff" stroke="#bbb"/><rect x="90" y="72" width="120" height="24" fill="#d9dde2"/><rect x="100" y="104" width="22" height="16" fill="#9fd7ee"/><rect x="136" y="104" width="22" height="16" fill="#9fd7ee"/><rect x="172" y="104" width="22" height="16" fill="#9fd7ee"/>',
-      jetski: '<rect width="320" height="200" fill="#7fd3f2"/><path d="M90 130 Q160 100 240 128 L220 146 Q160 128 100 146Z" fill="#e23b3b"/><rect x="168" y="104" width="10" height="24" fill="#222"/>',
-      plane: '<rect width="320" height="200" fill="#c5ecff"/><path d="M40 112 L250 96 L280 104 L250 112 L40 124Z" fill="#f7f7f7" stroke="#888"/><path d="M120 108 L150 58 L170 58 L156 108Z" fill="#d0d5dc"/><path d="M150 116 L190 156 L176 156 L140 116Z" fill="#d0d5dc"/><path d="M250 96 L292 80 L292 120 L250 112Z" fill="#e23b3b"/>',
-      helicopter: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="150" cy="120" rx="70" ry="28" fill="#f08a24"/><rect x="214" y="108" width="50" height="8" fill="#333"/><rect x="40" y="86" width="230" height="6" fill="#222"/><rect x="148" y="70" width="8" height="22" fill="#222"/>',
-      hotair: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="160" cy="90" rx="70" ry="62" fill="#e23b3b"/><path d="M112 92 Q160 40 208 92" fill="#f5c400"/><path d="M122 104 Q160 62 198 104" fill="#3d7ec4"/><rect x="148" y="146" width="24" height="14" rx="3" fill="#6b3a10"/>',
-      glider: '<rect width="320" height="200" fill="#c5ecff"/><path d="M30 108 L250 96 L290 108 L250 116 L30 124Z" fill="#f7f7f7" stroke="#9ab"/><path d="M150 104 L176 68 L188 76 L160 112Z" fill="#d5dbe2"/>',
-      rocket: '<rect width="320" height="200" fill="#0b1d3a"/><rect x="146" y="28" width="28" height="110" rx="14" fill="#f4f4f4"/><polygon points="146,70 120,110 146,100" fill="#e23b3b"/><polygon points="174,70 200,110 174,100" fill="#e23b3b"/><polygon points="146,150 160,178 174,150" fill="#f5c400"/><circle cx="160" cy="70" r="8" fill="#7fd3f2"/>',
-      blimp: '<rect width="320" height="200" fill="#c5ecff"/><ellipse cx="160" cy="90" rx="120" ry="42" fill="#f4f4f4" stroke="#bbb"/><rect x="150" y="128" width="36" height="16" rx="3" fill="#3d7ec4"/>',
-    };
-
     function flagSvg(id) { return svgPicture("flag-svg", "A country flag", FLAG_ART[id] || FLAG_ART.usa, "0 0 320 200"); }
-    function vehicleSvg(id) { return svgPicture("vehicle-svg", "A vehicle", VEHICLE_ART[id] || VEHICLE_ART.car, "0 0 320 200"); }
+    function vehicleSvg(id) {
+      const img = document.createElement("img");
+      img.className = "vehicle-photo";
+      img.src = "assets/vehicles/" + id + ".jpg";
+      img.alt = "A vehicle";
+      return img;
+    }
     function pictureForProblem(problem) {
       const op = (problem && problem.operation) || state.operation;
       if (op === "oceanmap") return oceanWorldMap(problem.id);
@@ -4459,6 +4464,8 @@
       state.oceanMapIndex = 0;
       state.flagIndex = 0;
       state.pianoIndex = 0;
+      state.pianoBag = null;
+      state.pianoBagKey = "";
       state.vehicleIndex = 0;
       state.playPage = "question";
       state.phase = "play";

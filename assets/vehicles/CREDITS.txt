@@ -1,0 +1,146 @@
+Vehicle photographs from Wikimedia Commons.
+Licenses are CC0, CC BY, CC BY-SA, or public domain.
+
+car.jpg
+  title: File:1964 Rambler Classic 550 all-original 4-door sedan in Woodside Green 01of12.jpg
+  license: CC0
+  author: CZmarlin — Christopher Ziemnowicz, a photo credit would be appreciated if this image is used anywhere other than Wikipedia.
+  source: https://commons.wikimedia.org/wiki/File:1964_Rambler_Classic_550_all-original_4-door_sedan_in_Woodside_Green_01of12.jpg
+bus.jpg
+  title: File:2009 IC CE 300 Yellow School Bus.png
+  license: CC BY-SA 4.0
+  author: Upsidedownimac
+  source: https://commons.wikimedia.org/wiki/File:2009_IC_CE_300_Yellow_School_Bus.png
+train.jpg
+  title: File:Amtrak 517 a GE Dash 8-32BWH locomotive at Champaign Urbana IL - panoramio.jpg
+  license: CC BY 3.0
+  author: Loco Steve
+  source: https://commons.wikimedia.org/wiki/File:Amtrak_517_a_GE_Dash_8-32BWH_locomotive_at_Champaign_Urbana_IL_-_panoramio.jpg
+bike.jpg
+  title: File:2022.10.04 A bicycle with a child seat parked next to the shopping center in Tomaszów Mazowiecki, in October 2022.jpg
+  license: Public domain
+  author: WrS.tm.pl
+  source: https://commons.wikimedia.org/wiki/File:2022.10.04_A_bicycle_with_a_child_seat_parked_next_to_the_shopping_center_in_Tomasz%C3%B3w_Mazowiecki,_in_October_2022.jpg
+
+motorcycle.jpg
+  title: File:Kawasaki KH400 -11th Classic Japanese-Modern Classic MC Show,Stoneleigh Park,Coventry 6 Feb2011.jpg
+  license: CC BY 2.0
+  author: PSParrot from England
+  source: https://commons.wikimedia.org/wiki/File:Kawasaki_KH400_-11th_Classic_Japanese-Modern_Classic_MC_Show,Stoneleigh_Park,Coventry_6_Feb2011.jpg
+
+truck.jpg
+  title: File:Peterbilt with refrigerated semi-trailer, Spokane Produce Inc.jpg
+  license: CC BY 4.0
+  author: Ewkada
+  source: https://commons.wikimedia.org/wiki/File:Peterbilt_with_refrigerated_semi-trailer,_Spokane_Produce_Inc.jpg
+
+ambulance.jpg
+  title: File:DCFD Fire Department Ambulance - side view - 2010-09-07.jpg
+  license: CC BY-SA 3.0
+  author: Tim1965
+  source: https://commons.wikimedia.org/wiki/File:DCFD_Fire_Department_Ambulance_-_side_view_-_2010-09-07.jpg
+
+firetruck.jpg
+  title: File:AC-130 fire engine - 1.jpg
+  license: CC BY-SA 4.0
+  author: Alexander Novikov
+  source: https://commons.wikimedia.org/wiki/File:AC-130_fire_engine_-_1.jpg
+police.jpg
+  title: File:Amtrak police car Harrisburg PA.jpg
+  license: CC BY-SA 4.0
+  author: J. Passepartout
+  source: https://commons.wikimedia.org/wiki/File:Amtrak_police_car_Harrisburg_PA.jpg
+scooter.jpg
+  title: File:Girl Riding Scooter.jpg
+  license: CC BY-SA 2.0
+  author: AndLikeThings
+  source: https://commons.wikimedia.org/wiki/File:Girl_Riding_Scooter.jpg
+
+tractor.jpg
+  title: File:Agricultural Farm in Nagapattinam.jpg
+  license: CC BY-SA 4.0
+  author: Matthew T Rader
+  source: https://commons.wikimedia.org/wiki/File:Agricultural_Farm_in_Nagapattinam.jpg
+subway.jpg
+  title: File:202001 interior of Beijing Subway train G4521.jpg
+  license: CC BY-SA 4.0
+  author: Balanced Dan
+  source: https://commons.wikimedia.org/wiki/File:202001_interior_of_Beijing_Subway_train_G4521.jpg
+
+boat.jpg
+  title: File:Aft part of a motorboat in Norra Grundsund.jpg
+  license: CC0
+  author: W.carter
+  source: https://commons.wikimedia.org/wiki/File:Aft_part_of_a_motorboat_in_Norra_Grundsund.jpg
+ship.jpg
+  title: File:2018-06-02 01 ARKLOW FAITH - IMO 9361718.jpg
+  license: CC BY 4.0
+  author: Gordon Leggett
+  source: https://commons.wikimedia.org/wiki/File:2018-06-02_01_ARKLOW_FAITH_-_IMO_9361718.jpg
+sailboat.jpg
+  title: File:Sailboat Under Sail - DPLA - ab7cc9bf1c3eac4f3a6b6907f1ba1412.jpg
+  license: Public domain
+  author: Bromley, Edward A
+  source: https://commons.wikimedia.org/wiki/File:Sailboat_Under_Sail_-_DPLA_-_ab7cc9bf1c3eac4f3a6b6907f1ba1412.jpg
+
+canoe.jpg
+  title: File:A Canoe, Sese Islands.jpg
+  license: Public domain
+  author: Charles William Hattersley (1866 - 1934), photographer.
+  source: https://commons.wikimedia.org/wiki/File:A_Canoe,_Sese_Islands.jpg
+kayak.jpg
+  title: File:2015-08 playboating Durance 09.jpg
+  license: CC BY-SA 4.0
+  author: 0x010C
+  source: https://commons.wikimedia.org/wiki/File:2015-08_playboating_Durance_09.jpg
+submarine.jpg
+  title: File:Nuclear Submarines surfaced at the North Pole.jpg
+  license: Public domain
+  author: Service Depicted: Navy
+  source: https://commons.wikimedia.org/wiki/File:Nuclear_Submarines_surfaced_at_the_North_Pole.jpg
+
+ferry.jpg
+  title: File:Stena Edda at Birkenhead, 202003.jpg
+  license: CC BY-SA 4.0
+  author: Rodhullandemu
+  source: https://commons.wikimedia.org/wiki/File:Stena_Edda_at_Birkenhead,_202003.jpg
+
+jetski.jpg
+  title: File:1985 Kawasaki 550 Jet Ski®.jpg
+  license: CC BY-SA 4.0
+  author: Cdw1952
+  source: https://commons.wikimedia.org/wiki/File:1985_Kawasaki_550_Jet_Ski%C2%AE.jpg
+
+plane.jpg
+  title: File:13-08-07-hongkong-airport-04.jpg
+  license: CC BY 3.0
+  author: Ralf Roletschek
+  source: https://commons.wikimedia.org/wiki/File:13-08-07-hongkong-airport-04.jpg
+helicopter.jpg
+  title: File:A fire helicopter with helicopter bucket.jpg
+  license: CC BY-SA 3.0
+  author: Brocken Inaglory
+  source: https://commons.wikimedia.org/wiki/File:A_fire_helicopter_with_helicopter_bucket.jpg
+hotair.jpg
+  title: File:2006 Ojiya balloon festival 011.jpg
+  license: CC BY-SA 3.0
+  author: Kropsoq
+  source: https://commons.wikimedia.org/wiki/File:2006_Ojiya_balloon_festival_011.jpg
+glider.jpg
+  title: File:Wally Kahn in glider.jpg
+  license: CC0
+  author: Sailplane and Gliding magazine UK
+  source: https://commons.wikimedia.org/wiki/File:Wally_Kahn_in_glider.jpg
+
+rocket.jpg
+  title: File:STS-125 Atlantis Liftoff 02.jpg
+  license: Public domain
+  author: Scott Andrews, Canon
+  source: https://commons.wikimedia.org/wiki/File:STS-125_Atlantis_Liftoff_02.jpg
+
+blimp.jpg
+  title: File:American Blimp A-170G N157LG FDK MD2.jpg
+  license: CC BY-SA 4.0
+  author: Acrotrion
+  source: https://commons.wikimedia.org/wiki/File:American_Blimp_A-170G_N157LG_FDK_MD2.jpg
+

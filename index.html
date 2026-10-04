@@ -974,6 +974,17 @@
       text-shadow: none;
     }
     .answers button small { display: block; font-family: "Segoe UI", system-ui, sans-serif; font-size: 0.7rem; font-weight: 800; opacity: 0.7; margin-top: 0.2rem; }
+    .answers.multiples-answers button {
+      color: #000;
+      font-weight: 800;
+      font-size: 2.15rem;
+    }
+    .prompt.multiples-prompt {
+      font-size: 1.7rem;
+      line-height: 1.25;
+      font-weight: 800;
+      color: #102038;
+    }
     .answers button.right { background: rgba(30, 122, 77, 0.92) !important; color: var(--on-forest); border-color: var(--forest-deep) !important; }
     .answers button.wrong { background: var(--coral) !important; border-color: var(--coral) !important; color: var(--ink); }
     .fact { margin: 1rem 0 0; color: var(--forest); font-weight: 800; }
@@ -1847,6 +1858,7 @@
 
     const OPS = [
       { id: "multiply", label: "Multiplication" },
+      { id: "multiples", label: "Multiples" },
       { id: "divide", label: "Division" },
       { id: "add", label: "Addition" },
       { id: "subtract", label: "Subtraction" },
@@ -1885,7 +1897,8 @@
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
-      lockUntil: 0
+      lockUntil: 0,
+      multiplesIndex: 0
     };
     let audioCtx = null;
     let homeMusic = null;
@@ -2179,6 +2192,7 @@
       rest.forEach((n) => { if (picked.length < 1) picked.push(n); });
       return shuffle([answer].concat(picked));
     }
+    function isMultiples() { return state.operation === "multiples"; }
     function isDivide() { return state.operation === "divide"; }
     function isAdd() { return state.operation === "add"; }
     function isSubtract() { return state.operation === "subtract"; }
@@ -2229,6 +2243,7 @@
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "add" || op === "subtract") return defaultAddTables();
+      if (op === "multiples") return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       return defaultMathTables();
     }
 
@@ -2977,7 +2992,44 @@
       return null;
     }
 
+    function multiplesBases() {
+      const picked = state.tables.filter(function (n) { return n >= 2 && n <= 12; });
+      const bases = (picked.length ? picked : [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).slice();
+      bases.sort(function (a, b) { return a - b; });
+      return bases;
+    }
+    function multiplesDistractor(base, product) {
+      const offsets = shuffle([1, -1, 2, -2, 4, -4, 5, -5, 7, 8, 11, 3]);
+      for (let i = 0; i < offsets.length; i++) {
+        const n = product + offsets[i];
+        if (n > 0 && n !== product && n % base !== 0) return n;
+      }
+      let n = product + 1;
+      while (n % base === 0) n += 1;
+      return n;
+    }
+    function buildMultiplesProblem() {
+      const bases = multiplesBases();
+      const steps = bases.length * 12;
+      const idx = ((state.multiplesIndex || 0) % steps + steps) % steps;
+      const base = bases[Math.floor(idx / 12)];
+      const factor = (idx % 12) + 1;
+      const product = base * factor;
+      const wrong = multiplesDistractor(base, product);
+      state.multiplesIndex = idx + 1;
+      return {
+        operation: "multiples",
+        a: base,
+        b: factor,
+        product: product,
+        answer: product,
+        ask: "Which is a multiple of " + base + "?",
+        key: "mult:" + base + "x" + factor,
+        choices: shuffle([product, wrong])
+      };
+    }
     function makeProblem(avoid) {
+      if (isMultiples()) return buildMultiplesProblem();
       if (isQuiz()) {
         if (state.drill && state.drill.length) {
           const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
@@ -3092,6 +3144,9 @@
         const tag = (pair.kind || (item && item.kind)) === "antonym" ? "opposite" : "same";
         return word + " → " + (pair.answer || (item && item.answer) || "?") + " (" + tag + ")";
       }
+      if (pair.operation === "multiples" || isMultiples()) {
+        return (pair.product != null ? pair.product : pair.answer) + " is a multiple of " + pair.a + ".";
+      }
       if (pair.operation === "add" || (isAdd() && pair.a != null && pair.sum != null)) {
         return pair.a + " + " + pair.b + " = " + (pair.sum != null ? pair.sum : (pair.a + pair.b));
       }
@@ -3125,6 +3180,9 @@
       }
       if (op === "sport" || op === "hawaii" || op === "flag" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle") {
         return "The answer is " + (pair.answer || "that") + ".";
+      }
+      if (op === "multiples") {
+        return (pair.product != null ? pair.product : pair.answer) + " is a multiple of " + pair.a + ".";
       }
       if (op === "add") {
         return pair.a + " plus " + pair.b + " is " + (pair.sum != null ? pair.sum : (pair.a + pair.b)) + ".";
@@ -3710,7 +3768,7 @@
       } else {
         const tables = el("div", { class: "card" });
         const head = el("div", { class: "row" });
-        const tableLabel = isAdd() ? "+ Addends" : isSubtract() ? "− Numbers" : isDivide() ? "÷ Tables" : "× Tables";
+        const tableLabel = isMultiples() ? "Bases" : isAdd() ? "+ Addends" : isSubtract() ? "− Numbers" : isDivide() ? "÷ Tables" : "× Tables";
         head.appendChild(el("p", { class: "label", text: tableLabel }));
         if (state.best > 0) head.appendChild(el("p", { class: "hint", text: "Best score " + state.best }));
         tables.appendChild(head);
@@ -3721,7 +3779,7 @@
         });
         tables.appendChild(quick);
         const grid = el("div", { class: "grid6" });
-        const startN = (isAdd() || isSubtract()) ? 0 : 1;
+        const startN = isMultiples() ? 2 : (isAdd() || isSubtract()) ? 0 : 1;
         for (let n = startN; n <= 12; n++) {
           const value = n;
           grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
@@ -3734,6 +3792,7 @@
         }
         tables.appendChild(grid);
         if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one number." }));
+        if (isMultiples()) tables.appendChild(el("p", { class: "hint", text: "Bases 2–12, in order: 1× through 12×, then the next base." }));
         stack.appendChild(tables);
       }
 
@@ -3875,6 +3934,7 @@
       });
       card.appendChild(row);
       let hint = "Classic multiplication table facts.";
+      if (isMultiples()) hint = "Which number is a multiple of the base? Two choices. Switch back to Multiplication for mixed facts.";
       if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
       if (isAdd()) hint = "Practice sums with addends from your selected range (0–12).";
       if (isSubtract()) hint = "Even facts only: minuend − subtrahend with non-negative answers.";
@@ -3984,7 +4044,10 @@
       app.appendChild(streakBanner());
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
-      if (isQuiz()) {
+      if (isMultiples()) {
+        eq.appendChild(el("p", { class: "label", text: "Multiples" }));
+        eq.appendChild(el("p", { class: "prompt multiples-prompt", text: problem.ask }));
+      } else if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
         if (problem.image) {
           eq.className = "card eq has-map";
@@ -4045,7 +4108,7 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const answers = el("div", { class: "answers" + (isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isMultiples() ? " multiples-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -4086,6 +4149,7 @@
       state.misses = [];
       state.newBest = false;
       state.beatJustUnlocked = "";
+      state.multiplesIndex = 0;
       state.phase = "play";
       state.problem = makeProblem();
       state.picked = null;
@@ -4120,7 +4184,9 @@
       } else {
         state.streak = 0;
         state.gain = null;
-        if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
+        if (isMultiples() || problem.operation === "multiples") {
+          state.misses.push({ a: problem.a, b: problem.b, answer: problem.answer, operation: "multiples" });
+        } else if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,
             kind: problem.kind, key: problem.key, word: problem.word,

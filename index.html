@@ -1857,6 +1857,7 @@
 
 
     const OPS = [
+      { id: "multiply", label: "Multiplication" },
       { id: "multiples", label: "Multiples" },
       { id: "divide", label: "Division" },
       { id: "add", label: "Addition" },
@@ -1878,7 +1879,7 @@
     const state = {
       phase: "setup",
       tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-      operation: "multiples",
+      operation: "multiply",
       mode: "product",
       problem: null,
       picked: null,
@@ -3898,7 +3899,7 @@
         row.appendChild(button(op.label, "choice", state.operation === op.id, function () { setOperation(op.id); }));
       });
       card.appendChild(row);
-      let hint = "Which number is a multiple of the base? Two choices.";
+      let hint = "";
       if (isMultiples()) hint = "Which number is a multiple of the base? Two choices. Switch back to Multiplication for mixed facts.";
       if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
       if (isAdd()) hint = "Practice sums with addends from your selected range (0–12).";
@@ -3915,7 +3916,7 @@
       if (isVehicle()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "Name piano notes from keyboard order, solfège, and staff clues.";
-      card.appendChild(el("p", { class: "hint", text: hint }));
+      if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
 
@@ -3942,7 +3943,6 @@
         row.appendChild(button("The product", "choice", state.mode === "product", function () { state.mode = "product"; render(); }));
         row.appendChild(button("Missing factor", "choice", state.mode === "factor", function () { state.mode = "factor"; render(); }));
         card.appendChild(row);
-        card.appendChild(el("p", { class: "hint", text: state.mode === "product" ? "See 7 × 8 and choose 56." : "See 7 × ? = 56 and choose 8." }));
       }
       return card;
     }

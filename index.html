@@ -461,24 +461,93 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
       box-sizing: border-box;
-      min-height: 3.1rem;
-      margin: 0 0 0.5rem;
-      padding: 0.4rem 0.8rem;
-      border-radius: 0.35rem;
-      border: 2px solid #ffe58a;
-      background: rgba(21, 92, 58, 0.94);
-      color: #fffef6;
-      font-size: 1.08rem;
+      min-height: 4.4rem;
+      margin: 0 0 0.65rem;
+      padding: 0.7rem 1rem;
+      border-radius: 0.7rem;
+      border: 3px solid #ffe58a;
+      background: #ffe58a;
+      color: #102038;
+      font-size: 1.55rem;
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.15;
       text-align: center;
       text-decoration: none;
-      text-shadow: 0 1px 1px rgba(0,0,0,0.28);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 2px 0 rgba(21, 92, 58, 0.65);
+      text-shadow: none;
+      box-shadow: 0 3px 0 #c9a227;
     }
+    body.play-screen a.maze-reward {
+      position: fixed;
+      left: 0.6rem;
+      right: 0.6rem;
+      bottom: 4.55rem;
+      z-index: 45;
+      margin: 0;
+    }
+    body.play-screen.maze-ready main { padding-bottom: 10rem; }
     a.maze-reward:active { transform: translateY(1px); }
+    .congrats-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: rgba(6, 18, 36, 0.78);
+    }
+    .congrats-card {
+      width: min(100%, 40rem);
+      padding: 1.6rem 1.2rem 1.2rem;
+      border-radius: 1.25rem;
+      border: 4px solid #ffe58a;
+      background: rgba(21, 92, 58, 0.97);
+      color: #fffef6;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    .congrats-card h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.8rem, 10vw, 4.6rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+    .congrats-card p {
+      margin: 0.7rem 0 0;
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+    a.congrats-maze {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 5rem;
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      border-radius: 0.75rem;
+      background: #ffe58a;
+      color: #102038;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 4px 0 #c9a227;
+    }
+    button.congrats-stay {
+      margin-top: 0.75rem;
+      min-height: 2.6rem;
+      padding: 0.2rem 0.8rem;
+      border: 0;
+      background: transparent;
+      color: #fffef6;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-decoration: underline;
+    }
     body.play-screen { height: 100vh; overflow: hidden; }
     body.play-screen main {
       height: 100vh;
@@ -3579,6 +3648,7 @@
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.beatJustUnlocked = "";
+      state.mazeCelebrated = false;
       if (!state.beatsUnlocked[state.playMusicId]) {
         state.playMusicId = freeBeatId();
         disposePlayMusic();
@@ -3767,6 +3837,7 @@
       const back = document.getElementById("back");
       back.hidden = state.phase === "setup";
       syncPlayPages();
+      syncMazeCongrats();
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       syncHomeMusic();
@@ -3801,6 +3872,12 @@
       return tables;
     }
 
+    function beatLabel(id) {
+      for (var i = 0; i < PLAY_TRACKS.length; i++) {
+        if (PLAY_TRACKS[i].id === id) return PLAY_TRACKS[i].label;
+      }
+      return id;
+    }
     function smileUnlocked() {
       return !!(state.beatsUnlocked && state.beatsUnlocked.cry);
     }
@@ -3810,8 +3887,43 @@
         href: "https://nova-fire-bamboo-heart.grok.me",
         target: "_blank",
         rel: "noopener noreferrer",
-        text: "Smile unlocked! Tap to play the maze"
+        text: "Play the maze"
       });
+    }
+    function syncMazeCongrats() {
+      document.body.classList.toggle("maze-ready", smileUnlocked());
+      var old = document.getElementById("maze-congrats");
+      if (old) old.remove();
+      if (state.phase !== "play" || !smileUnlocked() || state.mazeCelebrated) return;
+      var layer = document.createElement("div");
+      layer.id = "maze-congrats";
+      layer.className = "congrats-layer";
+      var card = document.createElement("div");
+      card.className = "congrats-card";
+      var title = document.createElement("h2");
+      title.textContent = "Congratulations";
+      var note = document.createElement("p");
+      note.textContent = "Smile is unlocked.";
+      var link = document.createElement("a");
+      link.className = "congrats-maze";
+      link.href = "https://nova-fire-bamboo-heart.grok.me";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Play the maze";
+      var stay = document.createElement("button");
+      stay.type = "button";
+      stay.className = "congrats-stay";
+      stay.textContent = "Keep playing";
+      stay.addEventListener("click", function () {
+        state.mazeCelebrated = true;
+        syncMazeCongrats();
+      });
+      card.appendChild(title);
+      card.appendChild(note);
+      card.appendChild(link);
+      card.appendChild(stay);
+      layer.appendChild(card);
+      document.body.appendChild(layer);
     }
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
@@ -4369,7 +4481,7 @@
       hud.appendChild(score);
       app.appendChild(hud);
       app.appendChild(streakBanner());
-      if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
+      if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + beatLabel(state.beatJustUnlocked) + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isMultiples()) {
         eq.appendChild(el("p", { class: "label", text: "Multiples" }));

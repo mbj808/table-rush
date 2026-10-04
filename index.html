@@ -445,6 +445,47 @@
       font-display: swap;
     }
     header { display: block; margin-bottom: 1.1rem; }
+    .page-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 40;
+      height: 4.25rem;
+      width: 100%;
+      border: 0;
+      border-top: 2px solid rgba(255,255,255,0.62);
+      background: rgba(21, 92, 58, 0.94);
+      color: var(--on-forest);
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.28);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset;
+    }
+    .page-bar[hidden] { display: none; }
+    body.play-screen { height: 100vh; overflow: hidden; }
+    body.play-screen main {
+      height: 100vh;
+      overflow: hidden;
+      padding-top: 0.7rem;
+      padding-bottom: 5rem;
+      box-sizing: border-box;
+    }
+    body.play-screen h1 .title-svg { display: none; }
+    body.play-screen header { margin-bottom: 0.35rem; }
+    body.play-screen[data-play-page="question"] .brand-meta { display: none; }
+    body.play-screen .beats-card { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+    body.play-screen .eq { padding: 0.85rem 0.75rem 0.4rem; }
+    body.play-screen .prompt { font-size: 2.6rem; }
+    body.play-screen .answers { margin-top: 0.65rem; }
+    body.play-screen .answers button { min-height: 4.4rem; }
+    body.play-screen .streak-banner { margin: 0.1rem 0 0.45rem; padding: 0.3rem 0.75rem 0.45rem; }
+    body.play-screen .streak-count { font-size: clamp(2.1rem, 6vw, 2.8rem); }
+    body.play-screen .hud { margin-bottom: 0.25rem; }
+    body.play-screen #back.icon { margin-bottom: 0.25rem; }
+    body.play-screen[data-play-page="beats"] .brand-meta { margin-top: 0.1rem; }
+
     .brand-block { min-width: 0; }
     .brand-meta { position: relative; min-height: 5.25rem; margin-top: 0.35rem; }
     .header-actions {
@@ -1288,6 +1329,7 @@
     </header>
     <div id="app"></div>
   </main>
+  <button id="page-bar" class="page-bar" type="button" hidden>Beats</button>
   <script>
     const SAVE_KEY = "table-rush-v1";
     const SAVE_VERSION = 3;
@@ -1915,7 +1957,8 @@
       newBest: false,
       drill: null,
       lockUntil: 0,
-      multiplesIndex: 0
+      multiplesIndex: 0,
+      playPage: "question"
     };
     let audioCtx = null;
     let homeMusic = null;
@@ -3625,6 +3668,7 @@
       updateMuteButton();
       const back = document.getElementById("back");
       back.hidden = state.phase === "setup";
+      syncPlayPages();
       if (state.phase === "setup") renderSetup(app);
       else if (state.phase === "play") renderPlay(app);
       syncHomeMusic();
@@ -4015,14 +4059,30 @@
       }
       return banner;
     }
+    function syncPlayPages() {
+      const playing = state.phase === "play";
+      document.body.classList.toggle("play-screen", playing);
+      if (playing) document.body.dataset.playPage = state.playPage === "beats" ? "beats" : "question";
+      else delete document.body.dataset.playPage;
+      const bar = document.getElementById("page-bar");
+      if (!bar) return;
+      bar.hidden = !playing;
+      if (!playing) return;
+      const onBeats = state.playPage === "beats";
+      bar.textContent = onBeats ? "Question" : "Beats";
+      bar.setAttribute("aria-label", onBeats ? "Show the question" : "Show the beats");
+    }
     function renderPlay(app) {
+      if (state.playPage === "beats") {
+        app.appendChild(musicCard(false));
+        return;
+      }
       const problem = state.problem;
       const hud = el("div", { class: "hud" });
       const score = el("span", { text: "Score " + state.score });
       if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
       hud.appendChild(score);
       app.appendChild(hud);
-      app.appendChild(musicCard(false));
       app.appendChild(streakBanner());
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + state.beatJustUnlocked + " unlocked" }));
       const eq = el("div", { class: "card eq" });
@@ -4132,6 +4192,7 @@
       state.newBest = false;
       state.beatJustUnlocked = "";
       state.multiplesIndex = 0;
+      state.playPage = "question";
       state.phase = "play";
       state.problem = makeProblem();
       state.picked = null;
@@ -4192,6 +4253,11 @@
       }, delay);
     }
     document.getElementById("back").addEventListener("click", backToSetup);
+    document.getElementById("page-bar").addEventListener("click", function () {
+      if (state.phase !== "play") return;
+      state.playPage = state.playPage === "beats" ? "question" : "beats";
+      render();
+    });
     document.getElementById("mute").addEventListener("click", function () {
       const home = ensureHomeMusic();
       const play = ensurePlayMusic();

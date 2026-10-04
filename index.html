@@ -136,14 +136,14 @@
       bottom: -6%;
       height: 46%;
       opacity: 0.85;
-      animation: wave-bit 7.5s ease-in-out infinite reverse;
+      animation: wave-bit 3.1s ease-in-out infinite reverse;
       animation-delay: -1s;
     }
     .wave-bg .w9 {
       top: 8%;
       height: 78%;
       opacity: 0.72;
-      animation: wave-smile 15s ease-in-out infinite;
+      animation: wave-smile 1.7s ease-in-out infinite;
       animation-delay: -6s;
     }
     @keyframes wave-rise {
@@ -163,15 +163,16 @@
     }
     @keyframes wave-bit {
       0%, 100% { transform: translate3d(0, 0, 0) scaleY(1); }
-      20% { transform: translate3d(6%, -3%, 0) scaleY(1.08); }
-      40% { transform: translate3d(-8%, 4%, 0) scaleY(0.9); }
-      60% { transform: translate3d(7%, 2%, 0) scaleY(1.16); }
-      80% { transform: translate3d(-5%, -4%, 0) scaleY(0.94); }
+      20% { transform: translate3d(12%, -8%, 0) scaleY(1.22); }
+      40% { transform: translate3d(-14%, 9%, 0) scaleY(0.78); }
+      60% { transform: translate3d(10%, 6%, 0) scaleY(1.28); }
+      80% { transform: translate3d(-9%, -7%, 0) scaleY(0.84); }
     }
     @keyframes wave-smile {
-      0%, 100% { transform: translate3d(0, 0, 0) scaleY(1); }
-      35% { transform: translate3d(-10%, 6%, 0) scaleY(1.1); }
-      70% { transform: translate3d(9%, -5%, 0) scaleY(0.92); }
+      0%, 100% { transform: translate3d(0, 0, 0) scaleY(1) scaleX(1); }
+      25% { transform: translate3d(-16%, 10%, 0) scaleY(1.34) scaleX(1.08); }
+      50% { transform: translate3d(14%, -12%, 0) scaleY(0.72) scaleX(0.92); }
+      75% { transform: translate3d(-10%, -8%, 0) scaleY(1.26) scaleX(1.1); }
     }
     .spark-field {
       position: absolute;
@@ -222,6 +223,159 @@
       0%, 100% { opacity: 0.35; transform: translate3d(0, 0, 0) rotate(45deg) scale(0.75); }
       50% { opacity: 1; transform: translate3d(var(--dx, 8px), var(--dy, -10px), 0) rotate(45deg) scale(1.15); }
     }
+
+    /* Bitwave (level 4) and Smile (level 5): psychedelic warp. Earlier levels unchanged. */
+    .wave-bg[data-level="4"] {
+      background: linear-gradient(180deg, #b9fbff 0%, #5ec8ea 28%, #7a3dff 100%);
+    }
+    .wave-bg[data-level="5"] {
+      background: linear-gradient(180deg, #fff6c4 0%, #ff7ad4 34%, #5b35ff 100%);
+    }
+    .wave-bg[data-level="4"] .w1 { animation-duration: 6.2s; }
+    .wave-bg[data-level="4"] .w2 { animation-duration: 7.4s; }
+    .wave-bg[data-level="4"] .w3 { animation-duration: 8.2s; }
+    .wave-bg[data-level="4"] .w4 { animation-duration: 6.6s; }
+    .wave-bg[data-level="4"] .w5 { animation-duration: 5.2s; }
+    .wave-bg[data-level="4"] .w6 { animation-duration: 4.4s; }
+    .wave-bg[data-level="4"] .w7 { animation-duration: 5.8s; }
+    .wave-bg[data-level="4"] .w8 { animation-duration: 3.1s; }
+    .wave-bg[data-level="5"] .w1 { animation-duration: 3.6s; }
+    .wave-bg[data-level="5"] .w2 { animation-duration: 4.2s; }
+    .wave-bg[data-level="5"] .w3 { animation-duration: 4.8s; }
+    .wave-bg[data-level="5"] .w4 { animation-duration: 3.8s; }
+    .wave-bg[data-level="5"] .w5 { animation-duration: 3.1s; }
+    .wave-bg[data-level="5"] .w6 { animation-duration: 2.6s; }
+    .wave-bg[data-level="5"] .w7 { animation-duration: 3.4s; }
+    .wave-bg[data-level="5"] .w8 { animation-duration: 2.1s; }
+    .wave-bg[data-level="5"] .w9 { animation-duration: 1.7s; }
+    .wave-bg[data-level="4"] .spark.bit,
+    .wave-bg[data-level="5"] .spark.bit {
+      width: 3px;
+      height: 22px;
+      background: #f4fffd;
+      box-shadow: 0 0 8px #9dfff0, 0 0 16px rgba(255,255,255,0.85);
+    }
+    .wave-bg[data-level="5"] .spark.smile {
+      width: 7px;
+      height: 7px;
+      background: #fff;
+      box-shadow: 0 0 10px #fff, 0 0 18px #ff8ad8, 0 0 28px #ffe07a;
+    }
+    .wave-bg .warp {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .warp-spin,
+    .warp-spin-b,
+    .warp-rush,
+    .warp-rush-in,
+    .warp-glow {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      width: 180vmax;
+      height: 180vmax;
+      margin-left: -90vmax;
+      margin-top: -90vmax;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .warp-spin {
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255,255,255,0) 0deg 10deg,
+        rgba(255, 70, 190, 0.55) 10deg 13deg,
+        rgba(70, 255, 230, 0.5) 13deg 16deg,
+        rgba(255, 230, 70, 0.55) 16deg 20deg,
+        rgba(120, 80, 255, 0.45) 20deg 24deg
+      );
+      -webkit-mask-image: radial-gradient(circle, transparent 0 6%, #000 22%, #000 58%, transparent 78%);
+      mask-image: radial-gradient(circle, transparent 0 6%, #000 22%, #000 58%, transparent 78%);
+      animation: warp-spin 8s linear infinite;
+      opacity: 0.9;
+    }
+    .warp-rush {
+      background: repeating-radial-gradient(
+        circle at 50% 50%,
+        rgba(255,255,255,0) 0 22px,
+        rgba(255,255,255,0.72) 22px 24px,
+        rgba(255, 90, 210, 0.28) 24px 36px,
+        rgba(90, 255, 240, 0.22) 36px 48px
+      );
+      -webkit-mask-image: radial-gradient(circle, transparent 0 4%, #000 18%, transparent 70%);
+      mask-image: radial-gradient(circle, transparent 0 4%, #000 18%, transparent 70%);
+      animation: warp-rush 2.5s linear infinite;
+      opacity: 0.85;
+    }
+    .warp-glow {
+      width: 120vmax;
+      height: 120vmax;
+      margin-left: -60vmax;
+      margin-top: -60vmax;
+      background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255, 180, 60, 0.28) 18%, rgba(140, 60, 255, 0.18) 42%, transparent 68%);
+      animation: warp-pulse 2.8s ease-in-out infinite;
+    }
+    .warp-peak .warp-spin {
+      animation-duration: 4.6s;
+      opacity: 1;
+    }
+    .warp-peak .warp-spin-b {
+      background: repeating-conic-gradient(
+        from 8deg,
+        rgba(255,255,255,0) 0deg 6deg,
+        rgba(255, 255, 255, 0.55) 6deg 8deg,
+        rgba(255, 40, 140, 0.7) 8deg 11deg,
+        rgba(40, 255, 200, 0.65) 11deg 14deg,
+        rgba(255, 210, 40, 0.7) 14deg 18deg
+      );
+      -webkit-mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 64%, transparent 86%);
+      mask-image: radial-gradient(circle, transparent 0 2%, #000 14%, #000 64%, transparent 86%);
+      animation: warp-spin-rev 3.4s linear infinite;
+      opacity: 0.95;
+    }
+    .warp-peak .warp-rush {
+      animation-duration: 1.25s;
+      opacity: 1;
+    }
+    .warp-peak .warp-rush-in {
+      background: repeating-radial-gradient(
+        circle at 50% 50%,
+        rgba(255,255,255,0.8) 0 2px,
+        rgba(255, 60, 200, 0.35) 8px 14px,
+        rgba(255,255,255,0) 18px 34px
+      );
+      -webkit-mask-image: radial-gradient(circle, #000 0 8%, #000 40%, transparent 72%);
+      mask-image: radial-gradient(circle, #000 0 8%, #000 40%, transparent 72%);
+      animation: warp-rush-in 1.05s linear infinite;
+      opacity: 0.95;
+    }
+    .warp-peak .warp-glow {
+      animation-duration: 1.4s;
+      background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255, 220, 80, 0.5) 16%, rgba(255, 60, 180, 0.35) 38%, transparent 70%);
+    }
+    @keyframes warp-spin {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(360deg) scale(1.06); }
+    }
+    @keyframes warp-spin-rev {
+      from { transform: rotate(360deg) scale(1.12); }
+      to { transform: rotate(0deg) scale(0.92); }
+    }
+    @keyframes warp-rush {
+      from { transform: scale(0.35); opacity: 0.15; }
+      to { transform: scale(1.85); opacity: 0.95; }
+    }
+    @keyframes warp-rush-in {
+      from { transform: scale(1.7); opacity: 0.95; }
+      to { transform: scale(0.25); opacity: 0.15; }
+    }
+    @keyframes warp-pulse {
+      0%, 100% { opacity: 0.45; transform: scale(0.92); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .wave-bg svg {
         animation: none !important;
@@ -234,6 +388,15 @@
         transform: none;
       }
       .spark.sq { transform: rotate(45deg); }
+      .warp,
+      .warp-spin,
+      .warp-spin-b,
+      .warp-rush,
+      .warp-rush-in,
+      .warp-glow {
+        animation: none !important;
+        transform: none;
+      }
       .supernova,
       .supernova-label {
         animation: none !important;
@@ -895,11 +1058,11 @@
       <path fill="rgba(186, 160, 255, 0.32)" d="M0,160 L180,70 L360,210 L540,80 L760,230 L980,90 L1180,200 L1440,110 L1440,320 L0,320 Z"/>
     </svg>
     <svg class="w8 lv lv-4" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill="rgba(110, 255, 220, 0.34)" d="M0,210 C40,120 80,250 140,160 C200,70 240,240 320,150 C400,60 450,250 540,140 C640,40 700,230 800,120 C900,20 960,240 1080,130 C1180,50 1240,230 1340,140 C1390,90 1420,180 1440,120 L1440,320 L0,320 Z"/>
+      <path fill="rgba(170, 255, 236, 0.62)" d="M0,210 C40,120 80,250 140,160 C200,70 240,240 320,150 C400,60 450,250 540,140 C640,40 700,230 800,120 C900,20 960,240 1080,130 C1180,50 1240,230 1340,140 C1390,90 1420,180 1440,120 L1440,320 L0,320 Z"/>
     </svg>
     <svg class="w9 lv lv-5" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill="rgba(255, 186, 214, 0.30)" d="M0,70 C180,180 260,20 460,120 C680,230 780,40 980,150 C1160,240 1280,60 1440,130 L1440,320 L0,320 Z"/>
-      <path fill="rgba(255, 255, 255, 0.22)" d="M0,250 C220,140 380,300 620,190 C860,80 1040,280 1260,160 C1360,110 1400,150 1440,180 L1440,320 L0,320 Z"/>
+      <path fill="rgba(255, 150, 210, 0.62)" d="M0,70 C180,180 260,20 460,120 C680,230 780,40 980,150 C1160,240 1280,60 1440,130 L1440,320 L0,320 Z"/>
+      <path fill="rgba(255, 255, 220, 0.5)" d="M0,250 C220,140 380,300 620,190 C860,80 1040,280 1260,160 C1360,110 1400,150 1440,180 L1440,320 L0,320 Z"/>
     </svg>
     <div class="spark-field">
       <span class="spark lv lv-1" style="left:44.7%;top:54.6%;--dx:11px;--dy:-8px;animation-delay:-5.23s;animation-duration:5.20s;"></span>
@@ -940,42 +1103,55 @@
       <span class="spark lv lv-3 sq" style="left:31.0%;top:76.4%;--dx:-14px;--dy:-12px;animation-delay:-2.96s;animation-duration:3.30s;"></span>
       <span class="spark lv lv-3 sq" style="left:80.7%;top:24.3%;--dx:-16px;--dy:-16px;animation-delay:-0.75s;animation-duration:3.66s;"></span>
       <span class="spark lv lv-3 sq" style="left:52.6%;top:62.2%;--dx:5px;--dy:-9px;animation-delay:-5.35s;animation-duration:4.28s;"></span>
-      <span class="spark lv lv-4 bit" style="left:69.7%;top:73.0%;--dx:-6px;--dy:-10px;animation-delay:-5.06s;animation-duration:5.47s;"></span>
-      <span class="spark lv lv-4 bit" style="left:91.9%;top:49.0%;--dx:-10px;--dy:-7px;animation-delay:-2.67s;animation-duration:6.95s;"></span>
-      <span class="spark lv lv-4 bit" style="left:38.6%;top:44.3%;--dx:-14px;--dy:-12px;animation-delay:-3.58s;animation-duration:5.94s;"></span>
-      <span class="spark lv lv-4 bit" style="left:49.5%;top:79.0%;--dx:11px;--dy:16px;animation-delay:-6.39s;animation-duration:3.62s;"></span>
-      <span class="spark lv lv-4 bit" style="left:84.2%;top:77.0%;--dx:-7px;--dy:-12px;animation-delay:-6.37s;animation-duration:7.30s;"></span>
-      <span class="spark lv lv-4 bit" style="left:52.8%;top:76.3%;--dx:8px;--dy:-11px;animation-delay:-3.28s;animation-duration:3.36s;"></span>
-      <span class="spark lv lv-4 bit" style="left:34.2%;top:41.6%;--dx:11px;--dy:-9px;animation-delay:-5.26s;animation-duration:3.47s;"></span>
-      <span class="spark lv lv-4 bit" style="left:77.9%;top:18.3%;--dx:14px;--dy:-13px;animation-delay:-0.97s;animation-duration:5.37s;"></span>
-      <span class="spark lv lv-4 bit" style="left:70.6%;top:81.0%;--dx:11px;--dy:-18px;animation-delay:-1.44s;animation-duration:5.41s;"></span>
-      <span class="spark lv lv-4 bit" style="left:29.2%;top:70.5%;--dx:-12px;--dy:10px;animation-delay:-4.36s;animation-duration:7.21s;"></span>
-      <span class="spark lv lv-4 bit" style="left:84.6%;top:59.3%;--dx:6px;--dy:15px;animation-delay:-3.23s;animation-duration:4.93s;"></span>
-      <span class="spark lv lv-4 bit" style="left:12.4%;top:2.5%;--dx:4px;--dy:-14px;animation-delay:-5.96s;animation-duration:5.48s;"></span>
-      <span class="spark lv lv-4 bit" style="left:96.0%;top:13.5%;--dx:-15px;--dy:-7px;animation-delay:-6.05s;animation-duration:5.13s;"></span>
-      <span class="spark lv lv-4 bit" style="left:89.4%;top:77.2%;--dx:8px;--dy:-13px;animation-delay:-3.20s;animation-duration:4.63s;"></span>
-      <span class="spark lv lv-4 bit" style="left:87.5%;top:90.0%;--dx:12px;--dy:7px;animation-delay:-1.24s;animation-duration:5.80s;"></span>
-      <span class="spark lv lv-4 bit" style="left:89.9%;top:14.2%;--dx:-4px;--dy:-8px;animation-delay:-1.48s;animation-duration:6.09s;"></span>
-      <span class="spark lv lv-5 smile" style="left:32.3%;top:35.4%;--dx:5px;--dy:17px;animation-delay:-3.78s;animation-duration:6.78s;"></span>
-      <span class="spark lv lv-5 smile" style="left:61.0%;top:69.5%;--dx:4px;--dy:16px;animation-delay:-2.69s;animation-duration:5.42s;"></span>
-      <span class="spark lv lv-5 smile" style="left:16.8%;top:21.2%;--dx:-12px;--dy:-14px;animation-delay:-3.98s;animation-duration:6.80s;"></span>
-      <span class="spark lv lv-5 smile" style="left:23.7%;top:71.6%;--dx:6px;--dy:15px;animation-delay:-2.05s;animation-duration:7.08s;"></span>
-      <span class="spark lv lv-5 smile" style="left:22.3%;top:95.8%;--dx:-6px;--dy:-8px;animation-delay:-4.72s;animation-duration:4.29s;"></span>
-      <span class="spark lv lv-5 smile" style="left:10.8%;top:80.2%;--dx:12px;--dy:-9px;animation-delay:-2.62s;animation-duration:6.08s;"></span>
-      <span class="spark lv lv-5 smile" style="left:3.2%;top:20.9%;--dx:9px;--dy:-17px;animation-delay:-3.29s;animation-duration:6.38s;"></span>
-      <span class="spark lv lv-5 smile" style="left:49.5%;top:66.5%;--dx:-16px;--dy:-13px;animation-delay:-0.69s;animation-duration:3.36s;"></span>
-      <span class="spark lv lv-5 smile" style="left:54.2%;top:50.4%;--dx:6px;--dy:-8px;animation-delay:-0.75s;animation-duration:3.92s;"></span>
-      <span class="spark lv lv-5 smile" style="left:16.6%;top:28.6%;--dx:-13px;--dy:-8px;animation-delay:-6.18s;animation-duration:5.14s;"></span>
-      <span class="spark lv lv-5 smile" style="left:74.5%;top:32.7%;--dx:10px;--dy:12px;animation-delay:-1.37s;animation-duration:4.77s;"></span>
-      <span class="spark lv lv-5 smile" style="left:62.0%;top:5.8%;--dx:-6px;--dy:13px;animation-delay:-2.34s;animation-duration:4.75s;"></span>
-      <span class="spark lv lv-5 smile" style="left:89.5%;top:58.9%;--dx:-12px;--dy:-11px;animation-delay:-5.81s;animation-duration:6.57s;"></span>
-      <span class="spark lv lv-5 smile" style="left:68.8%;top:82.9%;--dx:13px;--dy:-14px;animation-delay:-3.80s;animation-duration:4.63s;"></span>
-      <span class="spark lv lv-5 smile" style="left:74.3%;top:28.3%;--dx:-15px;--dy:-12px;animation-delay:-0.87s;animation-duration:4.59s;"></span>
-      <span class="spark lv lv-5 smile" style="left:53.0%;top:36.8%;--dx:16px;--dy:-12px;animation-delay:-1.34s;animation-duration:3.98s;"></span>
-      <span class="spark lv lv-5 smile" style="left:77.6%;top:30.4%;--dx:-4px;--dy:16px;animation-delay:-5.87s;animation-duration:3.41s;"></span>
-      <span class="spark lv lv-5 smile" style="left:27.6%;top:92.4%;--dx:9px;--dy:-16px;animation-delay:-2.64s;animation-duration:3.96s;"></span>
-      <span class="spark lv lv-5 smile" style="left:8.8%;top:50.4%;--dx:14px;--dy:-17px;animation-delay:-0.78s;animation-duration:4.86s;"></span>
-      <span class="spark lv lv-5 smile" style="left:56.4%;top:12.8%;--dx:-15px;--dy:-10px;animation-delay:-2.88s;animation-duration:5.32s;"></span>
+      <span class="spark lv lv-4 bit" style="left:69.7%;top:73.0%;--dx:-6px;--dy:-10px;animation-delay:-5.06s;animation-duration:2.30s;"></span>
+      <span class="spark lv lv-4 bit" style="left:91.9%;top:49.0%;--dx:-10px;--dy:-7px;animation-delay:-2.67s;animation-duration:2.92s;"></span>
+      <span class="spark lv lv-4 bit" style="left:38.6%;top:44.3%;--dx:-14px;--dy:-12px;animation-delay:-3.58s;animation-duration:2.49s;"></span>
+      <span class="spark lv lv-4 bit" style="left:49.5%;top:79.0%;--dx:11px;--dy:16px;animation-delay:-6.39s;animation-duration:1.52s;"></span>
+      <span class="spark lv lv-4 bit" style="left:84.2%;top:77.0%;--dx:-7px;--dy:-12px;animation-delay:-6.37s;animation-duration:3.07s;"></span>
+      <span class="spark lv lv-4 bit" style="left:52.8%;top:76.3%;--dx:8px;--dy:-11px;animation-delay:-3.28s;animation-duration:1.41s;"></span>
+      <span class="spark lv lv-4 bit" style="left:34.2%;top:41.6%;--dx:11px;--dy:-9px;animation-delay:-5.26s;animation-duration:1.46s;"></span>
+      <span class="spark lv lv-4 bit" style="left:77.9%;top:18.3%;--dx:14px;--dy:-13px;animation-delay:-0.97s;animation-duration:2.26s;"></span>
+      <span class="spark lv lv-4 bit" style="left:70.6%;top:81.0%;--dx:11px;--dy:-18px;animation-delay:-1.44s;animation-duration:2.27s;"></span>
+      <span class="spark lv lv-4 bit" style="left:29.2%;top:70.5%;--dx:-12px;--dy:10px;animation-delay:-4.36s;animation-duration:3.03s;"></span>
+      <span class="spark lv lv-4 bit" style="left:84.6%;top:59.3%;--dx:6px;--dy:15px;animation-delay:-3.23s;animation-duration:2.07s;"></span>
+      <span class="spark lv lv-4 bit" style="left:12.4%;top:2.5%;--dx:4px;--dy:-14px;animation-delay:-5.96s;animation-duration:2.30s;"></span>
+      <span class="spark lv lv-4 bit" style="left:96.0%;top:13.5%;--dx:-15px;--dy:-7px;animation-delay:-6.05s;animation-duration:2.15s;"></span>
+      <span class="spark lv lv-4 bit" style="left:89.4%;top:77.2%;--dx:8px;--dy:-13px;animation-delay:-3.20s;animation-duration:1.94s;"></span>
+      <span class="spark lv lv-4 bit" style="left:87.5%;top:90.0%;--dx:12px;--dy:7px;animation-delay:-1.24s;animation-duration:2.44s;"></span>
+      <span class="spark lv lv-4 bit" style="left:89.9%;top:14.2%;--dx:-4px;--dy:-8px;animation-delay:-1.48s;animation-duration:2.56s;"></span>
+      <span class="spark lv lv-5 smile" style="left:32.3%;top:35.4%;--dx:5px;--dy:17px;animation-delay:-3.78s;animation-duration:1.90s;"></span>
+      <span class="spark lv lv-5 smile" style="left:61.0%;top:69.5%;--dx:4px;--dy:16px;animation-delay:-2.69s;animation-duration:1.52s;"></span>
+      <span class="spark lv lv-5 smile" style="left:16.8%;top:21.2%;--dx:-12px;--dy:-14px;animation-delay:-3.98s;animation-duration:1.90s;"></span>
+      <span class="spark lv lv-5 smile" style="left:23.7%;top:71.6%;--dx:6px;--dy:15px;animation-delay:-2.05s;animation-duration:1.98s;"></span>
+      <span class="spark lv lv-5 smile" style="left:22.3%;top:95.8%;--dx:-6px;--dy:-8px;animation-delay:-4.72s;animation-duration:1.20s;"></span>
+      <span class="spark lv lv-5 smile" style="left:10.8%;top:80.2%;--dx:12px;--dy:-9px;animation-delay:-2.62s;animation-duration:1.70s;"></span>
+      <span class="spark lv lv-5 smile" style="left:3.2%;top:20.9%;--dx:9px;--dy:-17px;animation-delay:-3.29s;animation-duration:1.79s;"></span>
+      <span class="spark lv lv-5 smile" style="left:49.5%;top:66.5%;--dx:-16px;--dy:-13px;animation-delay:-0.69s;animation-duration:0.94s;"></span>
+      <span class="spark lv lv-5 smile" style="left:54.2%;top:50.4%;--dx:6px;--dy:-8px;animation-delay:-0.75s;animation-duration:1.10s;"></span>
+      <span class="spark lv lv-5 smile" style="left:16.6%;top:28.6%;--dx:-13px;--dy:-8px;animation-delay:-6.18s;animation-duration:1.44s;"></span>
+      <span class="spark lv lv-5 smile" style="left:74.5%;top:32.7%;--dx:10px;--dy:12px;animation-delay:-1.37s;animation-duration:1.34s;"></span>
+      <span class="spark lv lv-5 smile" style="left:62.0%;top:5.8%;--dx:-6px;--dy:13px;animation-delay:-2.34s;animation-duration:1.33s;"></span>
+      <span class="spark lv lv-5 smile" style="left:89.5%;top:58.9%;--dx:-12px;--dy:-11px;animation-delay:-5.81s;animation-duration:1.84s;"></span>
+      <span class="spark lv lv-5 smile" style="left:68.8%;top:82.9%;--dx:13px;--dy:-14px;animation-delay:-3.80s;animation-duration:1.30s;"></span>
+      <span class="spark lv lv-5 smile" style="left:74.3%;top:28.3%;--dx:-15px;--dy:-12px;animation-delay:-0.87s;animation-duration:1.29s;"></span>
+      <span class="spark lv lv-5 smile" style="left:53.0%;top:36.8%;--dx:16px;--dy:-12px;animation-delay:-1.34s;animation-duration:1.11s;"></span>
+      <span class="spark lv lv-5 smile" style="left:77.6%;top:30.4%;--dx:-4px;--dy:16px;animation-delay:-5.87s;animation-duration:0.95s;"></span>
+      <span class="spark lv lv-5 smile" style="left:27.6%;top:92.4%;--dx:9px;--dy:-16px;animation-delay:-2.64s;animation-duration:1.11s;"></span>
+      <span class="spark lv lv-5 smile" style="left:8.8%;top:50.4%;--dx:14px;--dy:-17px;animation-delay:-0.78s;animation-duration:1.36s;"></span>
+      <span class="spark lv lv-5 smile" style="left:56.4%;top:12.8%;--dx:-15px;--dy:-10px;animation-delay:-2.88s;animation-duration:1.49s;"></span>
+    </div>
+
+    <div class="warp lv lv-4" aria-hidden="true">
+      <div class="warp-glow"></div>
+      <div class="warp-spin"></div>
+      <div class="warp-rush"></div>
+    </div>
+    <div class="warp warp-peak lv lv-5" aria-hidden="true">
+      <div class="warp-glow"></div>
+      <div class="warp-spin"></div>
+      <div class="warp-spin-b"></div>
+      <div class="warp-rush"></div>
+      <div class="warp-rush-in"></div>
     </div>
   </div>
   <main>

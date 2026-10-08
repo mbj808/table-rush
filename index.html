@@ -256,15 +256,15 @@
     }
     /* Thunder (level 6): a glowing jack-o'-lantern over a purple and orange night wash. */
     .wave-bg .jack { display: none; }
-    .wave-bg[data-level="6"] {
+    .wave-bg.night {
       background:
         radial-gradient(ellipse 70% 55% at 50% 62%, rgba(255, 140, 40, 0.38) 0%, rgba(255, 140, 40, 0) 70%),
         linear-gradient(180deg, #1c0d33 0%, #3a1856 52%, #8a3a14 100%);
     }
-    .wave-bg[data-level="6"] svg:not(.jack-svg),
-    .wave-bg[data-level="6"] .spark,
-    .wave-bg[data-level="6"] .warp { display: none !important; }
-    .wave-bg[data-level="6"] .jack {
+    .wave-bg.night svg:not(.night-art),
+    .wave-bg.night .spark,
+    .wave-bg.night .warp { display: none !important; }
+    .wave-bg.night .jack {
       display: block;
       position: absolute;
       left: 50%;
@@ -296,6 +296,133 @@
       40% { opacity: 0.82; }
       55% { opacity: 0.95; }
       70% { opacity: 0.78; }
+    }
+
+    /* Howl (level 7) adds glowing jack-o'-lantern eyes, a big moon, and a howling wolf.
+       Cauldron (level 8) adds a bubbling, glowing cauldron. Both keep Thunder's scene. */
+    .wave-bg .jack-eyes,
+    .wave-bg .moon,
+    .wave-bg .night-hills,
+    .wave-bg .wolf,
+    .wave-bg .cauldron-scene { display: none; }
+    .wave-bg.howl .jack-eyes,
+    .wave-bg.howl .moon,
+    .wave-bg.howl .night-hills,
+    .wave-bg.howl .wolf { display: block; }
+    .wave-bg.cauldron .cauldron-scene { display: block; }
+    .wave-bg .night-art {
+      position: absolute;
+      left: auto;
+      top: auto;
+      height: auto;
+      min-height: 0;
+      animation: none;
+      will-change: auto;
+    }
+    .wave-bg .jack-svg { position: relative; }
+    .wave-bg.howl .jack-eyes {
+      position: absolute;
+      left: 50%;
+      top: 56%;
+      width: min(72vmin, 34rem);
+      transform: translate(-50%, -50%);
+    }
+    .wave-bg .jack-eyes-svg {
+      position: relative;
+      left: auto;
+      width: 100%;
+      display: block;
+    }
+    .wave-bg .jack-eyes path {
+      fill: #fffbe0;
+      transform-box: fill-box;
+      transform-origin: center;
+      filter: drop-shadow(0 0 6px #fff3a0) drop-shadow(0 0 16px #ffb703);
+      animation: jack-eye-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes jack-eye-pulse {
+      0%, 100% { opacity: 0.45; transform: scale(0.92); }
+      50% { opacity: 0.9; transform: scale(1.12); }
+    }
+    .wave-bg .moon {
+      position: absolute;
+      left: 4vw;
+      top: 6vh;
+      width: min(24vmin, 13rem);
+      height: min(24vmin, 13rem);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 34% 38%, rgba(214, 196, 150, 0.55) 0 8%, transparent 9%),
+        radial-gradient(circle at 62% 64%, rgba(214, 196, 150, 0.45) 0 11%, transparent 12%),
+        radial-gradient(circle at 66% 30%, rgba(214, 196, 150, 0.4) 0 5%, transparent 6%),
+        radial-gradient(circle at 40% 40%, #fffdf2 0%, #fff1c2 55%, #f3d98a 100%);
+      box-shadow: 0 0 2.5rem 0.8rem rgba(255, 240, 190, 0.55), 0 0 7rem 2.5rem rgba(255, 226, 150, 0.22);
+      animation: moon-pulse 4.5s ease-in-out infinite;
+    }
+    @keyframes moon-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 2.5rem 0.8rem rgba(255, 240, 190, 0.5), 0 0 7rem 2.5rem rgba(255, 226, 150, 0.18); }
+      50% { transform: scale(1.05); box-shadow: 0 0 3.5rem 1.4rem rgba(255, 240, 190, 0.75), 0 0 9rem 3.5rem rgba(255, 226, 150, 0.32); }
+    }
+    .wave-bg .night-hills {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 7.5rem;
+    }
+    .wave-bg .wolf {
+      left: calc(4vw + min(12vmin, 6.5rem));
+      bottom: 6.6rem;
+      width: min(33vmin, 17rem);
+    }
+    .wave-bg .cauldron-scene {
+      position: absolute;
+      right: 4vw;
+      bottom: 6.2rem;
+      width: min(28vmin, 15rem);
+      aspect-ratio: 200 / 170;
+    }
+    .wave-bg .cauldron-svg {
+      left: 0;
+      bottom: 0;
+      width: 100%;
+    }
+    .wave-bg .cauldron-glow {
+      position: absolute;
+      left: -20%;
+      right: -20%;
+      top: -45%;
+      height: 110%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 70%, rgba(140, 255, 110, 0.6) 0%, rgba(90, 220, 90, 0.25) 40%, rgba(60, 200, 80, 0) 70%);
+      animation: cauldron-glow 2.8s ease-in-out infinite;
+    }
+    @keyframes cauldron-glow {
+      0%, 100% { opacity: 0.65; transform: scale(0.96); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+    .wave-bg .bubble {
+      position: absolute;
+      bottom: 68%;
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #f4fff0 0%, #b6ff9c 35%, #4fd65a 100%);
+      box-shadow: 0 0 0.6rem rgba(150, 255, 120, 0.8);
+      opacity: 0;
+      animation: bubble-rise 2.6s ease-in infinite;
+    }
+    .wave-bg .bubble.b1 { left: 24%; animation-delay: 0s; }
+    .wave-bg .bubble.b2 { left: 40%; width: 1.25rem; height: 1.25rem; animation-delay: -0.7s; animation-duration: 3.1s; }
+    .wave-bg .bubble.b3 { left: 56%; width: 0.7rem; height: 0.7rem; animation-delay: -1.4s; }
+    .wave-bg .bubble.b4 { left: 68%; animation-delay: -2s; animation-duration: 2.9s; }
+    .wave-bg .bubble.b5 { left: 34%; width: 0.6rem; height: 0.6rem; animation-delay: -1.1s; animation-duration: 2.2s; }
+    .wave-bg .bubble.b6 { left: 60%; width: 1.05rem; height: 1.05rem; animation-delay: -0.3s; animation-duration: 3.4s; }
+    @keyframes bubble-rise {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+      15% { opacity: 1; }
+      60% { opacity: 0.9; transform: translate(0.4rem, -3.2rem) scale(1); }
+      100% { opacity: 0; transform: translate(-0.3rem, -6rem) scale(1.25); }
     }
     /* Light text over the night wash so the question stays readable. */
     body.bg-thunder {
@@ -450,9 +577,22 @@
         transform: none;
       }
       .wave-bg .jack-glow,
-      .wave-bg .jack-face {
+      .wave-bg .jack-face,
+      .wave-bg .jack-eyes path,
+      .wave-bg .moon,
+      .wave-bg .cauldron-glow {
         animation: none !important;
       }
+      .wave-bg .bubble {
+        animation: none !important;
+        opacity: 0.9;
+      }
+      .wave-bg .bubble.b1 { transform: translateY(-1.2rem); }
+      .wave-bg .bubble.b2 { transform: translateY(-3.4rem); }
+      .wave-bg .bubble.b3 { transform: translateY(-5.2rem); }
+      .wave-bg .bubble.b4 { transform: translateY(-2.2rem); }
+      .wave-bg .bubble.b5 { transform: translateY(-4.4rem); }
+      .wave-bg .bubble.b6 { transform: translateY(-0.6rem); }
       .supernova,
       .supernova-label {
         animation: none !important;
@@ -644,6 +784,8 @@
     /* Seven beats: fit four speakers per row on the play screen's Beats page. */
     body.play-screen .beats-card { padding-left: 0.2rem; padding-right: 0.2rem; }
     body.play-screen .beats-row { gap: 0.5rem 0.45rem; }
+    /* Nine beats: widen the Beats page so rows hold five speakers (5 + 4). */
+    body.play-screen[data-play-page="beats"] main { max-width: 40rem; }
     body.play-screen .eq { padding: 0.85rem 0.75rem 0.4rem; }
     body.play-screen .prompt { font-size: 2.6rem; }
     body.play-screen .answers { margin-top: 0.65rem; }
@@ -1474,9 +1616,55 @@
       <div class="warp-rush"></div>
     </div>
 
+    <div class="moon lv-7" aria-hidden="true"></div>
+    <svg class="night-hills night-art lv-7" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#0d0618" d="M0,46 C120,22 240,18 360,38 C480,58 560,62 680,54 C820,44 920,48 1040,60 C1160,72 1280,30 1440,40 L1440,120 L0,120 Z"/>
+    </svg>
+    <svg class="wolf night-art lv-7" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#0d0618" d="M30,10 L40,8 C52,12 64,18 72,26 L78,6 L86,22 L90,10 L94,30
+        C98,38 100,46 102,54 C114,66 126,86 136,110 C146,134 156,152 172,166
+        C188,178 196,192 194,204 C210,200 224,192 234,180 C236,196 222,210 198,216 L176,216
+        C170,214 168,210 168,206 C160,208 148,210 136,208 L126,208
+        C122,206 122,202 126,200 L136,198 C140,190 140,180 134,170
+        C128,176 120,180 112,180 L110,200 C112,204 112,208 106,210 L92,210
+        C88,208 90,202 94,200 L96,170 C90,160 84,150 86,138 L80,132 L84,124 L76,116 L80,108 L72,98
+        C70,88 66,80 60,72 L54,62 L50,50 C44,44 38,40 30,40 L40,34 L50,32 L56,28 C46,22 38,16 30,10 Z"/>
+      <path fill="#0d0618" d="M60,220 C80,210 150,206 220,214 L230,220 Z"/>
+    </svg>
+    <div class="cauldron-scene lv-8" aria-hidden="true">
+      <div class="cauldron-glow"></div>
+      <span class="bubble b1"></span>
+      <span class="bubble b2"></span>
+      <span class="bubble b3"></span>
+      <span class="bubble b4"></span>
+      <span class="bubble b5"></span>
+      <span class="bubble b6"></span>
+      <svg class="cauldron-svg night-art" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="cauldron-brew" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#eaffd8"/>
+            <stop offset="45%" stop-color="#9dff7a"/>
+            <stop offset="100%" stop-color="#38b84a"/>
+          </radialGradient>
+          <linearGradient id="cauldron-iron" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#0d0618"/>
+            <stop offset="55%" stop-color="#2a1a3c"/>
+            <stop offset="100%" stop-color="#0d0618"/>
+          </linearGradient>
+        </defs>
+        <path d="M58,140 L42,168 L58,168 L72,144 Z M142,140 L158,168 L142,168 L128,144 Z" fill="#0d0618"/>
+        <path d="M82,160 C86,146 92,152 96,140 C100,152 108,146 110,136 C116,150 122,150 118,162 Z" fill="#ff9f1c"/>
+        <path d="M90,162 C94,154 98,156 100,148 C104,156 110,154 110,162 Z" fill="#ffe066"/>
+        <ellipse cx="100" cy="98" rx="84" ry="58" fill="url(#cauldron-iron)"/>
+        <path d="M44,74 C60,88 80,90 100,90 C120,90 140,88 156,74" fill="none" stroke="rgba(160, 255, 140, 0.35)" stroke-width="3"/>
+        <ellipse cx="100" cy="46" rx="90" ry="17" fill="#2a1a3c"/>
+        <ellipse cx="100" cy="46" rx="78" ry="11" fill="url(#cauldron-brew)"/>
+      </svg>
+    </div>
+
     <div class="jack lv-6" aria-hidden="true">
       <div class="jack-glow"></div>
-      <svg class="jack-svg" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+      <svg class="jack-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="jack-skin" cx="50%" cy="42%" r="62%">
             <stop offset="0%" stop-color="#ffb347"/>
@@ -1501,6 +1689,12 @@
           <path d="M186,214 L214,214 L200,188 Z"/>
           <path d="M96,236 C130,296 270,296 304,236 L274,246 L262,268 L244,250 L222,276 L200,254 L178,276 L156,250 L138,268 L126,246 Z"/>
         </g>
+      </svg>
+    </div>
+    <div class="jack-eyes lv-7" aria-hidden="true">
+      <svg class="jack-eyes-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+        <path d="M112,160 L164,160 L138,112 Z"/>
+        <path d="M236,160 L288,160 L262,112 Z"/>
       </svg>
     </div>
   </div>
@@ -1573,7 +1767,9 @@
       { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 15 },
       { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 15 },
       { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 },
-      { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: 15 }
+      { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: 15 },
+      { id: "howl", label: "Howl", file: "assets/audio/howl.mp3", unlockAt: 15 },
+      { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: 15 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -2192,7 +2388,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -2421,7 +2617,7 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
-      if (unlockedNow === "thunder") state.mazeCelebrate = true;
+      if (unlockedNow === lastBeatId()) state.mazeCelebrate = true;
       // Make the newly unlocked beat the active choice immediately. setPlayMusicId
       // keeps manual beat changes working in both setup and play, and respects mute.
       setPlayMusicId(unlockedNow);
@@ -3946,6 +4142,9 @@
       const level = unlockedBackgroundLevel();
       bg.setAttribute("data-level", String(level));
       document.body.classList.toggle("bg-thunder", level >= 6);
+      bg.classList.toggle("night", level >= 6);
+      bg.classList.toggle("howl", level >= 7);
+      bg.classList.toggle("cauldron", level >= 8);
     }
     function render() {
       applyUnlockedBackground();
@@ -3996,8 +4195,12 @@
       }
       return id;
     }
-    function thunderUnlocked() {
-      return !!(state.beatsUnlocked && state.beatsUnlocked.thunder);
+    // The maze reward belongs to the last beat in PLAY_TRACKS (currently Cauldron).
+    function lastBeatId() {
+      return PLAY_TRACKS[PLAY_TRACKS.length - 1].id;
+    }
+    function lastBeatUnlocked() {
+      return !!(state.beatsUnlocked && state.beatsUnlocked[lastBeatId()]);
     }
     function mazeRewardLink() {
       return el("a", {
@@ -4009,10 +4212,10 @@
       });
     }
     function syncMazeCongrats() {
-      document.body.classList.toggle("maze-ready", thunderUnlocked());
+      document.body.classList.toggle("maze-ready", lastBeatUnlocked());
       var old = document.getElementById("maze-congrats");
       if (old) old.remove();
-      if (state.phase !== "play" || !thunderUnlocked() || !state.mazeCelebrate) return;
+      if (state.phase !== "play" || !lastBeatUnlocked() || !state.mazeCelebrate) return;
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
@@ -4021,7 +4224,7 @@
       var title = document.createElement("h2");
       title.textContent = "Congratulations";
       var note = document.createElement("p");
-      note.textContent = "Thunder is unlocked.";
+      note.textContent = beatLabel(lastBeatId()) + " is unlocked.";
       var link = document.createElement("a");
       link.className = "congrats-maze";
       link.href = "https://nova-fire-bamboo-heart.grok.me";
@@ -4046,7 +4249,7 @@
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
       stack.appendChild(musicCard(true));
-      if (thunderUnlocked()) stack.appendChild(mazeRewardLink());
+      if (lastBeatUnlocked()) stack.appendChild(mazeRewardLink());
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -4587,7 +4790,7 @@
     }
 
     function renderPlay(app) {
-      if (thunderUnlocked()) app.appendChild(mazeRewardLink());
+      if (lastBeatUnlocked()) app.appendChild(mazeRewardLink());
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;
@@ -4749,7 +4952,7 @@
             if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
           }
         }
-        var mazeNote = justBeat && justBeat.id === "thunder" ? " Congratulations. Thunder is unlocked. Tap Play the maze to open the maze game." : "";
+        var mazeNote = justBeat && justBeat.id === lastBeatId() ? " Congratulations. " + justBeat.label + " is unlocked. Tap Play the maze to open the maze game." : "";
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         state.streak = 0;

@@ -254,24 +254,49 @@
       background: #f4fffd;
       box-shadow: 0 0 8px #9dfff0, 0 0 16px rgba(255,255,255,0.85);
     }
-    /* Thunder (level 6): a glowing jack-o'-lantern over a purple and orange night wash. */
-    .wave-bg .jack { display: none; }
-    .wave-bg.night {
-      background:
-        radial-gradient(ellipse 70% 55% at 50% 62%, rgba(255, 140, 40, 0.38) 0%, rgba(255, 140, 40, 0) 70%),
-        linear-gradient(180deg, #1c0d33 0%, #3a1856 52%, #8a3a14 100%);
-    }
+    /* Thunder, Howl, and Cauldron are separate pictures. .night hides the wave art. */
+    .wave-bg .jack,
+    .wave-bg .moon,
+    .wave-bg .howl-hill,
+    .wave-bg .wolf,
+    .wave-bg .cauldron-scene { display: none; }
     .wave-bg.night svg:not(.night-art),
     .wave-bg.night .spark,
     .wave-bg.night .warp { display: none !important; }
-    .wave-bg.night .jack {
-      display: block;
+    .wave-bg.scene-thunder {
+      background:
+        radial-gradient(ellipse 55% 48% at 50% 58%, rgba(180, 20, 20, 0.35) 0%, rgba(180, 20, 20, 0) 70%),
+        linear-gradient(180deg, #140818 0%, #2a1038 58%, #4a1420 100%);
+    }
+    .wave-bg.scene-howl {
+      background: linear-gradient(180deg, #0c0618 0%, #1c1038 55%, #2a1848 100%);
+    }
+    .wave-bg.scene-cauldron {
+      background:
+        radial-gradient(ellipse 50% 40% at 50% 72%, rgba(80, 220, 70, 0.28) 0%, rgba(80, 220, 70, 0) 70%),
+        linear-gradient(180deg, #100818 0%, #1a1030 60%, #241428 100%);
+    }
+    .wave-bg.scene-thunder .jack { display: block; }
+    .wave-bg.scene-howl .moon,
+    .wave-bg.scene-howl .howl-hill,
+    .wave-bg.scene-howl .wolf { display: block; }
+    .wave-bg.scene-cauldron .cauldron-scene { display: block; }
+
+    .wave-bg .night-art {
+      position: absolute;
+      left: auto;
+      top: auto;
+      height: auto;
+      min-height: 0;
+      animation: none;
+      will-change: auto;
+    }
+    .wave-bg .jack {
       position: absolute;
       left: 50%;
-      top: 56%;
-      width: min(72vmin, 34rem);
+      top: 76%;
+      width: min(56vmin, 26rem);
       transform: translate(-50%, -50%);
-      opacity: 0.55;
     }
     .wave-bg .jack-svg {
       position: relative;
@@ -285,102 +310,60 @@
     }
     .wave-bg .jack-glow {
       position: absolute;
-      inset: 18% 14% 10%;
+      inset: 16% 12% 8%;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 214, 102, 0.75) 0%, rgba(255, 140, 30, 0.35) 45%, rgba(255, 120, 20, 0) 72%);
-      animation: jack-flicker 3.2s ease-in-out infinite;
+      background: radial-gradient(circle, rgba(255, 60, 40, 0.85) 0%, rgba(200, 16, 16, 0.35) 46%, rgba(160, 0, 0, 0) 72%);
+      animation: jack-red 2.4s ease-in-out infinite;
     }
-    .wave-bg .jack-face { animation: jack-flicker 3.2s ease-in-out infinite; }
-    @keyframes jack-flicker {
-      0%, 100% { opacity: 1; }
-      40% { opacity: 0.82; }
-      55% { opacity: 0.95; }
-      70% { opacity: 0.78; }
+    .wave-bg .jack-face {
+      animation: jack-red 2.4s ease-in-out infinite;
+    }
+    .wave-bg .jack-face {
+      filter: drop-shadow(0 0 8px #ff1a1a) drop-shadow(0 0 18px #ff0000);
+    }
+    @keyframes jack-red {
+      0%, 100% { opacity: 0.82; }
+      50% { opacity: 1; }
     }
 
-    /* Howl (level 7) adds glowing jack-o'-lantern eyes, a big moon, and a howling wolf.
-       Cauldron (level 8) adds a bubbling, glowing cauldron. Both keep Thunder's scene. */
-    .wave-bg .jack-eyes,
-    .wave-bg .moon,
-    .wave-bg .night-hills,
-    .wave-bg .wolf,
-    .wave-bg .cauldron-scene { display: none; }
-    .wave-bg.howl .jack-eyes,
-    .wave-bg.howl .moon,
-    .wave-bg.howl .night-hills,
-    .wave-bg.howl .wolf { display: block; }
-    .wave-bg.cauldron .cauldron-scene { display: block; }
-    .wave-bg .night-art {
-      position: absolute;
-      left: auto;
-      top: auto;
-      height: auto;
-      min-height: 0;
-      animation: none;
-      will-change: auto;
-    }
-    .wave-bg .jack-svg { position: relative; }
-    .wave-bg.howl .jack-eyes {
-      position: absolute;
-      left: 50%;
-      top: 56%;
-      width: min(72vmin, 34rem);
-      transform: translate(-50%, -50%);
-    }
-    .wave-bg .jack-eyes-svg {
-      position: relative;
-      left: auto;
-      width: 100%;
-      display: block;
-    }
-    .wave-bg .jack-eyes path {
-      fill: #fffbe0;
-      transform-box: fill-box;
-      transform-origin: center;
-      filter: drop-shadow(0 0 6px #fff3a0) drop-shadow(0 0 16px #ffb703);
-      animation: jack-eye-pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes jack-eye-pulse {
-      0%, 100% { opacity: 0.45; transform: scale(0.92); }
-      50% { opacity: 0.9; transform: scale(1.12); }
-    }
     .wave-bg .moon {
       position: absolute;
-      left: 4vw;
-      top: 6vh;
-      width: min(24vmin, 13rem);
-      height: min(24vmin, 13rem);
+      right: 9vw;
+      top: 5vh;
+      width: min(32vmin, 17rem);
+      height: min(32vmin, 17rem);
       border-radius: 50%;
       background:
-        radial-gradient(circle at 34% 38%, rgba(214, 196, 150, 0.55) 0 8%, transparent 9%),
-        radial-gradient(circle at 62% 64%, rgba(214, 196, 150, 0.45) 0 11%, transparent 12%),
-        radial-gradient(circle at 66% 30%, rgba(214, 196, 150, 0.4) 0 5%, transparent 6%),
-        radial-gradient(circle at 40% 40%, #fffdf2 0%, #fff1c2 55%, #f3d98a 100%);
-      box-shadow: 0 0 2.5rem 0.8rem rgba(255, 240, 190, 0.55), 0 0 7rem 2.5rem rgba(255, 226, 150, 0.22);
+        radial-gradient(circle at 32% 34%, rgba(210, 190, 150, 0.5) 0 7%, transparent 8%),
+        radial-gradient(circle at 64% 62%, rgba(200, 180, 140, 0.45) 0 10%, transparent 11%),
+        radial-gradient(circle at 38% 40%, #fffef6 0%, #ffe9a8 58%, #e4c36e 100%);
+      box-shadow: 0 0 2.6rem 0.9rem rgba(255, 236, 180, 0.55), 0 0 8rem 3rem rgba(255, 220, 150, 0.22);
       animation: moon-pulse 4.5s ease-in-out infinite;
     }
     @keyframes moon-pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 2.5rem 0.8rem rgba(255, 240, 190, 0.5), 0 0 7rem 2.5rem rgba(255, 226, 150, 0.18); }
-      50% { transform: scale(1.05); box-shadow: 0 0 3.5rem 1.4rem rgba(255, 240, 190, 0.75), 0 0 9rem 3.5rem rgba(255, 226, 150, 0.32); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
     }
-    .wave-bg .night-hills {
+    .wave-bg .howl-hill {
       left: 0;
       right: 0;
       bottom: 0;
       width: 100%;
-      height: 7.5rem;
+      height: 9rem;
     }
     .wave-bg .wolf {
-      left: calc(4vw + min(12vmin, 6.5rem));
-      bottom: 6.6rem;
-      width: min(33vmin, 17rem);
+      left: 5vw;
+      bottom: 3.4rem;
+      width: min(40vmin, 22rem);
     }
+
     .wave-bg .cauldron-scene {
       position: absolute;
-      right: 4vw;
-      bottom: 6.2rem;
-      width: min(28vmin, 15rem);
+      left: 50%;
+      bottom: 4.6rem;
+      width: min(50vmin, 28rem);
       aspect-ratio: 200 / 170;
+      transform: translateX(-50%);
     }
     .wave-bg .cauldron-svg {
       left: 0;
@@ -389,41 +372,42 @@
     }
     .wave-bg .cauldron-glow {
       position: absolute;
-      left: -20%;
-      right: -20%;
-      top: -45%;
-      height: 110%;
+      left: -18%;
+      right: -18%;
+      top: -50%;
+      height: 120%;
       border-radius: 50%;
-      background: radial-gradient(ellipse at 50% 70%, rgba(140, 255, 110, 0.6) 0%, rgba(90, 220, 90, 0.25) 40%, rgba(60, 200, 80, 0) 70%);
+      background: radial-gradient(ellipse at 50% 72%, rgba(150, 255, 120, 0.7) 0%, rgba(70, 210, 70, 0.28) 42%, rgba(40, 160, 50, 0) 72%);
       animation: cauldron-glow 2.8s ease-in-out infinite;
     }
     @keyframes cauldron-glow {
-      0%, 100% { opacity: 0.65; transform: scale(0.96); }
-      50% { opacity: 1; transform: scale(1.06); }
+      0%, 100% { opacity: 0.6; transform: scale(0.96); }
+      50% { opacity: 1; transform: scale(1.07); }
     }
     .wave-bg .bubble {
       position: absolute;
-      bottom: 68%;
-      width: 0.9rem;
-      height: 0.9rem;
+      bottom: 72%;
+      width: 1rem;
+      height: 1rem;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #f4fff0 0%, #b6ff9c 35%, #4fd65a 100%);
-      box-shadow: 0 0 0.6rem rgba(150, 255, 120, 0.8);
+      box-shadow: 0 0 0.6rem rgba(150, 255, 120, 0.85);
       opacity: 0;
       animation: bubble-rise 2.6s ease-in infinite;
     }
-    .wave-bg .bubble.b1 { left: 24%; animation-delay: 0s; }
-    .wave-bg .bubble.b2 { left: 40%; width: 1.25rem; height: 1.25rem; animation-delay: -0.7s; animation-duration: 3.1s; }
-    .wave-bg .bubble.b3 { left: 56%; width: 0.7rem; height: 0.7rem; animation-delay: -1.4s; }
-    .wave-bg .bubble.b4 { left: 68%; animation-delay: -2s; animation-duration: 2.9s; }
-    .wave-bg .bubble.b5 { left: 34%; width: 0.6rem; height: 0.6rem; animation-delay: -1.1s; animation-duration: 2.2s; }
-    .wave-bg .bubble.b6 { left: 60%; width: 1.05rem; height: 1.05rem; animation-delay: -0.3s; animation-duration: 3.4s; }
+    .wave-bg .bubble.b1 { left: 28%; animation-delay: 0s; }
+    .wave-bg .bubble.b2 { left: 40%; width: 1.4rem; height: 1.4rem; animation-delay: -0.7s; animation-duration: 3.1s; }
+    .wave-bg .bubble.b3 { left: 52%; width: 0.75rem; height: 0.75rem; animation-delay: -1.4s; }
+    .wave-bg .bubble.b4 { left: 62%; animation-delay: -2s; animation-duration: 2.9s; }
+    .wave-bg .bubble.b5 { left: 36%; width: 0.65rem; height: 0.65rem; animation-delay: -1.1s; animation-duration: 2.2s; }
+    .wave-bg .bubble.b6 { left: 58%; width: 1.15rem; height: 1.15rem; animation-delay: -0.3s; animation-duration: 3.4s; }
     @keyframes bubble-rise {
       0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
       15% { opacity: 1; }
-      60% { opacity: 0.9; transform: translate(0.4rem, -3.2rem) scale(1); }
-      100% { opacity: 0; transform: translate(-0.3rem, -6rem) scale(1.25); }
+      60% { opacity: 0.9; transform: translate(0.35rem, -4.2rem) scale(1); }
+      100% { opacity: 0; transform: translate(-0.25rem, -8rem) scale(1.3); }
     }
+
     /* Light text over the night wash so the question stays readable. */
     body.bg-thunder {
       --ink: #fff7ea;
@@ -578,7 +562,6 @@
       }
       .wave-bg .jack-glow,
       .wave-bg .jack-face,
-      .wave-bg .jack-eyes path,
       .wave-bg .moon,
       .wave-bg .cauldron-glow {
         animation: none !important;
@@ -1616,22 +1599,14 @@
       <div class="warp-rush"></div>
     </div>
 
-    <div class="moon lv-7" aria-hidden="true"></div>
-    <svg class="night-hills night-art lv-7" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#0d0618" d="M0,46 C120,22 240,18 360,38 C480,58 560,62 680,54 C820,44 920,48 1040,60 C1160,72 1280,30 1440,40 L1440,120 L0,120 Z"/>
+    <div class="moon" aria-hidden="true"></div>
+    <svg class="howl-hill night-art" viewBox="0 0 1440 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#07040e" d="M0,70 C180,30 360,24 560,52 C760,80 900,86 1100,60 C1260,40 1360,48 1440,64 L1440,140 L0,140 Z"/>
     </svg>
-    <svg class="wolf night-art lv-7" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#0d0618" d="M30,10 L40,8 C52,12 64,18 72,26 L78,6 L86,22 L90,10 L94,30
-        C98,38 100,46 102,54 C114,66 126,86 136,110 C146,134 156,152 172,166
-        C188,178 196,192 194,204 C210,200 224,192 234,180 C236,196 222,210 198,216 L176,216
-        C170,214 168,210 168,206 C160,208 148,210 136,208 L126,208
-        C122,206 122,202 126,200 L136,198 C140,190 140,180 134,170
-        C128,176 120,180 112,180 L110,200 C112,204 112,208 106,210 L92,210
-        C88,208 90,202 94,200 L96,170 C90,160 84,150 86,138 L80,132 L84,124 L76,116 L80,108 L72,98
-        C70,88 66,80 60,72 L54,62 L50,50 C44,44 38,40 30,40 L40,34 L50,32 L56,28 C46,22 38,16 30,10 Z"/>
-      <path fill="#0d0618" d="M60,220 C80,210 150,206 220,214 L230,220 Z"/>
+    <svg class="wolf night-art" viewBox="0 0 240 250" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#07040e" d="M172,34 C154,50 138,64 124,78 L112,30 L120,72 L104,42 L114,88 C102,106 94,130 92,152 C72,160 40,166 26,184 C10,204 24,224 58,216 C78,210 92,194 100,178 L94,232 L126,230 L132,184 L146,234 L170,230 L160,172 C166,136 158,104 168,84 C174,66 180,48 172,34 Z"/>
     </svg>
-    <div class="cauldron-scene lv-8" aria-hidden="true">
+    <div class="cauldron-scene" aria-hidden="true">
       <div class="cauldron-glow"></div>
       <span class="bubble b1"></span>
       <span class="bubble b2"></span>
@@ -1661,28 +1636,27 @@
         <ellipse cx="100" cy="46" rx="78" ry="11" fill="url(#cauldron-brew)"/>
       </svg>
     </div>
-
-    <div class="jack lv-6" aria-hidden="true">
+    <div class="jack" aria-hidden="true">
       <div class="jack-glow"></div>
       <svg class="jack-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="jack-skin" cx="50%" cy="42%" r="62%">
-            <stop offset="0%" stop-color="#ffb347"/>
-            <stop offset="60%" stop-color="#f57c14"/>
-            <stop offset="100%" stop-color="#b8480b"/>
+            <stop offset="0%" stop-color="#e07a28"/>
+            <stop offset="55%" stop-color="#c2510c"/>
+            <stop offset="100%" stop-color="#6e2408"/>
           </radialGradient>
-          <radialGradient id="jack-fire" cx="50%" cy="55%" r="60%">
-            <stop offset="0%" stop-color="#fffbd6"/>
-            <stop offset="45%" stop-color="#ffe066"/>
-            <stop offset="100%" stop-color="#ff9f1c"/>
+          <radialGradient id="jack-fire" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stop-color="#ffe0e0"/>
+            <stop offset="38%" stop-color="#ff2a2a"/>
+            <stop offset="100%" stop-color="#9d0014"/>
           </radialGradient>
         </defs>
-        <path d="M188,62 C186,40 190,22 204,10 L218,18 C208,30 206,46 210,64 Z" fill="#4f6b2a"/>
+        <path d="M188,62 C186,40 190,22 204,10 L218,18 C208,30 206,46 210,64 Z" fill="#3f5a22"/>
         <ellipse cx="128" cy="200" rx="104" ry="138" fill="url(#jack-skin)"/>
         <ellipse cx="272" cy="200" rx="104" ry="138" fill="url(#jack-skin)"/>
         <ellipse cx="200" cy="204" rx="118" ry="146" fill="url(#jack-skin)"/>
-        <path d="M200,62 C176,120 176,290 200,348 M200,62 C224,120 224,290 200,348" fill="none" stroke="#c4560f" stroke-width="5" opacity="0.6"/>
-        <path d="M118,86 C76,140 76,270 118,326 M282,86 C324,140 324,270 282,326" fill="none" stroke="#c4560f" stroke-width="5" opacity="0.55"/>
+        <path d="M200,62 C176,120 176,290 200,348 M200,62 C224,120 224,290 200,348" fill="none" stroke="#8a3010" stroke-width="5" opacity="0.7"/>
+        <path d="M118,86 C76,140 76,270 118,326 M282,86 C324,140 324,270 282,326" fill="none" stroke="#8a3010" stroke-width="5" opacity="0.6"/>
         <g class="jack-face" fill="url(#jack-fire)">
           <path d="M112,160 L164,160 L138,112 Z"/>
           <path d="M236,160 L288,160 L262,112 Z"/>
@@ -1691,11 +1665,6 @@
         </g>
       </svg>
     </div>
-    <div class="jack-eyes lv-7" aria-hidden="true">
-      <svg class="jack-eyes-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
-        <path d="M112,160 L164,160 L138,112 Z"/>
-        <path d="M236,160 L288,160 L262,112 Z"/>
-      </svg>
     </div>
   </div>
   <main>
@@ -4143,8 +4112,9 @@
       bg.setAttribute("data-level", String(level));
       document.body.classList.toggle("bg-thunder", level >= 6);
       bg.classList.toggle("night", level >= 6);
-      bg.classList.toggle("howl", level >= 7);
-      bg.classList.toggle("cauldron", level >= 8);
+      bg.classList.toggle("scene-thunder", level === 6);
+      bg.classList.toggle("scene-howl", level === 7);
+      bg.classList.toggle("scene-cauldron", level === 8);
     }
     function render() {
       applyUnlockedBackground();

@@ -2374,6 +2374,7 @@
       { id: "divide", label: "Division" },
       { id: "add", label: "Addition" },
       { id: "subtract", label: "Subtraction" },
+      { id: "maketen", label: "Make Ten" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
       { id: "hawaii", label: "Hawaiian Islands" },
@@ -2699,6 +2700,7 @@
     function isOceanMap() { return state.operation === "oceanmap"; }
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
+    function isMakeTen() { return state.operation === "maketen"; }
     function isMath() {
       return state.operation === "multiply" || state.operation === "divide"
         || state.operation === "add" || state.operation === "subtract";
@@ -2736,6 +2738,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
+      if (op === "maketen") return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
       if (op === "add" || op === "subtract") return defaultAddTables();
       if (op === "multiples") return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       return defaultMathTables();
@@ -3134,6 +3137,30 @@
 
 
 
+    function buildMakeTen(avoid) {
+      const pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      if (!state.makeTenBag || !state.makeTenBag.length) state.makeTenBag = shuffle(pool.slice());
+      let given = state.makeTenBag.shift();
+      if (avoid && ("maketen:" + given) === avoid && pool.length > 1) {
+        if (!state.makeTenBag.length) state.makeTenBag = shuffle(pool.filter(function (n) { return n !== given; }));
+        const held = given;
+        given = state.makeTenBag.shift();
+        state.makeTenBag.push(held);
+      }
+      const answer = 10 - given;
+      const wrongs = pool.filter(function (n) { return n !== answer; });
+      const wrong = wrongs[Math.floor(Math.random() * wrongs.length)];
+      return {
+        operation: "maketen",
+        a: given,
+        b: answer,
+        answer: answer,
+        ask: given + " + ? = 10",
+        key: "maketen:" + given,
+        choices: shuffle([answer, wrong])
+      };
+    }
+
     function buildPiano(avoid) {
       const selected = selectedPiano();
       const allow = {};
@@ -3436,6 +3463,22 @@
           choices: nameChoices(body.name, selectedFlags().map(function (b) { return b.name; }), FLAGS.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "maketen" || (isMakeTen() && (pair.a != null || pair.id != null))) {
+        const given = Number(pair.a != null ? pair.a : pair.id);
+        const answer = 10 - given;
+        const wrongs = [];
+        for (let n = 0; n <= 10; n++) if (n !== answer) wrongs.push(n);
+        const wrong = wrongs[Math.floor(Math.random() * wrongs.length)];
+        return {
+          operation: "maketen",
+          a: given,
+          b: answer,
+          answer: answer,
+          ask: given + " + ? = 10",
+          key: pair.key || ("maketen:" + given),
+          choices: shuffle([answer, wrong])
+        };
+      }
       if (pair.operation === "piano" && PIANO_BY_ID[pair.id]) {
         const body = PIANO_BY_ID[pair.id];
         return {
@@ -3550,6 +3593,14 @@
     }
     function makeProblem(avoid) {
       if (isMultiples()) return buildMultiplesProblem();
+      if (isMakeTen()) {
+        if (state.drill && state.drill.length) {
+          const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
+          const rebuilt = rebuildQuizFromDrill(pair);
+          if (rebuilt) return rebuilt;
+        }
+        return buildMakeTen(avoid);
+      }
       if (isQuiz()) {
         if (state.drill && state.drill.length) {
           const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
@@ -3571,6 +3622,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
+        if (isMakeTen()) return buildMakeTen(avoid);
       }
       const tables = state.tables.length ? state.tables : (isAdd() || isSubtract() ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2]);
       let a = tables[Math.floor(Math.random() * tables.length)];
@@ -3612,6 +3664,11 @@
     }
 
     function factLabel(pair) {
+      if (pair.operation === "maketen" || isMakeTen()) {
+        const given = pair.a;
+        const partner = pair.b != null ? pair.b : pair.answer;
+        return given + " + " + partner + " = 10";
+      }
       if (pair.operation === "oceanmap" || isOceanMap()) {
         return pair.answer || (OCEAN_BY_ID[pair.id] && OCEAN_BY_ID[pair.id].name) || "that ocean";
       }
@@ -3688,6 +3745,10 @@
 
     function spokenFact(pair) {
       const op = pair.operation || state.operation;
+      if (op === "maketen") {
+        const partner = pair.b != null ? pair.b : pair.answer;
+        return pair.a + " plus " + partner + " makes 10.";
+      }
       if (op === "ocean" || op === "oceanmap") {
         const body = OCEAN_BY_ID[pair.id];
         const name = pair.answer || (body && body.name) || "that body of water";
@@ -4365,6 +4426,10 @@
           "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
           "Pick at least one vehicle.",
           true));
+      } else if (isMakeTen()) {
+        const note = el("div", { class: "card" });
+        note.appendChild(el("p", { class: "hint", text: "Every number from 0 to 10 comes up once, then the set starts over. The question looks like 7 + ? = 10." }));
+        stack.appendChild(note);
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
           VOCAB.map(function (v) {
@@ -4562,6 +4627,7 @@
       if (isVehicleTrivia()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
+      if (isMakeTen()) hint = "See a number from 0 to 10. Choose the partner that makes 10. Two choices.";
       if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }
@@ -4609,6 +4675,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
+      if (isMakeTen()) return "Make Ten";
       return "Quiz";
     }
 
@@ -4828,6 +4895,14 @@
       if (isMultiples()) {
         eq.appendChild(el("p", { class: "label", text: "Multiples" }));
         eq.appendChild(el("p", { class: "prompt multiples-prompt", text: problem.ask }));
+      } else if (isMakeTen()) {
+        eq.appendChild(el("p", { class: "label", text: "Make Ten" }));
+        const line = el("p", { class: "prompt" });
+        line.appendChild(document.createTextNode(String(problem.a)));
+        line.appendChild(el("span", { class: "times", text: "+" }));
+        line.appendChild(el("span", { class: "times", text: "?" }));
+        line.appendChild(document.createTextNode(" = 10"));
+        eq.appendChild(line);
       } else if (isQuiz()) {
         eq.appendChild(el("p", { class: "label", text: quizPlayLabel() }));
         const pic = pictureForProblem(problem);
@@ -4894,7 +4969,7 @@
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
       const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle();
-      const answers = el("div", { class: "answers" + (isMultiples() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -4941,6 +5016,7 @@
       state.pianoIndex = 0;
       state.pianoBag = null;
       state.pianoBagKey = "";
+      state.makeTenBag = null;
       state.vehicleIndex = 0;
       state.playPage = "question";
       state.phase = "play";
@@ -4980,6 +5056,8 @@
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {
           state.misses.push({ a: problem.a, b: problem.b, answer: problem.answer, operation: "multiples" });
+        } else if (problem.operation === "maketen" || isMakeTen()) {
+          state.misses.push({ operation: "maketen", a: problem.a, id: problem.a, answer: problem.answer, ask: problem.ask, key: problem.key });
         } else if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {
           state.misses.push({
             id: problem.id, ask: problem.ask, answer: problem.answer,

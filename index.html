@@ -1895,6 +1895,15 @@
       { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: 15 },
       { id: "spooked", label: "Spooked", file: "assets/audio/spooked.mp3", unlockAt: 15 }
     ];
+    // Games attached to a beat. The link stays once that beat, or any later beat, is unlocked.
+    // Add another id here for a second game (next slot is Haunt, id "bat"). Do not add it yet.
+    const BEAT_REWARDS = {
+      bitwave: {
+        href: "https://nova-fire-bamboo-heart.grok.me",
+        label: "Play the maze",
+        speak: "Tap Play the maze to open the maze game."
+      }
+    };
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
@@ -2742,7 +2751,7 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
-      if (unlockedNow === lastBeatId()) state.mazeCelebrate = true;
+      if (BEAT_REWARDS[unlockedNow]) state.mazeCelebrate = unlockedNow;
       // Make the newly unlocked beat the active choice immediately. setPlayMusicId
       // keeps manual beat changes working in both setup and play, and respects mute.
       setPlayMusicId(unlockedNow);
@@ -4384,27 +4393,52 @@
       }
       return id;
     }
-    // The maze reward belongs to the last beat in PLAY_TRACKS (currently Cauldron).
-    function lastBeatId() {
-      return PLAY_TRACKS[PLAY_TRACKS.length - 1].id;
+    function beatIndex(id) {
+      for (var i = 0; i < PLAY_TRACKS.length; i++) {
+        if (PLAY_TRACKS[i].id === id) return i;
+      }
+      return -1;
     }
-    function lastBeatUnlocked() {
-      return !!(state.beatsUnlocked && state.beatsUnlocked[lastBeatId()]);
+    // Earned if this beat or any later beat is already unlocked (old saves included).
+    function beatRewardEarned(beatId) {
+      var start = beatIndex(beatId);
+      if (start < 0 || !state.beatsUnlocked) return false;
+      for (var i = start; i < PLAY_TRACKS.length; i++) {
+        if (state.beatsUnlocked[PLAY_TRACKS[i].id]) return true;
+      }
+      return false;
     }
-    function mazeRewardLink() {
+    function earnedBeatRewards() {
+      var out = [];
+      for (var i = 0; i < PLAY_TRACKS.length; i++) {
+        var id = PLAY_TRACKS[i].id;
+        if (BEAT_REWARDS[id] && beatRewardEarned(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] });
+      }
+      return out;
+    }
+    function mazeRewardLink(beatId) {
+      var reward = BEAT_REWARDS[beatId];
       return el("a", {
         class: "maze-reward",
-        href: "https://nova-fire-bamboo-heart.grok.me",
+        href: reward.href,
         target: "_blank",
         rel: "noopener noreferrer",
-        text: "Play the maze"
+        text: reward.label
+      });
+    }
+    function appendEarnedRewardLinks(parent) {
+      earnedBeatRewards().forEach(function (item) {
+        parent.appendChild(mazeRewardLink(item.beatId));
       });
     }
     function syncMazeCongrats() {
-      document.body.classList.toggle("maze-ready", lastBeatUnlocked());
+      var earned = earnedBeatRewards();
+      document.body.classList.toggle("maze-ready", earned.length > 0);
       var old = document.getElementById("maze-congrats");
       if (old) old.remove();
-      if (state.phase !== "play" || !lastBeatUnlocked() || !state.mazeCelebrate) return;
+      var celebrateId = state.mazeCelebrate;
+      var reward = celebrateId && BEAT_REWARDS[celebrateId];
+      if (state.phase !== "play" || !reward || !beatRewardEarned(celebrateId)) return;
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
@@ -4413,13 +4447,13 @@
       var title = document.createElement("h2");
       title.textContent = "Congratulations";
       var note = document.createElement("p");
-      note.textContent = beatLabel(lastBeatId()) + " is unlocked.";
+      note.textContent = beatLabel(celebrateId) + " is unlocked.";
       var link = document.createElement("a");
       link.className = "congrats-maze";
-      link.href = "https://nova-fire-bamboo-heart.grok.me";
+      link.href = reward.href;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "Play the maze";
+      link.textContent = reward.label;
       var stay = document.createElement("button");
       stay.type = "button";
       stay.className = "congrats-stay";
@@ -4438,7 +4472,7 @@
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
       stack.appendChild(musicCard(true));
-      if (lastBeatUnlocked()) stack.appendChild(mazeRewardLink());
+      appendEarnedRewardLinks(stack);
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -4985,7 +5019,7 @@
     }
 
     function renderPlay(app) {
-      if (lastBeatUnlocked()) app.appendChild(mazeRewardLink());
+      appendEarnedRewardLinks(app);
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;
@@ -5156,7 +5190,8 @@
             if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
           }
         }
-        var mazeNote = justBeat && justBeat.id === lastBeatId() ? " Congratulations. " + justBeat.label + " is unlocked. Tap Play the maze to open the maze game." : "";
+        var justReward = justBeat && BEAT_REWARDS[justBeat.id];
+        var mazeNote = justReward ? " Congratulations. " + justBeat.label + " is unlocked. " + justReward.speak : "";
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         state.streak = 0;

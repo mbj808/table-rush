@@ -281,6 +281,39 @@
     .wave-bg.scene-howl .howl-hill,
     .wave-bg.scene-howl .wolf { display: block; }
     .wave-bg.scene-cauldron .cauldron-scene { display: block; }
+    .wave-bg.scene-bat {
+      background: radial-gradient(ellipse 80% 70% at 50% 42%, #241848 0%, #100818 55%, #07040f 100%);
+    }
+    .wave-bg .bat-fly { display: none; }
+    .wave-bg.scene-bat .bat-fly {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      width: min(110vw, 80rem);
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      animation: bat-approach 4.6s linear infinite;
+      pointer-events: none;
+    }
+    .wave-bg .bat-fly img {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: brightness(0);
+      transform-origin: center center;
+      animation: bat-flap 0.45s ease-in-out infinite;
+    }
+    @keyframes bat-approach {
+      0% { transform: translate(-50%, -50%) scale(0.05); opacity: 0.95; }
+      60% { opacity: 0.8; }
+      82% { opacity: 0.38; }
+      100% { transform: translate(-50%, -50%) scale(3.1); opacity: 0.14; }
+    }
+    @keyframes bat-flap {
+      0%, 100% { transform: scaleX(1) scaleY(1); }
+      50% { transform: scaleX(1.05) scaleY(0.74); }
+    }
 
     .wave-bg .night-art {
       position: absolute;
@@ -567,9 +600,16 @@
       .wave-bg .jack-glow,
       .wave-bg .jack-face,
       .wave-bg .moon,
-      .wave-bg .cauldron-glow {
+      .wave-bg .cauldron-glow,
+      .wave-bg .bat-fly,
+      .wave-bg .bat-fly img {
         animation: none !important;
       }
+      .wave-bg.scene-bat .bat-fly {
+        transform: translate(-50%, -50%) scale(0.42);
+        opacity: 0.55;
+      }
+      .wave-bg.scene-bat .bat-fly img { transform: none; }
       .wave-bg .bubble {
         animation: none !important;
         opacity: 0.9;
@@ -1639,6 +1679,12 @@
         <ellipse cx="100" cy="46" rx="78" ry="11" fill="url(#cauldron-brew)"/>
       </svg>
     </div>
+
+    <!-- Bat silhouette: public domain, https://freesvg.org/bat-vector-silhouette -->
+    <div class="bat-fly" aria-hidden="true">
+      <img src="assets/halloween/bat.svg" alt="">
+    </div>
+
     <div class="jack" aria-hidden="true">
       <div class="jack-glow"></div>
       <svg class="jack-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
@@ -1741,7 +1787,8 @@
       { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 },
       { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: 15 },
       { id: "howl", label: "Howl", file: "assets/audio/howl.mp3", unlockAt: 15 },
-      { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: 15 }
+      { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: 15 },
+      { id: "bat", label: "Bat", file: "assets/audio/bat.mp3", unlockAt: 15 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -2360,7 +2407,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -4118,6 +4165,7 @@
       bg.classList.toggle("scene-thunder", level === 6);
       bg.classList.toggle("scene-howl", level === 7);
       bg.classList.toggle("scene-cauldron", level === 8);
+      bg.classList.toggle("scene-bat", level === 9);
     }
     function render() {
       applyUnlockedBackground();

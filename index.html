@@ -341,6 +341,50 @@
       animation: bat-flap 0.45s ease-in-out infinite;
     }
 
+    /* Spooked (level 11): a public-domain witch spins in place. Eyes are an overlay so they turn with her. */
+    .wave-bg.scene-spooked {
+      background: radial-gradient(ellipse 80% 70% at 50% 42%, #241848 0%, #100818 55%, #07040f 100%);
+    }
+    .wave-bg .witch-spin { display: none; }
+    .wave-bg.scene-spooked .witch-spin {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 75%;
+      width: min(44vmin, 18rem);
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      animation: witch-spin 5s linear infinite;
+      pointer-events: none;
+    }
+    .wave-bg .witch-art {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: brightness(0);
+      opacity: 0.62;
+    }
+    .wave-bg .witch-eye {
+      position: absolute;
+      width: 5.2%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #c6ff6a;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 6px #e8ffb0, 0 0 14px #39ff14, 0 0 28px rgba(57, 255, 20, 0.9);
+      animation: witch-eye 1.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .wave-bg .witch-eye.e1 { left: 56.2%; top: 21.2%; }
+    .wave-bg .witch-eye.e2 { left: 58.6%; top: 23.2%; animation-delay: 0.25s; }
+    @keyframes witch-spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    @keyframes witch-eye {
+      0%, 100% { opacity: 0.72; }
+      50% { opacity: 1; }
+    }
+
     .wave-bg .night-art {
       position: absolute;
       left: auto;
@@ -645,6 +689,16 @@
         opacity: 0.55;
       }
       .wave-bg.scene-bats .bats-shape { transform: none; }
+      .wave-bg .witch-spin,
+      .wave-bg .witch-eye {
+        animation: none !important;
+      }
+      .wave-bg.scene-spooked .witch-spin {
+        transform: translate(-50%, -50%);
+      }
+      .wave-bg.scene-spooked .witch-eye {
+        opacity: 1;
+      }
       .wave-bg .bubble {
         animation: none !important;
         opacity: 0.9;
@@ -1722,6 +1776,12 @@
     <div class="bats-fly" aria-hidden="true">
       <div class="bats-shape"></div>
     </div>
+    <!-- Witch silhouette: public domain, https://freesvg.org/witch-on-a-broom -->
+    <div class="witch-spin" aria-hidden="true">
+      <img class="witch-art" src="assets/halloween/witch.svg" alt="">
+      <span class="witch-eye e1"></span>
+      <span class="witch-eye e2"></span>
+    </div>
 
     <div class="jack" aria-hidden="true">
       <div class="jack-glow"></div>
@@ -1827,7 +1887,8 @@
       { id: "howl", label: "Howl", file: "assets/audio/howl.mp3", unlockAt: 15 },
       { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: 15 },
       { id: "bat", label: "Haunt", file: "assets/audio/bat.mp3", unlockAt: 15 },
-      { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: 15 }
+      { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: 15 },
+      { id: "spooked", label: "Spooked", file: "assets/audio/spooked.mp3", unlockAt: 15 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -2447,7 +2508,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -4267,6 +4328,7 @@
       bg.classList.toggle("scene-cauldron", level === 8);
       bg.classList.toggle("scene-bat", level === 9);
       bg.classList.toggle("scene-bats", level === 10);
+      bg.classList.toggle("scene-spooked", level === 11);
     }
     function render() {
       applyUnlockedBackground();

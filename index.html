@@ -352,9 +352,13 @@
       height: 9rem;
     }
     .wave-bg .wolf {
-      left: 5vw;
-      bottom: 3.4rem;
-      width: min(40vmin, 22rem);
+      position: absolute;
+      left: 0.4rem;
+      bottom: 4.3rem;
+      height: 36vh;
+      width: auto;
+      transform: scaleX(-1);
+      filter: brightness(0);
     }
 
     .wave-bg .cauldron-scene {
@@ -1603,9 +1607,8 @@
     <svg class="howl-hill night-art" viewBox="0 0 1440 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path fill="#07040e" d="M0,70 C180,30 360,24 560,52 C760,80 900,86 1100,60 C1260,40 1360,48 1440,64 L1440,140 L0,140 Z"/>
     </svg>
-    <svg class="wolf night-art" viewBox="0 0 240 250" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#07040e" d="M172,34 C154,50 138,64 124,78 L112,30 L120,72 L104,42 L114,88 C102,106 94,130 92,152 C72,160 40,166 26,184 C10,204 24,224 58,216 C78,210 92,194 100,178 L94,232 L126,230 L132,184 L146,234 L170,230 L160,172 C166,136 158,104 168,84 C174,66 180,48 172,34 Z"/>
-    </svg>
+    <!-- Howling wolf: public domain, https://freesvg.org/wolf-howling -->
+    <img class="wolf" src="assets/halloween/howling-wolf.svg" alt="">
     <div class="cauldron-scene" aria-hidden="true">
       <div class="cauldron-glow"></div>
       <span class="bubble b1"></span>

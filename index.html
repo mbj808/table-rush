@@ -254,6 +254,65 @@
       background: #f4fffd;
       box-shadow: 0 0 8px #9dfff0, 0 0 16px rgba(255,255,255,0.85);
     }
+    /* Thunder (level 6): a glowing jack-o'-lantern over a purple and orange night wash. */
+    .wave-bg .jack { display: none; }
+    .wave-bg[data-level="6"] {
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 62%, rgba(255, 140, 40, 0.38) 0%, rgba(255, 140, 40, 0) 70%),
+        linear-gradient(180deg, #1c0d33 0%, #3a1856 52%, #8a3a14 100%);
+    }
+    .wave-bg[data-level="6"] svg:not(.jack-svg),
+    .wave-bg[data-level="6"] .spark,
+    .wave-bg[data-level="6"] .warp { display: none !important; }
+    .wave-bg[data-level="6"] .jack {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 56%;
+      width: min(72vmin, 34rem);
+      transform: translate(-50%, -50%);
+      opacity: 0.55;
+    }
+    .wave-bg .jack-svg {
+      position: relative;
+      left: auto;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      display: block;
+      animation: none;
+      will-change: auto;
+    }
+    .wave-bg .jack-glow {
+      position: absolute;
+      inset: 18% 14% 10%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 214, 102, 0.75) 0%, rgba(255, 140, 30, 0.35) 45%, rgba(255, 120, 20, 0) 72%);
+      animation: jack-flicker 3.2s ease-in-out infinite;
+    }
+    .wave-bg .jack-face { animation: jack-flicker 3.2s ease-in-out infinite; }
+    @keyframes jack-flicker {
+      0%, 100% { opacity: 1; }
+      40% { opacity: 0.82; }
+      55% { opacity: 0.95; }
+      70% { opacity: 0.78; }
+    }
+    /* Light text over the night wash so the question stays readable. */
+    body.bg-thunder {
+      --ink: #fff7ea;
+      --muted: #ffe2c4;
+      background: #1c0d33;
+    }
+    body.bg-thunder .prompt,
+    body.bg-thunder .hud,
+    body.bg-thunder .sub,
+    body.bg-thunder .hint,
+    body.bg-thunder .beat-unlock-note {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+    }
+    body.bg-thunder .fact { color: #ffe58a; }
+    body.bg-thunder .beat-unlock-note { color: #fff7ea; }
+
     .wave-bg .warp {
       position: absolute;
       inset: 0;
@@ -390,6 +449,10 @@
         animation: none !important;
         transform: none;
       }
+      .wave-bg .jack-glow,
+      .wave-bg .jack-face {
+        animation: none !important;
+      }
       .supernova,
       .supernova-label {
         animation: none !important;
@@ -477,15 +540,33 @@
       text-shadow: none;
       box-shadow: 0 3px 0 #c9a227;
     }
+    /* On the play screen the maze link takes the left half of the bottom bar,
+       so it is always in view without pushing the question or beats up. */
     body.play-screen a.maze-reward {
       position: fixed;
-      left: 0.6rem;
-      right: 0.6rem;
-      bottom: 4.55rem;
+      left: 0;
+      bottom: 0;
       z-index: 45;
+      width: 50%;
+      height: 4.25rem;
+      min-height: 4.25rem;
       margin: 0;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0;
+      border: 0;
+      border-top: 2px solid #fff3c4;
+      border-right: 2px solid rgba(255,255,255,0.62);
+      box-shadow: none;
+      font-size: 1.65rem;
     }
-    body.play-screen.maze-ready main { padding-bottom: 10rem; }
+    body.play-screen.maze-ready .page-bar {
+      left: 50%;
+      width: 50%;
+    }
+    @media (max-width: 30rem) {
+      body.play-screen a.maze-reward,
+      body.play-screen.maze-ready .page-bar { font-size: 1.25rem; }
+    }
     a.maze-reward:active { transform: translateY(1px); }
     .congrats-layer {
       position: fixed;
@@ -560,6 +641,9 @@
     body.play-screen header { margin-bottom: 0.35rem; }
     body.play-screen[data-play-page="question"] .brand-meta { display: none; }
     body.play-screen .beats-card { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+    /* Seven beats: fit four speakers per row on the play screen's Beats page. */
+    body.play-screen .beats-card { padding-left: 0.2rem; padding-right: 0.2rem; }
+    body.play-screen .beats-row { gap: 0.5rem 0.45rem; }
     body.play-screen .eq { padding: 0.85rem 0.75rem 0.4rem; }
     body.play-screen .prompt { font-size: 2.6rem; }
     body.play-screen .answers { margin-top: 0.65rem; }
@@ -1389,6 +1473,36 @@
       <div class="warp-spin"></div>
       <div class="warp-rush"></div>
     </div>
+
+    <div class="jack lv-6" aria-hidden="true">
+      <div class="jack-glow"></div>
+      <svg class="jack-svg" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="jack-skin" cx="50%" cy="42%" r="62%">
+            <stop offset="0%" stop-color="#ffb347"/>
+            <stop offset="60%" stop-color="#f57c14"/>
+            <stop offset="100%" stop-color="#b8480b"/>
+          </radialGradient>
+          <radialGradient id="jack-fire" cx="50%" cy="55%" r="60%">
+            <stop offset="0%" stop-color="#fffbd6"/>
+            <stop offset="45%" stop-color="#ffe066"/>
+            <stop offset="100%" stop-color="#ff9f1c"/>
+          </radialGradient>
+        </defs>
+        <path d="M188,62 C186,40 190,22 204,10 L218,18 C208,30 206,46 210,64 Z" fill="#4f6b2a"/>
+        <ellipse cx="128" cy="200" rx="104" ry="138" fill="url(#jack-skin)"/>
+        <ellipse cx="272" cy="200" rx="104" ry="138" fill="url(#jack-skin)"/>
+        <ellipse cx="200" cy="204" rx="118" ry="146" fill="url(#jack-skin)"/>
+        <path d="M200,62 C176,120 176,290 200,348 M200,62 C224,120 224,290 200,348" fill="none" stroke="#c4560f" stroke-width="5" opacity="0.6"/>
+        <path d="M118,86 C76,140 76,270 118,326 M282,86 C324,140 324,270 282,326" fill="none" stroke="#c4560f" stroke-width="5" opacity="0.55"/>
+        <g class="jack-face" fill="url(#jack-fire)">
+          <path d="M112,160 L164,160 L138,112 Z"/>
+          <path d="M236,160 L288,160 L262,112 Z"/>
+          <path d="M186,214 L214,214 L200,188 Z"/>
+          <path d="M96,236 C130,296 270,296 304,236 L274,246 L262,268 L244,250 L222,276 L200,254 L178,276 L156,250 L138,268 L126,246 Z"/>
+        </g>
+      </svg>
+    </div>
   </div>
   <main>
     <p id="live" class="sr" aria-live="polite"></p>
@@ -1458,7 +1572,8 @@
       { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: 15 },
       { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 15 },
       { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 15 },
-      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 }
+      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 },
+      { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: 15 }
     ];
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -2077,7 +2192,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -2306,6 +2421,7 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
+      if (unlockedNow === "thunder") state.mazeCelebrate = true;
       // Make the newly unlocked beat the active choice immediately. setPlayMusicId
       // keeps manual beat changes working in both setup and play, and respects mute.
       setPlayMusicId(unlockedNow);
@@ -3648,7 +3764,7 @@
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.beatJustUnlocked = "";
-      state.mazeCelebrated = false;
+      state.mazeCelebrate = false;
       if (!state.beatsUnlocked[state.playMusicId]) {
         state.playMusicId = freeBeatId();
         disposePlayMusic();
@@ -3827,7 +3943,9 @@
     function applyUnlockedBackground() {
       const bg = document.querySelector(".wave-bg");
       if (!bg) return;
-      bg.setAttribute("data-level", String(unlockedBackgroundLevel()));
+      const level = unlockedBackgroundLevel();
+      bg.setAttribute("data-level", String(level));
+      document.body.classList.toggle("bg-thunder", level >= 6);
     }
     function render() {
       applyUnlockedBackground();
@@ -3878,8 +3996,8 @@
       }
       return id;
     }
-    function smileUnlocked() {
-      return !!(state.beatsUnlocked && state.beatsUnlocked.cry);
+    function thunderUnlocked() {
+      return !!(state.beatsUnlocked && state.beatsUnlocked.thunder);
     }
     function mazeRewardLink() {
       return el("a", {
@@ -3891,10 +4009,10 @@
       });
     }
     function syncMazeCongrats() {
-      document.body.classList.toggle("maze-ready", smileUnlocked());
+      document.body.classList.toggle("maze-ready", thunderUnlocked());
       var old = document.getElementById("maze-congrats");
       if (old) old.remove();
-      if (state.phase !== "play" || !smileUnlocked() || state.mazeCelebrated) return;
+      if (state.phase !== "play" || !thunderUnlocked() || !state.mazeCelebrate) return;
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
@@ -3903,7 +4021,7 @@
       var title = document.createElement("h2");
       title.textContent = "Congratulations";
       var note = document.createElement("p");
-      note.textContent = "Smile is unlocked.";
+      note.textContent = "Thunder is unlocked.";
       var link = document.createElement("a");
       link.className = "congrats-maze";
       link.href = "https://nova-fire-bamboo-heart.grok.me";
@@ -3915,7 +4033,7 @@
       stay.className = "congrats-stay";
       stay.textContent = "Keep playing";
       stay.addEventListener("click", function () {
-        state.mazeCelebrated = true;
+        state.mazeCelebrate = false;
         syncMazeCongrats();
       });
       card.appendChild(title);
@@ -3928,7 +4046,7 @@
     function renderSetup(app) {
       const stack = el("div", { class: "stack" });
       stack.appendChild(musicCard(true));
-      if (smileUnlocked()) stack.appendChild(mazeRewardLink());
+      if (thunderUnlocked()) stack.appendChild(mazeRewardLink());
       const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
       startBtn.disabled = state.tables.length === 0;
       stack.appendChild(startBtn);
@@ -4469,7 +4587,7 @@
     }
 
     function renderPlay(app) {
-      if (smileUnlocked()) app.appendChild(mazeRewardLink());
+      if (thunderUnlocked()) app.appendChild(mazeRewardLink());
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;
@@ -4631,7 +4749,7 @@
             if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
           }
         }
-        var mazeNote = justBeat && justBeat.id === "cry" ? " Maze game unlocked. Tap Smile unlocked to play the maze." : "";
+        var mazeNote = justBeat && justBeat.id === "thunder" ? " Congratulations. Thunder is unlocked. Tap Play the maze to open the maze game." : "";
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         state.streak = 0;

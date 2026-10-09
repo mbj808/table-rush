@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mad Facts Challenge</title>
-  <meta name="description" content="Mad Facts Challenge (Table Rush). Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles. No account needed." />
+  <meta name="description" content="Mad Facts Challenge (Table Rush). Practice multiplication, division, addition, subtraction, oceans, sports, Hawaiian islands, capitals, state maps, elements, flags, rhyming, and synonyms & antonyms; piano notes; instruments; vehicles; wonders of the world. No account needed." />
   <style>
     :root {
       --bg: #5ec4d6;
@@ -1368,6 +1368,15 @@
       margin: 0.1rem auto 0.15rem;
       object-fit: contain;
       background: #eef6fb;
+      border-radius: 0.75rem;
+    }
+    .wonder-photo {
+      display: block;
+      max-width: 100%;
+      /* Grow with the viewport height so the photo fills the space above the answers. */
+      height: clamp(9rem, calc(100vh - 28rem), 14rem);
+      margin: 0.1rem auto 0.15rem;
+      object-fit: contain;
       border-radius: 0.75rem;
     }
     body.play-screen .state-map { max-width: 100%; max-height: 8rem; }
@@ -3008,6 +3017,31 @@
       { id: "blimp", ask: "Which long airship is filled with gas and can float slowly across the sky?" }
     ];
 
+    // Wonders of the World: Wikimedia Commons photos in assets/wonders/ (credits in CREDITS.md).
+    const WONDER_GROUP = { new7: "New 7 Wonders", more: "More wonders" };
+    const WONDERS = [
+      { id: "greatwall", name: "Great Wall of China", group: "new7" },
+      { id: "petra", name: "Petra", group: "new7" },
+      { id: "christ", name: "Christ the Redeemer", group: "new7" },
+      { id: "machupicchu", name: "Machu Picchu", group: "new7" },
+      { id: "chichenitza", name: "Chichen Itza", group: "new7" },
+      { id: "colosseum", name: "Colosseum", group: "new7" },
+      { id: "tajmahal", name: "Taj Mahal", group: "new7" },
+      { id: "giza", name: "Great Pyramid of Giza", group: "more" },
+      { id: "stonehenge", name: "Stonehenge", group: "more" },
+      { id: "eiffel", name: "Eiffel Tower", group: "more" },
+      { id: "liberty", name: "Statue of Liberty", group: "more" },
+      { id: "sydney", name: "Sydney Opera House", group: "more" },
+      { id: "angkorwat", name: "Angkor Wat", group: "more" },
+      { id: "pisa", name: "Leaning Tower of Pisa", group: "more" }
+    ];
+    const WONDER_BY_ID = WONDERS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const WONDER_QUICK = [
+      ["All", WONDERS.map(function (x) { return x.id; })],
+      ["New 7", WONDERS.filter(function (x) { return x.group === "new7"; }).map(function (x) { return x.id; })],
+      ["More", WONDERS.filter(function (x) { return x.group === "more"; }).map(function (x) { return x.id; })]
+    ];
+
 
     const OPS = [
       { id: "multiply", label: "Multiplication" },
@@ -3030,7 +3064,8 @@
       { id: "piano", label: "Piano Notes" },
       { id: "instrument", label: "Instruments" },
       { id: "vehicle", label: "Vehicles" },
-      { id: "vehicletrivia", label: "Vehicle trivia" }
+      { id: "vehicletrivia", label: "Vehicle trivia" },
+      { id: "wonder", label: "Wonders of the World" }
     ];
 
     const state = {
@@ -3060,6 +3095,7 @@
       flagIndex: 0,
       pianoIndex: 0,
       vehicleIndex: 0,
+      wonderBag: null,
       playPage: "question"
     };
     let audioCtx = null;
@@ -3340,6 +3376,7 @@
     function isSynonym() { return state.operation === "synonym"; }
     function isVehicle() { return state.operation === "vehicle"; }
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
+    function isWonder() { return state.operation === "wonder"; }
     function isFlagTrivia() { return state.operation === "flagtrivia"; }
     function isOceanMap() { return state.operation === "oceanmap"; }
     function isInstrument() { return state.operation === "instrument"; }
@@ -3364,6 +3401,7 @@
     function defaultRhymeTables() { return RHYME_FAMILIES.map(function (f) { return f.id; }); }
     function defaultSynonymTables() { return VOCAB.map(function (v) { return v.id; }); }
     function defaultVehicleTables() { return VEHICLES.map(function (x) { return x.id; }); }
+    function defaultWonderTables() { return WONDERS.map(function (x) { return x.id; }); }
     function defaultInstrumentTables() { return INSTRUMENTS.map(function (x) { return x.id; }); }
     function defaultPianoTables() { return PIANO_NOTES.map(function (x) { return x.id; }); }
     function defaultTablesFor(op) {
@@ -3380,6 +3418,7 @@
       if (op === "synonym") return defaultSynonymTables();
       if (op === "vehicle") return defaultVehicleTables();
       if (op === "vehicletrivia") return defaultVehicleTables();
+      if (op === "wonder") return defaultWonderTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "maketen") return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -3420,6 +3459,7 @@
     function selectedRhymes() { return selectedById(RHYME_FAMILIES, RHYME_BY_ID); }
     function selectedVocab() { return selectedById(VOCAB, VOCAB_BY_ID); }
     function selectedVehicles() { return selectedById(VEHICLES, VEHICLE_BY_ID); }
+    function selectedWonders() { return selectedById(WONDERS, WONDER_BY_ID); }
     function selectedInstruments() { return selectedById(INSTRUMENTS, INSTRUMENT_BY_ID); }
     function selectedPiano() { return selectedById(PIANO_NOTES, PIANO_BY_ID); }
 
@@ -4160,6 +4200,15 @@
             VEHICLES.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "wonder" && WONDER_BY_ID[pair.id]) {
+        const body = WONDER_BY_ID[pair.id];
+        const pool = selectedWonders();
+        return {
+          operation: "wonder", id: body.id, pictureOnly: true, ask: "Which wonder is this?",
+          answer: body.name, key: pair.key || ("wonder:" + body.id),
+          choices: wonderChoices(body, pool.length > 1 ? pool : WONDERS)
+        };
+      }
       if (pair.operation === "vehicletrivia" && VEHICLE_BY_ID[pair.id]) {
         const body = VEHICLE_BY_ID[pair.id];
         return {
@@ -4264,6 +4313,7 @@
         if (isSynonym()) return buildSynonym(avoid);
         if (isVehicle()) return buildVehicle(avoid);
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
+        if (isWonder()) return buildWonder(avoid);
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
         if (isMakeTen()) return buildMakeTen(avoid);
@@ -4361,6 +4411,10 @@
         const body = INSTRUMENT_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
+      if (pair.operation === "wonder" || (isWonder() && pair.id)) {
+        const body = WONDER_BY_ID[pair.id];
+        return (body && body.name) || pair.answer;
+      }
       if (pair.operation === "vehicletrivia" || isVehicleTrivia() || pair.operation === "vehicle" || (isVehicle() && pair.id)) {
         const body = VEHICLE_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
@@ -4409,7 +4463,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -5249,6 +5303,13 @@
           "See the picture and choose the vehicle. Two names each time.",
           "Pick at least one vehicle.",
           true));
+      } else if (isWonder()) {
+        stack.appendChild(checklistCard("Wonders",
+          WONDERS.map(function (x) { return { id: x.id, name: x.name }; }),
+          WONDER_QUICK,
+          "The New 7 Wonders plus more famous places. See the photo and choose its name. Two names each time.",
+          "Pick at least one wonder.",
+          true));
       } else if (isVehicleTrivia()) {
         stack.appendChild(checklistCard("Vehicles",
           VEHICLES.map(function (x) { return { id: x.id, name: x.name + " · " + VEHICLE_TYPE[x.type] }; }),
@@ -5455,6 +5516,7 @@
       if (isSynonym()) hint = "Choose the synonym (same meaning) or antonym (opposite) for each word.";
       if (isVehicle()) hint = "See the picture and choose the vehicle's name.";
       if (isVehicleTrivia()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
+      if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
       if (isMakeTen()) hint = "See a number from 0 to 10. Choose the partner that makes 10. Two choices.";
@@ -5503,6 +5565,7 @@
       if (isSynonym()) return "Synonyms & Antonyms";
       if (isVehicle()) return "Vehicles";
       if (isVehicleTrivia()) return "Vehicle trivia";
+      if (isWonder()) return "Which wonder is this?";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       if (isMakeTen()) return "Make Ten";
@@ -5626,6 +5689,37 @@
       };
     }
 
+    // Each selected wonder comes up once per pass, in shuffled order, before any repeats.
+    function wonderChoices(body, pool) {
+      const others = pool.filter(function (w) { return w.id !== body.id; });
+      const fallback = others.length ? others : WONDERS.filter(function (w) { return w.id !== body.id; });
+      const wrong = fallback[Math.floor(Math.random() * fallback.length)];
+      return shuffle([body.name, wrong.name]);
+    }
+    function buildWonder(avoid) {
+      const selected = selectedWonders();
+      const pool = selected.length ? selected : WONDERS.slice();
+      const ids = pool.map(function (w) { return w.id; });
+      const bagKey = ids.join(",");
+      if (!state.wonderBag || state.wonderBagKey !== bagKey) {
+        state.wonderBag = [];
+        state.wonderBagKey = bagKey;
+      }
+      if (!state.wonderBag.length) {
+        let next = shuffle(ids.slice());
+        // Don't repeat the last wonder right at the start of a new pass.
+        if (next.length > 1 && state.wonderLast && next[0] === state.wonderLast) next.push(next.shift());
+        state.wonderBag = next;
+      }
+      const body = WONDER_BY_ID[state.wonderBag.shift()];
+      state.wonderLast = body.id;
+      return {
+        operation: "wonder", id: body.id, pictureOnly: true, ask: "Which wonder is this?",
+        answer: body.name, key: "wonder:" + body.id,
+        choices: wonderChoices(body, pool)
+      };
+    }
+
     function pianoSvg(id) {
       const whites = ["c","d","e","f","g","a","b"];
       const blacks = { cs: 0, ds: 1, fs: 3, gs: 4, as: 5 };
@@ -5698,12 +5792,21 @@
       img.alt = "A vehicle";
       return img;
     }
+    function wonderPhoto(id) {
+      const img = document.createElement("img");
+      img.className = "wonder-photo";
+      img.src = "assets/wonders/" + id + ".jpg";
+      img.alt = "A famous wonder of the world";
+      img.decoding = "async";
+      return img;
+    }
     function pictureForProblem(problem) {
       const op = (problem && problem.operation) || state.operation;
       if (op === "oceanmap") return oceanWorldMap(problem.id);
       if (op === "flag") return flagSvg(problem.id);
       if (op === "piano") return pianoSvg(problem.id);
       if (op === "vehicle") return vehicleSvg(problem.id);
+      if (op === "wonder") return wonderPhoto(problem.id);
       return null;
     }
 
@@ -5798,7 +5901,7 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle();
+      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder();
       const answers = el("div", { class: "answers" + (isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
@@ -5848,6 +5951,8 @@
       state.pianoBagKey = "";
       state.makeTenBag = null;
       state.vehicleIndex = 0;
+      state.wonderBag = null;
+      state.wonderLast = "";
       state.playPage = "question";
       state.phase = "play";
       state.problem = makeProblem();

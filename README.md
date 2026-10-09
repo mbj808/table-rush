@@ -22,4 +22,6 @@ Table Rush is the secondary name. This is a one-page multiplication, division, f
 
 - **Vehicles** — ~26 land/water/air vehicles; clue → name or vehicle → type; chips by land/water/air.
 
+- **Wonders of the World** — 14 real photos (the New 7 Wonders, the Great Pyramid of Giza, and famous places like Stonehenge and the Eiffel Tower); see the photo and pick its name from two choices; chips All / New 7 / More. Photo credits in `assets/wonders/CREDITS.md`.
+
 Teachers can narrow each quiz set with checklists and quick chips, like table selection. Each game runs until the player leaves; scoring and beat unlocks (a streak of 10 consecutive correct answers unlocks the next beat) work the same across modes.

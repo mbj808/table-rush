@@ -1379,6 +1379,40 @@
       text-decoration: none;
       box-shadow: 0 4px 0 #c9a227;
     }
+    .reset-confirm-card { border-color: #ffb4a8; }
+    .reset-confirm-card h2 { font-size: clamp(2.2rem, 8vw, 3.6rem); }
+    .reset-confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+    }
+    .reset-confirm-actions button {
+      min-height: 4.4rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.75rem;
+      border: 3px solid transparent;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .reset-confirm-actions .reset-yes {
+      background: #c62828;
+      color: #fff;
+      box-shadow: 0 4px 0 #7f1414;
+    }
+    .reset-confirm-actions .reset-no {
+      background: #fffef6;
+      color: #102038;
+      box-shadow: 0 4px 0 #9aa7a0;
+    }
+    .reset-confirm-actions button:focus-visible {
+      outline: 4px solid #ffe58a;
+      outline-offset: 3px;
+    }
+    @media (max-width: 30rem) {
+      .reset-confirm-actions { grid-template-columns: 1fr; }
+    }
     button.congrats-stay {
       margin-top: 0.75rem;
       min-height: 2.6rem;
@@ -5570,11 +5604,54 @@
           class: "reset-challenge",
           type: "button",
           text: "Reset challenge",
-          onClick: resetMusicChallenge
+          onClick: function (event) { confirmResetChallenge(event && event.currentTarget); }
         }));
         card.appendChild(resetWrap);
       }
       return card;
+    }
+
+    // Ask before resetting: an in-page dialog styled like the Congratulations card.
+    // "No" has focus; No, Escape, or a tap outside the card closes it with nothing changed.
+    function confirmResetChallenge(opener) {
+      const old = document.getElementById("reset-confirm");
+      if (old) old.remove();
+      const layer = el("div", { id: "reset-confirm", class: "congrats-layer reset-confirm-layer" });
+      const card = el("div", { class: "congrats-card reset-confirm-card", role: "alertdialog", "aria-modal": "true", "aria-labelledby": "reset-confirm-title", "aria-describedby": "reset-confirm-text" });
+      card.appendChild(el("h2", { id: "reset-confirm-title", text: "Reset challenge?" }));
+      card.appendChild(el("p", { id: "reset-confirm-text", text: "This locks all beats and hides the mini games." }));
+      const row = el("div", { class: "reset-confirm-actions" });
+      function close() {
+        document.removeEventListener("keydown", onKey, true);
+        layer.remove();
+        if (opener && document.body.contains(opener)) opener.focus();
+      }
+      const yes = el("button", { type: "button", class: "reset-yes", text: "Yes, reset", onClick: function () {
+        close();
+        resetMusicChallenge();
+        const again = document.querySelector("button.reset-challenge");
+        if (again) again.focus();
+      } });
+      const no = el("button", { type: "button", class: "reset-no", text: "No", onClick: close });
+      function onKey(event) {
+        if (event.key === "Escape") { event.preventDefault(); close(); return; }
+        if (event.key === "Tab") {
+          // Keep focus inside the dialog.
+          event.preventDefault();
+          const active = document.activeElement;
+          if (active === yes) no.focus();
+          else if (active === no) yes.focus();
+          else no.focus();
+        }
+      }
+      layer.addEventListener("click", function (event) { if (event.target === layer) close(); });
+      row.appendChild(yes);
+      row.appendChild(no);
+      card.appendChild(row);
+      layer.appendChild(card);
+      document.body.appendChild(layer);
+      document.addEventListener("keydown", onKey, true);
+      no.focus();
     }
 
     function setOperation(op) {

@@ -940,6 +940,23 @@
       body.play-screen.maze-ready .page-bar { font-size: 1.25rem; }
     }
     a.maze-reward:active { transform: translateY(1px); }
+    a.maze-reward.reward-bat {
+      border-color: #ffc27a;
+      background: #ffc27a;
+      box-shadow: 0 3px 0 #c97a26;
+    }
+    /* Two games earned: the bottom bar splits into three (maze | jump | Beats/Question). */
+    body.play-screen[data-rewards="2"] a.maze-reward {
+      width: 33.34%;
+      font-size: 1.45rem;
+    }
+    body.play-screen[data-rewards="2"] a.maze-reward + a.maze-reward { left: 33.33%; }
+    body.play-screen.maze-ready[data-rewards="2"] .page-bar {
+      left: 66.66%;
+      width: 33.34%;
+      font-size: 1.45rem;
+    }
+    body.play-screen[data-rewards="2"] a.maze-reward.reward-bat { box-shadow: none; }
     .congrats-layer {
       position: fixed;
       inset: 0;
@@ -2012,12 +2029,19 @@
       { id: "belfry", label: "Belfry", file: "assets/audio/belfry.mp3", unlockAt: 15 }
     ];
     // Games attached to a beat. The link stays once that beat, or any later beat, is unlocked.
-    // Add another id here for a second game (next slot is Haunt, id "bat"). Do not add it yet.
+    // "bar" is the shorter label used when the bottom bar is shared by more than one game.
     const BEAT_REWARDS = {
       bitwave: {
         href: "https://nova-fire-bamboo-heart.grok.me",
         label: "Play the maze",
+        bar: "Maze game",
         speak: "Tap Play the maze to open the maze game."
+      },
+      bat: {
+        href: "https://rapid-leaf-able-cobalt.grok.me",
+        label: "Play the jumping game",
+        bar: "Jumping game",
+        speak: "Tap Play the jumping game to open the jumping game."
       }
     };
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
@@ -4599,24 +4623,29 @@
       }
       return out;
     }
-    function mazeRewardLink(beatId) {
+    function mazeRewardLink(beatId, short) {
       var reward = BEAT_REWARDS[beatId];
-      return el("a", {
-        class: "maze-reward",
+      var link = el("a", {
+        class: "maze-reward reward-" + beatId,
         href: reward.href,
         target: "_blank",
         rel: "noopener noreferrer",
-        text: reward.label
+        text: short && reward.bar ? reward.bar : reward.label
       });
+      if (short && reward.bar) link.setAttribute("aria-label", reward.label);
+      return link;
     }
-    function appendEarnedRewardLinks(parent) {
-      earnedBeatRewards().forEach(function (item) {
-        parent.appendChild(mazeRewardLink(item.beatId));
+    // In play, links sit in the bottom bar; short labels only when several games share it.
+    function appendEarnedRewardLinks(parent, inBar) {
+      var earned = earnedBeatRewards();
+      earned.forEach(function (item) {
+        parent.appendChild(mazeRewardLink(item.beatId, inBar && earned.length > 1));
       });
     }
     function syncMazeCongrats() {
       var earned = earnedBeatRewards();
       document.body.classList.toggle("maze-ready", earned.length > 0);
+      document.body.dataset.rewards = String(earned.length);
       var old = document.getElementById("maze-congrats");
       if (old) old.remove();
       var celebrateId = state.mazeCelebrate;
@@ -5202,7 +5231,7 @@
     }
 
     function renderPlay(app) {
-      appendEarnedRewardLinks(app);
+      appendEarnedRewardLinks(app, true);
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;

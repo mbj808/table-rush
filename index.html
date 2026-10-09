@@ -2194,21 +2194,23 @@
     const SAVE_VERSION = 3;
     const CORRECT_FEEDBACK_MS = 280;
     const MISS_TEACH_MS = 3000;
+    // A new beat unlocks each time the streak reaches a multiple of this.
+    const BEAT_UNLOCK_STEP = 10;
     const PLAY_TRACKS = [
       { id: "replay", label: "Replay", file: "assets/audio/f11362.mp3", unlockAt: 0, free: true },
-      { id: "rise", label: "Rise", file: "assets/audio/replay.mp3", unlockAt: 15 },
-      { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: 15 },
-      { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: 15 },
-      { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: 15 },
-      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: 15 },
-      { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: 15 },
-      { id: "howl", label: "Howl", file: "assets/audio/howl.mp3", unlockAt: 15 },
-      { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: 15 },
-      { id: "bat", label: "Haunt", file: "assets/audio/bat.mp3", unlockAt: 15 },
-      { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: 15 },
-      { id: "spooked", label: "Spooked", file: "assets/audio/spooked.mp3", unlockAt: 15 },
-      { id: "belfry", label: "Belfry", file: "assets/audio/belfry.mp3", unlockAt: 15 },
-      { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: 15 }
+      { id: "rise", label: "Rise", file: "assets/audio/replay.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "spark", label: "Spark", file: "assets/audio/7c0a99.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "square", label: "Square", file: "assets/audio/925ad2.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "bitwave", label: "Bitwave", file: "assets/audio/62a317.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "cry", label: "Smile", file: "assets/audio/3027b7.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "thunder", label: "Thunder", file: "assets/audio/thunder.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "howl", label: "Howl", file: "assets/audio/howl.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "cauldron", label: "Cauldron", file: "assets/audio/cauldron.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "bat", label: "Haunt", file: "assets/audio/bat.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "spooked", label: "Spooked", file: "assets/audio/spooked.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "belfry", label: "Belfry", file: "assets/audio/belfry.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP }
     ];
     // Games attached to a beat. The link stays once that beat, or any later beat, is unlocked.
     // "bar" is the shorter label used when the bottom bar is shared by more than one game.
@@ -3061,8 +3063,8 @@
 
     function maybeUnlockBeats() {
       if (state.phase !== "play") return "";
-      // Unlock the next locked beat each time the natural streak hits a multiple of 15.
-      if (state.streak < 15 || state.streak % 15 !== 0) return "";
+      // Unlock the next locked beat each time the natural streak hits a multiple of BEAT_UNLOCK_STEP.
+      if (state.streak < BEAT_UNLOCK_STEP || state.streak % BEAT_UNLOCK_STEP !== 0) return "";
       let unlockedNow = "";
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         const track = PLAY_TRACKS[i];
@@ -5147,7 +5149,7 @@
     function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
       card.appendChild(beatsTitle());
-      card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of 15." }));
+      card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of " + BEAT_UNLOCK_STEP + "." }));
       const row = el("div", { class: "row beats-row" });
       PLAY_TRACKS.forEach(function (track) {
         const locked = !state.beatsUnlocked[track.id];
@@ -5311,7 +5313,7 @@
       return false;
     }
     function streakBanner() {
-      const step = 15;
+      const step = BEAT_UNLOCK_STEP;
       const into = state.streak % step;
       const remain = into === 0 ? step : step - into;
       const moreUnlocks = beatsRemainLocked();

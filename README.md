@@ -22,4 +22,4 @@ Table Rush is the secondary name. This is a one-page multiplication, division, f
 
 - **Vehicles** — ~26 land/water/air vehicles; clue → name or vehicle → type; chips by land/water/air.
 
-Teachers can narrow each quiz set with checklists and quick chips, like table selection. Each game runs until the player leaves; scoring and beat unlocks (a streak of 15 consecutive correct answers unlocks the next beat) work the same across modes.
+Teachers can narrow each quiz set with checklists and quick chips, like table selection. Each game runs until the player leaves; scoring and beat unlocks (a streak of 10 consecutive correct answers unlocks the next beat) work the same across modes.

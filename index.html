@@ -600,6 +600,121 @@
     }
     .wave-bg .ghost-dust.d1 { left: -6vh; }
     .wave-bg .ghost-dust.d2 { left: 1.5vh; animation-delay: 0.04s; }
+    /* Graveyard (level 14): a cemetery on a hill, built in depth from public-domain
+       silhouettes. Each layer is recoloured flat by an SVG filter: far hills pale, blue and
+       hazy, then darker and sharper toward the foreground crest. Fog bands drift between. */
+    .wave-bg.scene-graveyard {
+      background:
+        radial-gradient(circle at 74% 19%, rgba(236, 240, 255, 0.28) 0, rgba(170, 190, 255, 0.1) 16%, transparent 34%),
+        linear-gradient(180deg, #04060f 0%, #0a1026 30%, #1b2547 52%, #34406a 62%, #2a3458 74%, #141a30 100%);
+    }
+    .wave-bg .gy-scene { display: none; }
+    .wave-bg.scene-graveyard .gy-scene {
+      display: block;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .wave-bg .gy-defs { position: absolute; width: 0; height: 0; }
+    .wave-bg .gy-moon {
+      position: absolute;
+      left: 74vw;
+      top: 19vh;
+      width: min(22vmin, 10rem);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background:
+        radial-gradient(circle at 62% 58%, rgba(170, 176, 196, 0.35) 0 9%, transparent 10%),
+        radial-gradient(circle at 36% 66%, rgba(170, 176, 196, 0.3) 0 6%, transparent 7%),
+        radial-gradient(circle at 44% 36%, rgba(170, 176, 196, 0.28) 0 12%, transparent 13%),
+        radial-gradient(circle at 40% 38%, #fffef6 0%, #f1efe2 50%, #cfd2dc 100%);
+      box-shadow: 0 0 24px rgba(240, 244, 255, 0.85), 0 0 80px rgba(170, 190, 255, 0.5), 0 0 160px rgba(140, 160, 255, 0.25);
+      animation: gy-moon-glow 7s ease-in-out infinite;
+    }
+    @keyframes gy-moon-glow {
+      0%, 100% { box-shadow: 0 0 22px rgba(240, 244, 255, 0.8), 0 0 70px rgba(170, 190, 255, 0.42), 0 0 140px rgba(140, 160, 255, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(244, 248, 255, 0.95), 0 0 100px rgba(180, 200, 255, 0.6), 0 0 190px rgba(150, 170, 255, 0.32); }
+    }
+    .wave-bg .gy-layer { position: absolute; inset: 0; }
+    .wave-bg .gy-far2 { filter: url(#gy-tint-far2) blur(1.3px); opacity: 0.8; }
+    .wave-bg .gy-far { filter: url(#gy-tint-far) blur(0.6px); opacity: 0.92; }
+    .wave-bg .gy-mid { filter: url(#gy-tint-mid); }
+    .wave-bg .gy-front { filter: url(#gy-tint-front) drop-shadow(0 -1px 1.5px rgba(190, 205, 255, 0.45)); }
+    .wave-bg .gy-hill {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      background: #000;
+    }
+    .wave-bg .gy-hill.gy-base { left: 0; right: 0; bottom: 0; border-radius: 0; }
+    .wave-bg .gy-item {
+      position: absolute;
+      width: auto;
+      transform-origin: 50% 100%;
+    }
+    .wave-bg .gy-tree {
+      position: absolute;
+      bottom: 3vh;
+      width: auto;
+      filter: url(#gy-tint-front) drop-shadow(0 0 2px rgba(180, 195, 255, 0.35));
+      transform-origin: 50% 100%;
+      animation: gy-sway 9s ease-in-out infinite;
+    }
+    .wave-bg .gy-tree-left { left: -9vh; height: 104vh; transform: scaleX(-1); animation-name: gy-sway-flip; }
+    .wave-bg .gy-tree-right { right: -26vh; height: 80vh; animation-duration: 11s; animation-delay: -4s; }
+    @keyframes gy-sway {
+      0%, 100% { transform: rotate(-0.5deg); }
+      50% { transform: rotate(0.6deg); }
+    }
+    @keyframes gy-sway-flip {
+      0%, 100% { transform: scaleX(-1) rotate(0.5deg); }
+      50% { transform: scaleX(-1) rotate(-0.6deg); }
+    }
+    /* Low fog: soft blobs tiled across a strip twice the viewport wide, sliding one
+       viewport width per loop so the drift is seamless. */
+    .wave-bg .gy-fog {
+      position: absolute;
+      left: 0;
+      width: 200vw;
+      background-repeat: repeat-x;
+      animation: gy-fog-drift 90s linear infinite;
+    }
+    .wave-bg .gy-fog-back {
+      top: 57vh;
+      height: 15vh;
+      opacity: 0.75;
+      background-image:
+        radial-gradient(ellipse 30% 45% at 25% 55%, rgba(196, 210, 245, 0.34) 0%, transparent 70%),
+        radial-gradient(ellipse 36% 40% at 72% 45%, rgba(186, 200, 240, 0.28) 0%, transparent 70%);
+      background-size: 50vw 100%;
+    }
+    .wave-bg .gy-fog-mid {
+      top: 70vh;
+      height: 16vh;
+      opacity: 0.7;
+      background-image:
+        radial-gradient(ellipse 34% 42% at 30% 60%, rgba(205, 216, 248, 0.3) 0%, transparent 70%),
+        radial-gradient(ellipse 28% 36% at 78% 50%, rgba(190, 204, 242, 0.26) 0%, transparent 70%);
+      background-size: 40vw 100%;
+      animation-duration: 70s;
+      animation-direction: reverse;
+    }
+    .wave-bg .gy-fog-front {
+      top: 82vh;
+      height: 20vh;
+      opacity: 0.6;
+      background-image:
+        radial-gradient(ellipse 30% 46% at 20% 55%, rgba(210, 220, 250, 0.3) 0%, transparent 70%),
+        radial-gradient(ellipse 34% 40% at 66% 62%, rgba(196, 208, 246, 0.26) 0%, transparent 70%);
+      background-size: 50vw 100%;
+      animation-duration: 55s;
+    }
+    @keyframes gy-fog-drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100vw); }
+    }
     @keyframes ghost-walk-x {
       from { transform: translateX(112vw); }
       to { transform: translateX(-15vw); }
@@ -984,6 +1099,12 @@
       .wave-bg.scene-moonwalk .ghost-curve { transform: translateY(1.6vh) rotate(-3deg); }
       .wave-bg.scene-moonwalk .ghost-hop { transform: none; }
       .wave-bg .ghost-dust { display: none; }
+      /* Graveyard: still scene, steady moon glow, no fog drift or branch sway. */
+      .wave-bg .gy-moon,
+      .wave-bg .gy-fog,
+      .wave-bg .gy-tree {
+        animation: none !important;
+      }
       .wave-bg .bubble {
         animation: none !important;
         opacity: 0.9;
@@ -1202,8 +1323,8 @@
     /* Seven beats: fit four speakers per row on the play screen's Beats page. */
     body.play-screen .beats-card { padding-left: 0.2rem; padding-right: 0.2rem; }
     body.play-screen .beats-row { gap: 0.5rem 0.45rem; }
-    /* Thirteen+ beats: widen the Beats page so rows hold seven speakers (7 + 7 at fourteen). */
-    body.play-screen[data-play-page="beats"] main { max-width: 53rem; }
+    /* Fifteen beats: widen the Beats page so rows hold eight speakers (8 + 7). */
+    body.play-screen[data-play-page="beats"] main { max-width: 60rem; }
     body.play-screen .eq { padding: 0.85rem 0.75rem 0.4rem; }
     body.play-screen .prompt { font-size: 2.6rem; }
     body.play-screen .answers { margin-top: 0.65rem; }
@@ -2101,6 +2222,88 @@
       </div>
     </div>
 
+    <!-- Graveyard: public-domain (CC0) FreeSVG silhouettes in assets/halloween/graveyard/:
+         far-graveyard https://freesvg.org/1537887427, hill-graves https://freesvg.org/silhouette-vector-drawing-of-graveyard,
+         celtic-cross https://freesvg.org/headstone-symbol, gable-stone https://freesvg.org/curved-gable,
+         tablet-stone https://freesvg.org/1548372219, tree-crown https://freesvg.org/dead-tree-silhouette-153898,
+         tree-tall https://freesvg.org/dead-tree, tree-twisted https://freesvg.org/dead-tree-silhouette -->
+    <div class="gy-scene" aria-hidden="true">
+      <svg class="gy-defs" width="0" height="0" focusable="false">
+        <filter id="gy-tint-far2" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.40  0 0 0 0 0.45  0 0 0 0 0.63  0 0 0 1 0"/></filter>
+        <filter id="gy-tint-far" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.29  0 0 0 0 0.45  0 0 0 1 0"/></filter>
+        <filter id="gy-tint-mid" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.075  0 0 0 0 0.09  0 0 0 0 0.19  0 0 0 1 0"/></filter>
+        <filter id="gy-tint-front" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.035  0 0 0 0 0.04  0 0 0 0 0.085  0 0 0 1 0"/></filter>
+      </svg>
+      <div class="gy-moon"></div>
+      <div class="gy-layer gy-far2">
+      <i class="gy-hill" style="left:-22vw;width:80vw;top:56.5vh;height:14vh"></i>
+      <i class="gy-hill" style="left:28vw;width:68vw;top:57.5vh;height:12vh"></i>
+      <i class="gy-hill" style="left:66vw;width:60vw;top:55.5vh;height:14vh"></i>
+      <i class="gy-hill gy-base" style="top:63vh"></i>
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:2vw;top:57.98vh;height:7.5vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:13vw;top:57.45vh;height:8.3vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:25vw;top:57.51vh;height:9.1vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:37vw;top:58.24vh;height:7.5vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:49vw;top:58.86vh;height:8.3vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:61vw;top:58.40vh;height:9.1vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:73vw;top:58.72vh;height:7.5vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:85vw;top:56.89vh;height:8.3vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:97vw;top:56.40vh;height:9.1vh;transform:translate(-50%,-100%) rotate(0deg)">
+      </div>
+      <div class="gy-layer gy-far">
+      <i class="gy-hill" style="left:-30vw;width:72vw;top:61.5vh;height:16vh"></i>
+      <i class="gy-hill" style="left:10vw;width:84vw;top:63.5vh;height:14vh"></i>
+      <i class="gy-hill" style="left:68vw;width:64vw;top:61vh;height:16vh"></i>
+      <i class="gy-hill gy-base" style="top:69vh"></i>
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:8vw;top:62.61vh;height:10vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:30vw;top:64.64vh;height:11.5vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:58vw;top:64.67vh;height:10vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:80vw;top:63.86vh;height:11.5vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/far-graveyard.svg" alt="" style="left:96vw;top:62.16vh;height:10vh;transform:translate(-50%,-100%) rotate(0deg) scaleX(-1)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:19vw;top:62.44vh;height:3.2vh;transform:translate(-50%,-100%) rotate(-4deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:23vw;top:62.85vh;height:2.2vh;transform:translate(-50%,-100%) rotate(3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:42vw;top:64.10vh;height:2.6vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:46vw;top:63.97vh;height:3.4vh;transform:translate(-50%,-100%) rotate(5deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:68vw;top:64.43vh;height:2.4vh;transform:translate(-50%,-100%) rotate(-3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:72vw;top:64.74vh;height:2.8vh;transform:translate(-50%,-100%) rotate(2deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:88vw;top:61.98vh;height:3vh;transform:translate(-50%,-100%) rotate(-6deg)">
+      </div>
+      <div class="gy-fog gy-fog-back"></div>
+      <div class="gy-layer gy-mid">
+      <i class="gy-hill" style="left:-22vw;width:96vw;top:70.5vh;height:22vh"></i>
+      <i class="gy-hill" style="left:50vw;width:76vw;top:67.5vh;height:26vh"></i>
+      <i class="gy-hill gy-base" style="top:80vh"></i>
+      <img class="gy-item gy-mid-tree" src="assets/halloween/graveyard/tree-crown.svg" alt="" style="left:25vw;top:72.70vh;height:30vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/hill-graves.svg" alt="" style="left:66vw;top:74.40vh;height:15vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:4vw;top:72.52vh;height:5.5vh;transform:translate(-50%,-100%) rotate(-5deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:21vw;top:71.36vh;height:8.5vh;transform:translate(-50%,-100%) rotate(0deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:27vw;top:71.30vh;height:5.2vh;transform:translate(-50%,-100%) rotate(4deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:33vw;top:71.42vh;height:4.4vh;transform:translate(-50%,-100%) rotate(-3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:39vw;top:71.71vh;height:6.5vh;transform:translate(-50%,-100%) rotate(2deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:45vw;top:72.20vh;height:7.6vh;transform:translate(-50%,-100%) rotate(-4deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:52vw;top:73.05vh;height:4.6vh;transform:translate(-50%,-100%) rotate(3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:79vw;top:68.67vh;height:5.6vh;transform:translate(-50%,-100%) rotate(-2deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:85vw;top:68.34vh;height:9vh;transform:translate(-50%,-100%) rotate(3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:92vw;top:68.37vh;height:5vh;transform:translate(-50%,-100%) rotate(-6deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:98vw;top:68.76vh;height:6.2vh;transform:translate(-50%,-100%) rotate(2deg)">
+      </div>
+      <div class="gy-fog gy-fog-mid"></div>
+      <div class="gy-layer gy-front">
+      <i class="gy-hill" style="left:-38vw;width:80vw;top:80vh;height:32vh"></i>
+      <i class="gy-hill" style="left:58vw;width:80vw;top:78.5vh;height:36vh"></i>
+      <i class="gy-hill" style="left:-10vw;width:120vw;top:85vh;height:18vh"></i>
+      <i class="gy-hill gy-base" style="top:92vh"></i>
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:10vw;top:81.72vh;height:17vh;transform:translate(-50%,-100%) rotate(-3deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:21.5vw;top:83.43vh;height:11vh;transform:translate(-50%,-100%) rotate(-7deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:30vw;top:85.97vh;height:7.5vh;transform:translate(-50%,-100%) rotate(4deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/gable-stone.svg" alt="" style="left:69vw;top:85.50vh;height:8.5vh;transform:translate(-50%,-100%) rotate(-4deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/celtic-cross.svg" alt="" style="left:80vw;top:81.83vh;height:24vh;transform:translate(-50%,-100%) rotate(2deg)">
+      <img class="gy-item" src="assets/halloween/graveyard/tablet-stone.svg" alt="" style="left:92vw;top:80.10vh;height:13vh;transform:translate(-50%,-100%) rotate(6deg)">
+      </div>
+      <img class="gy-tree gy-tree-left" src="assets/halloween/graveyard/tree-tall.svg" alt="">
+      <img class="gy-tree gy-tree-right" src="assets/halloween/graveyard/tree-twisted.svg" alt="">
+      <div class="gy-fog gy-fog-front"></div>
+    </div>
     <div class="jack" aria-hidden="true">
       <div class="jack-glow"></div>
       <svg class="jack-svg night-art" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
@@ -2210,7 +2413,8 @@
       { id: "bats", label: "Bats", file: "assets/audio/bats.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "spooked", label: "Spooked", file: "assets/audio/spooked.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "belfry", label: "Belfry", file: "assets/audio/belfry.mp3", unlockAt: BEAT_UNLOCK_STEP },
-      { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP }
+      { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "graveyard", label: "Graveyard", file: "assets/audio/graveyard.mp3", unlockAt: BEAT_UNLOCK_STEP }
     ];
     // Games attached to a beat. The link stays once that beat, or any later beat, is unlocked.
     // "bar" is the shorter label used when the bottom bar is shared by more than one game.
@@ -2846,7 +3050,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false, "graveyard": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -4737,6 +4941,7 @@
       bg.classList.toggle("scene-spooked", level === 11);
       bg.classList.toggle("scene-belfry", level === 12);
       bg.classList.toggle("scene-moonwalk", level === 13);
+      bg.classList.toggle("scene-graveyard", level === 14);
     }
     function render() {
       applyUnlockedBackground();

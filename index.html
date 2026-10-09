@@ -1247,6 +1247,37 @@
       font-size: 1.45rem;
     }
     body.play-screen[data-rewards="2"] a.maze-reward.reward-bat { box-shadow: none; }
+    /* Neon Cookie Lab (Graveyard reward): neon pink-to-purple. */
+    a.maze-reward.reward-graveyard,
+    a.congrats-maze.congrats-graveyard {
+      border-color: #ff6ad5;
+      background: linear-gradient(135deg, #ff6ad5 0%, #d66bff 55%, #a66bff 100%);
+      color: #1d0630;
+      box-shadow: 0 3px 0 #8a2fb8, 0 0 14px rgba(255, 106, 213, 0.55);
+    }
+    a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
+    /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
+    body.play-screen[data-rewards="3"] a.maze-reward {
+      width: 25%;
+      padding: 0.3rem 0.4rem;
+      font-size: 1.35rem;
+      white-space: nowrap;
+    }
+    body.play-screen[data-rewards="3"] a.maze-reward + a.maze-reward { left: 25%; }
+    body.play-screen[data-rewards="3"] a.maze-reward + a.maze-reward + a.maze-reward { left: 50%; }
+    body.play-screen.maze-ready[data-rewards="3"] .page-bar {
+      left: 75%;
+      width: 25%;
+      font-size: 1.35rem;
+      white-space: nowrap;
+    }
+    body.play-screen[data-rewards="3"] a.maze-reward.reward-bat,
+    body.play-screen[data-rewards="3"] a.maze-reward.reward-graveyard { box-shadow: none; }
+    body.play-screen a.maze-reward.reward-graveyard { border-top-color: #ffc2f0; }
+    @media (max-width: 40rem) {
+      body.play-screen[data-rewards="3"] a.maze-reward,
+      body.play-screen.maze-ready[data-rewards="3"] .page-bar { font-size: 0.95rem; }
+    }
     .congrats-layer {
       position: fixed;
       inset: 0;
@@ -2439,6 +2470,12 @@
         label: "Play the jumping game",
         bar: "Jumping game",
         speak: "Tap Play the jumping game to open the jumping game."
+      },
+      graveyard: {
+        href: "https://star-tulip-eagle-storm.grok.me",
+        label: "Play Neon Cookie Lab",
+        bar: "Cookie Lab",
+        speak: "Tap Play Neon Cookie Lab to open the cookie game."
       }
     };
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
@@ -5191,7 +5228,7 @@
       var note = document.createElement("p");
       note.textContent = beatLabel(celebrateId) + " is unlocked.";
       var link = document.createElement("a");
-      link.className = "congrats-maze";
+      link.className = "congrats-maze congrats-" + celebrateId;
       link.href = reward.href;
       link.target = "_blank";
       link.rel = "noopener noreferrer";

@@ -2865,6 +2865,8 @@
     let playMusic = null;
     let playMusicTrackId = null;
     let playMusicUnlockBound = false;
+    // Set while music is paused because a reward game tab opened: { kind, beatId, left, at }.
+    let musicPausedForGame = null;
     let feedback = 0;
     function trackIsFree(track) {
       return !!(track && (track.free || track.unlockAt === 0));
@@ -4335,7 +4337,7 @@
     }
     // Home BGM is always available on setup — never tied to the beat challenge lock.
     function homeMusicShouldPlay() {
-      return state.phase === "setup" && !state.muted;
+      return state.phase === "setup" && !state.muted && !musicPausedForGame;
     }
     function failHomeMusicAutoplay(expectedGen) {
       // Ignore stale autoplay/muted-trick failures after a newer gesture play() started.
@@ -4543,7 +4545,7 @@
       }
       const audio = ensurePlayMusic();
       if (!audio) return;
-      const shouldPlay = state.phase === "play" && !state.muted;
+      const shouldPlay = state.phase === "play" && !state.muted && !musicPausedForGame;
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
         if (!audio.paused) audio.pause();
@@ -4806,6 +4808,89 @@
       }
       return out;
     }
+    // Reward games open with window.open (no noopener) so the game tab can window.close()
+    // itself. The href stays as a fallback when a popup blocker returns null.
+    function openRewardGame(event, url) {
+      if (event && (event.defaultPrevented || event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)) return;
+      // Pause first: opening the tab can hide this page synchronously.
+      pauseMusicForGame();
+      var win = null;
+      try { win = window.open(url, "_blank"); } catch (_) { win = null; }
+      if (win && event) event.preventDefault();
+    }
+    function pauseMusicForGame() {
+      if (musicPausedForGame || state.muted) return;
+      if (state.phase === "play" && playMusic && !playMusic.paused && !playMusic.muted) {
+        musicPausedForGame = { kind: "play", beatId: state.playMusicId, left: false, at: Date.now() };
+        playMusic.pause();
+        unbindPlayMusicUnlock();
+      } else if (state.phase === "setup" && homeMusic && !homeMusic.paused && !homeMusic.muted) {
+        musicPausedForGame = { kind: "home", beatId: "", left: false, at: Date.now() };
+        homeMusic.pause();
+        unbindHomeMusicUnlock();
+      } else {
+        return;
+      }
+      updateMuteButton();
+      // If the game tab opened in the background and this page never lost focus, resume.
+      var paused = musicPausedForGame;
+      setTimeout(function () {
+        if (musicPausedForGame !== paused || paused.left) return;
+        if (document.visibilityState === "visible" && document.hasFocus()) resumeMusicAfterGame();
+      }, 2000);
+    }
+    function noteLeftForGame() {
+      if (musicPausedForGame) musicPausedForGame.left = true;
+    }
+    // A return counts once the page actually lost focus, or (when the hidden/blur events
+    // were missed) once the game has been open a moment, so the click itself can't resume.
+    function returnedFromGame() {
+      var away = musicPausedForGame;
+      return !!away && (away.left || Date.now() - away.at > 800);
+    }
+    function resumeMusicAfterGame() {
+      var away = musicPausedForGame;
+      if (!away || document.visibilityState === "hidden") return;
+      musicPausedForGame = null;
+      if (state.muted) {
+        updateMuteButton();
+        return;
+      }
+      if (away.kind === "play" && state.phase === "play") {
+        if (away.beatId && away.beatId !== state.playMusicId && state.beatsUnlocked[away.beatId]) {
+          state.playMusicId = away.beatId;
+          disposePlayMusic();
+        }
+        var audio = ensurePlayMusic();
+        if (!audio) return;
+        var attempt;
+        try { attempt = audio.play(); } catch (_) { attempt = null; }
+        if (attempt && typeof attempt.then === "function") {
+          attempt.then(function () {
+            unbindPlayMusicUnlock();
+            updateMuteButton();
+          }).catch(function () {
+            // Autoplay refused: leave the music stopped; the play button starts it as usual.
+            updateMuteButton();
+          });
+        } else {
+          updateMuteButton();
+        }
+      } else if (away.kind === "home" && state.phase === "setup") {
+        tryPlayHomeMusic(false);
+        updateMuteButton();
+      } else {
+        render();
+      }
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") noteLeftForGame();
+      else if (returnedFromGame()) resumeMusicAfterGame();
+    });
+    window.addEventListener("blur", noteLeftForGame);
+    window.addEventListener("focus", function () {
+      if (returnedFromGame()) resumeMusicAfterGame();
+    });
     function mazeRewardLink(beatId, short) {
       var reward = BEAT_REWARDS[beatId];
       var link = el("a", {
@@ -4813,7 +4898,8 @@
         href: reward.href,
         target: "_blank",
         rel: "noopener noreferrer",
-        text: short && reward.bar ? reward.bar : reward.label
+        text: short && reward.bar ? reward.bar : reward.label,
+        onClick: function (event) { openRewardGame(event, reward.href); }
       });
       if (short && reward.bar) link.setAttribute("aria-label", reward.label);
       return link;
@@ -4849,6 +4935,7 @@
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = reward.label;
+      link.addEventListener("click", function (event) { openRewardGame(event, reward.href); });
       var stay = document.createElement("button");
       stay.type = "button";
       stay.className = "congrats-stay";
@@ -5625,6 +5712,8 @@
       render();
     });
     document.getElementById("mute").addEventListener("click", function () {
+      // A manual tap on the music button replaces any pending resume after a game.
+      musicPausedForGame = null;
       const home = ensureHomeMusic();
       const play = ensurePlayMusic();
       if (state.muted) {

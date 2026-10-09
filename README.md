@@ -4,8 +4,9 @@ Table Rush is the secondary name. This is a one-page multiplication, division, f
 
 ## Modes
 
-- **Multiplication** / **Division** — classic table facts (product, factor, quotient, divisor).
-- **Addition** / **Subtraction** — addends 0–12 (chips 0–5 / 0–10 / 0–12); ask for sum or missing addend; subtraction uses even facts so differences stay non-negative (difference or missing part).
+- **Multiplication** / **Division** — classic table facts (product, factor, quotient, divisor), tables 2–12.
+- **No 0 or 1 in math** — every math mode (Multiplication, Division, Addition, Subtraction, Multiples 2×–12×, Make Ten with 2–8) skips 0 and 1, so there are no trivial questions to rush through.
+- **Addition** / **Subtraction** — addends 2–12 (chips 2–5 / 2–10 / 2–12); ask for sum or missing addend; subtraction uses even facts so differences stay non-negative (difference or missing part).
 - **Oceans** — quiz on five NOAA oceans plus Mediterranean Sea and Caribbean Sea (seas labeled so kids know they aren't oceans). Clue → name, always 4 choices.
 - **Sports** — kid-friendly ball sports and a few more (basketball, soccer, baseball, tennis, golf, volleyball, hockey, football, cricket, rugby, swimming, track, gymnastics, skating, skiing, boxing). Clue → sport name.
 - **Hawaiian Islands** — the eight main islands with nicknames and landmark clues.

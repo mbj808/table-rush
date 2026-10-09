@@ -2537,11 +2537,15 @@
       ["6–9", [6, 7, 8, 9]],
       ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
     ];
+    // No 0 or 1 anywhere in math: they make trivial questions (kids picked them to rush).
+    const MIN_OPERAND = 2;
     const QUICK_ADD = [
-      ["0–5", [0, 1, 2, 3, 4, 5]],
-      ["0–10", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
-      ["0–12", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
+      ["2–5", [2, 3, 4, 5]],
+      ["2–10", [2, 3, 4, 5, 6, 7, 8, 9, 10]],
+      ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
     ];
+    // Make Ten: 0+10, 1+9, 9+1 and 10+0 are trivial, so the given number and answer are 2–8.
+    const MAKE_TEN_POOL = [2, 3, 4, 5, 6, 7, 8];
     const OCEAN_BODIES = [
       { id: "pacific", name: "Pacific Ocean", kind: "ocean" },
       { id: "atlantic", name: "Atlantic Ocean", kind: "ocean" },
@@ -3428,14 +3432,14 @@
       const chosen = [answer];
       const seen = new Set([answer]);
       shuffle(candidates).forEach((n) => {
-        if (chosen.length >= 2 || !Number.isInteger(n) || n <= 0 || seen.has(n)) return;
+        if (chosen.length >= 2 || !Number.isInteger(n) || n < MIN_OPERAND || seen.has(n)) return;
         seen.add(n);
         chosen.push(n);
       });
       let step = 1;
       while (chosen.length < 2 && step < 60) {
         [answer + step, Math.abs(answer - step)].forEach((n) => {
-          if (chosen.length < 2 && n > 0 && !seen.has(n)) {
+          if (chosen.length < 2 && n >= MIN_OPERAND && !seen.has(n)) {
             seen.add(n);
             chosen.push(n);
           }
@@ -3445,8 +3449,8 @@
       return shuffle(chosen);
     }
     function factorChoices(answer, other) {
-      const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter((n, i, all) => n >= 1 && n <= 12 && n !== answer && all.indexOf(n) === i);
-      const rest = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((n) => n !== answer && near.indexOf(n) < 0));
+      const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter((n, i, all) => n >= MIN_OPERAND && n <= 12 && n !== answer && all.indexOf(n) === i);
+      const rest = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((n) => n !== answer && near.indexOf(n) < 0));
       const picked = shuffle(near).slice(0, 1);
       rest.forEach((n) => { if (picked.length < 1) picked.push(n); });
       return shuffle([answer].concat(picked));
@@ -3480,7 +3484,7 @@
     function isQuiz() { return !isMath(); }
 
     function defaultMathTables() { return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; }
-    function defaultAddTables() { return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; }
+    function defaultAddTables() { return [2, 3, 4, 5, 6, 7, 8, 9, 10]; }
     function defaultOceanTables() { return OCEAN_BODIES.map(function (b) { return b.id; }); }
     function defaultSportTables() { return SPORTS.map(function (s) { return s.id; }); }
     function defaultHawaiiTables() { return HAWAII_ISLANDS.map(function (s) { return s.id; }); }
@@ -3511,7 +3515,7 @@
       if (op === "wonder") return defaultWonderTables();
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
-      if (op === "maketen") return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      if (op === "maketen") return MAKE_TEN_POOL.slice();
       if (op === "add" || op === "subtract") return defaultAddTables();
       if (op === "multiples") return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       return defaultMathTables();
@@ -3912,7 +3916,7 @@
 
 
     function buildMakeTen(avoid) {
-      const pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const pool = MAKE_TEN_POOL;
       if (!state.makeTenBag || !state.makeTenBag.length) state.makeTenBag = shuffle(pool.slice());
       let given = state.makeTenBag.shift();
       if (avoid && ("maketen:" + given) === avoid && pool.length > 1) {
@@ -4094,23 +4098,23 @@
     function addendChoices(answer, other, maxN) {
       const max = maxN == null ? 12 : maxN;
       const near = [answer - 1, answer + 1, answer - 2, answer + 2, other].filter(function (n, i, all) {
-        return n >= 0 && n <= max && n !== answer && all.indexOf(n) === i;
+        return n >= MIN_OPERAND && n <= max && n !== answer && all.indexOf(n) === i;
       });
       const rest = shuffle([]);
-      for (let n = 0; n <= max; n++) {
+      for (let n = MIN_OPERAND; n <= max; n++) {
         if (n !== answer && near.indexOf(n) < 0) rest.push(n);
       }
       const shuffledRest = shuffle(rest);
       const picked = shuffle(near).slice(0, 1);
       shuffledRest.forEach(function (n) { if (picked.length < 1) picked.push(n); });
-      if (!picked.length) picked.push(answer === 0 ? 1 : answer - 1);
+      if (!picked.length) picked.push(answer + 1);
       return shuffle([answer].concat(picked));
     }
     function sumChoices(answer, a, b) {
       return uniqueChoices(answer, [
         a + b + 1, a + b - 1, a + (b + 1), (a + 1) + b,
         Math.max(0, a + b - 2), a + b + 2, a * b, Math.abs(a - b), a + 10, b + 10
-      ].filter(function (n) { return Number.isInteger(n) && n >= 0; }));
+      ].filter(function (n) { return Number.isInteger(n) && n >= MIN_OPERAND; }));
     }
 
     function build(a, b, mode) {
@@ -4241,7 +4245,7 @@
         const given = Number(pair.a != null ? pair.a : pair.id);
         const answer = 10 - given;
         const wrongs = [];
-        for (let n = 0; n <= 10; n++) if (n !== answer) wrongs.push(n);
+        MAKE_TEN_POOL.forEach(function (n) { if (n !== answer) wrongs.push(n); });
         const wrong = wrongs[Math.floor(Math.random() * wrongs.length)];
         return {
           operation: "maketen",
@@ -4348,7 +4352,7 @@
       const offsets = shuffle([1, -1, 2, -2, 4, -4, 5, -5, 7, 8, 11, 3]);
       for (let i = 0; i < offsets.length; i++) {
         const n = product + offsets[i];
-        if (n > 0 && n !== product && n % base !== 0) return n;
+        if (n >= MIN_OPERAND && n !== product && n % base !== 0) return n;
       }
       let n = product + 1;
       while (n % base === 0) n += 1;
@@ -4356,10 +4360,12 @@
     }
     function buildMultiplesProblem() {
       const bases = multiplesBases();
-      const steps = bases.length * 12;
+      // Multipliers 2× through 12× (no 0× or 1×).
+      const perBase = 11;
+      const steps = bases.length * perBase;
       const idx = ((state.multiplesIndex || 0) % steps + steps) % steps;
-      const base = bases[Math.floor(idx / 12)];
-      const factor = (idx % 12) + 1;
+      const base = bases[Math.floor(idx / perBase)];
+      const factor = (idx % perBase) + MIN_OPERAND;
       const product = base * factor;
       const wrong = multiplesDistractor(base, product);
       state.multiplesIndex = idx + 1;
@@ -4373,6 +4379,15 @@
         key: "mult:" + base + "x" + factor,
         choices: shuffle([product, wrong])
       };
+    }
+    // Drop any 0 or 1 from a math selection (e.g. an older selection). If that leaves it
+    // empty, fall back to the default set; an empty selection the player made stays empty.
+    function cleanMathTables() {
+      if (!isMath() && !isMultiples()) return;
+      const list = Array.isArray(state.tables) ? state.tables : [];
+      const clean = list.filter(function (n) { return Number.isInteger(n) && n >= MIN_OPERAND && n <= 12; });
+      if (clean.length === list.length && Array.isArray(state.tables)) return;
+      state.tables = clean.length ? clean : defaultTablesFor(state.operation);
     }
     function makeProblem(avoid) {
       if (isMultiples()) return buildMultiplesProblem();
@@ -4408,7 +4423,9 @@
         if (isPiano()) return buildPiano(avoid);
         if (isMakeTen()) return buildMakeTen(avoid);
       }
-      const tables = state.tables.length ? state.tables : (isAdd() || isSubtract() ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [2]);
+      cleanMathTables();
+      const pickable = state.tables.filter(function (n) { return n >= MIN_OPERAND; });
+      const tables = pickable.length ? pickable : (isAdd() || isSubtract() ? defaultAddTables() : defaultMathTables());
       let a = tables[Math.floor(Math.random() * tables.length)];
       let b;
       if (isAdd() || isSubtract()) {
@@ -4421,7 +4438,7 @@
           ? fromTables[Math.floor(Math.random() * fromTables.length)]
           : poolB[Math.floor(Math.random() * poolB.length)];
       } else {
-        b = 1 + Math.floor(Math.random() * 12);
+        b = MIN_OPERAND + Math.floor(Math.random() * (13 - MIN_OPERAND));
       }
       if (state.drill && state.drill.length) {
         const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
@@ -4439,7 +4456,7 @@
           if (isAdd() || isSubtract()) {
             b = tables[Math.floor(Math.random() * tables.length)];
             a = tables[Math.floor(Math.random() * tables.length)];
-          } else b = 1 + Math.floor(Math.random() * 12);
+          } else b = MIN_OPERAND + Math.floor(Math.random() * (13 - MIN_OPERAND));
         }
         problem = build(a, b, state.mode);
         guard += 1;
@@ -5094,6 +5111,7 @@
       bg.classList.toggle("scene-graveyard", level === 14);
     }
     function render() {
+      cleanMathTables();
       applyUnlockedBackground();
       const app = document.getElementById("app");
       app.replaceChildren();
@@ -5420,7 +5438,7 @@
           true));
       } else if (isMakeTen()) {
         const note = el("div", { class: "card" });
-        note.appendChild(el("p", { class: "hint", text: "Every number from 0 to 10 comes up once, then the set starts over. The question looks like 7 + ? = 10." }));
+        note.appendChild(el("p", { class: "hint", text: "Every number from 2 to 8 comes up once, then the set starts over. The question looks like 7 + ? = 10." }));
         stack.appendChild(note);
       } else if (isSynonym()) {
         stack.appendChild(checklistCard("Vocabulary",
@@ -5445,7 +5463,7 @@
         });
         tables.appendChild(quick);
         const grid = el("div", { class: "grid6" });
-        const startN = isMultiples() ? 2 : (isAdd() || isSubtract()) ? 0 : 1;
+        const startN = MIN_OPERAND;
         for (let n = startN; n <= 12; n++) {
           const value = n;
           grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
@@ -5458,7 +5476,7 @@
         }
         tables.appendChild(grid);
         if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one number." }));
-        if (isMultiples()) tables.appendChild(el("p", { class: "hint", text: "Bases 2–12, in order: 1× through 12×, then the next base." }));
+        if (isMultiples()) tables.appendChild(el("p", { class: "hint", text: "Bases 2–12, in order: 2× through 12×, then the next base." }));
         stack.appendChild(tables);
       }
 
@@ -5602,7 +5620,7 @@
       let hint = "";
       if (isMultiples()) hint = "Which number is a multiple of the base? Two choices. Switch back to Multiplication for mixed facts.";
       if (isDivide()) hint = "Even facts only: dividend ÷ divisor with whole-number answers.";
-      if (isAdd()) hint = "Practice sums with addends from your selected range (0–12).";
+      if (isAdd()) hint = "Practice sums with addends from your selected range (2–12).";
       if (isSubtract()) hint = "Even facts only: minuend − subtrahend with non-negative answers.";
       if (isOcean()) hint = "Name oceans and seas from clues. Seas are labeled so kids know they aren't oceans.";
       if (isSport()) hint = "Name sports from kid-friendly clues. Four choices each time.";
@@ -5620,7 +5638,7 @@
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
-      if (isMakeTen()) hint = "See a number from 0 to 10. Choose the partner that makes 10. Two choices.";
+      if (isMakeTen()) hint = "See a number from 2 to 8. Choose the partner that makes 10. Two choices.";
       if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
     }

@@ -355,38 +355,43 @@
       transform: translate(-50%, -50%);
       transform-origin: center center;
       animation: witch-spin 5s linear infinite;
+      will-change: transform;
       pointer-events: none;
     }
+    /* The glow filters are static, so each image is rasterized once and the spin and pulse
+       run on the compositor (transform and opacity only). Animating the stacked
+       drop-shadows on this huge image re-filtered it every frame and froze iPhone Safari. */
     .wave-bg .witch-art {
+      position: relative;
       display: block;
       width: 100%;
       height: auto;
       opacity: 0.72;
       filter: brightness(0)
-        drop-shadow(0 0 5px #e7ffc4)
-        drop-shadow(0 0 14px #5dff45)
-        drop-shadow(0 0 28px rgba(120, 50, 210, 0.72))
-        drop-shadow(0 0 46px rgba(57, 255, 40, 0.45));
-      animation: witch-glow 2.6s ease-in-out infinite;
+        drop-shadow(0 0 4px #d8ffb0)
+        drop-shadow(0 0 12px #3dff2e)
+        drop-shadow(0 0 24px rgba(110, 40, 200, 0.55))
+        drop-shadow(0 0 40px rgba(57, 255, 40, 0.28));
+    }
+    .wave-bg .witch-art.witch-glow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      filter: brightness(0)
+        drop-shadow(0 0 8px #f4ffe4)
+        drop-shadow(0 0 20px #8dff62)
+        drop-shadow(0 0 38px rgba(168, 90, 255, 0.9))
+        drop-shadow(0 0 64px rgba(80, 255, 60, 0.7));
+      animation: witch-glow-pulse 2.6s ease-in-out infinite;
+      will-change: opacity;
     }
     @keyframes witch-spin {
       to { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    @keyframes witch-glow {
-      0%, 100% {
-        filter: brightness(0)
-          drop-shadow(0 0 4px #d8ffb0)
-          drop-shadow(0 0 12px #3dff2e)
-          drop-shadow(0 0 24px rgba(110, 40, 200, 0.55))
-          drop-shadow(0 0 40px rgba(57, 255, 40, 0.28));
-      }
-      50% {
-        filter: brightness(0)
-          drop-shadow(0 0 8px #f4ffe4)
-          drop-shadow(0 0 20px #8dff62)
-          drop-shadow(0 0 38px rgba(168, 90, 255, 0.9))
-          drop-shadow(0 0 64px rgba(80, 255, 60, 0.7));
-      }
+    @keyframes witch-glow-pulse {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.72; }
     }
     /* Belfry (level 12): a public-domain gothic tower under the moon, with bats pouring
        out of the left spire's belfry window. Bats are built by buildBelfryBats(). */
@@ -425,24 +430,26 @@
       height: 100%;
       opacity: 0.92;
       filter: brightness(0)
-        drop-shadow(0 0 3px #e9ddff)
-        drop-shadow(0 0 12px rgba(178, 140, 255, 0.8))
-        drop-shadow(0 0 30px rgba(140, 190, 255, 0.4));
-      animation: belfry-glow 3.2s ease-in-out infinite;
+        drop-shadow(0 0 2px #dccdff)
+        drop-shadow(0 0 10px rgba(160, 120, 255, 0.65))
+        drop-shadow(0 0 24px rgba(130, 180, 255, 0.3));
     }
-    @keyframes belfry-glow {
-      0%, 100% {
-        filter: brightness(0)
-          drop-shadow(0 0 2px #dccdff)
-          drop-shadow(0 0 10px rgba(160, 120, 255, 0.65))
-          drop-shadow(0 0 24px rgba(130, 180, 255, 0.3));
-      }
-      50% {
-        filter: brightness(0)
-          drop-shadow(0 0 5px #f3edff)
-          drop-shadow(0 0 16px rgba(190, 150, 255, 0.95))
-          drop-shadow(0 0 40px rgba(150, 200, 255, 0.55));
-      }
+    /* Static brighter-glow copy whose opacity pulses (compositor-only). */
+    .wave-bg .belfry-tower.belfry-glow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      filter: brightness(0)
+        drop-shadow(0 0 5px #f3edff)
+        drop-shadow(0 0 16px rgba(190, 150, 255, 0.95))
+        drop-shadow(0 0 40px rgba(150, 200, 255, 0.55));
+      animation: belfry-glow-pulse 3.2s ease-in-out infinite;
+      will-change: opacity;
+    }
+    @keyframes belfry-glow-pulse {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.92; }
     }
     /* Origin of the stream: the left spire's tall belfry window. */
     .wave-bg .belfry-bats {
@@ -715,6 +722,48 @@
       from { transform: translateX(0); }
       to { transform: translateX(-100vw); }
     }
+    /* Phones (small portrait, or a touch screen under 500px tall in landscape): lighter
+       scenes so iPhone Safari stays responsive. iPad and desktop keep the full look. */
+    @media (max-width: 500px), (pointer: coarse) and (max-height: 500px) {
+      /* Root cause of the iPhone freeze: every glass button and card had its own
+         backdrop-filter blur. WebKit gives each one a blurred backdrop layer at device
+         pixel ratio 3, which used gigabytes and froze iPhone Safari. Phones use plain
+         translucent glass instead. */
+      :root { --glass-blur: none; }
+      /* Title art is still on phones: its galaxy, stars and CHALLENGE pulse animate
+         inside the SVG, which repaints the whole title every frame. */
+      .title-svg .nebula,
+      .title-svg .stars,
+      .title-svg .stars-b { animation: none !important; will-change: auto; }
+      .title-svg .stars,
+      .title-svg .stars-b { opacity: 0.92; }
+      .title-svg .title-challenge { animation: none !important; filter: none !important; transform: none !important; will-change: auto; }
+      *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+      .wave-bg .witch-glow,
+      .wave-bg .belfry-glow { display: none; }
+      .wave-bg .witch-art {
+        filter: brightness(0) drop-shadow(0 0 4px #e7ffc4) drop-shadow(0 0 14px #4dff3a);
+      }
+      .wave-bg .belfry-tower {
+        filter: brightness(0) drop-shadow(0 0 3px #e9ddff) drop-shadow(0 0 12px rgba(178, 140, 255, 0.8));
+      }
+      .wave-bg .belfry-bats { filter: none; }
+      .wave-bg .belfry-bat i { background: #4a3a7a; }
+      .wave-bg .gy-far2 { filter: url(#gy-tint-far2); }
+      .wave-bg .gy-far { filter: url(#gy-tint-far); }
+      .wave-bg .gy-front { filter: url(#gy-tint-front); }
+      .wave-bg .gy-tree { filter: url(#gy-tint-front); animation: none; }
+      .wave-bg .gy-moon { animation: none; }
+      .wave-bg .gy-fog-mid { display: none; }
+      .wave-bg .ghost-art { animation: none; }
+    }
+    /* Hidden tab: freeze every scene animation. */
+    html.scenes-paused .wave-bg,
+    html.scenes-paused .wave-bg *,
+    html.scenes-paused .wave-bg *::before,
+    html.scenes-paused .wave-bg *::after { animation-play-state: paused !important; }
+    .wave-bg .gy-fog,
+    .wave-bg .gy-tree { will-change: transform; }
     @keyframes ghost-walk-x {
       from { transform: translateX(112vw); }
       to { transform: translateX(-15vw); }
@@ -1074,6 +1123,8 @@
           drop-shadow(0 0 16px #5dff45)
           drop-shadow(0 0 32px rgba(130, 60, 220, 0.75));
       }
+      .wave-bg .witch-glow,
+      .wave-bg .belfry-glow { display: none; }
       /* Belfry: still tower with a steady glow; the bat trail is frozen mid-stream. */
       .wave-bg .belfry-tower {
         animation: none !important;
@@ -2242,11 +2293,13 @@
     <!-- Witch silhouette: public domain, https://freesvg.org/witch-on-a-broom -->
     <div class="witch-spin" aria-hidden="true">
       <img class="witch-art" src="assets/halloween/witch.svg" alt="">
+      <img class="witch-art witch-glow" src="assets/halloween/witch.svg" alt="">
     </div>
     <!-- Gothic tower silhouette: public domain, https://freesvg.org/gothic-castle-silhouette -->
     <div class="belfry-moon" aria-hidden="true"></div>
     <div class="belfry-scene" aria-hidden="true">
       <img class="belfry-tower" src="assets/halloween/belfry-tower.svg" alt="">
+      <img class="belfry-tower belfry-glow" src="assets/halloween/belfry-tower.svg" alt="">
       <div class="belfry-bats"></div>
     </div>
     <!-- Ghost: public domain, https://freesvg.org/white-ghost -->
@@ -4954,7 +5007,12 @@
     // Belfry bat stream: each bat follows its own smooth curve out of the belfry window and
     // across the sky to the left. Negative delays spread them along the ribbon, so a paused
     // (reduced-motion) stream still reads as a trail of bats.
-    const BELFRY_BAT_COUNT = 64;
+    const LITE_SCENES_QUERY = "(max-width: 500px), (pointer: coarse) and (max-height: 500px)";
+    function liteScenes() {
+      try { return !!(window.matchMedia && window.matchMedia(LITE_SCENES_QUERY).matches); } catch (_) { return false; }
+    }
+    // Fewer bats on phones; the full ribbon elsewhere.
+    function belfryBatCount() { return liteScenes() ? 22 : 64; }
     let belfryResizeTimer = 0;
     function belfryRandom(seed) {
       let t = seed >>> 0;
@@ -4997,7 +5055,8 @@
       const ox = W - 0.03 * W - towerW + 0.255 * towerW;
       const oy = 0.06 * H + 0.35 * 0.94 * H;
       const rand = belfryRandom(13);
-      host.replaceChildren();
+      while (host.firstChild) host.removeChild(host.firstChild);
+      const BELFRY_BAT_COUNT = belfryBatCount();
       for (let i = 0; i < BELFRY_BAT_COUNT; i++) {
         const bat = document.createElement("span");
         bat.className = "belfry-bat";
@@ -5181,7 +5240,12 @@
         render();
       }
     }
+    function syncScenePause() {
+      document.documentElement.classList.toggle("scenes-paused", document.visibilityState === "hidden");
+    }
+    syncScenePause();
     document.addEventListener("visibilitychange", function () {
+      syncScenePause();
       if (document.visibilityState === "hidden") noteLeftForGame();
       else if (returnedFromGame()) resumeMusicAfterGame();
     });

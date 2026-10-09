@@ -1327,7 +1327,12 @@
     body.play-screen a.maze-reward.reward-graveyard { border-top-color: #ffc2f0; }
     @media (max-width: 40rem) {
       body.play-screen[data-rewards="3"] a.maze-reward,
-      body.play-screen.maze-ready[data-rewards="3"] .page-bar { font-size: 0.95rem; }
+      body.play-screen.maze-ready[data-rewards="3"] .page-bar {
+        font-size: 0.95rem;
+        white-space: normal;
+        line-height: 1.05;
+        padding: 0.2rem 0.25rem;
+      }
     }
     .congrats-layer {
       position: fixed;
@@ -1412,6 +1417,52 @@
     }
     @media (max-width: 30rem) {
       .reset-confirm-actions { grid-template-columns: 1fr; }
+    }
+    /* Locked reward games: dimmed with a lock; tapping asks for a teacher code. */
+    a.maze-reward.locked-game {
+      gap: 0.4rem;
+      filter: saturate(0.25) brightness(0.78);
+      cursor: pointer;
+    }
+    a.maze-reward .lock-icon { display: inline-flex; flex: 0 0 auto; }
+    a.maze-reward .lock-icon svg { width: 0.8em; height: 0.9em; }
+    button.chip.beat-chip.locked { cursor: pointer; }
+    .code-box-card h2 { font-size: clamp(2rem, 7vw, 3.2rem); }
+    .code-box-input {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      margin-top: 1rem;
+      min-height: 3.6rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 0.75rem;
+      border: 3px solid #ffe58a;
+      background: #fffef6;
+      color: #102038;
+      font: inherit;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .code-box-input::placeholder { color: #6b7686; letter-spacing: 0; text-transform: none; font-weight: 700; }
+    .code-box-input:focus-visible { outline: 4px solid #ffe58a; outline-offset: 3px; }
+    .code-box-msg { min-height: 1.6rem; margin: 0.5rem 0 0; font-size: 1.3rem; color: #ffd3cb; }
+    .code-box-card .reset-confirm-actions { margin-top: 0.4rem; }
+    .reset-confirm-actions .code-unlock {
+      background: #ffe58a;
+      color: #102038;
+      box-shadow: 0 4px 0 #c9a227;
+    }
+    .code-box-card.code-wrong { animation: code-shake 0.35s ease-in-out; }
+    @keyframes code-shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .code-box-card.code-wrong { animation: none; }
     }
     button.congrats-stay {
       margin-top: 0.75rem;
@@ -3224,6 +3275,7 @@
       pianoIndex: 0,
       vehicleIndex: 0,
       wonderBag: null,
+      gamesUnlocked: {},
       playPage: "question"
     };
     let audioCtx = null;
@@ -3281,6 +3333,12 @@
           playId = data.playMusicId;
         }
         state.playMusicId = playId;
+        state.gamesUnlocked = {};
+        if (data.gamesUnlocked && typeof data.gamesUnlocked === "object") {
+          Object.keys(BEAT_REWARDS).forEach(function (id) {
+            if (data.gamesUnlocked[id] === true) state.gamesUnlocked[id] = true;
+          });
+        }
         const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
         if (!currentSave || !hadBeats || playId !== savedPlayId) writeSave();
       } catch (_) {}
@@ -3293,7 +3351,8 @@
         bestScore: state.best,
         muted: state.muted,
         playMusicId: state.playMusicId || "",
-        beatsUnlocked: beats
+        beatsUnlocked: beats,
+        gamesUnlocked: Object.assign({}, state.gamesUnlocked || {})
       }));
     }
 
@@ -4878,6 +4937,7 @@
     }
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
+      state.gamesUnlocked = {};
       state.beatJustUnlocked = "";
       state.mazeCelebrate = false;
       if (!state.beatsUnlocked[state.playMusicId]) {
@@ -5201,6 +5261,18 @@
       return -1;
     }
     // Earned if this beat or any later beat is already unlocked (old saves included).
+    function rewardGameOpen(beatId) {
+      return beatRewardEarned(beatId) || !!(state.gamesUnlocked && state.gamesUnlocked[beatId]);
+    }
+    // Every reward game in beat order, unlocked or not (locked ones show as locked buttons).
+    function allBeatRewards() {
+      var out = [];
+      for (var i = 0; i < PLAY_TRACKS.length; i++) {
+        var id = PLAY_TRACKS[i].id;
+        if (BEAT_REWARDS[id]) out.push({ beatId: id, reward: BEAT_REWARDS[id], open: rewardGameOpen(id) });
+      }
+      return out;
+    }
     function beatRewardEarned(beatId) {
       var start = beatIndex(beatId);
       if (start < 0 || !state.beatsUnlocked) return false;
@@ -5213,7 +5285,7 @@
       var out = [];
       for (var i = 0; i < PLAY_TRACKS.length; i++) {
         var id = PLAY_TRACKS[i].id;
-        if (BEAT_REWARDS[id] && beatRewardEarned(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] });
+        if (BEAT_REWARDS[id] && rewardGameOpen(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] });
       }
       return out;
     }
@@ -5318,22 +5390,52 @@
       if (short && reward.bar) link.setAttribute("aria-label", reward.label);
       return link;
     }
-    // In play, links sit in the bottom bar; short labels only when several games share it.
+    function lockIcon() {
+      var span = document.createElement("span");
+      span.className = "lock-icon";
+      span.setAttribute("aria-hidden", "true");
+      span.innerHTML = '<svg viewBox="0 0 16 18" width="16" height="18" focusable="false"><path d="M4 8V5.5a4 4 0 0 1 8 0V8" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="1.5" y="8" width="13" height="9" rx="2" fill="currentColor"/></svg>';
+      return span;
+    }
+    // A locked game: dimmed, with a lock. Tapping it asks for the teacher code.
+    function lockedRewardLink(beatId, short) {
+      var reward = BEAT_REWARDS[beatId];
+      var name = short && reward.bar ? reward.bar : reward.label;
+      var link = el("a", {
+        class: "maze-reward reward-" + beatId + " locked-game",
+        href: "#",
+        role: "button",
+        "aria-label": (reward.bar || reward.label) + ", locked. Enter a teacher code to unlock.",
+        onClick: function (event) {
+          event.preventDefault();
+          openCodeBox({ kind: "game", beatId: beatId, opener: event.currentTarget });
+        }
+      });
+      link.addEventListener("keydown", function (event) {
+        if (event.key === " ") { event.preventDefault(); link.click(); }
+      });
+      link.appendChild(lockIcon());
+      link.appendChild(document.createTextNode(name));
+      return link;
+    }
+    // In play, games sit in the bottom bar with short labels; locked games show as locked.
     function appendEarnedRewardLinks(parent, inBar) {
-      var earned = earnedBeatRewards();
-      earned.forEach(function (item) {
-        parent.appendChild(mazeRewardLink(item.beatId, inBar && earned.length > 1));
+      var all = allBeatRewards();
+      all.forEach(function (item) {
+        parent.appendChild(item.open
+          ? mazeRewardLink(item.beatId, inBar && all.length > 1)
+          : lockedRewardLink(item.beatId, inBar && all.length > 1));
       });
     }
     function syncMazeCongrats() {
-      var earned = earnedBeatRewards();
-      document.body.classList.toggle("maze-ready", earned.length > 0);
-      document.body.dataset.rewards = String(earned.length);
+      var shown = allBeatRewards().length;
+      document.body.classList.toggle("maze-ready", shown > 0);
+      document.body.dataset.rewards = String(shown);
       var old = document.getElementById("maze-congrats");
       if (old) old.remove();
       var celebrateId = state.mazeCelebrate;
       var reward = celebrateId && BEAT_REWARDS[celebrateId];
-      if (state.phase !== "play" || !reward || !beatRewardEarned(celebrateId)) return;
+      if (!reward || !beatRewardEarned(celebrateId)) return;
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
@@ -5580,10 +5682,8 @@
           "data-beat-id": track.id
         });
         if (locked) {
-          btn.disabled = true;
-          btn.setAttribute("disabled", "disabled");
-          btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("aria-label", track.label + ", locked until a streak of " + track.unlockAt);
+          btn.setAttribute("aria-label", track.label + ", locked. Unlocks with a streak, or enter a teacher code.");
+          btn.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
         } else {
           btn.setAttribute("aria-label", track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
@@ -5609,6 +5709,132 @@
         card.appendChild(resetWrap);
       }
       return card;
+    }
+
+    // Teacher codes are compared by hash so they don't appear in the page source.
+    function codeHash(text) {
+      const str = "table-rush:" + String(text || "").trim().toUpperCase();
+      let h = 0x811c9dc5;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193) >>> 0;
+      }
+      return h.toString(36);
+    }
+    // Island codes unlock a range of beats (1-based beat numbers, Replay is beat 1).
+    const BEAT_CODE_RANGES = [
+      { hash: "eu78od", from: 1, to: 5 },
+      { hash: "wzhywq", from: 6, to: 10 },
+      { hash: "136e4k7", from: 11, to: 15 }
+    ];
+    const GAME_CODE_HASH = "eu78od";
+    // Unlock beats up to `to` (every earlier beat too, so progression stays in order).
+    // Returns the ids that were newly unlocked.
+    function unlockBeatsThrough(to) {
+      const newly = [];
+      for (let i = 0; i < PLAY_TRACKS.length && i < to; i++) {
+        const id = PLAY_TRACKS[i].id;
+        if (!state.beatsUnlocked[id]) { state.beatsUnlocked[id] = true; newly.push(id); }
+      }
+      return newly;
+    }
+    function applyTeacherCode(kind, beatId, text) {
+      const hash = codeHash(text);
+      if (kind === "game") {
+        if (hash !== GAME_CODE_HASH || !BEAT_REWARDS[beatId]) return false;
+        state.gamesUnlocked = state.gamesUnlocked || {};
+        state.gamesUnlocked[beatId] = true;
+        writeSave();
+        render();
+        return true;
+      }
+      const range = BEAT_CODE_RANGES.find(function (r) { return r.hash === hash; });
+      if (!range) return false;
+      const hadGame = {};
+      Object.keys(BEAT_REWARDS).forEach(function (id) { hadGame[id] = rewardGameOpen(id); });
+      const newly = unlockBeatsThrough(range.to);
+      // Celebrate the newest reward game this code opened (prefer one inside the range).
+      let celebrate = "";
+      for (let i = Math.min(range.to, PLAY_TRACKS.length) - 1; i >= 0 && !celebrate; i--) {
+        const id = PLAY_TRACKS[i].id;
+        if (BEAT_REWARDS[id] && !hadGame[id] && rewardGameOpen(id)) celebrate = id;
+      }
+      if (celebrate) state.mazeCelebrate = celebrate;
+      if (newly.length) {
+        const last = newly[newly.length - 1];
+        state.beatJustUnlocked = last;
+        setPlayMusicId(last);
+      }
+      writeSave();
+      render();
+      return true;
+    }
+    // Small code box styled like the reset confirmation. Codes are never shown.
+    function openCodeBox(opts) {
+      const old = document.getElementById("code-box");
+      if (old) old.remove();
+      const opener = opts && opts.opener;
+      const kind = opts && opts.kind === "game" ? "game" : "beats";
+      const reward = kind === "game" ? BEAT_REWARDS[opts.beatId] : null;
+      const layer = el("div", { id: "code-box", class: "congrats-layer reset-confirm-layer code-box-layer" });
+      const card = el("div", { class: "congrats-card reset-confirm-card code-box-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "code-box-title" });
+      card.appendChild(el("h2", { id: "code-box-title", text: kind === "game" ? "Unlock " + (reward.bar || "game") : "Unlock beats" }));
+      const form = el("form", { class: "code-box-form", autocomplete: "off" });
+      const input = el("input", { type: "text", class: "code-box-input", placeholder: "Teacher code", "aria-label": "Teacher code", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", enterkeyhint: "done" });
+      const msg = el("p", { class: "code-box-msg", role: "status", "aria-live": "polite", text: "" });
+      const row = el("div", { class: "reset-confirm-actions" });
+      const unlock = el("button", { type: "submit", class: "code-unlock", text: "Unlock" });
+      const cancel = el("button", { type: "button", class: "reset-no code-cancel", text: "Cancel" });
+      let msgTimer = 0;
+      function close() {
+        clearTimeout(msgTimer);
+        document.removeEventListener("keydown", onKey, true);
+        layer.remove();
+        if (opener && document.body.contains(opener)) opener.focus();
+      }
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const value = input.value;
+        if (!String(value).trim()) { input.focus(); return; }
+        if (applyTeacherCode(kind, kind === "game" ? opts.beatId : "", value)) {
+          document.removeEventListener("keydown", onKey, true);
+          clearTimeout(msgTimer);
+          layer.remove();
+          const focusTarget = kind === "game" ? document.querySelector("a.maze-reward.reward-" + opts.beatId) : null;
+          if (focusTarget) focusTarget.focus();
+          return;
+        }
+        msg.textContent = "Not quite";
+        card.classList.remove("code-wrong");
+        void card.offsetWidth;
+        card.classList.add("code-wrong");
+        input.value = "";
+        input.focus();
+        clearTimeout(msgTimer);
+        msgTimer = setTimeout(function () { msg.textContent = ""; card.classList.remove("code-wrong"); }, 1800);
+      });
+      cancel.addEventListener("click", close);
+      const focusables = [input, unlock, cancel];
+      function onKey(event) {
+        if (event.key === "Escape") { event.preventDefault(); close(); return; }
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const i = focusables.indexOf(document.activeElement);
+          const next = event.shiftKey ? (i <= 0 ? focusables.length - 1 : i - 1) : (i < 0 || i === focusables.length - 1 ? 0 : i + 1);
+          focusables[next].focus();
+        }
+      }
+      layer.addEventListener("click", function (event) { if (event.target === layer) close(); });
+      form.appendChild(input);
+      form.appendChild(msg);
+      row.appendChild(unlock);
+      row.appendChild(cancel);
+      form.appendChild(row);
+      card.appendChild(form);
+      layer.appendChild(card);
+      document.body.appendChild(layer);
+      document.addEventListener("keydown", onKey, true);
+      input.focus();
     }
 
     // Ask before resetting: an in-page dialog styled like the Congratulations card.

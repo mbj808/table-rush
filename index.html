@@ -1430,7 +1430,9 @@
     body.setup-screen .brand-meta,
     body.setup-screen .header-actions { min-height: 0; margin: 0; }
     .setup-player { display: flex; justify-content: center; margin: 0 0 0.25rem; }
-    .setup-player #mute { position: static; }
+    /* Keep the player as the containing block: its glass-sheen pseudo layers are absolutely
+       positioned, and with position: static they spread over the whole page as a haze. */
+    .setup-player #mute { position: relative; }
     body.setup-screen .beats-card { padding-top: 0.6rem; padding-bottom: 0.6rem; }
     body.setup-screen .beats-card .beats-title-svg { max-height: 2.2rem; width: auto; margin: 0 auto; }
     body.setup-screen .beats-row {

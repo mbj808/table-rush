@@ -4866,7 +4866,36 @@
     }
     // Home BGM is always available on setup — never tied to the beat challenge lock.
     function homeMusicShouldPlay() {
-      return state.phase === "setup" && !state.muted && !musicPausedForGame;
+      return state.phase === "setup" && !state.muted && !musicPausedForGame && !state.homeBeat && !state.homeSilenced;
+    }
+    // A beat picked on the home screen plays there (instead of the home music).
+    function beatOnHome() { return state.phase === "setup" && !!state.homeBeat; }
+    function beatMusicPhase() { return state.phase === "play" || beatOnHome(); }
+    function beatIsAudible() {
+      return beatMusicPhase() && !state.muted && !!playMusic && !playMusic.paused && !playMusic.muted;
+    }
+    // Home screen speaker tap: play that beat now, or pause it if it is already playing.
+    function tapHomeBeat(id) {
+      if (!state.beatsUnlocked[id]) return;
+      musicPausedForGame = null;
+      if (state.homeBeat && state.playMusicId === id && beatIsAudible()) {
+        state.homeBeat = false;
+        state.homeSilenced = true;
+        playMusic.pause();
+        render();
+        return;
+      }
+      state.homeBeat = true;
+      state.homeSilenced = false;
+      if (state.muted) { state.muted = false; writeSave(); }
+      if (homeMusic && !homeMusic.paused) homeMusic.pause();
+      if (state.playMusicId !== id) {
+        state.playMusicId = id;
+        writeSave();
+        disposePlayMusic();
+      }
+      render();
+      if (playMusic && playMusic.paused) tryPlayPlayMusic();
     }
     function failHomeMusicAutoplay(expectedGen) {
       // Ignore stale autoplay/muted-trick failures after a newer gesture play() started.
@@ -5075,12 +5104,12 @@
       }
       const audio = ensurePlayMusic();
       if (!audio) return;
-      const shouldPlay = state.phase === "play" && !state.muted && !musicPausedForGame;
+      const shouldPlay = beatMusicPhase() && !state.muted && !musicPausedForGame;
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
         if (!audio.paused) audio.pause();
         // Rewind when leaving play so the next game starts at the top.
-        if (state.phase !== "play") {
+        if (!beatMusicPhase()) {
           try { audio.currentTime = 0; } catch (_) {}
         }
         return;
@@ -5097,12 +5126,12 @@
       const home = homeMusic;
       const play = playMusic;
       // Treat muted-but-playing as still awaiting (muted-unmute trick must not hide Music).
-      const awaitingHome = !state.muted && state.phase === "setup" && (!home || home.paused || home.muted);
+      const awaitingHome = !state.muted && state.phase === "setup" && !state.homeBeat && !state.homeSilenced && (!home || home.paused || home.muted);
       const playMeta = playTrackMeta();
       const hasPlayAudio = !!(playMeta && playMeta.file);
-      const awaitingPlay = !state.muted && state.phase === "play" && hasPlayAudio && (!play || play.paused || play.muted);
+      const awaitingPlay = !state.muted && beatMusicPhase() && hasPlayAudio && (!play || play.paused || play.muted);
       const awaitingGesture = awaitingHome || awaitingPlay;
-      const playing = !state.muted && !awaitingGesture;
+      const playing = !state.muted && !awaitingGesture && !(state.phase === "setup" && state.homeSilenced);
       mute.dataset.playing = String(playing);
       if (state.muted) {
         mute.setAttribute("aria-label", "Play sounds and music");
@@ -5122,7 +5151,7 @@
     }
     function syncWooferPulse() {
       const play = playMusic;
-      const beatAudible = state.phase === "play" && !state.muted && play && !play.paused && !play.muted;
+      const beatAudible = beatMusicPhase() && !state.muted && play && !play.paused && !play.muted;
       const chips = document.querySelectorAll(".beat-chip");
       for (let i = 0; i < chips.length; i++) {
         const chip = chips[i];
@@ -5291,6 +5320,7 @@
       else if (state.phase === "play") renderPlay(app);
       syncHomeMusic();
       syncPlayMusic();
+      syncWooferPulse();
     }
     function checklistCard(label, items, quick, hint, warn, twoCol) {
       const tables = el("div", { class: "card" });
@@ -5374,7 +5404,7 @@
     }
     function pauseMusicForGame() {
       if (musicPausedForGame || state.muted) return;
-      if (state.phase === "play" && playMusic && !playMusic.paused && !playMusic.muted) {
+      if (beatMusicPhase() && playMusic && !playMusic.paused && !playMusic.muted) {
         musicPausedForGame = { kind: "play", beatId: state.playMusicId, left: false, at: Date.now() };
         playMusic.pause();
         unbindPlayMusicUnlock();
@@ -5410,7 +5440,7 @@
         updateMuteButton();
         return;
       }
-      if (away.kind === "play" && state.phase === "play") {
+      if (away.kind === "play" && beatMusicPhase()) {
         if (away.beatId && away.beatId !== state.playMusicId && state.beatsUnlocked[away.beatId]) {
           state.playMusicId = away.beatId;
           disposePlayMusic();
@@ -5772,7 +5802,10 @@
           btn.setAttribute("aria-label", track.label + ", locked until a streak of " + track.unlockAt);
         } else {
           btn.setAttribute("aria-label", track.label);
-          btn.addEventListener("click", function () { setPlayMusicId(track.id); });
+          btn.addEventListener("click", function () {
+            if (state.phase === "setup") tapHomeBeat(track.id);
+            else setPlayMusicId(track.id);
+          });
         }
         btn.appendChild(wooferFace());
         const label = el("span", { class: "beat-label" });
@@ -6404,6 +6437,9 @@
     }
     function start(pairs) {
       clearTimeout(feedback);
+      // A beat playing on the home screen carries on into the game.
+      state.homeBeat = false;
+      state.homeSilenced = false;
       if (isQuiz()) {
         /* quiz modes have no product/factor modes */
       } else if (isDivide()) {
@@ -6517,8 +6553,27 @@
         homeMusicAutoplayBlocked = false;
         writeSave();
         render();
-        if (state.phase === "play") tryPlayPlayMusic();
+        if (beatMusicPhase()) tryPlayPlayMusic();
         else tryPlayHomeMusic(false);
+        updateMuteButton();
+        return;
+      }
+      if (beatOnHome()) {
+        // A home-screen beat is selected: the player button pauses or resumes it.
+        if (play && !play.paused) {
+          state.homeBeat = false;
+          state.homeSilenced = true;
+          play.pause();
+          render();
+        } else {
+          tryPlayPlayMusic();
+        }
+        updateMuteButton();
+        return;
+      }
+      if (state.phase === "setup" && state.homeSilenced) {
+        // After pausing a home beat, the player button starts the selected beat again.
+        tapHomeBeat(state.playMusicId);
         updateMuteButton();
         return;
       }

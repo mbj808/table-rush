@@ -5571,8 +5571,10 @@
       document.body.appendChild(layer);
     }
     function renderSetup(app) {
-      // Order from the title down: Games, game options, Start, music player + beats, mini games.
+      // Order from the title down: Start, Games, game options, music player + beats, mini games.
       const stack = el("div", { class: "stack" });
+      const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
+      stack.appendChild(startBtn);
       stack.appendChild(operationCard());
 
       if (isOceanMap()) {
@@ -5716,9 +5718,6 @@
       }
 
       if (isMath()) stack.appendChild(modeCard());
-      const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
-      startBtn.disabled = state.tables.length === 0;
-      stack.appendChild(startBtn);
       stack.appendChild(musicCard(true));
       const minis = el("div", { class: "card mini-games-card" });
       minis.appendChild(el("p", { class: "label", text: "Mini games" }));
@@ -5726,6 +5725,7 @@
       appendEarnedRewardLinks(miniRow, true);
       minis.appendChild(miniRow);
       stack.appendChild(minis);
+      startBtn.disabled = state.tables.length === 0;
       app.appendChild(stack);
     }
 

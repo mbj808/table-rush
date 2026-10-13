@@ -1426,7 +1426,67 @@
     }
     a.maze-reward .lock-icon { display: inline-flex; flex: 0 0 auto; }
     a.maze-reward .lock-icon svg { width: 0.8em; height: 0.9em; }
-    button.chip.beat-chip.locked { cursor: pointer; }
+    /* Setup: compact layout. Music player sits with the beats; beats are a dense grid. */
+    body.setup-screen .brand-meta,
+    body.setup-screen .header-actions { min-height: 0; margin: 0; }
+    .setup-player { display: flex; justify-content: center; margin: 0 0 0.25rem; }
+    .setup-player #mute { position: static; }
+    body.setup-screen .beats-card { padding-top: 0.6rem; padding-bottom: 0.6rem; }
+    body.setup-screen .beats-card .beats-title-svg { max-height: 2.2rem; width: auto; margin: 0 auto; }
+    body.setup-screen .beats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+      gap: 0.35rem 0.15rem;
+      justify-items: center;
+    }
+    body.setup-screen button.chip.beat-chip,
+    body.setup-screen button.chip.beat-chip.on,
+    body.setup-screen button.chip.beat-chip.locked,
+    body.setup-screen button.chip.beat-chip.on[aria-pressed="true"] {
+      width: 4.5rem;
+      max-width: 4.5rem;
+      height: auto;
+      min-width: 0;
+      min-height: 0;
+      flex: 0 0 auto;
+      padding: 0.1rem 0;
+      gap: 0.15rem;
+    }
+    body.setup-screen .beat-chip .woofer,
+    body.setup-screen button.chip.beat-chip .woofer,
+    body.setup-screen button.chip.beat-chip.on .woofer,
+    body.setup-screen button.chip.beat-chip.locked .woofer { flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; }
+    body.setup-screen .beat-chip .woofer-cone {
+      box-shadow: inset 0 0.3rem 0.2rem rgba(28, 10, 4, 0.7), inset 0 0 0 1px rgba(42, 20, 10, 0.85);
+    }
+    body.setup-screen .beat-chip .beat-label {
+      font-size: 0.66rem;
+      line-height: 1.1;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    body.setup-screen .beat-actions { margin-top: 0.35rem; }
+    body.setup-screen .beat-chip .beat-label { padding: 0; letter-spacing: 0; }
+    .setup-player .mini-player { zoom: 0.72; }
+    /* Mini games: small buttons in one row. */
+    .mini-games { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+    .mini-games a.maze-reward {
+      position: static;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      width: auto;
+      min-width: 0;
+      min-height: 2.6rem;
+      margin: 0;
+      padding: 0.35rem 0.9rem;
+      font-size: 1rem;
+      border-radius: 0.6rem;
+      white-space: nowrap;
+    }
     .code-box-card h2 { font-size: clamp(2rem, 7vw, 3.2rem); }
     .code-box-input {
       display: block;
@@ -2608,21 +2668,21 @@
     const BEAT_REWARDS = {
       bitwave: {
         href: "https://nova-fire-bamboo-heart.grok.me",
-        label: "Play the maze",
-        bar: "Maze game",
-        speak: "Tap Play the maze to open the maze game."
+        label: "Play Maze",
+        bar: "Maze",
+        speak: "Tap Play Maze to open the maze game."
       },
       bat: {
         href: "https://rapid-leaf-able-cobalt.grok.me",
-        label: "Play the jumping game",
-        bar: "Jumping game",
-        speak: "Tap Play the jumping game to open the jumping game."
+        label: "Play Pumpkin Jump",
+        bar: "Pumpkin Jump",
+        speak: "Tap Play Pumpkin Jump to open the jumping game."
       },
       graveyard: {
         href: "https://star-tulip-eagle-storm.grok.me",
-        label: "Play Neon Cookie Lab",
+        label: "Play Cookie Lab",
         bar: "Cookie Lab",
-        speak: "Tap Play Neon Cookie Lab to open the cookie game."
+        speak: "Tap Play Cookie Lab to open the cookie game."
       }
     };
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
@@ -5217,6 +5277,10 @@
       cleanMathTables();
       applyUnlockedBackground();
       const app = document.getElementById("app");
+      const muteBtn = document.getElementById("mute");
+      const headerActions = document.querySelector(".header-actions");
+      if (muteBtn && headerActions && muteBtn.parentElement !== headerActions) headerActions.appendChild(muteBtn);
+      document.body.classList.toggle("setup-screen", state.phase === "setup");
       app.replaceChildren();
       updateMuteButton();
       const back = document.getElementById("back");
@@ -5477,12 +5541,8 @@
       document.body.appendChild(layer);
     }
     function renderSetup(app) {
+      // Order from the title down: Games, game options, Start, music player + beats, mini games.
       const stack = el("div", { class: "stack" });
-      stack.appendChild(musicCard(true));
-      appendEarnedRewardLinks(stack);
-      const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
-      startBtn.disabled = state.tables.length === 0;
-      stack.appendChild(startBtn);
       stack.appendChild(operationCard());
 
       if (isOceanMap()) {
@@ -5626,6 +5686,16 @@
       }
 
       if (isMath()) stack.appendChild(modeCard());
+      const startBtn = el("button", { class: "start", type: "button", text: "Start", onClick: function () { start(null); } });
+      startBtn.disabled = state.tables.length === 0;
+      stack.appendChild(startBtn);
+      stack.appendChild(musicCard(true));
+      const minis = el("div", { class: "card mini-games-card" });
+      minis.appendChild(el("p", { class: "label", text: "Mini games" }));
+      const miniRow = el("div", { class: "mini-games" });
+      appendEarnedRewardLinks(miniRow, true);
+      minis.appendChild(miniRow);
+      stack.appendChild(minis);
       app.appendChild(stack);
     }
 
@@ -5678,6 +5748,12 @@
     }
     function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
+      if (includeReset) {
+        const player = el("div", { class: "setup-player" });
+        const muteBtn = document.getElementById("mute");
+        if (muteBtn) player.appendChild(muteBtn);
+        card.appendChild(player);
+      }
       card.appendChild(beatsTitle());
       card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of " + BEAT_UNLOCK_STEP + "." }));
       const row = el("div", { class: "row beats-row" });
@@ -5691,8 +5767,9 @@
           "data-beat-id": track.id
         });
         if (locked) {
-          btn.setAttribute("aria-label", track.label + ", locked. Unlocks with a streak, or enter a teacher code.");
-          btn.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
+          btn.disabled = true;
+          btn.setAttribute("aria-disabled", "true");
+          btn.setAttribute("aria-label", track.label + ", locked until a streak of " + track.unlockAt);
         } else {
           btn.setAttribute("aria-label", track.label);
           btn.addEventListener("click", function () { setPlayMusicId(track.id); });
@@ -5730,23 +5807,8 @@
       }
       return h.toString(36);
     }
-    // Island codes unlock a range of beats (1-based beat numbers, Replay is beat 1).
-    const BEAT_CODE_RANGES = [
-      { hash: "eu78od", from: 1, to: 5 },
-      { hash: "wzhywq", from: 6, to: 10 },
-      { hash: "136e4k7", from: 11, to: 15 }
-    ];
+    // Only the mini games take a teacher code; beats unlock by streak alone.
     const GAME_CODE_HASH = "eu78od";
-    // Unlock beats up to `to` (every earlier beat too, so progression stays in order).
-    // Returns the ids that were newly unlocked.
-    function unlockBeatsThrough(to) {
-      const newly = [];
-      for (let i = 0; i < PLAY_TRACKS.length && i < to; i++) {
-        const id = PLAY_TRACKS[i].id;
-        if (!state.beatsUnlocked[id]) { state.beatsUnlocked[id] = true; newly.push(id); }
-      }
-      return newly;
-    }
     function applyTeacherCode(kind, beatId, text) {
       const hash = codeHash(text);
       if (kind === "game") {
@@ -5757,37 +5819,19 @@
         render();
         return true;
       }
-      const range = BEAT_CODE_RANGES.find(function (r) { return r.hash === hash; });
-      if (!range) return false;
-      const hadGame = {};
-      Object.keys(BEAT_REWARDS).forEach(function (id) { hadGame[id] = rewardGameOpen(id); });
-      const newly = unlockBeatsThrough(range.to);
-      // Celebrate the newest reward game this code opened (prefer one inside the range).
-      let celebrate = "";
-      for (let i = Math.min(range.to, PLAY_TRACKS.length) - 1; i >= 0 && !celebrate; i--) {
-        const id = PLAY_TRACKS[i].id;
-        if (BEAT_REWARDS[id] && !hadGame[id] && rewardGameOpen(id)) celebrate = id;
-      }
-      if (celebrate) state.mazeCelebrate = celebrate;
-      if (newly.length) {
-        const last = newly[newly.length - 1];
-        state.beatJustUnlocked = last;
-        setPlayMusicId(last);
-      }
-      writeSave();
-      render();
-      return true;
+      return false;
     }
     // Small code box styled like the reset confirmation. Codes are never shown.
     function openCodeBox(opts) {
       const old = document.getElementById("code-box");
       if (old) old.remove();
       const opener = opts && opts.opener;
-      const kind = opts && opts.kind === "game" ? "game" : "beats";
+      const kind = "game";
+      if (!opts || !BEAT_REWARDS[opts.beatId]) return;
       const reward = kind === "game" ? BEAT_REWARDS[opts.beatId] : null;
       const layer = el("div", { id: "code-box", class: "congrats-layer reset-confirm-layer code-box-layer" });
       const card = el("div", { class: "congrats-card reset-confirm-card code-box-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "code-box-title" });
-      card.appendChild(el("h2", { id: "code-box-title", text: kind === "game" ? "Unlock " + (reward.bar || "game") : "Unlock beats" }));
+      card.appendChild(el("h2", { id: "code-box-title", text: "Unlock " + (reward.bar || "game") }));
       const form = el("form", { class: "code-box-form", autocomplete: "off" });
       const input = el("input", { type: "text", class: "code-box-input", placeholder: "Teacher code", "aria-label": "Teacher code", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", enterkeyhint: "done" });
       const msg = el("p", { class: "code-box-msg", role: "status", "aria-live": "polite", text: "" });
@@ -5923,7 +5967,7 @@
 
     function operationCard() {
       const card = el("div", { class: "card" });
-      card.appendChild(el("p", { class: "label", text: "Operation" }));
+      card.appendChild(el("p", { class: "label", text: "Games" }));
       const row = el("div", { class: "ops" });
       OPS.forEach(function (op) {
         row.appendChild(button(op.label, "choice", state.operation === op.id, function () { setOperation(op.id); }));

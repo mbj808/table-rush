@@ -1506,17 +1506,26 @@
     .flag-svg, .piano-svg {
       display: block; width: 100%; height: auto; margin: 0.1rem auto 0.2rem;
     }
+    /* Big world map: grows with the viewport height and may run wider than the
+       question column (centered), keeping the map's 1000:456 shape. */
     .ocean-world {
+      --omap-h: clamp(9rem, calc(100vh - 418px), 30rem);
       position: relative;
-      width: 100%;
-      max-height: 10.5rem;
-      aspect-ratio: 1000 / 507;
-      margin: 0.1rem auto 0.2rem;
-      border-radius: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(96vw, calc(var(--omap-h) * 1000 / 456));
+      aspect-ratio: 1000 / 456;
+      margin: 0.1rem 0 0.35rem;
+      border-radius: 0.6rem;
       overflow: hidden;
-      background: linear-gradient(180deg, #9adcf3 0%, #1a7ec4 46%, #0b4f86 100%);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45);
+      background: #4f8fc6;
+      box-shadow: 0 0 0 3px #1f2d1c, 0 6px 16px rgba(0, 0, 0, 0.25);
     }
+    @supports (height: 100dvh) {
+      .ocean-world { --omap-h: clamp(9rem, calc(100dvh - 418px), 30rem); }
+    }
+    body.omap-play .eq .label { display: none; }
+    body.omap-play main { overflow: visible; }
     .ocean-world .ocean-hl,
     .ocean-world img {
       position: absolute;
@@ -5478,7 +5487,7 @@
 
       if (isOceanMap()) {
         const note = el("div", { class: "card" });
-        note.appendChild(el("p", { class: "hint", text: "A world map highlights one ocean or sea. Choose its name. They repeat in order: Pacific, Atlantic, Indian, Southern, Arctic, Mediterranean Sea, Caribbean Sea." }));
+        note.appendChild(el("p", { class: "hint", text: "A big world map shows one ocean in yellow. Choose its name. All five oceans come up once each, in a new order every round." }));
         stack.appendChild(note);
       } else if (isOcean()) {
         stack.appendChild(checklistCard("Oceans & seas",
@@ -5929,7 +5938,7 @@
       if (isSport()) hint = "Name sports from kid-friendly clues. Four choices each time.";
       if (isHawaii()) hint = "Name the main Hawaiian Islands from clues.";
       if (isCapital()) hint = "Match U.S. states and their capitals (both directions).";
-      if (isOceanMap()) hint = "One ocean or sea glows on the world map. Choose its name.";
+      if (isOceanMap()) hint = "One ocean is yellow on the world map. Choose its name.";
       if (isState()) hint = "See the state outline and the star on its capital. Choose that capital.";
       if (isElement()) hint = "Match element symbols and names (both directions).";
       if (isFlag()) hint = "See only the flag, then choose the country. Fifteen countries.";
@@ -6032,6 +6041,7 @@
     function syncPlayPages() {
       const playing = state.phase === "play";
       document.body.classList.toggle("play-screen", playing);
+      document.body.classList.toggle("omap-play", playing && isOceanMap());
       if (playing) document.body.dataset.playPage = state.playPage === "beats" ? "beats" : "question";
       else delete document.body.dataset.playPage;
       const bar = document.getElementById("page-bar");
@@ -6064,15 +6074,21 @@
       const wrong = others.length ? others[(salt || 0) % others.length] : names[0];
       return shuffle([answer, wrong]);
     }
+    // The five oceans, each once per pass in shuffled order (no repeat across passes).
     function buildOceanMapProblem() {
-      const bodies = OCEAN_BODIES.slice();
-      const picked = cycleItem(bodies, "oceanMapIndex");
-      const body = picked.item;
-      const wrongBody = bodies[(picked.idx + 1 + (picked.idx % 3)) % bodies.length];
-      const wrong = wrongBody.id === body.id ? bodies[(picked.idx + 2) % bodies.length] : wrongBody;
+      const bodies = OCEAN_BODIES.filter(function (b) { return b.kind === "ocean"; });
+      if (!state.oceanMapBag || !state.oceanMapBag.length) {
+        const next = shuffle(bodies.map(function (b) { return b.id; }));
+        if (next.length > 1 && next[0] === state.oceanMapLast) next.push(next.shift());
+        state.oceanMapBag = next;
+      }
+      const body = OCEAN_BY_ID[state.oceanMapBag.shift()];
+      state.oceanMapLast = body.id;
+      const others = bodies.filter(function (b) { return b.id !== body.id; });
+      const wrong = others[Math.floor(Math.random() * others.length)];
       return {
         operation: "oceanmap", id: body.id, kind: body.kind,
-        ask: body.kind === "sea" ? "Which sea is highlighted?" : "Which ocean is highlighted?",
+        ask: "Which ocean is yellow?",
         answer: body.name, key: "omap:" + body.id,
         choices: shuffle([body.name, wrong.name])
       };
@@ -6160,28 +6176,27 @@
       });
       return svgPicture("piano-svg", "Piano keyboard with one key highlighted", markup, "0 0 320 168");
     }
-    const OCEAN_HL = {
-      pacific: '<ellipse cx="83" cy="250" rx="72" ry="100" fill="#7ef6ff" fill-opacity="0.62" stroke="#ffe58a" stroke-width="4"/><ellipse cx="956" cy="228" rx="50" ry="86" fill="#7ef6ff" fill-opacity="0.62" stroke="#ffe58a" stroke-width="4"/>',
-      atlantic: '<ellipse cx="430" cy="240" rx="62" ry="108" fill="#7ef6ff" fill-opacity="0.58" stroke="#ffe58a" stroke-width="4"/>',
-      indian: '<ellipse cx="730" cy="305" rx="70" ry="82" fill="#7ef6ff" fill-opacity="0.58" stroke="#ffe58a" stroke-width="4"/>',
-      southern: '<rect x="0" y="408" width="1000" height="36" fill="#7ef6ff" fill-opacity="0.55" stroke="#ffe58a" stroke-width="3"/>',
-      arctic: '<rect x="40" y="8" width="920" height="32" rx="10" fill="#e9fbff" fill-opacity="0.72" stroke="#ffe58a" stroke-width="3"/>',
-      mediterranean: '<ellipse cx="548" cy="142" rx="34" ry="13" fill="#ffe58a" fill-opacity="0.78" stroke="#fffef6" stroke-width="2.5"/>',
-      caribbean: '<ellipse cx="318" cy="208" rx="30" ry="18" fill="#ffe58a" fill-opacity="0.8" stroke="#fffef6" stroke-width="2.5"/>'
-    };
+    // Ocean regions (IHO-style boundaries, simplified), same projection as world-pacific-land.svg.
+    const OCEAN_SHAPES = {"arctic":"M0.0 -13.9L1000.0 -13.9L1000.0 55.6L958.3 63.9L925.0 61.1L883.3 50.0L833.3 52.8L827.8 61.1L794.4 50.0L772.2 50.0L766.7 66.7L750.0 80.6L722.2 93.1L708.3 100.0L652.8 80.6L611.1 55.6L513.9 52.8L477.8 50.0L458.3 50.0L388.9 61.1L333.3 66.7L222.2 66.7L111.1 66.7L0.0 55.6Z",
+      "southern":"M0.0 400.0L1000.0 400.0L1000.0 469.4L0.0 469.4Z",
+      "indian":"M0.0 400.0L0.0 330.0L13.9 288.9L27.8 233.3L34.7 150.0L41.7 147.2L77.8 141.7L111.1 150.0L138.9 150.0L194.4 161.1L216.7 177.8L219.4 200.0L225.0 222.2L231.9 229.2L236.1 250.0L263.9 256.9L291.7 258.3L311.1 266.7L333.3 302.8L350.0 341.7L352.5 354.4L352.5 400.0Z",
+      "pacific":"M352.5 400.0L352.5 354.4L350.0 341.7L333.3 302.8L311.1 266.7L291.7 258.3L263.9 256.9L236.1 250.0L231.9 229.2L225.0 222.2L219.4 200.0L216.7 177.8L222.2 122.2L222.2 66.7L333.3 66.7L388.9 61.1L458.3 50.0L477.8 50.0L513.9 52.8L611.1 55.6L652.8 80.6L652.8 122.2L666.7 150.0L666.7 177.8L694.4 188.9L711.1 202.8L722.2 208.3L736.1 219.4L755.6 288.9L750.0 372.2L758.3 383.3L758.3 400.0Z",
+      "atlantic":"M652.8 80.6L708.3 100.0L722.2 93.1L750.0 80.6L766.7 66.7L772.2 50.0L794.4 50.0L827.8 61.1L833.3 52.8L883.3 50.0L925.0 61.1L958.3 63.9L1000.0 55.6L1000.0 150.0L1000.0 400.0L758.3 400.0L758.3 400.0L758.3 383.3L750.0 372.2L755.6 288.9L736.1 219.4L722.2 208.3L711.1 202.8L694.4 188.9L666.7 177.8L666.7 150.0L652.8 122.2L652.8 80.6ZM0.0 150.0L0.0 105.6L61.1 105.6L61.1 122.2L44.4 130.6L41.7 147.2L34.7 148.6Z"};
+    // Big Pacific-centered world map: calm blue water, the asked ocean solid yellow, land on top.
     function oceanWorldMap(id) {
       const wrap = document.createElement("div");
       wrap.className = "ocean-world";
       wrap.setAttribute("role", "img");
-      wrap.setAttribute("aria-label", "World map with one body of water highlighted");
+      wrap.setAttribute("aria-label", "World map with one ocean highlighted in yellow");
       const hl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       hl.setAttribute("class", "ocean-hl");
-      hl.setAttribute("viewBox", "0 0 1000 507");
+      hl.setAttribute("viewBox", "0 0 1000 456");
       hl.setAttribute("preserveAspectRatio", "none");
       hl.setAttribute("aria-hidden", "true");
-      hl.innerHTML = OCEAN_HL[id] || "";
+      hl.innerHTML = '<rect width="1000" height="456" fill="#4f8fc6"/>' +
+        (OCEAN_SHAPES[id] ? '<path data-ocean="' + id + '" d="' + OCEAN_SHAPES[id] + '" fill="#FFD400" stroke="#1f2d1c" stroke-width="2.4" stroke-linejoin="round"/>' : "");
       const img = document.createElement("img");
-      img.src = "assets/maps/world-land.svg";
+      img.src = "assets/maps/world-pacific-land.svg";
       img.alt = "";
       img.setAttribute("aria-hidden", "true");
       wrap.appendChild(hl);
@@ -6367,6 +6382,8 @@
       state.beatJustUnlocked = "";
       state.multiplesIndex = 0;
       state.oceanMapIndex = 0;
+      state.oceanMapBag = null;
+      state.oceanMapLast = "";
       state.flagIndex = 0;
       state.pianoIndex = 0;
       state.pianoBag = null;

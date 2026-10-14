@@ -1233,6 +1233,61 @@
       box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset;
     }
     .page-bar[hidden] { display: none; }
+    body.play-screen .page-bar, body.play-screen a.maze-reward { display: none !important; }
+    body.has-boombox #mute { display: none; }
+    body.quiz-screen main { padding-bottom: 5rem; }
+    .boombox {
+      position: fixed; left: 50%; bottom: max(0.35rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+      z-index: 50; display: flex; align-items: center; gap: 0.4rem;
+      width: min(94vw, 23rem); height: 3.9rem; box-sizing: border-box; padding: 0.3rem 0.45rem;
+      border-radius: 0.9rem 0.9rem 0.7rem 0.7rem;
+      background: linear-gradient(180deg, #4a4f5c 0%, #2b2f38 45%, #1b1e25 100%);
+      border: 2px solid #0d0f14;
+      box-shadow: 0 2px 0 rgba(255,255,255,0.18) inset, 0 -2px 0 rgba(0,0,0,0.4) inset, 0 4px 10px rgba(0,0,0,0.35);
+    }
+    .boombox[hidden] { display: none; }
+    .bb-handle {
+      position: absolute; left: 22%; right: 22%; top: -0.95rem; height: 0.85rem;
+      border: 0.32rem solid #20232b; border-bottom: 0; border-radius: 0.7rem 0.7rem 0 0;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset;
+    }
+    .bb-spk {
+      flex: 0 0 3.1rem; height: 3.1rem; border-radius: 50%; display: grid; place-items: center;
+      background: radial-gradient(circle, #3a3f4a 0 1px, transparent 1.5px) 0 0 / 5px 5px, #15171c;
+      border: 3px solid #9aa3b2; box-shadow: 0 0 0 2px #0d0f14, 0 1px 0 rgba(255,255,255,0.3) inset;
+    }
+    .bb-cone {
+      width: 1.35rem; height: 1.35rem; border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #8a93a3, #2c3039 55%, #0f1115);
+      border: 2px solid #5c6472;
+    }
+    .boombox.playing .bb-cone { animation: bb-pulse 0.5s ease-in-out infinite alternate; }
+    @keyframes bb-pulse { from { transform: scale(0.9); } to { transform: scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) { .boombox.playing .bb-cone { animation: none; } }
+    .bb-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.22rem; }
+    .bb-lcd {
+      display: flex; align-items: center; gap: 0.3rem; height: 1.35rem; padding: 0 0.35rem;
+      border-radius: 0.3rem; background: #0e2a1c; border: 2px solid #07120c;
+      box-shadow: 0 0 6px rgba(80,255,160,0.25) inset;
+    }
+    .bb-name {
+      flex: 1; min-width: 0; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      font: 700 0.8rem/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #7dffb3; text-shadow: 0 0 4px rgba(125,255,179,0.7);
+    }
+    .bb-reel { flex: 0 0 0.75rem; height: 0.75rem; border-radius: 50%; border: 2px dashed #7dffb3; opacity: 0.75; box-sizing: border-box; }
+    .boombox.playing .bb-reel { animation: bb-spin 2s linear infinite; }
+    @keyframes bb-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .boombox.playing .bb-reel { animation: none; } }
+    .bb-keys { display: flex; gap: 0.25rem; }
+    button.bb-key {
+      flex: 1; min-height: 0; height: 1.55rem; margin: 0; padding: 0; border-radius: 0.25rem;
+      border: 1px solid #0d0f14; background: linear-gradient(180deg, #c9ced8, #8b93a1); color: #1b1e25;
+      font-size: 0.8rem; line-height: 1; font-weight: 800; box-shadow: 0 2px 0 #4b515d; text-shadow: none;
+    }
+    button.bb-key.bb-play { background: linear-gradient(180deg, #ff8a7a, #d23a2b); color: #fff; box-shadow: 0 2px 0 #7d1d14; }
+    button.bb-key:active { transform: translateY(2px); box-shadow: none; }
+    button.bb-key:disabled { opacity: 0.45; }
     a.maze-reward {
       display: flex;
       align-items: center;
@@ -5201,7 +5256,7 @@
       const ids = PLAY_TRACKS.map(function (t) { return t.id; });
       if (ids.indexOf(id) < 0 || state.playMusicId === id) return;
       if (!state.beatsUnlocked[id]) return;
-      const wasPlaying = state.phase === "play" && playMusic && !playMusic.paused && !state.muted;
+      const wasPlaying = beatMusicPhase() && playMusic && !playMusic.paused && !state.muted;
       state.playMusicId = id;
       writeSave();
       disposePlayMusic();
@@ -5247,7 +5302,7 @@
       playMusicUnlockBound = false;
     }
     function unlockPlayMusic(event) {
-      if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
+      if (event && event.target && event.target.closest && event.target.closest("#mute, #boombox")) return;
       syncPlayMusic();
     }
     function bindPlayMusicUnlock() {
@@ -5281,7 +5336,7 @@
       }
       const audio = ensurePlayMusic();
       if (!audio) return;
-      const shouldPlay = beatMusicPhase() && !state.muted && !musicPausedForGame;
+      const shouldPlay = beatMusicPhase() && !state.muted && !musicPausedForGame && !(state.beatStopped && state.phase !== "setup");
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
         if (!audio.paused) audio.pause();
@@ -5335,6 +5390,73 @@
         const active = beatAudible && chip.getAttribute("data-beat-id") === state.playMusicId && !chip.disabled;
         chip.classList.toggle("playing", active);
       }
+      updateBoomboxState();
+    }
+    function unlockedBeatIds() {
+      return PLAY_TRACKS.filter(function (t) { return state.beatsUnlocked[t.id]; }).map(function (t) { return t.id; });
+    }
+    function boomboxStep(dir) {
+      const ids = unlockedBeatIds();
+      if (!ids.length) return;
+      let i = ids.indexOf(state.playMusicId);
+      if (i < 0) i = 0; else i = (i + dir + ids.length) % ids.length;
+      if (ids[i] === state.playMusicId) return;
+      state.playMusicId = ids[i];
+      writeSave();
+      disposePlayMusic();
+      syncPlayMusic();
+      if (!state.beatStopped && !state.muted) tryPlayPlayMusic();
+      syncBoombox();
+      updateMuteButton();
+    }
+    function boomboxToggle() {
+      musicPausedForGame = null;
+      if (beatIsAudible()) {
+        state.beatStopped = true;
+        if (playMusic) playMusic.pause();
+      } else {
+        state.beatStopped = false;
+        if (state.muted) { state.muted = false; writeSave(); }
+        tryPlayPlayMusic();
+      }
+      syncBoombox();
+      updateMuteButton();
+    }
+    function syncBoombox() {
+      const show = state.phase === "play" || state.phase === "quiz" || state.phase === "results";
+      let box = document.getElementById("boombox");
+      document.body.classList.toggle("has-boombox", show);
+      if (!show) { if (box) box.hidden = true; return; }
+      if (!box) {
+        box = el("div", { id: "boombox", class: "boombox", role: "group", "aria-label": "Beat player" });
+        box.innerHTML = '<span class="bb-handle" aria-hidden="true"></span>' +
+          '<span class="bb-spk bb-l" aria-hidden="true"><span class="bb-cone"></span></span>' +
+          '<div class="bb-mid"><div class="bb-lcd"><span class="bb-reel" aria-hidden="true"></span><span class="bb-name" aria-live="polite"></span><span class="bb-reel" aria-hidden="true"></span></div>' +
+          '<div class="bb-keys"><button type="button" class="bb-key bb-prev" aria-label="Previous beat">&#9198;</button>' +
+          '<button type="button" class="bb-key bb-play" aria-label="Play beat"></button>' +
+          '<button type="button" class="bb-key bb-next" aria-label="Next beat">&#9197;</button></div></div>' +
+          '<span class="bb-spk bb-r" aria-hidden="true"><span class="bb-cone"></span></span>';
+        document.body.appendChild(box);
+        box.querySelector(".bb-prev").addEventListener("click", function () { boomboxStep(-1); });
+        box.querySelector(".bb-next").addEventListener("click", function () { boomboxStep(1); });
+        box.querySelector(".bb-play").addEventListener("click", boomboxToggle);
+      }
+      box.hidden = false;
+      const meta = playTrackMeta();
+      box.querySelector(".bb-name").textContent = meta ? beatLabel(meta.id) : "Beat";
+      const many = unlockedBeatIds().length > 1;
+      box.querySelector(".bb-prev").disabled = !many;
+      box.querySelector(".bb-next").disabled = !many;
+      updateBoomboxState();
+    }
+    function updateBoomboxState() {
+      const box = document.getElementById("boombox");
+      if (!box || box.hidden) return;
+      const on = beatIsAudible();
+      box.classList.toggle("playing", on);
+      const btn = box.querySelector(".bb-play");
+      btn.innerHTML = on ? "&#9632;" : "&#9654;";
+      btn.setAttribute("aria-label", on ? "Stop beat" : "Play beat");
     }
     function uniqueMisses() {
       const seen = new Set();
@@ -5716,6 +5838,7 @@
       syncHomeMusic();
       syncPlayMusic();
       syncWooferPulse();
+      syncBoombox();
       if (state.phase === "setup") sizeChallengeHero();
     }
     function checklistCard(label, items, quick, hint, warn, twoCol) {
@@ -6651,7 +6774,7 @@
       else delete document.body.dataset.playPage;
       const bar = document.getElementById("page-bar");
       if (!bar) return;
-      bar.hidden = !playing;
+      bar.hidden = true;
       if (!playing) return;
       const onBeats = state.playPage === "beats";
       bar.textContent = onBeats ? "Question" : "Beats";
@@ -6853,7 +6976,8 @@
     }
 
     function renderPlay(app) {
-      appendEarnedRewardLinks(app, true);
+      // Mini games live on the home screen; play keeps only the question and the boom box.
+      state.playPage = "question";
       if (state.playPage === "beats") {
         app.appendChild(musicCard(false));
         return;

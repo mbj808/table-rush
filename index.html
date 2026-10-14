@@ -1472,6 +1472,75 @@
     body.setup-screen .beat-actions { margin-top: 0.35rem; }
     body.setup-screen .beat-chip .beat-label { padding: 0; letter-spacing: 0; }
     .setup-player .mini-player { zoom: 0.72; }
+    /* Home beats: neon pills */
+    .beat-pills { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.2rem, 1fr)); gap: 0.45rem; margin-top: 0.5rem; }
+    .beat-pill {
+      position: relative;
+      display: flex; align-items: center; gap: 0.4rem;
+      min-height: 2.6rem; padding: 0.3rem 0.7rem 0.3rem 0.4rem;
+      border-radius: 999px;
+      border: 2px solid #5ff2ff;
+      background: linear-gradient(180deg, #19213f, #0d1330);
+      color: #e9fbff; font-weight: 800; font-size: 0.92rem; text-align: left;
+      box-shadow: 0 0 0 1px rgba(95, 242, 255, 0.35), 0 0 10px rgba(95, 242, 255, 0.45), inset 0 0 8px rgba(95, 242, 255, 0.25);
+      text-shadow: 0 0 6px rgba(95, 242, 255, 0.7);
+      cursor: pointer;
+    }
+    .beat-pill .pill-icon {
+      flex: 0 0 1.7rem; height: 1.7rem; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #5ff2ff; color: #0d1330;
+    }
+    .beat-pill .pill-icon::before { content: ""; border-style: solid; border-width: 0.38rem 0 0.38rem 0.6rem; border-color: transparent transparent transparent currentColor; margin-left: 0.15rem; }
+    .beat-pill.playing .pill-icon::before { border: 0; width: 0.55rem; height: 0.7rem; margin: 0; background: linear-gradient(90deg, currentColor 0 35%, transparent 35% 65%, currentColor 65%); }
+    .beat-pill .pill-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    button.beat-pill.on, button.beat-pill.on[aria-pressed="true"] { background: linear-gradient(180deg, #2a1640, #160b2a); color: #fff0fb; }
+    .beat-pill.on { border-color: #ff5fd2; box-shadow: 0 0 0 1px rgba(255, 95, 210, 0.5), 0 0 14px rgba(255, 95, 210, 0.7), inset 0 0 10px rgba(255, 95, 210, 0.35); text-shadow: 0 0 6px rgba(255, 95, 210, 0.9); }
+    .beat-pill.on .pill-icon { background: #ff5fd2; }
+    .beat-pill.locked { cursor: not-allowed; border-color: rgba(233, 251, 255, 0.35); box-shadow: none; text-shadow: none; color: rgba(233, 251, 255, 0.6); background: rgba(13, 19, 48, 0.55); }
+    .beat-pill.locked .pill-icon { background: rgba(233, 251, 255, 0.25); color: #e9fbff; }
+    .beat-pill.locked .pill-icon::before { display: none; }
+    .beat-pill.locked .lock-icon svg { width: 0.7rem; height: 0.8rem; }
+    .beat-pill .pill-streak { flex: 0 0 auto; font-size: 0.68rem; opacity: 0.9; padding: 0 0.25rem; border-radius: 0.5rem; background: rgba(233, 251, 255, 0.15); }
+    .beat-pill.locked { gap: 0.3rem; padding-right: 0.45rem; font-size: 0.86rem; }
+    .beat-pill.locked .pill-icon { flex-basis: 1.4rem; height: 1.4rem; }
+    body.setup-screen .beats-card .beats-row { display: none; }
+    /* Backgrounds: thumbnail tiles with a glowing frame */
+    .bg-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.6rem, 1fr)); gap: 0.5rem; margin-top: 0.4rem; }
+    .bg-tile {
+      position: relative; padding: 0; overflow: hidden;
+      aspect-ratio: 3 / 2;
+      border-radius: 0.7rem;
+      border: 2px solid #ffe58a;
+      background: #0d1330;
+      box-shadow: 0 0 8px rgba(255, 229, 138, 0.55);
+      cursor: pointer;
+    }
+    .bg-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .bg-tile .bg-cap {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center; gap: 0.25rem;
+      padding: 0.1rem 0.2rem;
+      background: rgba(13, 19, 48, 0.72);
+      color: #fffef6; font-size: 0.72rem; font-weight: 800;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    button.bg-tile.on, button.bg-tile.on[aria-pressed="true"] { background: #0d1330; }
+    .bg-tile.on { border-color: #ff5fd2; box-shadow: 0 0 0 2px #ff5fd2, 0 0 14px rgba(255, 95, 210, 0.85); }
+    .bg-tile.locked { cursor: not-allowed; border-color: rgba(255, 255, 255, 0.45); box-shadow: none; }
+    .bg-tile.locked img { filter: grayscale(1) brightness(0.45); }
+    .bg-tile .lock-icon svg { width: 0.65rem; height: 0.75rem; }
+    /* Bigger title on the home screen */
+    body.setup-screen main { overflow: visible; }
+    body.setup-screen h1 {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(98vw, 58rem, calc((100vh - 13rem) * 2.16));
+    }
+    @supports (height: 100svh) {
+      body.setup-screen h1 { width: min(98vw, 58rem, calc((100svh - 13rem) * 2.16)); }
+    }
     /* Mini games: small buttons in one row. */
     .mini-games { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
     .mini-games a.maze-reward {
@@ -3488,6 +3557,7 @@
         state.best = Number.isFinite(data.bestScore) ? data.bestScore : 0;
         state.quizBest = Number.isFinite(data.quizBest) ? data.quizBest : 0;
         state.quizBestAllMs = Number.isFinite(data.quizBestAllMs) ? data.quizBestAllMs : 0;
+        state.bgChoice = Number.isInteger(data.bgChoice) && data.bgChoice >= 0 && data.bgChoice < PLAY_TRACKS.length ? data.bgChoice : -1;
         state.muted = Boolean(data.muted);
         const currentSave = data.version === SAVE_VERSION;
         const hadBeats = currentSave && data.beatsUnlocked && typeof data.beatsUnlocked === "object";
@@ -3523,6 +3593,7 @@
         bestScore: state.best,
         quizBest: state.quizBest || 0,
         quizBestAllMs: state.quizBestAllMs || 0,
+        bgChoice: Number.isInteger(state.bgChoice) ? state.bgChoice : -1,
         muted: state.muted,
         playMusicId: state.playMusicId || "",
         beatsUnlocked: beats,
@@ -5141,6 +5212,7 @@
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.gamesUnlocked = {};
+      state.bgChoice = -1;
       state.beatJustUnlocked = "";
       state.mazeCelebrate = false;
       if (!state.beatsUnlocked[state.playMusicId]) {
@@ -5257,7 +5329,7 @@
     function syncWooferPulse() {
       const play = playMusic;
       const beatAudible = beatMusicPhase() && !state.muted && play && !play.paused && !play.muted;
-      const chips = document.querySelectorAll(".beat-chip");
+      const chips = document.querySelectorAll(".beat-chip, .beat-pill");
       for (let i = 0; i < chips.length; i++) {
         const chip = chips[i];
         const active = beatAudible && chip.getAttribute("data-beat-id") === state.playMusicId && !chip.disabled;
@@ -5515,6 +5587,16 @@
       render();
     }
 
+    // A background picked on the home screen (if still unlocked), else the newest unlocked scene.
+    function backgroundUnlocked(i) {
+      const track = PLAY_TRACKS[i];
+      return !!track && (trackIsFree(track) || !!state.beatsUnlocked[track.id]);
+    }
+    function chosenBackgroundLevel() {
+      const c = state.bgChoice;
+      if (Number.isInteger(c) && c >= 0 && backgroundUnlocked(c)) return c;
+      return unlockedBackgroundLevel();
+    }
     function unlockedBackgroundLevel() {
       let level = 0;
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
@@ -5599,7 +5681,7 @@
     function applyUnlockedBackground() {
       const bg = document.querySelector(".wave-bg");
       if (!bg) return;
-      const level = unlockedBackgroundLevel();
+      const level = chosenBackgroundLevel();
       bg.setAttribute("data-level", String(level));
       document.body.classList.toggle("bg-thunder", level >= 6);
       bg.classList.toggle("night", level >= 6);
@@ -5910,14 +5992,16 @@
         hero.appendChild(el("button", { class: "mode-cancel", type: "button", text: "Cancel", onClick: function () { state.heroPick = false; render(); } }));
       }
       hero.appendChild(el("button", {
-        class: "scroll-hint", type: "button", "aria-label": "Scroll to more games",
+        class: "scroll-hint", type: "button", "aria-label": "Scroll to beats, backgrounds and games",
         onClick: function () {
           const target = document.getElementById("more-games");
           if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      }, [el("span", { class: "scroll-hint-text", text: "More games" }), el("span", { class: "scroll-hint-arrow", "aria-hidden": "true", text: "⌄" })]));
+      }, [el("span", { class: "scroll-hint-text", text: "Unlock beats and backgrounds" }), el("span", { class: "scroll-hint-arrow", "aria-hidden": "true", text: "⌄" })]));
       app.appendChild(hero);
       const stack = el("div", { class: "stack", id: "more-games" });
+      stack.appendChild(musicCard(true));
+      stack.appendChild(backgroundsCard());
       const opsCard = operationCard();
       stack.appendChild(opsCard);
       const optionsFrom = stack.children.length;
@@ -6067,7 +6151,6 @@
       const optionNodes = Array.prototype.slice.call(stack.children, optionsFrom);
       optionNodes.forEach(function (node) { node.remove(); });
       const startBtn = el("button", { class: "start game-start", type: "button", text: "Start " + opLabel(state.operation), onClick: function () { start(null); } });
-      stack.appendChild(musicCard(true));
       const minis = el("div", { class: "card mini-games-card" });
       minis.appendChild(el("p", { class: "label", text: "Mini games" }));
       const miniRow = el("div", { class: "mini-games" });
@@ -6145,6 +6228,39 @@
       wrap.appendChild(svg);
       return wrap;
     }
+    // Backgrounds: one tile per beat scene. Unlocks with its beat; tap to show it (tap again for newest).
+    function backgroundsCard() {
+      const card = el("div", { class: "card bgs-card" });
+      card.appendChild(el("p", { class: "label", text: "Backgrounds" }));
+      const grid = el("div", { class: "bg-tiles" });
+      const current = chosenBackgroundLevel();
+      PLAY_TRACKS.forEach(function (track, i) {
+        const open = backgroundUnlocked(i);
+        const tile = el("button", { type: "button", class: "bg-tile" + (open ? "" : " locked") + (open && current === i ? " on" : ""), "data-bg": String(i) });
+        const img = el("img", { src: "assets/backgrounds/" + track.id + ".jpg", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" });
+        tile.appendChild(img);
+        const cap = el("span", { class: "bg-cap" });
+        if (!open) cap.appendChild(lockIcon());
+        cap.appendChild(document.createTextNode(open ? track.label : String(i * BEAT_UNLOCK_STEP)));
+        tile.appendChild(cap);
+        if (open) {
+          tile.setAttribute("aria-label", track.label + " background" + (current === i ? ", showing" : ""));
+          tile.setAttribute("aria-pressed", String(current === i));
+          tile.addEventListener("click", function () {
+            state.bgChoice = state.bgChoice === i ? -1 : i;
+            writeSave();
+            render();
+          });
+        } else {
+          tile.disabled = true;
+          tile.setAttribute("aria-label", track.label + " background, locked until a streak of " + i * BEAT_UNLOCK_STEP);
+        }
+        grid.appendChild(tile);
+      });
+      card.appendChild(grid);
+      card.appendChild(el("p", { class: "hint", text: "Each background unlocks with its beat. Tap one to use it; tap it again to go back to the newest." }));
+      return card;
+    }
     function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
       if (includeReset) {
@@ -6155,8 +6271,31 @@
       }
       card.appendChild(beatsTitle());
       card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of " + BEAT_UNLOCK_STEP + "." }));
+      if (includeReset) {
+        const list = el("div", { class: "beat-pills" });
+        PLAY_TRACKS.forEach(function (track, i) {
+          const locked = !state.beatsUnlocked[track.id];
+          const selected = !locked && state.playMusicId === track.id;
+          const pill = el("button", { type: "button", class: "beat-pill" + (locked ? " locked" : "") + (selected ? " on" : ""), "data-beat-id": track.id });
+          const icon = el("span", { class: "pill-icon", "aria-hidden": "true" });
+          if (locked) icon.appendChild(lockIcon());
+          pill.appendChild(icon);
+          pill.appendChild(el("span", { class: "pill-name", text: track.label }));
+          if (locked) {
+            pill.appendChild(el("span", { class: "pill-streak", text: String(i * BEAT_UNLOCK_STEP) }));
+            pill.disabled = true;
+            pill.setAttribute("aria-label", track.label + ", locked until a streak of " + i * BEAT_UNLOCK_STEP);
+          } else {
+            pill.setAttribute("aria-label", "Play " + track.label);
+            pill.setAttribute("aria-pressed", String(selected));
+            pill.addEventListener("click", function () { tapHomeBeat(track.id); });
+          }
+          list.appendChild(pill);
+        });
+        card.appendChild(list);
+      }
       const row = el("div", { class: "row beats-row" });
-      PLAY_TRACKS.forEach(function (track) {
+      if (!includeReset) PLAY_TRACKS.forEach(function (track) {
         const locked = !state.beatsUnlocked[track.id];
         const selected = !locked && state.playMusicId === track.id;
         const btn = el("button", {

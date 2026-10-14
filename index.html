@@ -1262,7 +1262,13 @@
     }
     .page-bar[hidden] { display: none; }
     body.play-screen .page-bar, body.play-screen a.maze-reward { display: none !important; }
-    body.has-boombox #mute { display: none; }
+    body.has-boombox #mute, body.setup-screen #mute { display: none; }
+    .boombox.home-box { position: relative; left: auto; bottom: auto; transform: none; margin: 1.3rem auto 0.4rem; width: min(100%, 27rem); height: 4.8rem; }
+    .boombox.home-box .bb-spk { flex-basis: 3.9rem; height: 3.9rem; }
+    .boombox.home-box .bb-cone { width: 1.7rem; height: 1.7rem; }
+    .boombox.home-box .bb-lcd { height: 1.7rem; }
+    .boombox.home-box .bb-name { font-size: 1rem; }
+    .boombox.home-box button.bb-key { height: 1.9rem; font-size: 0.95rem; }
     body.quiz-screen main { padding-bottom: 5rem; }
     .boombox {
       position: fixed; left: 50%; bottom: max(0.35rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
@@ -5083,7 +5089,7 @@
     }
     function unlockHomeMusic(event) {
       // Let the Mute/Music button own its gesture (avoids pointerdown-start then click-mute).
-      if (event && event.target && event.target.closest && event.target.closest("#mute")) return;
+      if (event && event.target && event.target.closest && event.target.closest("#mute, .boombox")) return;
       // First click/tap/key must start home.mp3 immediately (not gated by beatsUnlocked).
       homeMusicAutoplayBlocked = false;
       if (!homeMusicShouldPlay()) return;
@@ -5435,6 +5441,14 @@
       let i = ids.indexOf(state.playMusicId);
       if (i < 0) i = 0; else i = (i + dir + ids.length) % ids.length;
       if (ids[i] === state.playMusicId) return;
+      if (state.phase === "setup") {
+        if (beatIsAudible()) { tapHomeBeat(ids[i]); return; }
+        state.playMusicId = ids[i];
+        writeSave();
+        disposePlayMusic();
+        render();
+        return;
+      }
       state.playMusicId = ids[i];
       writeSave();
       disposePlayMusic();
@@ -5445,6 +5459,12 @@
     }
     function boomboxToggle() {
       musicPausedForGame = null;
+      if (state.phase === "setup") {
+        if (beatIsAudible()) { tapHomeBeat(state.playMusicId); return; }
+        if (homeThemeAudible()) { state.homeSilenced = true; homeMusic.pause(); render(); return; }
+        tapHomeBeat(state.playMusicId);
+        return;
+      }
       if (beatIsAudible()) {
         state.beatStopped = true;
         if (playMusic) playMusic.pause();
@@ -5457,25 +5477,20 @@
       updateMuteButton();
     }
     function syncBoombox() {
+      const homeBox = document.getElementById("boombox-home");
+      if (homeBox) fillBoombox(homeBox);
       const show = state.phase === "play" || state.phase === "quiz" || state.phase === "results";
       let box = document.getElementById("boombox");
       document.body.classList.toggle("has-boombox", show);
       if (!show) { if (box) box.hidden = true; return; }
       if (!box) {
-        box = el("div", { id: "boombox", class: "boombox", role: "group", "aria-label": "Beat player" });
-        box.innerHTML = '<span class="bb-handle" aria-hidden="true"></span>' +
-          '<span class="bb-spk bb-l" aria-hidden="true"><span class="bb-cone"></span></span>' +
-          '<div class="bb-mid"><div class="bb-lcd"><span class="bb-reel" aria-hidden="true"></span><span class="bb-name" aria-live="polite"></span><span class="bb-reel" aria-hidden="true"></span></div>' +
-          '<div class="bb-keys"><button type="button" class="bb-key bb-prev" aria-label="Previous beat">&#9198;</button>' +
-          '<button type="button" class="bb-key bb-play" aria-label="Play beat"></button>' +
-          '<button type="button" class="bb-key bb-next" aria-label="Next beat">&#9197;</button></div></div>' +
-          '<span class="bb-spk bb-r" aria-hidden="true"><span class="bb-cone"></span></span>';
+        box = makeBoombox("boombox", "");
         document.body.appendChild(box);
-        box.querySelector(".bb-prev").addEventListener("click", function () { boomboxStep(-1); });
-        box.querySelector(".bb-next").addEventListener("click", function () { boomboxStep(1); });
-        box.querySelector(".bb-play").addEventListener("click", boomboxToggle);
       }
       box.hidden = false;
+      fillBoombox(box);
+    }
+    function fillBoombox(box) {
       const meta = playTrackMeta();
       box.querySelector(".bb-name").textContent = meta ? beatLabel(meta.id) : "Beat";
       const many = unlockedBeatIds().length > 1;
@@ -5483,14 +5498,36 @@
       box.querySelector(".bb-next").disabled = !many;
       updateBoomboxState();
     }
+    function makeBoombox(id, extra) {
+      {
+        const box = el("div", { id: id, class: "boombox" + (extra ? " " + extra : ""), role: "group", "aria-label": "Beat player" });
+        box.innerHTML = '<span class="bb-handle" aria-hidden="true"></span>' +
+          '<span class="bb-spk bb-l" aria-hidden="true"><span class="bb-cone"></span></span>' +
+          '<div class="bb-mid"><div class="bb-lcd"><span class="bb-reel" aria-hidden="true"></span><span class="bb-name" aria-live="polite"></span><span class="bb-reel" aria-hidden="true"></span></div>' +
+          '<div class="bb-keys"><button type="button" class="bb-key bb-prev" aria-label="Previous beat">&#9198;</button>' +
+          '<button type="button" class="bb-key bb-play" aria-label="Play beat"></button>' +
+          '<button type="button" class="bb-key bb-next" aria-label="Next beat">&#9197;</button></div></div>' +
+          '<span class="bb-spk bb-r" aria-hidden="true"><span class="bb-cone"></span></span>';
+        box.querySelector(".bb-prev").addEventListener("click", function () { boomboxStep(-1); });
+        box.querySelector(".bb-next").addEventListener("click", function () { boomboxStep(1); });
+        box.querySelector(".bb-play").addEventListener("click", boomboxToggle);
+        return box;
+      }
+    }
+    function homeThemeAudible() {
+      return state.phase === "setup" && !state.homeBeat && !state.muted && !!homeMusic && !homeMusic.paused && !homeMusic.muted;
+    }
     function updateBoomboxState() {
-      const box = document.getElementById("boombox");
-      if (!box || box.hidden) return;
-      const on = beatIsAudible();
-      box.classList.toggle("playing", on);
-      const btn = box.querySelector(".bb-play");
-      btn.innerHTML = on ? "&#9632;" : "&#9654;";
-      btn.setAttribute("aria-label", on ? "Stop beat" : "Play beat");
+      const boxes = document.querySelectorAll(".boombox");
+      for (let i = 0; i < boxes.length; i++) {
+        const box = boxes[i];
+        if (box.hidden) continue;
+        const on = beatIsAudible() || (box.id === "boombox-home" && homeThemeAudible());
+        box.classList.toggle("playing", on);
+        const btn = box.querySelector(".bb-play");
+        btn.innerHTML = on ? "&#9632;" : "&#9654;";
+        btn.setAttribute("aria-label", on ? "Stop music" : "Play beat");
+      }
     }
     function uniqueMisses() {
       const seen = new Set();
@@ -6423,10 +6460,12 @@
     function musicCard(includeReset) {
       const card = el("div", { class: "card beats-card" });
       if (includeReset) {
+        // Home: the same boom box as in play (bigger), replacing the round music button.
         const player = el("div", { class: "setup-player" });
-        const muteBtn = document.getElementById("mute");
-        if (muteBtn) player.appendChild(muteBtn);
+        const box = makeBoombox("boombox-home", "home-box");
+        player.appendChild(box);
         card.appendChild(player);
+        setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
       }
       card.appendChild(beatsTitle());
       card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of " + BEAT_UNLOCK_STEP + "." }));

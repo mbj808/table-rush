@@ -2334,7 +2334,22 @@
     .quiz-timer.stopwatch .quiz-time-fill { background: #2f5fb3; }
     /* Timed challenge */
     .quiz-card { display: flex; flex-direction: column; align-items: center; gap: 0.45rem; }
-    .quiz-timer { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
+    .quiz-timer { display: flex; align-items: center; gap: 0.6rem; width: 100%; position: relative; }
+    .quiz-penalty {
+      position: absolute; right: 0; top: -1.7rem; padding: 0.05rem 0.45rem; border-radius: 0.5rem;
+      background: #d23a2b; color: #fff; font-weight: 900; font-size: 1.15rem; line-height: 1.4;
+      box-shadow: 0 2px 0 #7d1d14; pointer-events: none;
+      animation: quiz-penalty-pop 1.1s ease-out forwards;
+    }
+    @keyframes quiz-penalty-pop {
+      0% { opacity: 0; transform: translateY(6px) scale(0.8); }
+      15% { opacity: 1; transform: translateY(0) scale(1.15); }
+      30% { transform: scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-8px); }
+    }
+    @media (prefers-reduced-motion: reduce) { .quiz-penalty { animation: none; } }
+    .quiz-line.quiz-penalty-line { color: #a12619; font-weight: 800; }
     .quiz-time-track { flex: 1; height: 0.9rem; border-radius: 1rem; background: rgba(16, 32, 56, 0.25); overflow: hidden; }
     .quiz-time-fill { height: 100%; background: #1e7a4d; transform-origin: left center; transition: transform 0.1s linear; }
     .quiz-timer.low .quiz-time-fill { background: #d64535; }
@@ -2906,6 +2921,10 @@
     const CORRECT_FEEDBACK_MS = 280;
     // Timed fact challenge: change the length here (seconds).
     const QUIZ_SECONDS = 60;
+    // Wrong-answer penalties: 60 Seconds loses time; All Facts adds time to the stopwatch.
+    const QUIZ_WRONG_PENALTY_S = 2;
+    const QUIZ_ALL_PENALTY_S = 3;
+    const QUIZ_PENALTY_FLASH_MS = 1100;
     const QUIZ_MIN = 2;
     const QUIZ_MAX = 12;
     const MISS_TEACH_MS = 3000;
@@ -5619,7 +5638,7 @@
       state.heroPick = false;
       const bag = mode === "all" ? allFactsBag() : quizFactBag();
       state.quiz = { mode: mode, bag: bag, total: bag.length, fact: null, input: "", correct: 0, attempted: 0, mistakes: 0,
-        startAt: Date.now(), endAt: Date.now() + QUIZ_SECONDS * 1000, elapsedMs: 0, flash: null, lockUntil: 0, newBest: false };
+        startAt: Date.now(), endAt: Date.now() + QUIZ_SECONDS * 1000, elapsedMs: 0, penaltyMs: 0, penaltyAt: 0, flash: null, lockUntil: 0, newBest: false };
       nextQuizFact();
       state.phase = "quiz";
       window.scrollTo(0, 0);
@@ -5631,11 +5650,15 @@
       if (state.quiz.mode === "all") return Infinity;
       return Math.max(0, (state.quiz.endAt - Date.now()) / 1000);
     }
+    function quizAllElapsed() {
+      const q = state.quiz;
+      return q ? Date.now() - q.startAt + (q.penaltyMs || 0) : 0;
+    }
     function tickQuiz() {
       if (state.phase !== "quiz" || !state.quiz) { stopQuizTimer(); return; }
       if (state.quiz.mode === "all") {
         const t = document.querySelector(".quiz-time-text");
-        if (t) t.textContent = formatClock(Date.now() - state.quiz.startAt);
+        if (t) t.textContent = formatClock(quizAllElapsed());
         return;
       }
       const left = quizSecondsLeft();
@@ -5653,7 +5676,7 @@
       const q = state.quiz;
       if (!q) return;
       if (q.mode === "all") {
-        q.elapsedMs = Date.now() - q.startAt;
+        q.elapsedMs = quizAllElapsed();
         q.newBest = !state.quizBestAllMs || q.elapsedMs < state.quizBestAllMs;
         if (q.newBest) {
           state.quizBestAllMs = q.elapsedMs;
@@ -5683,6 +5706,10 @@
       if (right) q.correct += 1;
       else {
         q.mistakes += 1;
+        const pen = (q.mode === "all" ? QUIZ_ALL_PENALTY_S : QUIZ_WRONG_PENALTY_S) * 1000;
+        q.penaltyMs += pen;
+        q.penaltyAt = Date.now();
+        if (q.mode !== "all") q.endAt -= pen;
         // All Facts: a missed fact comes back a few questions later until it is answered right.
         if (q.mode === "all") q.bag.splice(Math.min(q.bag.length, 3 + Math.floor(Math.random() * 4)), 0, { a: q.fact.a, b: q.fact.b });
       }
@@ -5707,7 +5734,13 @@
       fill.style.transform = "scaleX(" + (all ? q.correct / q.total : left / QUIZ_SECONDS).toFixed(4) + ")";
       track.appendChild(fill);
       timer.appendChild(track);
-      timer.appendChild(el("span", { class: "quiz-time-text", text: all ? formatClock(Date.now() - q.startAt) : Math.ceil(left) + "s" }));
+      timer.appendChild(el("span", { class: "quiz-time-text", text: all ? formatClock(quizAllElapsed()) : Math.ceil(left) + "s" }));
+      const since = Date.now() - (q.penaltyAt || 0);
+      if (q.penaltyAt && since < QUIZ_PENALTY_FLASH_MS) {
+        const tag = el("span", { class: "quiz-penalty", "aria-hidden": "true", text: all ? "+" + QUIZ_ALL_PENALTY_S + "s" : "\u2212" + QUIZ_WRONG_PENALTY_S + "s" });
+        tag.style.animationDelay = "-" + since + "ms";
+        timer.appendChild(tag);
+      }
       card.appendChild(timer);
       card.appendChild(el("p", { class: "quiz-score", text: all
         ? q.correct + "/" + q.total + " · Mistakes " + q.mistakes
@@ -5737,11 +5770,13 @@
         card.appendChild(el("h2", { class: "quiz-results-title", text: "All facts done!" }));
         card.appendChild(el("p", { class: "quiz-big", text: formatClock(q.elapsedMs) }));
         card.appendChild(el("p", { class: "quiz-line", text: q.total + " facts · " + q.mistakes + (q.mistakes === 1 ? " mistake" : " mistakes") + " · " + acc + "% accuracy" }));
+        if (q.mistakes) card.appendChild(el("p", { class: "quiz-line quiz-penalty-line", text: "+" + Math.round((q.penaltyMs || 0) / 1000) + "s penalty (" + q.mistakes + " wrong \u00d7 " + QUIZ_ALL_PENALTY_S + "s)" }));
         card.appendChild(el("p", { class: "quiz-line quiz-best", text: q.newBest ? "New fastest time: " + formatClock(state.quizBestAllMs) + "!" : "Fastest: " + formatClock(state.quizBestAllMs) }));
       } else {
         card.appendChild(el("h2", { class: "quiz-results-title", text: "Time's up!" }));
         card.appendChild(el("p", { class: "quiz-big", text: q.correct + " right" }));
         card.appendChild(el("p", { class: "quiz-line", text: q.correct + " of " + q.attempted + " correct · " + acc + "% accuracy" }));
+        if (q.mistakes) card.appendChild(el("p", { class: "quiz-line quiz-penalty-line", text: q.mistakes + " wrong \u00b7 \u2212" + Math.round((q.penaltyMs || 0) / 1000) + "s" }));
         card.appendChild(el("p", { class: "quiz-line quiz-best", text: q.newBest ? "New best: " + state.quizBest + "!" : "Best: " + (state.quizBest || 0) }));
       }
       const row = el("div", { class: "quiz-actions" });

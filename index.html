@@ -3395,11 +3395,11 @@
     const OPS = [
       { id: "multiply", label: "Multiplication" },
       { id: "multiples", label: "Multiples" },
-      { id: "oceanmap", label: "Ocean map" },
       { id: "divide", label: "Division" },
       { id: "add", label: "Addition" },
       { id: "subtract", label: "Subtraction" },
       { id: "maketen", label: "Make Ten" },
+      { id: "oceanmap", label: "Ocean map" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
       { id: "hawaii", label: "Hawaiian Islands" },
@@ -6078,8 +6078,13 @@
       if (state.gameOpen) {
         const panel = el("div", { class: "game-panel", id: "game-panel", role: "region", "aria-label": opLabel(state.operation) + " options" });
         const hint = opsCard.querySelector(".hint");
-        if (hint) panel.appendChild(hint);
-        optionNodes.forEach(function (node) { node.classList.add("in-panel"); panel.appendChild(node); });
+        if (isMathGame(state.operation)) {
+          if (hint) panel.appendChild(hint);
+          optionNodes.forEach(function (node) { node.classList.add("in-panel"); panel.appendChild(node); });
+        } else {
+          if (hint) hint.remove();
+          panel.classList.add("start-only");
+        }
         panel.appendChild(startBtn);
         const ops = opsCard.querySelector(".ops");
         const buttons = ops.querySelectorAll(".choice");
@@ -6362,6 +6367,9 @@
       render();
     }
 
+    // Math-fact games come first in the list and are the only ones with options.
+    const MATH_GAME_IDS = ["multiply", "multiples", "divide", "add", "subtract", "maketen"];
+    function isMathGame(id) { return MATH_GAME_IDS.indexOf(id) >= 0; }
     function opLabel(id) {
       const op = OPS.find(function (o) { return o.id === id; });
       return op ? op.label : "";
@@ -6375,7 +6383,10 @@
         const b = button(op.label, "choice game-name", open, function () {
           if (state.operation === op.id && state.gameOpen) { state.gameOpen = false; render(); return; }
           state.gameOpen = true;
+          if (state.operation === op.id && !isMathGame(op.id)) state.tables = defaultTablesFor(op.id);
           if (state.operation === op.id) render(); else setOperation(op.id);
+          // Non-math games always start with everything selected (their options are hidden).
+          if (!isMathGame(op.id)) { state.tables = defaultTablesFor(op.id); render(); }
           const panel = document.getElementById("game-panel");
           if (panel && panel.scrollIntoView) panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
         });

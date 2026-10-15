@@ -2517,6 +2517,25 @@
       font-weight: 800;
       font-size: 2.15rem;
     }
+    .prompt.round-prompt { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+    body.play-screen .prompt.round-prompt { font-size: 1.5rem; }
+    .round-num { display: block; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: clamp(2.6rem, 11vw, 3.6rem); font-weight: 900; line-height: 1.1; }
+    .round-to { display: block; font-size: 1.25rem; }
+    .round-line { margin: 0.6rem 0.4rem 0.2rem; }
+    .rl-track { position: relative; height: 2.6rem; margin: 0 1.2rem; }
+    .rl-bar { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: currentColor; opacity: 0.75; border-radius: 2px; }
+    .rl-tick { position: absolute; top: 50%; width: 4px; height: 1.3rem; margin: -0.65rem 0 0 -2px; background: currentColor; border-radius: 2px; }
+    .rl-mid { height: 0.9rem; margin-top: -0.45rem; background: #ffd23a; }
+    .rl-dot {
+      position: absolute; top: 50%; transform: translate(-50%, -50%); padding: 0.1rem 0.45rem; border-radius: 1rem;
+      background: #ff7a2f; color: #fff; font: 900 0.95rem/1.3 ui-monospace, Menlo, Consolas, monospace; white-space: nowrap;
+      box-shadow: 0 2px 0 #a8461a, 0 0 0 2px #fff;
+    }
+    .rl-ghost { position: absolute; top: 50%; width: 0.7rem; height: 0.7rem; margin: -0.35rem 0 0 -0.35rem; border-radius: 50%; border: 2px dashed #ff7a2f; }
+    .rl-labels { display: flex; justify-content: space-between; margin: 0.15rem 0.2rem 0; font-weight: 800; font-size: 0.95rem; }
+    .rl-m { color: #ffd23a; font-size: 0.8rem; align-self: center; }
+    .rl-tip { margin: 0.45rem 0 0; font-size: 0.95rem; font-weight: 700; line-height: 1.35; color: #ffe58a; }
+    @media (prefers-reduced-motion: reduce) { .rl-dot.slide { transition: none !important; } }
     .prompt.dec-prompt { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 2rem; font-weight: 900; }
     .answers.dec-answers button { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 800; letter-spacing: 0.02em; }
     .prompt.multiples-prompt {
@@ -3665,6 +3684,7 @@
       { id: "subtract", label: "Subtraction" },
       { id: "maketen", label: "Make Ten" },
       { id: "decimals", label: "Order Decimals" },
+      { id: "rounding", label: "Rounding" },
       { id: "oceanmap", label: "Ocean map" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
@@ -4021,6 +4041,7 @@
     function isPiano() { return state.operation === "piano"; }
     function isMakeTen() { return state.operation === "maketen"; }
     function isDecimals() { return state.operation === "decimals"; }
+    function isRounding() { return state.operation === "rounding"; }
     function isMath() {
       return state.operation === "multiply" || state.operation === "divide"
         || state.operation === "add" || state.operation === "subtract";
@@ -4062,6 +4083,7 @@
       if (op === "piano") return defaultPianoTables();
       if (op === "maketen") return MAKE_TEN_POOL.slice();
       if (op === "decimals") return [1, 2, 3, 4];
+      if (op === "rounding") return [1, 2, 3, 4, 5, 6];
       if (op === "add" || op === "subtract") return defaultAddTables();
       if (op === "multiples") return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       return defaultMathTables();
@@ -4542,6 +4564,67 @@
       return decProblem(pair[0], pair[1], Math.random() < 0.5 ? "greater" : "smaller");
     }
 
+    // Rounding: integers only. Decimal levels work in hundredths (scale 100), so 0.95 is 95.
+    const ROUND_LEVELS = {
+      1: { label: "Nearest 10 (2-digit)", short: "10", q: 10, scale: 1, min: 10, max: 99, edge: [95, 99] },
+      2: { label: "Nearest 10 (3-digit)", short: "10", q: 10, scale: 1, min: 100, max: 999, edge: [995, 999] },
+      3: { label: "Nearest 100", short: "100", q: 100, scale: 1, min: 100, max: 9999, edge: [950, 999] },
+      4: { label: "Nearest 1000", short: "1000", q: 1000, scale: 1, min: 1000, max: 99999, edge: [9500, 9999] },
+      5: { label: "Decimal to the whole", short: "whole number", q: 100, scale: 100, min: 10, max: 999, edge: [950, 999], dp: 0 },
+      6: { label: "Decimal to the tenth", short: "tenth", q: 10, scale: 100, min: 1, max: 999, edge: [95, 99], dp: 1 }
+    };
+    function roundFmt(units, scale, minDp) {
+      if (scale === 1) return String(units);
+      const w = Math.floor(units / 100);
+      let frac = String(units % 100).padStart(2, "0").replace(/0+$/, "");
+      if (frac.length < (minDp || 0)) frac = frac.padEnd(minDp, "0");
+      return frac ? w + "." + frac : String(w);
+    }
+    function roundProblem(level, n) {
+      const L = ROUND_LEVELS[level];
+      const q = L.q;
+      const lo = Math.floor(n / q) * q;
+      const hi = lo + q;
+      const onMark = n === lo;
+      const up = n - lo >= q / 2;
+      const ans = onMark ? n : up ? hi : lo;
+      const other = onMark ? n + q : up ? lo : hi;
+      // Answers use the precision you round to (0.95 -> 1.0 at tenths, 9.5 -> 10 at whole).
+      const fa = function (u) { return roundFmt(u, L.scale, L.scale === 100 ? L.dp : 0); };
+      const shown = roundFmt(n, L.scale, L.scale === 100 ? 1 : 0);
+      return {
+        operation: "rounding", level: level, n: n, lo: lo, hi: hi, q: q, scale: L.scale,
+        shown: shown, nearest: L.short,
+        ask: "Round " + shown + " to the nearest " + L.short,
+        answer: fa(ans), wrongChoice: fa(other),
+        key: "round:" + level + ":" + n,
+        choices: shuffle([fa(ans), fa(other)])
+      };
+    }
+    function buildRounding() {
+      const levels = (state.tables || []).filter(function (n) { return ROUND_LEVELS[n]; });
+      const list = levels.length ? levels : [1, 2, 3, 4, 5, 6];
+      const level = list[Math.floor(Math.random() * list.length)];
+      const L = ROUND_LEVELS[level];
+      const q = L.q;
+      const rnd = function (a, b) { return a + Math.floor(Math.random() * (b - a + 1)); };
+      const t = Math.random();
+      let n;
+      if (t < 0.15) {
+        n = Math.floor(rnd(L.min, L.max) / q) * q + q / 2;           // midpoint: 45, 350, 2.5
+      } else if (t < 0.25) {
+        n = Math.floor(rnd(L.min, L.max) / q) * q;                   // already on a benchmark
+      } else if (t < 0.37) {
+        n = rnd(L.edge[0], L.edge[1]);                               // 95, 995, 0.95: rounds up a place
+      } else {
+        n = rnd(L.min, L.max);
+      }
+      if (L.scale === 100 && level === 5 && n % 10 === 0 && Math.random() < 0.5) n += rnd(1, 9);
+      if (n < L.min) n = L.min + q / 2;
+      if (n > L.max) n = L.max;
+      return roundProblem(level, n);
+    }
+
     function buildMakeTen(avoid) {
       const pool = MAKE_TEN_POOL;
       if (!state.makeTenBag || !state.makeTenBag.length) state.makeTenBag = shuffle(pool.slice());
@@ -4784,6 +4867,9 @@
     }
 
     function rebuildQuizFromDrill(pair) {
+      if (pair && pair.operation === "rounding" && pair.n != null && ROUND_LEVELS[pair.level]) {
+        return roundProblem(pair.level, pair.n);
+      }
       if (pair && pair.operation === "decimals" && pair.x != null) {
         return decProblem(pair.x, pair.y, pair.kind);
       }
@@ -5021,6 +5107,15 @@
     }
     function makeProblem(avoid) {
       if (isMultiples()) return buildMultiplesProblem();
+      if (isRounding()) {
+        if (state.drill && state.drill.length) {
+          const rebuilt = rebuildQuizFromDrill(state.drill[Math.floor(Math.random() * state.drill.length)]);
+          if (rebuilt) return rebuilt;
+        }
+        let p = buildRounding();
+        if (avoid && p.key === avoid) p = buildRounding();
+        return p;
+      }
       if (isDecimals()) {
         if (state.drill && state.drill.length) {
           const rebuilt = rebuildQuizFromDrill(state.drill[Math.floor(Math.random() * state.drill.length)]);
@@ -5104,6 +5199,7 @@
     }
 
     function factLabel(pair) {
+      if (pair.operation === "rounding") return pair.shown + " rounds to " + pair.answer;
       if (pair.operation === "decimals") {
         const hi = decFormat(Math.max(pair.x, pair.y)), lo = decFormat(Math.min(pair.x, pair.y));
         return hi + " > " + lo;
@@ -5193,6 +5289,7 @@
 
     function spokenFact(pair) {
       const op = pair.operation || state.operation;
+      if (op === "rounding" && pair.shown) return pair.shown + " rounds to " + pair.answer + ".";
       if (op === "decimals" && pair.x != null) {
         return decFormat(Math.max(pair.x, pair.y)) + " is greater than " + decFormat(Math.min(pair.x, pair.y)) + ".";
       }
@@ -6532,6 +6629,24 @@
           "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
           "Pick at least one vehicle.",
           true));
+      } else if (isRounding()) {
+        const card = el("div", { class: "card" });
+        card.appendChild(el("p", { class: "label", text: "Levels" }));
+        const grid = el("div", { class: "grid-check two round-levels" });
+        [1, 2, 3, 4, 5, 6].forEach(function (lv) {
+          grid.appendChild(button(ROUND_LEVELS[lv].label, "num", state.tables.indexOf(lv) >= 0, function () {
+            const i = state.tables.indexOf(lv);
+            if (i >= 0) state.tables.splice(i, 1); else state.tables.push(lv);
+            state.tables.sort(function (a, b) { return a - b; });
+            render();
+          }));
+        });
+        const allOn = [1, 2, 3, 4, 5, 6].every(function (lv) { return state.tables.indexOf(lv) >= 0; });
+        grid.appendChild(button("Mixed (all levels)", "num round-mixed", allOn, function () { state.tables = [1, 2, 3, 4, 5, 6]; render(); }));
+        card.appendChild(grid);
+        if (!state.tables.length) card.appendChild(el("p", { class: "warn", text: "Pick at least one level." }));
+        card.appendChild(el("p", { class: "hint", text: "Includes halfway numbers (45, 350), numbers already rounded, and ones that roll over like 95 → 100 and 0.95 → 1.0." }));
+        stack.appendChild(card);
       } else if (isDecimals()) {
         const card = el("div", { class: "card" });
         card.appendChild(el("p", { class: "label", text: "Places" }));
@@ -6971,7 +7086,7 @@
     }
 
     // Math-fact games come first in the list and are the only ones with options.
-    const MATH_GAME_IDS = ["multiply", "multiples", "divide", "add", "subtract", "maketen", "decimals"];
+    const MATH_GAME_IDS = ["multiply", "multiples", "divide", "add", "subtract", "maketen", "decimals", "rounding"];
     function isMathGame(id) { return MATH_GAME_IDS.indexOf(id) >= 0; }
     function opLabel(id) {
       const op = OPS.find(function (o) { return o.id === id; });
@@ -7018,6 +7133,7 @@
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
+      if (isRounding()) hint = "See the number on a number line and pick the rounded value. 5 or more rounds up. Two choices.";
       if (isDecimals()) hint = "Two decimals: pick the greater or the smaller one. Two choices, no typing.";
       if (isMakeTen()) hint = "See a number from 2 to 8. Choose the partner that makes 10. Two choices.";
       if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
@@ -7070,6 +7186,7 @@
       if (isPiano()) return "Piano Notes";
       if (isMakeTen()) return "Make Ten";
       if (isDecimals()) return "Order Decimals";
+      if (isRounding()) return "Rounding";
       return "Quiz";
     }
 
@@ -7337,6 +7454,14 @@
       if (isMultiples()) {
         eq.appendChild(el("p", { class: "label", text: "Multiples" }));
         eq.appendChild(el("p", { class: "prompt multiples-prompt", text: problem.ask }));
+      } else if (isRounding()) {
+        eq.appendChild(el("p", { class: "label", text: "Rounding" }));
+        const ask = el("p", { class: "prompt round-prompt" });
+        ask.appendChild(document.createTextNode("Round "));
+        ask.appendChild(el("b", { class: "round-num", text: problem.shown }));
+        ask.appendChild(el("span", { class: "round-to", text: "to the nearest " + problem.nearest }));
+        eq.appendChild(ask);
+        eq.appendChild(roundLine(problem, performance.now() < state.lockUntil && state.picked !== problem.answer));
       } else if (isDecimals()) {
         eq.appendChild(el("p", { class: "label", text: "Order Decimals" }));
         eq.appendChild(el("p", { class: "prompt dec-prompt", text: problem.ask }));
@@ -7414,7 +7539,7 @@
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
       const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder();
-      const answers = el("div", { class: "answers" + (isDecimals() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isDecimals() || isRounding() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -7426,6 +7551,60 @@
       app.appendChild(answers);
     }
 
+    // Number line from the lower to the upper benchmark with a midpoint tick. After a miss the
+    // dot slides to the nearer end and the hint spells out both distances and the 5-or-more rule.
+    function roundLine(p, teach) {
+      const wrap = el("div", { class: "round-line" + (teach ? " teach" : "") });
+      const fmt = function (u) { return roundFmt(u, p.scale, p.scale === 100 ? 1 : 0); };
+      const pct = function (u) { return ((u - p.lo) / p.q * 100).toFixed(2) + "%"; };
+      const onMark = p.n === p.lo;
+      const up = !onMark && (p.n - p.lo) * 2 >= p.q;
+      const target = onMark ? p.lo : up ? p.hi : p.lo;
+      const track = el("div", { class: "rl-track", "aria-hidden": "true" });
+      track.appendChild(el("span", { class: "rl-bar" }));
+      track.appendChild(el("span", { class: "rl-tick rl-lo", style: "left:0%" }));
+      track.appendChild(el("span", { class: "rl-tick rl-mid", style: "left:50%" }));
+      track.appendChild(el("span", { class: "rl-tick rl-hi", style: "left:100%" }));
+      const dot = el("span", { class: "rl-dot" + (teach ? " slide" : ""), text: p.shown });
+      dot.style.setProperty("--from", pct(p.n));
+      dot.style.setProperty("--to", pct(target));
+      dot.style.left = pct(p.n);
+      if (teach) {
+        // Slide on its own clock (a re-render mid-slide continues instead of restarting).
+        const elapsed = Math.max(0, performance.now() - (state.lockUntil - 4500));
+        const left = Math.max(0, 900 - elapsed);
+        const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (left <= 0 || still) dot.style.left = pct(target);
+        else {
+          dot.style.transition = "left " + Math.round(left) + "ms ease-in-out";
+          setTimeout(function () { void dot.offsetWidth; dot.style.left = pct(target); }, 30);
+        }
+      }
+      track.appendChild(dot);
+      if (teach) {
+        const ghost = el("span", { class: "rl-ghost" });
+        ghost.style.left = pct(p.n);
+        track.appendChild(ghost);
+      }
+      wrap.appendChild(track);
+      const labels = el("div", { class: "rl-labels", "aria-hidden": "true" });
+      labels.appendChild(el("span", { class: "rl-l", text: fmt(p.lo) }));
+      labels.appendChild(el("span", { class: "rl-m", text: fmt(p.lo + p.q / 2) + " halfway" }));
+      labels.appendChild(el("span", { class: "rl-r", text: fmt(p.hi) }));
+      wrap.appendChild(labels);
+      if (teach) {
+        let tip;
+        if (onMark) tip = p.shown + " is already on " + fmt(p.lo) + ", so it stays " + p.answer + ".";
+        else if ((p.n - p.lo) * 2 === p.q) tip = p.shown + " is exactly halfway between " + fmt(p.lo) + " and " + fmt(p.hi) + ". The rule: 5 or more rounds UP, so " + p.shown + " \u2192 " + p.answer + ".";
+        else {
+          const dUp = fmt(p.hi - p.n), dDown = fmt(p.n - p.lo);
+          tip = p.shown + " is " + dUp + " from " + fmt(p.hi) + " and " + dDown + " from " + fmt(p.lo) + ", so it is closer to " + (up ? fmt(p.hi) : fmt(p.lo)) +
+            ". The rule: look at the next digit; 5 or more rounds up, 4 or less rounds down. " + p.shown + " \u2192 " + p.answer + ".";
+        }
+        wrap.appendChild(el("p", { class: "rl-tip", role: "status", text: tip }));
+      }
+      return wrap;
+    }
     function nextProblem(avoid) {
       state.problem = makeProblem(avoid);
       state.picked = null;
@@ -7483,7 +7662,8 @@
       if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
       const problem = state.problem;
       const ok = choice === problem.answer;
-      const delay = ok ? CORRECT_FEEDBACK_MS : MISS_TEACH_MS;
+      // Rounding misses stay up longer so the number-line hint can be read.
+      const delay = ok ? CORRECT_FEEDBACK_MS : (problem.operation === "rounding" ? 4500 : MISS_TEACH_MS);
       state.lockUntil = performance.now() + delay;
       state.picked = choice;
       state.total += 1;
@@ -7509,6 +7689,8 @@
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {
           state.misses.push({ a: problem.a, b: problem.b, answer: problem.answer, operation: "multiples" });
+        } else if (problem.operation === "rounding") {
+          state.misses.push({ operation: "rounding", id: problem.key, level: problem.level, n: problem.n, answer: problem.answer, key: problem.key });
         } else if (problem.operation === "decimals") {
           state.misses.push({ operation: "decimals", id: problem.key, x: problem.x, y: problem.y, kind: problem.kind, answer: problem.answer, key: problem.key });
         } else if (problem.operation === "maketen" || isMakeTen()) {

@@ -382,7 +382,7 @@
       width: min(108vmin, 48rem);
       transform: translate(-50%, -50%);
       transform-origin: center center;
-      animation: witch-spin 5s linear infinite;
+      animation: witch-float 4.5s ease-in-out infinite alternate;
       will-change: transform;
       pointer-events: none;
     }
@@ -414,8 +414,10 @@
       animation: witch-glow-pulse 2.6s ease-in-out infinite;
       will-change: opacity;
     }
-    @keyframes witch-spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
+    /* Gentle bob only: the witch never rotates. */
+    @keyframes witch-float {
+      from { transform: translate(-50%, -50%); }
+      to { transform: translate(-50%, calc(-50% - 2.2vmin)); }
     }
     @keyframes witch-glow-pulse {
       0%, 100% { opacity: 0; }
@@ -2355,6 +2357,12 @@
     }
     .challenge-hero .start-challenge:active { transform: translateY(3px); box-shadow: 0 3px 0 #145537; }
     .challenge-sub { margin: 0; font-size: 1.05rem; font-weight: 700; color: #12324a; }
+    body.bg-thunder .challenge-sub { color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,0.85); }
+    /* Night scenes: solid-ish dark buttons with light numbers so answers read on any scene. */
+    body.bg-thunder .answers button:not(.right):not(.wrong) {
+      background: rgba(24, 18, 46, 0.9); border-color: rgba(255, 247, 234, 0.6); color: #fff7ea !important;
+    }
+    body.bg-thunder .answers button small { opacity: 0.85; }
     .scroll-hint {
       position: absolute;
       bottom: 0.4rem;
@@ -2373,6 +2381,7 @@
     .scroll-hint-arrow { font-size: 1.8rem; line-height: 0.8; animation: hint-bob 1.8s ease-in-out infinite; }
     @keyframes hint-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
     @media (prefers-reduced-motion: reduce) { .scroll-hint-arrow { animation: none; } }
+    body.bg-thunder .scroll-hint { color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,0.85); }
     #more-games { scroll-margin-top: 0.75rem; }
     /* Opened game: its options and Start sit right under its row in the Games list. */
     .ops .game-panel {

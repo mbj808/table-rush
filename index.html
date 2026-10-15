@@ -1263,65 +1263,136 @@
     .page-bar[hidden] { display: none; }
     body.play-screen .page-bar, body.play-screen a.maze-reward { display: none !important; }
     body.has-boombox #mute, body.setup-screen #mute { display: none; }
-    .boombox.home-box { position: relative; left: auto; bottom: auto; transform: none; margin: 1.3rem auto 0.4rem; width: min(100%, 27rem); height: 4.8rem; }
-    .boombox.home-box .bb-spk { flex-basis: 3.9rem; height: 3.9rem; }
-    .boombox.home-box .bb-cone { width: 1.7rem; height: 1.7rem; }
-    .boombox.home-box .bb-lcd { height: 1.7rem; }
-    .boombox.home-box .bb-name { font-size: 1rem; }
-    .boombox.home-box button.bb-key { height: 1.9rem; font-size: 0.95rem; }
-    body.quiz-screen main { padding-bottom: 5rem; }
+    /* Classic 80s boom box (CSS only). Everything is sized from --u so it scales as one piece. */
     .boombox {
-      position: fixed; left: 50%; bottom: max(0.35rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
-      z-index: 50; display: flex; align-items: center; gap: 0.4rem;
-      width: min(94vw, 23rem); height: 3.9rem; box-sizing: border-box; padding: 0.3rem 0.45rem;
-      border-radius: 0.9rem 0.9rem 0.7rem 0.7rem;
-      background: linear-gradient(180deg, #4a4f5c 0%, #2b2f38 45%, #1b1e25 100%);
-      border: 2px solid #0d0f14;
-      box-shadow: 0 2px 0 rgba(255,255,255,0.18) inset, 0 -2px 0 rgba(0,0,0,0.4) inset, 0 4px 10px rgba(0,0,0,0.35);
+      --u: clamp(10px, 3.05vw, 15px);
+      position: fixed; left: 50%; bottom: max(0.3rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+      z-index: 50; box-sizing: border-box; width: calc(var(--u) * 30); height: calc(var(--u) * 10.6);
+      display: grid; grid-template-columns: calc(var(--u) * 8.6) 1fr calc(var(--u) * 8.6); align-items: center;
+      gap: calc(var(--u) * 0.5); padding: calc(var(--u) * 0.55) calc(var(--u) * 0.6);
+      border-radius: calc(var(--u) * 1.3) calc(var(--u) * 1.3) calc(var(--u) * 0.9) calc(var(--u) * 0.9);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.55) 0, rgba(255,255,255,0) 18%),
+        linear-gradient(180deg, #e9edf3 0%, #c3c9d3 38%, #9aa2ae 62%, #c9ced7 86%, #8a919c 100%);
+      border: 1px solid #5d636d;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), inset 0 -3px 0 rgba(0,0,0,0.25), inset 2px 0 0 rgba(255,255,255,0.4), 0 6px 14px rgba(0,0,0,0.45);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     .boombox[hidden] { display: none; }
-    .bb-handle {
-      position: absolute; left: 22%; right: 22%; top: -0.95rem; height: 0.85rem;
-      border: 0.32rem solid #20232b; border-bottom: 0; border-radius: 0.7rem 0.7rem 0 0;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset;
+    .boombox.home-box {
+      --u: min(16px, calc((100vw - 3.2rem) / 30));
+      position: relative; left: auto; bottom: auto; transform: none; margin: calc(var(--u) * 2) auto 0.5rem;
     }
+    .bb-handle {
+      position: absolute; left: 24%; right: 24%; top: calc(var(--u) * -1.6); height: calc(var(--u) * 1.75);
+      border: calc(var(--u) * 0.45) solid #3a3f48; border-bottom: 0; border-radius: calc(var(--u) * 1) calc(var(--u) * 1) 0 0;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), 0 -1px 0 #9aa2ae;
+    }
+    .bb-handle::before, .bb-handle::after {
+      content: ""; position: absolute; bottom: calc(var(--u) * -0.5); width: calc(var(--u) * 1.4); height: calc(var(--u) * 0.6);
+      background: linear-gradient(180deg, #f2f4f8, #8d94a0); border-radius: 3px; border: 1px solid #5d636d;
+    }
+    .bb-handle::before { left: calc(var(--u) * -1); }
+    .bb-handle::after { right: calc(var(--u) * -1); }
     .bb-spk {
-      flex: 0 0 3.1rem; height: 3.1rem; border-radius: 50%; display: grid; place-items: center;
-      background: radial-gradient(circle, #3a3f4a 0 1px, transparent 1.5px) 0 0 / 5px 5px, #15171c;
-      border: 3px solid #9aa3b2; box-shadow: 0 0 0 2px #0d0f14, 0 1px 0 rgba(255,255,255,0.3) inset;
+      width: calc(var(--u) * 8.6); height: calc(var(--u) * 8.6); border-radius: 50%; box-sizing: border-box; padding: calc(var(--u) * 0.42);
+      background: conic-gradient(from 30deg, #f7f9fc, #8d94a0, #eef1f5, #6d7380, #f7f9fc, #9aa2ae, #f7f9fc);
+      box-shadow: 0 0 0 1px #4a4f58, 0 2px 3px rgba(0,0,0,0.4);
+    }
+    .bb-grille {
+      display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%;
+      background: radial-gradient(circle, #4b515c 0 0.9px, transparent 1.3px) 0 0 / 4px 4px, radial-gradient(circle at 50% 40%, #2a2e36, #121419);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
     }
     .bb-cone {
-      width: 1.35rem; height: 1.35rem; border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #8a93a3, #2c3039 55%, #0f1115);
-      border: 2px solid #5c6472;
+      position: relative; width: 66%; height: 66%; border-radius: 50%;
+      background:
+        radial-gradient(circle, transparent 0 34%, rgba(255,255,255,0.08) 35% 36%, transparent 37% 52%, rgba(255,255,255,0.1) 53% 54%, transparent 55% 70%, rgba(255,255,255,0.12) 71% 72%, transparent 73%),
+        radial-gradient(circle at 45% 35%, #4a505b, #22262d 60%, #0f1115);
+      box-shadow: 0 0 0 calc(var(--u) * 0.22) #2c3038, 0 0 0 calc(var(--u) * 0.32) #7b828e, inset 0 -2px 4px rgba(0,0,0,0.6);
     }
-    .boombox.playing .bb-cone { animation: bb-pulse 0.5s ease-in-out infinite alternate; }
-    @keyframes bb-pulse { from { transform: scale(0.9); } to { transform: scale(1.12); } }
-    @media (prefers-reduced-motion: reduce) { .boombox.playing .bb-cone { animation: none; } }
-    .bb-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.22rem; }
+    .bb-cone::after {
+      content: ""; position: absolute; left: 34%; top: 34%; width: 32%; height: 32%; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ffffff, #c7ccd4 35%, #6d7380 75%, #3a3f48);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.7);
+    }
+    .boombox.playing .bb-cone { animation: bb-pulse 0.48s ease-in-out infinite alternate; }
+    @keyframes bb-pulse { from { transform: scale(0.95); } to { transform: scale(1.05); } }
+    .bb-mid { min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: calc(var(--u) * 0.3); }
+    .bb-top { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u) * 0.3); }
+    .bb-brand {
+      font-size: calc(var(--u) * 0.82); font-weight: 900; letter-spacing: 0.14em; font-style: italic; white-space: nowrap;
+      color: #3a3f48; text-shadow: 0 1px 0 rgba(255,255,255,0.85);
+    }
+    .bb-brand b { color: #c0262d; }
+    .bb-count {
+      font: 700 calc(var(--u) * 0.72)/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.1em;
+      padding: calc(var(--u) * 0.12) calc(var(--u) * 0.3); border-radius: 3px; background: #1a1c21; color: #f2f4f8;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.7);
+    }
     .bb-lcd {
-      display: flex; align-items: center; gap: 0.3rem; height: 1.35rem; padding: 0 0.35rem;
-      border-radius: 0.3rem; background: #0e2a1c; border: 2px solid #07120c;
-      box-shadow: 0 0 6px rgba(80,255,160,0.25) inset;
+      display: flex; align-items: center; gap: calc(var(--u) * 0.35); height: calc(var(--u) * 1.75); padding: 0 calc(var(--u) * 0.4);
+      border-radius: calc(var(--u) * 0.3); background: linear-gradient(180deg, #0b2418, #12301f); border: 1px solid #050d08;
+      box-shadow: inset 0 0 calc(var(--u) * 0.6) rgba(80,255,160,0.18), 0 1px 0 rgba(255,255,255,0.7);
     }
     .bb-name {
-      flex: 1; min-width: 0; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-      font: 700 0.8rem/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase;
+      flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      font: 700 calc(var(--u) * 0.88)/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase;
       color: #7dffb3; text-shadow: 0 0 4px rgba(125,255,179,0.7);
     }
-    .bb-reel { flex: 0 0 0.75rem; height: 0.75rem; border-radius: 50%; border: 2px dashed #7dffb3; opacity: 0.75; box-sizing: border-box; }
-    .boombox.playing .bb-reel { animation: bb-spin 2s linear infinite; }
-    @keyframes bb-spin { to { transform: rotate(360deg); } }
-    @media (prefers-reduced-motion: reduce) { .boombox.playing .bb-reel { animation: none; } }
-    .bb-keys { display: flex; gap: 0.25rem; }
-    button.bb-key {
-      flex: 1; min-height: 0; height: 1.55rem; margin: 0; padding: 0; border-radius: 0.25rem;
-      border: 1px solid #0d0f14; background: linear-gradient(180deg, #c9ced8, #8b93a1); color: #1b1e25;
-      font-size: 0.8rem; line-height: 1; font-weight: 800; box-shadow: 0 2px 0 #4b515d; text-shadow: none;
+    .bb-vu { display: flex; align-items: flex-end; gap: 2px; height: 70%; }
+    .bb-vu i {
+      display: block; width: calc(var(--u) * 0.32); height: 100%; transform-origin: bottom; transform: scaleY(0.2);
+      background: linear-gradient(0deg, #3dff8a 0 55%, #ffe14a 55% 80%, #ff5a4a 80%);
     }
-    button.bb-key.bb-play { background: linear-gradient(180deg, #ff8a7a, #d23a2b); color: #fff; box-shadow: 0 2px 0 #7d1d14; }
-    button.bb-key:active { transform: translateY(2px); box-shadow: none; }
-    button.bb-key:disabled { opacity: 0.45; }
+    .boombox.playing .bb-vu i { animation: bb-vu 0.42s ease-in-out infinite alternate; }
+    .boombox.playing .bb-vu i:nth-child(2) { animation-duration: 0.31s; animation-delay: -0.1s; }
+    .boombox.playing .bb-vu i:nth-child(3) { animation-duration: 0.37s; animation-delay: -0.2s; }
+    .boombox.playing .bb-vu i:nth-child(4) { animation-duration: 0.27s; animation-delay: -0.05s; }
+    .boombox.playing .bb-vu i:nth-child(5) { animation-duration: 0.45s; animation-delay: -0.3s; }
+    @keyframes bb-vu { from { transform: scaleY(0.2); } to { transform: scaleY(1); } }
+    .bb-deck {
+      position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: space-around;
+      border-radius: calc(var(--u) * 0.4); padding: 0 12%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 40%), linear-gradient(180deg, #2c2f36, #17191e);
+      border: 2px solid #6d7380; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+    }
+    .bb-deck::before {
+      content: ""; position: absolute; left: 30%; right: 30%; top: 32%; bottom: 32%; border-radius: 3px;
+      background: rgba(120, 80, 50, 0.55); box-shadow: inset 0 0 3px rgba(0,0,0,0.6);
+    }
+    .bb-reel {
+      position: relative; z-index: 1; width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 50%; box-sizing: border-box;
+      background: radial-gradient(circle, #17191e 0 22%, transparent 23%), conic-gradient(#f2f4f8 0 10%, #9aa2ae 10% 33%, #f2f4f8 33% 43%, #9aa2ae 43% 66%, #f2f4f8 66% 76%, #9aa2ae 76% 100%);
+      border: calc(var(--u) * 0.18) solid #5a3a22;
+    }
+    .boombox.playing .bb-reel { animation: bb-spin 1.6s linear infinite; }
+    @keyframes bb-spin { to { transform: rotate(360deg); } }
+    .bb-keys { display: flex; gap: calc(var(--u) * 0.25); height: calc(var(--u) * 2.3); }
+    button.bb-key {
+      flex: 1; min-height: 0; height: 100%; margin: 0; padding: 0; display: grid; place-items: center;
+      border-radius: 2px 2px calc(var(--u) * 0.35) calc(var(--u) * 0.35); border: 1px solid #3a3f48;
+      background: linear-gradient(180deg, #fafbfd 0%, #dfe3e9 55%, #b5bcc7 100%); color: #262a31;
+      box-shadow: 0 calc(var(--u) * 0.32) 0 #5d636d, 0 calc(var(--u) * 0.32) 3px rgba(0,0,0,0.45), inset 0 1px 0 #fff;
+      text-shadow: none; transition: transform 0.06s, box-shadow 0.06s;
+    }
+    button.bb-key svg { width: calc(var(--u) * 1.25); height: calc(var(--u) * 1.25); fill: currentColor; }
+    button.bb-key.bb-play { background: linear-gradient(180deg, #ff9a8c 0%, #e2483a 55%, #b8281d 100%); color: #fff; border-color: #6e150f; }
+    button.bb-key:active { transform: translateY(calc(var(--u) * 0.28)); box-shadow: 0 calc(var(--u) * 0.04) 0 #5d636d, inset 0 1px 0 #fff; }
+    button.bb-key:disabled { opacity: 0.5; }
+    @media (prefers-reduced-motion: reduce) {
+      .boombox.playing .bb-cone, .boombox.playing .bb-reel, .boombox.playing .bb-vu i { animation: none; }
+      .boombox.playing .bb-vu i { transform: scaleY(0.6); }
+    }
+    @media (max-width: 500px) { .boombox.playing .bb-cone { animation: none; } }
+    @media (min-width: 1100px) {
+      .boombox:not(.home-box) { --u: 12px; left: auto; right: 1.2rem; bottom: 1rem; transform: none; }
+    }
+    body.bg-thunder .quiz-fact, body.bg-thunder .quiz-score, body.bg-thunder .quiz-time-text,
+    body.bg-thunder .quiz-results-title, body.bg-thunder .quiz-results .quiz-line:not(.quiz-best):not(.quiz-penalty-line) {
+      color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    body.has-boombox main { padding-bottom: calc(clamp(10px, 3.05vw, 15px) * 12.5); }
     a.maze-reward {
       display: flex;
       align-items: center;
@@ -3629,6 +3700,7 @@
       vehicleIndex: 0,
       wonderBag: null,
       gamesUnlocked: {},
+      codeBeats: {},
       playPage: "question"
     };
     let audioCtx = null;
@@ -3695,6 +3767,11 @@
             if (data.gamesUnlocked[id] === true) state.gamesUnlocked[id] = true;
           });
         }
+        // Beats opened by the MAUI teacher code (they never count toward mini game rewards).
+        state.codeBeats = {};
+        if (data.codeBeats && typeof data.codeBeats === "object") {
+          BEAT_IDS.forEach(function (id) { if (data.codeBeats[id] === true && state.beatsUnlocked[id]) state.codeBeats[id] = true; });
+        }
         const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
         if (!currentSave || !hadBeats || playId !== savedPlayId) writeSave();
       } catch (_) {}
@@ -3711,7 +3788,8 @@
         muted: state.muted,
         playMusicId: state.playMusicId || "",
         beatsUnlocked: beats,
-        gamesUnlocked: Object.assign({}, state.gamesUnlocked || {})
+        gamesUnlocked: Object.assign({}, state.gamesUnlocked || {}),
+        codeBeats: Object.assign({}, state.codeBeats || {})
       }));
     }
 
@@ -3855,7 +3933,9 @@
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         const track = PLAY_TRACKS[i];
         if (trackIsFree(track)) continue;
-        if (state.beatsUnlocked[track.id]) continue;
+        // A beat opened by the teacher code still counts as "earned" when the streak reaches it.
+        if (state.beatsUnlocked[track.id] && !(state.codeBeats && state.codeBeats[track.id])) continue;
+        if (state.codeBeats) delete state.codeBeats[track.id];
         state.beatsUnlocked[track.id] = true;
         unlockedNow = track.id;
         playBeatSupernova(track.label);
@@ -5326,6 +5406,7 @@
     function resetMusicChallenge() {
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.gamesUnlocked = {};
+      state.codeBeats = {};
       state.bgChoice = -1;
       state.beatJustUnlocked = "";
       state.mazeCelebrate = false;
@@ -5512,6 +5593,8 @@
     function fillBoombox(box) {
       const meta = playTrackMeta();
       box.querySelector(".bb-name").textContent = meta ? beatLabel(meta.id) : "Beat";
+      const idx = meta ? PLAY_TRACKS.indexOf(meta) : -1;
+      box.querySelector(".bb-count").textContent = String(idx + 1).padStart(2, "0") + "/" + PLAY_TRACKS.length;
       const many = unlockedBeatIds().length > 1;
       box.querySelector(".bb-prev").disabled = !many;
       box.querySelector(".bb-next").disabled = !many;
@@ -5520,13 +5603,14 @@
     function makeBoombox(id, extra) {
       {
         const box = el("div", { id: id, class: "boombox" + (extra ? " " + extra : ""), role: "group", "aria-label": "Beat player" });
-        box.innerHTML = '<span class="bb-handle" aria-hidden="true"></span>' +
-          '<span class="bb-spk bb-l" aria-hidden="true"><span class="bb-cone"></span></span>' +
-          '<div class="bb-mid"><div class="bb-lcd"><span class="bb-reel" aria-hidden="true"></span><span class="bb-name" aria-live="polite"></span><span class="bb-reel" aria-hidden="true"></span></div>' +
-          '<div class="bb-keys"><button type="button" class="bb-key bb-prev" aria-label="Previous beat">&#9198;</button>' +
+        const spk = '<span class="bb-spk" aria-hidden="true"><span class="bb-grille"><span class="bb-cone"></span></span></span>';
+        box.innerHTML = '<span class="bb-handle" aria-hidden="true"></span>' + spk +
+          '<div class="bb-mid"><div class="bb-top" aria-hidden="true"><span class="bb-brand">MAD <b>FACTS</b></span><span class="bb-count">00</span></div>' +
+          '<div class="bb-lcd"><span class="bb-name" aria-live="polite"></span><span class="bb-vu" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>' +
+          '<div class="bb-deck" aria-hidden="true"><span class="bb-reel"></span><span class="bb-reel"></span></div>' +
+          '<div class="bb-keys"><button type="button" class="bb-key bb-prev" aria-label="Previous beat"><svg viewBox="0 0 24 24"><path d="M5 5h3v14H5zM20 5v14L9 12z"/></svg></button>' +
           '<button type="button" class="bb-key bb-play" aria-label="Play beat"></button>' +
-          '<button type="button" class="bb-key bb-next" aria-label="Next beat">&#9197;</button></div></div>' +
-          '<span class="bb-spk bb-r" aria-hidden="true"><span class="bb-cone"></span></span>';
+          '<button type="button" class="bb-key bb-next" aria-label="Next beat"><svg viewBox="0 0 24 24"><path d="M16 5h3v14h-3zM4 5v14l11-7z"/></svg></button></div></div>' + spk;
         box.querySelector(".bb-prev").addEventListener("click", function () { boomboxStep(-1); });
         box.querySelector(".bb-next").addEventListener("click", function () { boomboxStep(1); });
         box.querySelector(".bb-play").addEventListener("click", boomboxToggle);
@@ -5544,7 +5628,7 @@
         const on = beatIsAudible() || (box.id === "boombox-home" && homeThemeAudible());
         box.classList.toggle("playing", on);
         const btn = box.querySelector(".bb-play");
-        btn.innerHTML = on ? "&#9632;" : "&#9654;";
+        btn.innerHTML = on ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z"/></svg>';
         btn.setAttribute("aria-label", on ? "Stop music" : "Play beat");
       }
     }
@@ -6007,7 +6091,8 @@
       var start = beatIndex(beatId);
       if (start < 0 || !state.beatsUnlocked) return false;
       for (var i = start; i < PLAY_TRACKS.length; i++) {
-        if (state.beatsUnlocked[PLAY_TRACKS[i].id]) return true;
+        var bid = PLAY_TRACKS[i].id;
+        if (state.beatsUnlocked[bid] && !(state.codeBeats && state.codeBeats[bid])) return true;
       }
       return false;
     }
@@ -6483,8 +6568,8 @@
             render();
           });
         } else {
-          tile.disabled = true;
-          tile.setAttribute("aria-label", track.label + " background, locked until a streak of " + i * BEAT_UNLOCK_STEP);
+          tile.setAttribute("aria-label", track.label + " background, locked until a streak of " + i * BEAT_UNLOCK_STEP + ". Tap to enter a teacher code");
+          tile.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
         }
         grid.appendChild(tile);
       });
@@ -6516,8 +6601,8 @@
           pill.appendChild(el("span", { class: "pill-name", text: track.label }));
           if (locked) {
             pill.appendChild(el("span", { class: "pill-streak", text: String(i * BEAT_UNLOCK_STEP) }));
-            pill.disabled = true;
-            pill.setAttribute("aria-label", track.label + ", locked until a streak of " + i * BEAT_UNLOCK_STEP);
+            pill.setAttribute("aria-label", track.label + ", locked until a streak of " + i * BEAT_UNLOCK_STEP + ". Tap to enter a teacher code");
+            pill.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
           } else {
             pill.setAttribute("aria-label", "Play " + track.label);
             pill.setAttribute("aria-pressed", String(selected));
@@ -6573,7 +6658,7 @@
 
     // Teacher codes are compared by hash so they don't appear in the page source.
     function codeHash(text) {
-      const str = "table-rush:" + String(text || "").trim().toUpperCase();
+      const str = "table-rush:" + String(text || "").replace(/\s+/g, "").toUpperCase();
       let h = 0x811c9dc5;
       for (let i = 0; i < str.length; i++) {
         h ^= str.charCodeAt(i);
@@ -6581,10 +6666,21 @@
       }
       return h.toString(36);
     }
-    // Only the mini games take a teacher code; beats unlock by streak alone.
+    // OAHU opens the tapped mini game; MAUI opens every beat and background (not mini games).
     const GAME_CODE_HASH = "eu78od";
+    const BEATS_CODE_HASH = "wzhywq";
     function applyTeacherCode(kind, beatId, text) {
       const hash = codeHash(text);
+      if (kind === "beats") {
+        if (hash !== BEATS_CODE_HASH) return false;
+        state.codeBeats = state.codeBeats || {};
+        PLAY_TRACKS.forEach(function (t) {
+          if (!state.beatsUnlocked[t.id]) { state.beatsUnlocked[t.id] = true; state.codeBeats[t.id] = true; }
+        });
+        writeSave();
+        render();
+        return true;
+      }
       if (kind === "game") {
         if (hash !== GAME_CODE_HASH || !BEAT_REWARDS[beatId]) return false;
         state.gamesUnlocked = state.gamesUnlocked || {};
@@ -6600,12 +6696,12 @@
       const old = document.getElementById("code-box");
       if (old) old.remove();
       const opener = opts && opts.opener;
-      const kind = "game";
-      if (!opts || !BEAT_REWARDS[opts.beatId]) return;
+      const kind = opts && opts.kind === "beats" ? "beats" : "game";
+      if (!opts || (kind === "game" && !BEAT_REWARDS[opts.beatId])) return;
       const reward = kind === "game" ? BEAT_REWARDS[opts.beatId] : null;
       const layer = el("div", { id: "code-box", class: "congrats-layer reset-confirm-layer code-box-layer" });
       const card = el("div", { class: "congrats-card reset-confirm-card code-box-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "code-box-title" });
-      card.appendChild(el("h2", { id: "code-box-title", text: "Unlock " + (reward.bar || "game") }));
+      card.appendChild(el("h2", { id: "code-box-title", text: kind === "beats" ? "Unlock beats" : "Unlock " + (reward.bar || "game") }));
       const form = el("form", { class: "code-box-form", autocomplete: "off" });
       const input = el("input", { type: "text", class: "code-box-input", placeholder: "Teacher code", "aria-label": "Teacher code", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", enterkeyhint: "done" });
       const msg = el("p", { class: "code-box-msg", role: "status", "aria-live": "polite", text: "" });
@@ -6627,7 +6723,7 @@
           document.removeEventListener("keydown", onKey, true);
           clearTimeout(msgTimer);
           layer.remove();
-          const focusTarget = kind === "game" ? document.querySelector("a.maze-reward.reward-" + opts.beatId) : null;
+          const focusTarget = kind === "game" ? document.querySelector("a.maze-reward.reward-" + opts.beatId) : document.getElementById("boombox-home");
           if (focusTarget) focusTarget.focus();
           return;
         }

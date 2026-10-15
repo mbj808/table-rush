@@ -2517,6 +2517,8 @@
       font-weight: 800;
       font-size: 2.15rem;
     }
+    .prompt.dec-prompt { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 2rem; font-weight: 900; }
+    .answers.dec-answers button { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 800; letter-spacing: 0.02em; }
     .prompt.multiples-prompt {
       font-size: 1.7rem;
       line-height: 1.25;
@@ -3662,6 +3664,7 @@
       { id: "add", label: "Addition" },
       { id: "subtract", label: "Subtraction" },
       { id: "maketen", label: "Make Ten" },
+      { id: "decimals", label: "Order Decimals" },
       { id: "oceanmap", label: "Ocean map" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
@@ -4017,6 +4020,7 @@
     function isInstrument() { return state.operation === "instrument"; }
     function isPiano() { return state.operation === "piano"; }
     function isMakeTen() { return state.operation === "maketen"; }
+    function isDecimals() { return state.operation === "decimals"; }
     function isMath() {
       return state.operation === "multiply" || state.operation === "divide"
         || state.operation === "add" || state.operation === "subtract";
@@ -4057,6 +4061,7 @@
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "maketen") return MAKE_TEN_POOL.slice();
+      if (op === "decimals") return [1, 2, 3, 4];
       if (op === "add" || op === "subtract") return defaultAddTables();
       if (op === "multiples") return [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       return defaultMathTables();
@@ -4456,6 +4461,87 @@
 
 
 
+    // Order Decimals: two decimals, "Which is greater?" or "Which is smaller?". Values are kept
+    // in ten-thousandths (integers) so comparisons are exact and ties are impossible.
+    const DEC_PLACE_NAMES = { 1: "Tenths", 2: "Hundredths", 3: "Thousandths", 4: "Ten-thousandths" };
+    function decFormat(units) {
+      const w = Math.floor(units / 10000);
+      let frac = String(units % 10000).padStart(4, "0").replace(/0+$/, "");
+      return frac ? w + "." + frac : String(w);
+    }
+    function decPlaces(units) { const t = decFormat(units); const i = t.indexOf("."); return i < 0 ? 0 : t.length - i - 1; }
+    function decRandFrac(p) {
+      // A fraction with exactly p places (last digit not zero), in ten-thousandths.
+      const step = Math.pow(10, 4 - p);
+      const n = 1 + Math.floor(Math.random() * (Math.pow(10, p) - 1));
+      let v = n;
+      if (v % 10 === 0) v += 1 + Math.floor(Math.random() * 9);
+      if (v >= Math.pow(10, p)) v = Math.pow(10, p) - 1;
+      return v * step;
+    }
+    function decPair() {
+      const places = (state.tables || []).filter(function (n) { return n >= 1 && n <= 4; });
+      const P = places.length ? places : [1, 2, 3, 4];
+      const ones = state.decOnes !== false;
+      const pick = function (list) { return list[Math.floor(Math.random() * list.length)]; };
+      const placeOk = function (u) { const d = decPlaces(u); return d === 0 ? ones : P.indexOf(d) >= 0; };
+      for (let tries = 0; tries < 400; tries++) {
+        const w = ones && Math.random() < 0.55 ? 1 + Math.floor(Math.random() * 9) : 0;
+        const base = w * 10000;
+        const kind = Math.random();
+        let x, y;
+        const p1 = pick(P), p2 = pick(P);
+        if (kind < 0.22) {
+          // Longer but smaller: 0.5 vs 0.4999, 0.3 vs 0.29.
+          const lo = Math.min(p1, p2), hi = Math.max(p1, p2);
+          if (lo === hi) continue;
+          x = base + decRandFrac(lo);
+          y = x - Math.pow(10, 4 - hi);
+        } else if (kind < 0.42) {
+          // Shorter but greater after rounding up: 0.125 vs 0.13.
+          const lo = Math.min(p1, p2), hi = Math.max(p1, p2);
+          if (lo === hi) continue;
+          x = base + decRandFrac(hi);
+          const step = Math.pow(10, 4 - lo);
+          y = Math.ceil(x / step) * step;
+        } else if (kind < 0.6) {
+          // Zero shift: 2.4 vs 2.04, 0.001 vs 0.0009 style.
+          const p = Math.min(p1, 3);
+          const f = decRandFrac(p);
+          x = base + f;
+          y = base + Math.round(f / 10);
+          if (Math.random() < 0.4) { const step = Math.pow(10, 4 - (p + 1)); y = base + f - step; }
+        } else if (kind < 0.75 && ones) {
+          // Ones: 3 vs 2.9999, 4 vs 4.05.
+          const W = 1 + Math.floor(Math.random() * 9);
+          x = W * 10000;
+          y = Math.random() < 0.5 ? x - Math.pow(10, 4 - p1) : x + decRandFrac(p1);
+        } else {
+          x = base + decRandFrac(p1);
+          y = base + decRandFrac(p2);
+        }
+        if (!(x >= 1 && y >= 1 && x < 100000 && y < 100000) || x === y) continue;
+        if (!placeOk(x) || !placeOk(y)) continue;
+        if (decFormat(x) === decFormat(y)) continue;
+        return Math.random() < 0.5 ? [x, y] : [y, x];
+      }
+      return [5000, 4999];
+    }
+    function decProblem(x, y, kind) {
+      const greater = kind === "greater";
+      const ans = greater ? Math.max(x, y) : Math.min(x, y);
+      return {
+        operation: "decimals", x: x, y: y, kind: kind,
+        ask: greater ? "Which is greater?" : "Which is smaller?",
+        answer: decFormat(ans), key: "dec:" + x + "|" + y + "|" + kind,
+        choices: [decFormat(x), decFormat(y)]
+      };
+    }
+    function buildDecimals() {
+      const pair = decPair();
+      return decProblem(pair[0], pair[1], Math.random() < 0.5 ? "greater" : "smaller");
+    }
+
     function buildMakeTen(avoid) {
       const pool = MAKE_TEN_POOL;
       if (!state.makeTenBag || !state.makeTenBag.length) state.makeTenBag = shuffle(pool.slice());
@@ -4698,6 +4784,9 @@
     }
 
     function rebuildQuizFromDrill(pair) {
+      if (pair && pair.operation === "decimals" && pair.x != null) {
+        return decProblem(pair.x, pair.y, pair.kind);
+      }
       if (!pair || !pair.id) return null;
       if (pair.operation === "ocean" && OCEAN_BY_ID[pair.id]) {
         const body = OCEAN_BY_ID[pair.id];
@@ -4932,6 +5021,15 @@
     }
     function makeProblem(avoid) {
       if (isMultiples()) return buildMultiplesProblem();
+      if (isDecimals()) {
+        if (state.drill && state.drill.length) {
+          const rebuilt = rebuildQuizFromDrill(state.drill[Math.floor(Math.random() * state.drill.length)]);
+          if (rebuilt) return rebuilt;
+        }
+        let p = buildDecimals();
+        if (avoid && p.key === avoid) p = buildDecimals();
+        return p;
+      }
       if (isMakeTen()) {
         if (state.drill && state.drill.length) {
           const pair = state.drill[Math.floor(Math.random() * state.drill.length)];
@@ -5006,6 +5104,10 @@
     }
 
     function factLabel(pair) {
+      if (pair.operation === "decimals") {
+        const hi = decFormat(Math.max(pair.x, pair.y)), lo = decFormat(Math.min(pair.x, pair.y));
+        return hi + " > " + lo;
+      }
       if (pair.operation === "maketen" || isMakeTen()) {
         const given = pair.a;
         const partner = pair.b != null ? pair.b : pair.answer;
@@ -5091,6 +5193,9 @@
 
     function spokenFact(pair) {
       const op = pair.operation || state.operation;
+      if (op === "decimals" && pair.x != null) {
+        return decFormat(Math.max(pair.x, pair.y)) + " is greater than " + decFormat(Math.min(pair.x, pair.y)) + ".";
+      }
       if (op === "maketen") {
         const partner = pair.b != null ? pair.b : pair.answer;
         return pair.a + " plus " + partner + " makes 10.";
@@ -6427,6 +6532,27 @@
           "Kid-familiar vehicles. Clue → name, or vehicle → land/water/air.",
           "Pick at least one vehicle.",
           true));
+      } else if (isDecimals()) {
+        const card = el("div", { class: "card" });
+        card.appendChild(el("p", { class: "label", text: "Places" }));
+        const grid = el("div", { class: "grid-check two" });
+        [1, 2, 3, 4].forEach(function (p) {
+          grid.appendChild(button(DEC_PLACE_NAMES[p], "num", state.tables.indexOf(p) >= 0, function () {
+            const i = state.tables.indexOf(p);
+            if (i >= 0) state.tables.splice(i, 1); else state.tables.push(p);
+            state.tables.sort(function (a, b) { return a - b; });
+            render();
+          }));
+        });
+        card.appendChild(grid);
+        if (!state.tables.length) card.appendChild(el("p", { class: "warn", text: "Pick at least one place." }));
+        const onesRow = el("div", { class: "split2" });
+        card.appendChild(el("p", { class: "label", text: "Include ones" }));
+        onesRow.appendChild(button("On", "choice", state.decOnes !== false, function () { state.decOnes = true; render(); }));
+        onesRow.appendChild(button("Off", "choice", state.decOnes === false, function () { state.decOnes = false; render(); }));
+        card.appendChild(onesRow);
+        card.appendChild(el("p", { class: "hint", text: "Like 3 vs 2.9999 or 1.05 vs 1.5. Off keeps every number below 1." }));
+        stack.appendChild(card);
       } else if (isMakeTen()) {
         const note = el("div", { class: "card" });
         note.appendChild(el("p", { class: "hint", text: "Every number from 2 to 8 comes up once, then the set starts over. The question looks like 7 + ? = 10." }));
@@ -6845,7 +6971,7 @@
     }
 
     // Math-fact games come first in the list and are the only ones with options.
-    const MATH_GAME_IDS = ["multiply", "multiples", "divide", "add", "subtract", "maketen"];
+    const MATH_GAME_IDS = ["multiply", "multiples", "divide", "add", "subtract", "maketen", "decimals"];
     function isMathGame(id) { return MATH_GAME_IDS.indexOf(id) >= 0; }
     function opLabel(id) {
       const op = OPS.find(function (o) { return o.id === id; });
@@ -6892,6 +7018,7 @@
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
+      if (isDecimals()) hint = "Two decimals: pick the greater or the smaller one. Two choices, no typing.";
       if (isMakeTen()) hint = "See a number from 2 to 8. Choose the partner that makes 10. Two choices.";
       if (hint) card.appendChild(el("p", { class: "hint", text: hint }));
       return card;
@@ -6942,6 +7069,7 @@
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       if (isMakeTen()) return "Make Ten";
+      if (isDecimals()) return "Order Decimals";
       return "Quiz";
     }
 
@@ -7209,6 +7337,9 @@
       if (isMultiples()) {
         eq.appendChild(el("p", { class: "label", text: "Multiples" }));
         eq.appendChild(el("p", { class: "prompt multiples-prompt", text: problem.ask }));
+      } else if (isDecimals()) {
+        eq.appendChild(el("p", { class: "label", text: "Order Decimals" }));
+        eq.appendChild(el("p", { class: "prompt dec-prompt", text: problem.ask }));
       } else if (isMakeTen()) {
         eq.appendChild(el("p", { class: "label", text: "Make Ten" }));
         const line = el("p", { class: "prompt" });
@@ -7283,7 +7414,7 @@
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
       const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder();
-      const answers = el("div", { class: "answers" + (isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isDecimals() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
@@ -7378,6 +7509,8 @@
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {
           state.misses.push({ a: problem.a, b: problem.b, answer: problem.answer, operation: "multiples" });
+        } else if (problem.operation === "decimals") {
+          state.misses.push({ operation: "decimals", id: problem.key, x: problem.x, y: problem.y, kind: problem.kind, answer: problem.answer, key: problem.key });
         } else if (problem.operation === "maketen" || isMakeTen()) {
           state.misses.push({ operation: "maketen", a: problem.a, id: problem.a, answer: problem.answer, ask: problem.ask, key: problem.key });
         } else if (isQuiz() || (problem.operation && problem.operation !== "multiply" && problem.operation !== "divide" && problem.operation !== "add" && problem.operation !== "subtract")) {

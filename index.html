@@ -1468,6 +1468,14 @@
       color: #1d0630;
       box-shadow: 0 3px 0 #8a2fb8, 0 0 14px rgba(255, 106, 213, 0.55);
     }
+    /* Keystone (streak 190): teal-to-gold, like a polished stone. */
+    a.maze-reward.reward-keystone,
+    a.congrats-maze.congrats-keystone {
+      border-color: #5ff0d2;
+      background: linear-gradient(135deg, #5ff0d2 0%, #7ad9ff 50%, #ffd36a 100%);
+      color: #06222a;
+      box-shadow: 0 3px 0 #1f8a8a, 0 0 14px rgba(95, 240, 210, 0.5);
+    }
     a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
     /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
     body.play-screen[data-rewards="3"] a.maze-reward {
@@ -1519,7 +1527,7 @@
     .congrats-card h2 {
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.8rem, 10vw, 4.6rem);
+      font-size: clamp(2rem, 8.6vw, 4.6rem);
       font-weight: 800;
       line-height: 0.95;
       letter-spacing: -0.02em;
@@ -3068,8 +3076,17 @@
         label: "Play Cookie Lab",
         bar: "Cookie Lab",
         speak: "Tap Play Cookie Lab to open the cookie game."
+      },
+      // Not tied to a beat: earned by a natural streak of 190 (or the OAHU code).
+      keystone: {
+        href: "https://bold-comet-lotus-scarlet.grok.me",
+        label: "Play Keystone",
+        bar: "Keystone",
+        speak: "Tap Play Keystone to open the rolling block puzzle.",
+        streakAt: 190
       }
     };
+    const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
@@ -3957,6 +3974,21 @@
       }, duration + 60);
     }
 
+    // Mini games earned by a natural streak alone (e.g. Keystone at 190).
+    function maybeUnlockStreakReward() {
+      if (state.phase !== "play") return "";
+      for (let i = 0; i < STREAK_REWARD_IDS.length; i++) {
+        const id = STREAK_REWARD_IDS[i];
+        if (state.streak !== BEAT_REWARDS[id].streakAt) continue;
+        if (state.gamesUnlocked && state.gamesUnlocked[id]) continue;
+        state.gamesUnlocked = state.gamesUnlocked || {};
+        state.gamesUnlocked[id] = true;
+        state.mazeCelebrate = id;
+        writeSave();
+        return id;
+      }
+      return "";
+    }
     function maybeUnlockBeats() {
       if (state.phase !== "play") return "";
       // Unlock the next locked beat each time the natural streak hits a multiple of BEAT_UNLOCK_STEP.
@@ -6296,6 +6328,7 @@
         var id = PLAY_TRACKS[i].id;
         if (BEAT_REWARDS[id]) out.push({ beatId: id, reward: BEAT_REWARDS[id], open: rewardGameOpen(id) });
       }
+      STREAK_REWARD_IDS.forEach(function (id) { out.push({ beatId: id, reward: BEAT_REWARDS[id], open: rewardGameOpen(id) }); });
       return out;
     }
     function beatRewardEarned(beatId) {
@@ -6313,6 +6346,7 @@
         var id = PLAY_TRACKS[i].id;
         if (BEAT_REWARDS[id] && rewardGameOpen(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] });
       }
+      STREAK_REWARD_IDS.forEach(function (id) { if (rewardGameOpen(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] }); });
       return out;
     }
     // Reward games open with window.open (no noopener) so the game tab can window.close()
@@ -6461,7 +6495,7 @@
       if (old) old.remove();
       var celebrateId = state.mazeCelebrate;
       var reward = celebrateId && BEAT_REWARDS[celebrateId];
-      if (!reward || !beatRewardEarned(celebrateId)) return;
+      if (!reward || !rewardGameOpen(celebrateId)) return;
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
@@ -6470,7 +6504,7 @@
       var title = document.createElement("h2");
       title.textContent = "Congratulations";
       var note = document.createElement("p");
-      note.textContent = beatLabel(celebrateId) + " is unlocked.";
+      note.textContent = (reward.streakAt ? reward.bar : beatLabel(celebrateId)) + " is unlocked.";
       var link = document.createElement("a");
       link.className = "congrats-maze congrats-" + celebrateId;
       link.href = reward.href;
@@ -7682,7 +7716,9 @@
           }
         }
         var justReward = justBeat && BEAT_REWARDS[justBeat.id];
+        var streakRewardId = maybeUnlockStreakReward();
         var mazeNote = justReward ? " Congratulations. " + justBeat.label + " is unlocked. " + justReward.speak : "";
+        if (streakRewardId) mazeNote += " Congratulations. " + BEAT_REWARDS[streakRewardId].bar + " is unlocked. " + BEAT_REWARDS[streakRewardId].speak;
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         state.streak = 0;

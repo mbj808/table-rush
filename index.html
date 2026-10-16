@@ -1856,6 +1856,16 @@
       background: #eef6fb;
       border-radius: 0.75rem;
     }
+    .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .sport-tag {
+      display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
+      letter-spacing: 0.04em; text-transform: uppercase; color: #fff; background: #3b4a6b; border: 1px solid rgba(255,255,255,0.6);
+    }
+    .sport-tag.sport-soccer { background: #1e7a4d; }
+    .sport-tag.sport-football { background: #7a4a1e; }
+    .sport-tag.sport-baseball { background: #b3261e; }
+    .sport-tag.sport-basketball { background: #d96a12; }
+    .sport-tag.sport-golf { background: #2f6fb3; }
     .wonder-photo {
       display: block;
       max-width: 100%;
@@ -3714,6 +3724,36 @@
       { id: "angkorwat", name: "Angkor Wat", group: "more" },
       { id: "pisa", name: "Leaning Tower of Pisa", group: "more" }
     ];
+    // Famous Sports People: Wikimedia Commons photos in assets/athletes/ (credits in CREDITS.md).
+    const ATHLETE_SPORT = { soccer: "Soccer", football: "American football", baseball: "Baseball", basketball: "Basketball", golf: "Golf" };
+    const ATHLETES = [
+      { id: "messi", name: "Lionel Messi", sport: "soccer" },
+      { id: "ronaldo", name: "Cristiano Ronaldo", sport: "soccer" },
+      { id: "pele", name: "Pelé", sport: "soccer" },
+      { id: "mbappe", name: "Kylian Mbappé", sport: "soccer" },
+      { id: "marta", name: "Marta", sport: "soccer" },
+      { id: "brady", name: "Tom Brady", sport: "football" },
+      { id: "mahomes", name: "Patrick Mahomes", sport: "football" },
+      { id: "rice", name: "Jerry Rice", sport: "football" },
+      { id: "kelce", name: "Travis Kelce", sport: "football" },
+      { id: "manning", name: "Peyton Manning", sport: "football" },
+      { id: "ruth", name: "Babe Ruth", sport: "baseball" },
+      { id: "ohtani", name: "Shohei Ohtani", sport: "baseball" },
+      { id: "robinson", name: "Jackie Robinson", sport: "baseball" },
+      { id: "jeter", name: "Derek Jeter", sport: "baseball" },
+      { id: "judge", name: "Aaron Judge", sport: "baseball" },
+      { id: "jordan", name: "Michael Jordan", sport: "basketball" },
+      { id: "lebron", name: "LeBron James", sport: "basketball" },
+      { id: "curry", name: "Stephen Curry", sport: "basketball" },
+      { id: "kobe", name: "Kobe Bryant", sport: "basketball" },
+      { id: "clark", name: "Caitlin Clark", sport: "basketball" },
+      { id: "tiger", name: "Tiger Woods", sport: "golf" },
+      { id: "nicklaus", name: "Jack Nicklaus", sport: "golf" },
+      { id: "palmer", name: "Arnold Palmer", sport: "golf" },
+      { id: "mcilroy", name: "Rory McIlroy", sport: "golf" },
+      { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
+    ];
+    const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     const WONDER_BY_ID = WONDERS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     const WONDER_QUICK = [
       ["All", WONDERS.map(function (x) { return x.id; })],
@@ -3746,7 +3786,8 @@
       { id: "instrument", label: "Instruments" },
       { id: "vehicle", label: "Vehicles" },
       { id: "vehicletrivia", label: "Vehicle trivia" },
-      { id: "wonder", label: "Wonders of the World" }
+      { id: "wonder", label: "Wonders of the World" },
+      { id: "athlete", label: "Famous Sports People" }
     ];
 
     const state = {
@@ -4096,6 +4137,7 @@
     function isVehicle() { return state.operation === "vehicle"; }
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
+    function isAthlete() { return state.operation === "athlete"; }
     function isFlagTrivia() { return state.operation === "flagtrivia"; }
     function isOceanMap() { return state.operation === "oceanmap"; }
     function isInstrument() { return state.operation === "instrument"; }
@@ -4140,6 +4182,7 @@
       if (op === "vehicle") return defaultVehicleTables();
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
+      if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
       if (op === "instrument") return defaultInstrumentTables();
       if (op === "piano") return defaultPianoTables();
       if (op === "maketen") return MAKE_TEN_POOL.slice();
@@ -5071,6 +5114,9 @@
             VEHICLES.map(function (b) { return b.name; }))
         };
       }
+      if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
+        return athleteProblem(ATHLETE_BY_ID[pair.id]);
+      }
       if (pair.operation === "wonder" && WONDER_BY_ID[pair.id]) {
         const body = WONDER_BY_ID[pair.id];
         const pool = selectedWonders();
@@ -5214,6 +5260,7 @@
         if (isVehicle()) return buildVehicle(avoid);
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
+        if (isAthlete()) return buildAthlete();
         if (isInstrument()) return buildInstrument(avoid);
         if (isPiano()) return buildPiano(avoid);
         if (isMakeTen()) return buildMakeTen(avoid);
@@ -5318,6 +5365,10 @@
         const body = INSTRUMENT_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
       }
+      if (pair.operation === "athlete") {
+        const body = ATHLETE_BY_ID[pair.id];
+        return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
+      }
       if (pair.operation === "wonder" || (isWonder() && pair.id)) {
         const body = WONDER_BY_ID[pair.id];
         return (body && body.name) || pair.answer;
@@ -5374,7 +5425,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7223,6 +7274,7 @@
       if (isVehicle()) hint = "See the picture and choose the vehicle's name.";
       if (isVehicleTrivia()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
+      if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
       if (isRounding()) hint = "See the number on a number line and pick the rounded value. 5 or more rounds up. Two choices.";
@@ -7274,6 +7326,7 @@
       if (isVehicle()) return "Vehicles";
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
+      if (isAthlete()) return "Famous Sports People";
       if (isInstrument()) return "Instruments";
       if (isPiano()) return "Piano Notes";
       if (isMakeTen()) return "Make Ten";
@@ -7407,6 +7460,28 @@
       };
     }
 
+    // Famous Sports People: each player once per pass; the wrong name is from the same sport.
+    function athleteProblem(body) {
+      const same = ATHLETES.filter(function (a) { return a.sport === body.sport && a.id !== body.id; });
+      const pool = same.length ? same : ATHLETES.filter(function (a) { return a.id !== body.id; });
+      const wrong = pool[Math.floor(Math.random() * pool.length)];
+      return {
+        operation: "athlete", id: body.id, pictureOnly: true, ask: "Who is this?",
+        answer: body.name, key: "athlete:" + body.id,
+        choices: shuffle([body.name, wrong.name])
+      };
+    }
+    function buildAthlete() {
+      if (!state.athleteBag || !state.athleteBag.length) {
+        const next = shuffle(ATHLETES.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.athleteLast && next[0] === state.athleteLast) next.push(next.shift());
+        state.athleteBag = next;
+      }
+      const body = ATHLETE_BY_ID[state.athleteBag.shift()];
+      state.athleteLast = body.id;
+      return athleteProblem(body);
+    }
+
     // Each selected wonder comes up once per pass, in shuffled order, before any repeats.
     function wonderChoices(body, pool) {
       const others = pool.filter(function (w) { return w.id !== body.id; });
@@ -7517,6 +7592,18 @@
       img.decoding = "async";
       return img;
     }
+    function athletePhoto(id) {
+      const body = ATHLETE_BY_ID[id];
+      const fig = el("div", { class: "athlete-figure" });
+      const img = document.createElement("img");
+      img.className = "wonder-photo athlete-photo";
+      img.src = "assets/athletes/" + id + ".jpg";
+      img.alt = "A famous " + (body ? ATHLETE_SPORT[body.sport].toLowerCase() : "sports") + " player";
+      img.decoding = "async";
+      fig.appendChild(img);
+      if (body) fig.appendChild(el("span", { class: "sport-tag sport-" + body.sport, text: ATHLETE_SPORT[body.sport] }));
+      return fig;
+    }
     function pictureForProblem(problem) {
       const op = (problem && problem.operation) || state.operation;
       if (op === "oceanmap") return oceanWorldMap(problem.id);
@@ -7524,6 +7611,7 @@
       if (op === "piano") return pianoSvg(problem.id);
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
+      if (op === "athlete") return athletePhoto(problem.id);
       return null;
     }
 
@@ -7630,7 +7718,7 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder();
+      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder() || isAthlete();
       const answers = el("div", { class: "answers" + (isDecimals() || isRounding() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
@@ -7741,6 +7829,8 @@
       state.vehicleIndex = 0;
       state.wonderBag = null;
       state.wonderLast = "";
+      state.athleteBag = null;
+      state.athleteLast = "";
       state.playPage = "question";
       state.phase = "play";
       state.problem = makeProblem();

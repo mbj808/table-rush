@@ -1857,6 +1857,7 @@
       border-radius: 0.75rem;
     }
     .wonder-photo.nfl-logo { background: #fff; padding: 0.75rem; box-sizing: border-box; }
+    .wonder-photo.cartoon-photo { background: #fff; padding: 0.4rem; box-sizing: border-box; }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -3755,6 +3756,25 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Cartoon Characters: images from Wikipedia/Wikimedia Commons in assets/cartoons/ (educational fair use; credits in CREDITS.md).
+    const CARTOONS = [
+      { id: "mickey", name: "Mickey Mouse" },
+      { id: "bugs", name: "Bugs Bunny" },
+      { id: "spongebob", name: "SpongeBob" },
+      { id: "scooby", name: "Scooby-Doo" },
+      { id: "homer", name: "Homer Simpson" },
+      { id: "pikachu", name: "Pikachu" },
+      { id: "snoopy", name: "Snoopy" },
+      { id: "garfield", name: "Garfield" },
+      { id: "tomjerry", name: "Tom & Jerry" },
+      { id: "popeye", name: "Popeye" },
+      { id: "pooh", name: "Winnie the Pooh" },
+      { id: "mario", name: "Mario" },
+      { id: "shrek", name: "Shrek" },
+      { id: "elsa", name: "Elsa" },
+      { id: "peppa", name: "Peppa Pig" }
+    ];
+    const CARTOON_BY_ID = CARTOONS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     // Bill of Rights: the first 10 amendments in kid-friendly words, asked both ways.
     const BILL_OF_RIGHTS = [
       { n: 1, name: "1st Amendment", text: "Freedom of speech, religion, the press, and to gather and protest peacefully" },
@@ -3842,7 +3862,8 @@
       { id: "wonder", label: "Wonders of the World" },
       { id: "athlete", label: "Famous Sports People" },
       { id: "nfl", label: "NFL Team Logos" },
-      { id: "bor", label: "Bill of Rights" }
+      { id: "bor", label: "Bill of Rights" },
+      { id: "cartoon", label: "Cartoon Characters" }
     ];
 
     const state = {
@@ -4193,6 +4214,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isCartoon() { return state.operation === "cartoon"; }
     function isBor() { return state.operation === "bor"; }
     function isNfl() { return state.operation === "nfl"; }
     function isFlagTrivia() { return state.operation === "flagtrivia"; }
@@ -4240,6 +4262,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "cartoon") return CARTOONS.map(function (x) { return x.id; });
       if (op === "bor") return BOR_ITEMS.map(function (x) { return x.id; });
       if (op === "nfl") return NFL_TEAMS.map(function (x) { return x.id; });
       if (op === "instrument") return defaultInstrumentTables();
@@ -5175,6 +5198,7 @@
       }
       if (pair.operation === "nfl" && NFL_BY_ID[pair.id]) return nflProblem(NFL_BY_ID[pair.id]);
       if (pair.operation === "bor" && BOR_BY_ID[pair.id]) return borProblem(BOR_BY_ID[pair.id]);
+      if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return cartoonProblem(CARTOON_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5322,6 +5346,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isCartoon()) return buildCartoon();
         if (isBor()) return buildBor();
         if (isNfl()) return buildNfl();
         if (isInstrument()) return buildInstrument(avoid);
@@ -5430,6 +5455,7 @@
       }
       if (pair.operation === "nfl" && NFL_BY_ID[pair.id]) return NFL_BY_ID[pair.id].name;
       if (pair.operation === "bor" && BOR_BY_ID[pair.id]) { const a = BOR_BY_ID[pair.id].a; return a.name + ": " + a.text; }
+      if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return CARTOON_BY_ID[pair.id].name;
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5490,7 +5516,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7341,6 +7367,7 @@
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isNfl()) hint = "See an NFL team logo and choose the team. All 32 teams.";
       if (isBor()) hint = "Learn the first 10 amendments. Match each one to what it protects, both ways.";
+      if (isCartoon()) hint = "See a famous cartoon character and choose their name.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7394,6 +7421,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isCartoon()) return "Cartoon Characters";
       if (isBor()) return "Bill of Rights";
       if (isNfl()) return "NFL Team Logos";
       if (isInstrument()) return "Instruments";
@@ -7712,6 +7740,34 @@
       state.borLast = body.id;
       return borProblem(body);
     }
+    // Cartoon Characters: each character once per pass.
+    function cartoonProblem(body) {
+      const pool = CARTOONS.filter(function (a) { return a.id !== body.id; });
+      const wrong = pool[Math.floor(Math.random() * pool.length)];
+      return {
+        operation: "cartoon", id: body.id, pictureOnly: true, ask: "Who is this?",
+        answer: body.name, key: "cartoon:" + body.id,
+        choices: shuffle([body.name, wrong.name])
+      };
+    }
+    function buildCartoon() {
+      if (!state.cartoonBag || !state.cartoonBag.length) {
+        const next = shuffle(CARTOONS.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.cartoonLast && next[0] === state.cartoonLast) next.push(next.shift());
+        state.cartoonBag = next;
+      }
+      const body = CARTOON_BY_ID[state.cartoonBag.shift()];
+      state.cartoonLast = body.id;
+      return cartoonProblem(body);
+    }
+    function cartoonPicture(id) {
+      const img = document.createElement("img");
+      img.className = "wonder-photo cartoon-photo";
+      img.src = "assets/cartoons/" + id + ".jpg";
+      img.alt = "A famous cartoon character";
+      img.decoding = "async";
+      return img;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -7732,6 +7788,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "cartoon") return cartoonPicture(problem.id);
       if (op === "nfl") return nflLogo(problem.id);
       return null;
     }
@@ -7839,7 +7896,7 @@
       const locked = performance.now() < state.lockUntil;
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
-      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder() || isAthlete() || isNfl();
+      const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder() || isAthlete() || isCartoon() || isNfl();
       const answers = el("div", { class: "answers" + (isDecimals() || isRounding() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
@@ -7951,6 +8008,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.cartoonBag = null;
+      state.cartoonLast = "";
       state.borBag = null;
       state.borLast = "";
       state.nflBag = null;

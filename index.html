@@ -1476,6 +1476,15 @@
       color: #06222a;
       box-shadow: 0 3px 0 #1f8a8a, 0 0 14px rgba(95, 240, 210, 0.5);
     }
+    /* Mad Capture (streak 240): ruby-to-sapphire. */
+    a.maze-reward.reward-madcapture,
+    a.congrats-maze.congrats-madcapture {
+      border-color: #ff6b8b;
+      background: linear-gradient(135deg, #ff5a7a 0%, #c45cff 50%, #4f7dff 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      box-shadow: 0 3px 0 #7a1f4a, 0 0 14px rgba(255, 90, 122, 0.5);
+    }
     a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
     /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
     body.play-screen[data-rewards="3"] a.maze-reward {
@@ -3084,6 +3093,13 @@
         bar: "Keystone",
         speak: "Tap Play Keystone to open the rolling block puzzle.",
         streakAt: 190
+      },
+      madcapture: {
+        href: "https://polar-lake-ruby-sapphire.grok.me",
+        label: "Play Mad Capture",
+        bar: "Mad Capture",
+        speak: "Tap Play Mad Capture to open the checkers facts game.",
+        streakAt: 240
       }
     };
     const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });

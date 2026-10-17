@@ -2427,7 +2427,53 @@
     }
     .game-panel .hint { margin: 0; }
     .game-panel .card.in-panel { margin: 0; padding: 0; background: transparent; border: 0; box-shadow: none; }
-    .game-panel .game-start { width: 100%; }
+    /* Games list Start: chunky neon arcade pill (orange to magenta), glossy, softly glowing, gentle pulse. */
+    .game-panel .game-start {
+      position: relative; isolation: isolate;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.05rem;
+      width: 100%; height: auto; min-height: 4.6rem; padding: 0.55rem 1.25rem 0.6rem;
+      border: 3px solid #ffe6f6; border-radius: 999px;
+      background: linear-gradient(100deg, #ff8a00 0%, #ff4f5a 45%, #e81fa8 100%);
+      color: #fff; cursor: pointer;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+      box-shadow: 0 5px 0 #8a1063, 0 0 18px rgba(255, 80, 170, 0.55), 0 8px 22px rgba(0, 0, 0, 0.28);
+      text-shadow: 0 2px 0 rgba(120, 10, 70, 0.55), 0 0 10px rgba(255, 255, 255, 0.25);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .game-panel .game-start::before {
+      content: ""; position: absolute; left: 6%; right: 6%; top: 4px; height: 44%; z-index: -1;
+      border-radius: 999px; pointer-events: none;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.04));
+    }
+    .game-panel .game-start::after {
+      content: ""; position: absolute; inset: -3px; z-index: -2; border-radius: 999px; pointer-events: none;
+      box-shadow: 0 0 26px 6px rgba(255, 110, 60, 0.7), 0 0 40px 10px rgba(232, 31, 168, 0.45);
+      opacity: 0.35;
+      animation: start-glow 2.6s ease-in-out infinite;
+    }
+    .game-start .gs-main { font-size: 1.75rem; font-weight: 900; letter-spacing: 0.08em; line-height: 1.05; }
+    .game-start .gs-main .gs-arrow { display: inline-block; margin-left: 0.3em; font-size: 0.8em; }
+    .game-start .gs-sub { font-size: 0.85rem; font-weight: 800; letter-spacing: 0.03em; opacity: 0.95; line-height: 1.2; }
+    .game-panel .game-start:hover:not(:disabled) { filter: brightness(1.07) saturate(1.1); }
+    .game-panel .game-start:active:not(:disabled) {
+      transform: translateY(3px) scale(0.96); filter: brightness(1.18) saturate(1.15);
+      box-shadow: 0 2px 0 #8a1063, 0 0 30px rgba(255, 120, 200, 0.95), 0 0 50px rgba(255, 140, 40, 0.6);
+    }
+    .game-panel .game-start:active:not(:disabled)::after { opacity: 1; animation: none; }
+    .game-panel .game-start:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .game-panel .game-start:disabled { opacity: 0.45; filter: grayscale(0.6); box-shadow: none; }
+    .game-panel .game-start:disabled::after { animation: none; opacity: 0; }
+    @keyframes start-glow { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }
+    @media (max-width: 500px) {
+      .game-panel .game-start { min-height: 4.2rem; box-shadow: 0 4px 0 #8a1063, 0 0 12px rgba(255, 80, 170, 0.5); }
+      .game-panel .game-start::after { box-shadow: 0 0 16px 3px rgba(255, 90, 120, 0.65); }
+      .game-start .gs-main { font-size: 1.55rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .game-panel .game-start { transition: none; }
+      .game-panel .game-start::after { animation: none; opacity: 0.5; }
+    }
     .quiz-choice-answers { margin-top: 0.4rem; }
     .mode-pick { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 24rem; }
     .mode-pick .mode-btn {
@@ -6989,7 +7035,11 @@
       // Options belong to the opened game: move them into its panel with its own Start button.
       const optionNodes = Array.prototype.slice.call(stack.children, optionsFrom);
       optionNodes.forEach(function (node) { node.remove(); });
-      const startBtn = el("button", { class: "start game-start", type: "button", text: "Start " + opLabel(state.operation), onClick: function () { start(null); } });
+      const startBtn = el("button", { class: "start game-start", type: "button", "aria-label": "Start " + opLabel(state.operation), onClick: function () { start(null); } });
+      const startMain = el("span", { class: "gs-main", text: "START" });
+      startMain.appendChild(el("span", { class: "gs-arrow", "aria-hidden": "true", text: "▶\uFE0E" }));
+      startBtn.appendChild(startMain);
+      startBtn.appendChild(el("span", { class: "gs-sub", text: opLabel(state.operation) }));
       const minis = el("div", { class: "card mini-games-card" });
       minis.appendChild(el("p", { class: "label", text: "Mini games" }));
       const miniRow = el("div", { class: "mini-games" });

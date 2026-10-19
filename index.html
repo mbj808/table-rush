@@ -1485,6 +1485,15 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.4);
       box-shadow: 0 3px 0 #7a1f4a, 0 0 14px rgba(255, 90, 122, 0.5);
     }
+    /* Copperline (streak 290): polished copper with a verdigris edge. */
+    a.maze-reward.reward-copperline,
+    a.congrats-maze.congrats-copperline {
+      border-color: #5fd3b8;
+      background: linear-gradient(135deg, #f7c08a 0%, #d9773a 45%, #9c4a22 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(60, 20, 0, 0.55);
+      box-shadow: 0 3px 0 #5e2a12, 0 0 14px rgba(95, 211, 184, 0.45);
+    }
     a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
     /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
     body.play-screen[data-rewards="3"] a.maze-reward {
@@ -3172,6 +3181,13 @@
         bar: "Mad Capture",
         speak: "Tap Play Mad Capture to open the checkers facts game.",
         streakAt: 240
+      },
+      copperline: {
+        href: "https://timber-honey-zephyr-velvet.grok.me",
+        label: "Play Copperline",
+        bar: "Copperline",
+        speak: "Tap Play Copperline to open the keyboard synthesizer.",
+        streakAt: 290
       }
     };
     const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });

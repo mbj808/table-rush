@@ -1503,6 +1503,15 @@
       text-shadow: 0 1px 2px rgba(5, 50, 20, 0.6);
       box-shadow: 0 3px 0 #0e5530, 0 0 14px rgba(255, 216, 77, 0.55);
     }
+    /* WordBloom (streak 390): pastel blossom pink to lilac with dark plum text for strong contrast. */
+    a.maze-reward.reward-wordbloom,
+    a.congrats-maze.congrats-wordbloom {
+      border-color: #fff4fb;
+      background: linear-gradient(135deg, #ffe0ee 0%, #ffbfdf 50%, #e3b8ff 100%);
+      color: #3a0d3a;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+      box-shadow: 0 3px 0 #9b4f8f, 0 0 14px rgba(255, 191, 223, 0.55);
+    }
     a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
     /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
     body.play-screen[data-rewards="3"] a.maze-reward {
@@ -3204,6 +3213,13 @@
         bar: "Tip Town",
         speak: "Tap Play Tip Town to learn how to leave a tip.",
         streakAt: 340
+      },
+      wordbloom: {
+        href: "https://raven-river-prism-island.grok.me",
+        label: "Play WordBloom",
+        bar: "WordBloom",
+        speak: "Tap Play WordBloom to make a word cloud.",
+        streakAt: 390
       }
     };
     const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });

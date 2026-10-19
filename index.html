@@ -1494,6 +1494,15 @@
       text-shadow: 0 1px 2px rgba(60, 20, 0, 0.55);
       box-shadow: 0 3px 0 #5e2a12, 0 0 14px rgba(95, 211, 184, 0.45);
     }
+    /* Tip Town (streak 340): dollar-bill green with a gold-coin rim. */
+    a.maze-reward.reward-tiptown,
+    a.congrats-maze.congrats-tiptown {
+      border-color: #ffd84d;
+      background: linear-gradient(135deg, #7be08f 0%, #34b366 50%, #17804a 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(5, 50, 20, 0.6);
+      box-shadow: 0 3px 0 #0e5530, 0 0 14px rgba(255, 216, 77, 0.55);
+    }
     a.congrats-maze.congrats-graveyard { box-shadow: 0 4px 0 #8a2fb8, 0 0 22px rgba(255, 106, 213, 0.6); }
     /* Three games earned: four equal segments (maze | jump | cookie | Beats/Question). */
     body.play-screen[data-rewards="3"] a.maze-reward {
@@ -3188,6 +3197,13 @@
         bar: "Copperline",
         speak: "Tap Play Copperline to open the keyboard synthesizer.",
         streakAt: 290
+      },
+      tiptown: {
+        href: "https://solar-oasis-light-brush.grok.me",
+        label: "Play Tip Town",
+        bar: "Tip Town",
+        speak: "Tap Play Tip Town to learn how to leave a tip.",
+        streakAt: 340
       }
     };
     const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });

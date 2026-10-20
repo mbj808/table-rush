@@ -3904,18 +3904,18 @@
       { id: "peppa", name: "Peppa Pig" }
     ];
     const CARTOON_BY_ID = CARTOONS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
-    // Bill of Rights: the first 10 amendments in kid-friendly words, asked both ways.
+    // Bill of Rights: the first 10 amendments in simple words for grades 1-4, asked both ways.
     const BILL_OF_RIGHTS = [
-      { n: 1, name: "1st Amendment", text: "Freedom of speech, religion, the press, and to gather and protest peacefully" },
-      { n: 2, name: "2nd Amendment", text: "The right to keep and bear arms" },
-      { n: 3, name: "3rd Amendment", text: "No soldiers can be made to live in your home in peacetime" },
-      { n: 4, name: "4th Amendment", text: "No unfair searches of you or your home without a good reason and a warrant" },
-      { n: 5, name: "5th Amendment", text: "You don't have to speak against yourself, and you get fair treatment by the law" },
-      { n: 6, name: "6th Amendment", text: "A fast, fair, public trial with a jury and a lawyer" },
-      { n: 7, name: "7th Amendment", text: "A jury trial in many disagreements about money or property" },
-      { n: 8, name: "8th Amendment", text: "No cruel or unusual punishments and no super-high bail or fines" },
-      { n: 9, name: "9th Amendment", text: "People have other rights too, even if they aren't written down" },
-      { n: 10, name: "10th Amendment", text: "Powers not given to the national government belong to the states or the people" }
+      { n: 1, name: "1st Amendment", text: "You can say what you think and pray how you want" },
+      { n: 2, name: "2nd Amendment", text: "People are allowed to have guns" },
+      { n: 3, name: "3rd Amendment", text: "Soldiers can't move into your house" },
+      { n: 4, name: "4th Amendment", text: "Police need a good reason to search your stuff" },
+      { n: 5, name: "5th Amendment", text: "You don't have to tell on yourself" },
+      { n: 6, name: "6th Amendment", text: "A quick, fair trial if you're in trouble" },
+      { n: 7, name: "7th Amendment", text: "Big fights over money can get a fair trial" },
+      { n: 8, name: "8th Amendment", text: "No super mean punishments" },
+      { n: 9, name: "9th Amendment", text: "You have more rights than this list" },
+      { n: 10, name: "10th Amendment", text: "Other powers go to states and people" }
     ];
     const BOR_ITEMS = [];
     BILL_OF_RIGHTS.forEach(function (a) { BOR_ITEMS.push({ id: a.n + "f", a: a, dir: "f" }); BOR_ITEMS.push({ id: a.n + "r", a: a, dir: "r" }); });
@@ -7505,7 +7505,7 @@
       if (isVehicleTrivia()) hint = "Name vehicles from clues, or match each vehicle to land, water, or air.";
       if (isWonder()) hint = "See a photo of a famous wonder of the world and choose its name.";
       if (isNfl()) hint = "See an NFL team logo and choose the team. All 32 teams.";
-      if (isBor()) hint = "Learn the first 10 amendments. Match each one to what it protects, both ways.";
+      if (isBor()) hint = "Learn the first 10 amendments in simple words. Match each one to what it says.";
       if (isCartoon()) hint = "See a famous cartoon character and choose their name.";
       if (isMlb()) hint = "See an MLB team logo and choose the team. All 30 teams.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
@@ -7866,7 +7866,7 @@
       const fwd = item.dir === "f";
       return {
         operation: "bor", id: item.id,
-        ask: fwd ? "Which amendment protects this? " + a.text + "." : "What does the " + a.name + " protect?",
+        ask: fwd ? "Which amendment says this? \u201C" + a.text + ".\u201D" : "What does the " + a.name + " say?",
         answer: fwd ? a.name : a.text, key: "bor:" + item.id,
         choices: shuffle(fwd ? [a.name, wrong.name] : [a.text, wrong.text])
       };

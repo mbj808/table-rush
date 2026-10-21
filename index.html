@@ -2462,7 +2462,23 @@
     .menu-how-row { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #fff; font-size: 1.4rem; font-weight: 900; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
     .menu-how-icon { flex: 0 0 1.6rem; font-size: 1.3rem; line-height: 1.1; text-align: center; }
     .menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
-    .menu-grid .tile-games { grid-column: 1 / -1; }
+    .menu-fc {
+      grid-column: 1 / -1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+      min-height: 6.4rem; padding: 0.8rem 1rem; border-radius: 1.4rem; cursor: pointer; color: #fff;
+      border: 3px solid #ffe08a;
+      background: linear-gradient(115deg, #ff9a00 0%, #ff3d7f 48%, #c23cff 100%);
+      box-shadow: 0 7px 0 #7a1650, 0 0 24px rgba(255, 70, 160, 0.75), 0 0 52px rgba(255, 140, 0, 0.35);
+      animation: fc-glow 2.8s ease-in-out infinite;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .menu-fc::before { content: ""; position: absolute; left: 4%; right: 4%; top: 5%; height: 44%; border-radius: 1.1rem 1.1rem 2rem 2rem; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.08)); pointer-events: none; }
+    .menu-fc-text { position: relative; font-family: "Titan One", "Arial Black", Impact, sans-serif; font-size: 2.3rem; font-weight: 900; letter-spacing: 0.03em; line-height: 1; text-shadow: 0 3px 0 #7a1650, 0 0 14px rgba(255,255,255,0.65); white-space: nowrap; }
+    .menu-fc-play { position: relative; font-size: 1.6rem; line-height: 1; text-shadow: 0 3px 0 #7a1650; }
+    .menu-fc:active { transform: translateY(5px) scale(0.985); box-shadow: 0 2px 0 #7a1650, 0 0 30px rgba(255, 70, 160, 0.9); }
+    .menu-fc:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    @keyframes fc-glow { 0%, 100% { box-shadow: 0 7px 0 #7a1650, 0 0 20px rgba(255, 70, 160, 0.6), 0 0 40px rgba(255, 140, 0, 0.25); } 50% { box-shadow: 0 7px 0 #7a1650, 0 0 32px rgba(255, 70, 160, 0.95), 0 0 64px rgba(255, 140, 0, 0.5); } }
+    @media (max-width: 560px) { .menu-fc { min-height: 5.6rem; } .menu-fc-text { font-size: 1.75rem; } .menu-fc-play { font-size: 1.25rem; } }
+    @media (prefers-reduced-motion: reduce) { .menu-fc { animation: none; transition: none; } }
     .menu-tile:not(.tile-games) .menu-label { font-size: 1rem; letter-spacing: 0.02em; white-space: nowrap; }
     .menu-art .art-svg.art-wide { max-width: 17rem; height: 5.6rem; }
     .menu-tile {
@@ -2491,7 +2507,12 @@
     @keyframes mt-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     @keyframes mt-shine { 0%, 55% { transform: skewX(-20deg) translateX(0); } 85%, 100% { transform: skewX(-20deg) translateX(150px); } }
     .subpage .page-head ~ * > p.label:first-child, .subpage p.label, .subpage .beats-title { display: none; }
-    .page-head { display: flex; align-items: center; gap: 0.75rem; margin: 0.2rem 0 0.1rem; }
+    .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.1rem; }
+    .page-head .page-title { flex: 1 1 100%; text-align: center; font-size: 0; line-height: 0; text-shadow: none; }
+    .logo-title { display: block; }
+    .logo-title .sr-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .logo-title-svg { display: block; margin: 0 auto; width: auto; max-width: 100%; height: 4.2rem; overflow: visible; }
+    @media (max-width: 560px) { .logo-title-svg { height: 3.4rem; } }
     .page-back {
       min-height: 2.9rem; padding: 0.3rem 1rem; border-radius: 0.8rem; border: 2px solid #fffef6;
       background: #1e7a4d; color: #fff; font-size: 1.05rem; font-weight: 800; cursor: pointer;
@@ -7618,7 +7639,9 @@
     function pageHeader(page) {
       const head = el("div", { class: "page-head" });
       head.appendChild(el("button", { type: "button", class: "page-back", text: "\u2039 Menu", onClick: function () { goPage("menu"); } }));
-      head.appendChild(el("h2", { class: "page-title", text: PAGE_TITLES[page] || "" }));
+      const h2 = el("h2", { class: "page-title" });
+      h2.appendChild(logoTitle(PAGE_TITLES[page] || "", "pt-" + page));
+      head.appendChild(h2);
       return head;
     }
     function menuPage() {
@@ -7631,7 +7654,14 @@
       sec.appendChild(playerCard);
       setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
       const grid = el("div", { class: "menu-grid" });
-      [["games", "Fact Challenge", menuArtCartridgeWide], ["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
+      [["games", "Fact Challenge", null], ["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
+        if (t[0] === "games") {
+          const fc = el("button", { type: "button", class: "menu-fc", "aria-label": "Fact Challenge", onClick: function () { goPage("games"); } });
+          fc.appendChild(el("span", { class: "menu-fc-text", text: "FACT CHALLENGE" }));
+          fc.appendChild(el("span", { class: "menu-fc-play", "aria-hidden": "true", text: "\u25B6" }));
+          grid.appendChild(fc);
+          return;
+        }
         const btn = el("button", { type: "button", class: "menu-tile tile-" + t[0], onClick: function () { goPage(t[0]); } });
         const art = el("span", { class: "menu-art", "aria-hidden": "true" });
         art.innerHTML = t[2]();
@@ -7721,6 +7751,25 @@
       cone.appendChild(el("span", { class: "woofer-cap" }));
       face.appendChild(cone);
       return face;
+    }
+    // Page titles in the original Beats logo style (nebula-filled letters).
+    function logoTitle(label, id) {
+      const word = label.toUpperCase();
+      const wrap = el("span", { class: "logo-title" });
+      wrap.appendChild(el("span", { class: "sr-label", text: label }));
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      const len = Math.round(word.length * 92);
+      svg.setAttribute("class", "beats-title-svg title-svg logo-title-svg");
+      svg.setAttribute("viewBox", "0 20 " + (len + 40) + " 132");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("focusable", "false");
+      const t = 'x="' + (len / 2 + 20) + '" y="124" font-family="Titan One, Arial Black, Impact, sans-serif" font-size="108" text-anchor="middle" textLength="' + len + '" lengthAdjust="spacingAndGlyphs"';
+      svg.innerHTML = '<defs><clipPath id="' + id + '-letters"><text ' + t + '>' + word + '</text></clipPath></defs>'
+        + '<g fill="#102038" stroke="#102038" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"><text ' + t + '>' + word + '</text></g>'
+        + '<g clip-path="url(#' + id + '-letters)"><use href="#mf-nebula" class="nebula"/><use href="#mf-stars" class="stars"/><use href="#mf-stars-b" class="stars stars-b"/></g>'
+        + '<g fill="none" stroke="#f4fbff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><text ' + t + '>' + word + '</text></g>';
+      wrap.appendChild(svg);
+      return wrap;
     }
     function beatsTitle() {
       const wrap = el("div", { class: "beats-title" });

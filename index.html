@@ -1540,6 +1540,8 @@
         padding: 0.2rem 0.25rem;
       }
     }
+    .congrats-layer.after-burst { opacity: 0; visibility: hidden; }
+    .congrats-layer.after-burst.burst-done { opacity: 1; visibility: visible; }
     .congrats-layer {
       position: fixed;
       inset: 0;
@@ -2322,6 +2324,7 @@
     .chip.locked small { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.01em; }
     button.chip.locked:disabled { opacity: 0.8; }
     .beats-title { position: relative; text-align: center; }
+    .beat-unlock-note.mini-unlock-note { margin: -0.2rem 0 0.55rem; text-align: left; }
     .beat-unlock-note {
       margin: -0.15rem 0 0.65rem;
       color: rgba(31, 58, 69, 0.72);
@@ -3225,64 +3228,68 @@
       { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "graveyard", label: "Graveyard", file: "assets/audio/graveyard.mp3", unlockAt: BEAT_UNLOCK_STEP }
     ];
-    // Games attached to a beat. The link stays once that beat, or any later beat, is unlocked.
+    // Mini games: one unlocks every streak of MINI_UNLOCK_STEP (20, 40 ... 160), separate from beats.
+    // Keys stay as before (bitwave/bat/graveyard for the first three) so saved unlocks keep working.
     // "bar" is the shorter label used when the bottom bar is shared by more than one game.
     const BEAT_REWARDS = {
       bitwave: {
         href: "https://nova-fire-bamboo-heart.grok.me",
         label: "Play Maze",
         bar: "Maze",
-        speak: "Tap Play Maze to open the maze game."
+        speak: "Tap Play Maze to open the maze game.",
+        streakAt: 20
       },
       bat: {
         href: "https://rapid-leaf-able-cobalt.grok.me",
         label: "Play Pumpkin Jump",
         bar: "Pumpkin Jump",
-        speak: "Tap Play Pumpkin Jump to open the jumping game."
+        speak: "Tap Play Pumpkin Jump to open the jumping game.",
+        streakAt: 40
       },
       graveyard: {
         href: "https://star-tulip-eagle-storm.grok.me",
         label: "Play Cookie Lab",
         bar: "Cookie Lab",
-        speak: "Tap Play Cookie Lab to open the cookie game."
+        speak: "Tap Play Cookie Lab to open the cookie game.",
+        streakAt: 60
       },
-      // Not tied to a beat: earned by a natural streak of 190 (or the OAHU code).
       keystone: {
         href: "https://bold-comet-lotus-scarlet.grok.me",
         label: "Play Keystone",
         bar: "Keystone",
         speak: "Tap Play Keystone to open the rolling block puzzle.",
-        streakAt: 190
+        streakAt: 80
       },
       madcapture: {
         href: "https://polar-lake-ruby-sapphire.grok.me",
         label: "Play Mad Capture",
         bar: "Mad Capture",
         speak: "Tap Play Mad Capture to open the checkers facts game.",
-        streakAt: 240
+        streakAt: 100
       },
       copperline: {
         href: "https://timber-honey-zephyr-velvet.grok.me",
         label: "Play Copperline",
         bar: "Copperline",
         speak: "Tap Play Copperline to open the keyboard synthesizer.",
-        streakAt: 290
+        streakAt: 120
       },
       tiptown: {
         href: "https://solar-oasis-light-brush.grok.me",
         label: "Play Tip Town",
         bar: "Tip Town",
         speak: "Tap Play Tip Town to learn how to leave a tip.",
-        streakAt: 340
+        streakAt: 140
       },
       wordbloom: {
         href: "https://raven-river-prism-island.grok.me",
         label: "Play WordBloom",
         bar: "WordBloom",
         speak: "Tap Play WordBloom to make a word cloud.",
-        streakAt: 390
+        streakAt: 160
       }
     };
+    const MINI_UNLOCK_STEP = 20;
     const STREAK_REWARD_IDS = Object.keys(BEAT_REWARDS).filter(function (id) { return BEAT_REWARDS[id].streakAt; });
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
@@ -4430,13 +4437,26 @@
             if (data.gamesUnlocked[id] === true) state.gamesUnlocked[id] = true;
           });
         }
+        // Older saves: the highest beat earned by streak shows how far the player got, so open
+        // every mini game at or below that streak (beats opened by the teacher code don't count).
+        var migratedGames = false;
+        if (currentSave) {
+          var savedCode = (data.codeBeats && typeof data.codeBeats === "object") ? data.codeBeats : {};
+          var reached = typeof data.bestStreak === "number" ? data.bestStreak : 0;
+          PLAY_TRACKS.forEach(function (track, i) {
+            if (state.beatsUnlocked[track.id] && !trackIsFree(track) && savedCode[track.id] !== true) reached = Math.max(reached, i * BEAT_UNLOCK_STEP);
+          });
+          STREAK_REWARD_IDS.forEach(function (id) {
+            if (!state.gamesUnlocked[id] && reached >= BEAT_REWARDS[id].streakAt) { state.gamesUnlocked[id] = true; migratedGames = true; }
+          });
+        }
         // Beats opened by the MAUI teacher code (they never count toward mini game rewards).
         state.codeBeats = {};
         if (data.codeBeats && typeof data.codeBeats === "object") {
           BEAT_IDS.forEach(function (id) { if (data.codeBeats[id] === true && state.beatsUnlocked[id]) state.codeBeats[id] = true; });
         }
         const savedPlayId = typeof data.playMusicId === "string" ? data.playMusicId : "";
-        if (!currentSave || !hadBeats || playId !== savedPlayId) writeSave();
+        if (!currentSave || !hadBeats || playId !== savedPlayId || migratedGames) writeSave();
       } catch (_) {}
     }
     function writeSave() {
@@ -4500,6 +4520,7 @@
       }
       var start = performance.now();
       var duration = 5000;
+      state.burstUntil = start + 3600;
       var raf = 0;
       function frame(now) {
         var t = (now - start) / 1000;
@@ -4588,12 +4609,12 @@
       }, duration + 60);
     }
 
-    // Mini games earned by a natural streak alone (e.g. Keystone at 190).
+    // Mini games earned by a natural streak (every MINI_UNLOCK_STEP); the lowest locked one first.
     function maybeUnlockStreakReward() {
       if (state.phase !== "play") return "";
       for (let i = 0; i < STREAK_REWARD_IDS.length; i++) {
         const id = STREAK_REWARD_IDS[i];
-        if (state.streak !== BEAT_REWARDS[id].streakAt) continue;
+        if (state.streak < BEAT_REWARDS[id].streakAt) continue;
         if (state.gamesUnlocked && state.gamesUnlocked[id]) continue;
         state.gamesUnlocked = state.gamesUnlocked || {};
         state.gamesUnlocked[id] = true;
@@ -4621,7 +4642,6 @@
       }
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
-      if (BEAT_REWARDS[unlockedNow]) state.mazeCelebrate = unlockedNow;
       // Make the newly unlocked beat the active choice immediately. setPlayMusicId
       // keeps manual beat changes working in both setup and play, and respects mute.
       setPlayMusicId(unlockedNow);
@@ -7004,15 +7024,11 @@
     }
     // Earned if this beat or any later beat is already unlocked (old saves included).
     function rewardGameOpen(beatId) {
-      return beatRewardEarned(beatId) || !!(state.gamesUnlocked && state.gamesUnlocked[beatId]);
+      return !!(state.gamesUnlocked && state.gamesUnlocked[beatId]);
     }
     // Every reward game in beat order, unlocked or not (locked ones show as locked buttons).
     function allBeatRewards() {
       var out = [];
-      for (var i = 0; i < PLAY_TRACKS.length; i++) {
-        var id = PLAY_TRACKS[i].id;
-        if (BEAT_REWARDS[id]) out.push({ beatId: id, reward: BEAT_REWARDS[id], open: rewardGameOpen(id) });
-      }
       STREAK_REWARD_IDS.forEach(function (id) { out.push({ beatId: id, reward: BEAT_REWARDS[id], open: rewardGameOpen(id) }); });
       return out;
     }
@@ -7027,10 +7043,6 @@
     }
     function earnedBeatRewards() {
       var out = [];
-      for (var i = 0; i < PLAY_TRACKS.length; i++) {
-        var id = PLAY_TRACKS[i].id;
-        if (BEAT_REWARDS[id] && rewardGameOpen(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] });
-      }
       STREAK_REWARD_IDS.forEach(function (id) { if (rewardGameOpen(id)) out.push({ beatId: id, reward: BEAT_REWARDS[id] }); });
       return out;
     }
@@ -7150,7 +7162,7 @@
         class: "maze-reward reward-" + beatId + " locked-game",
         href: "#",
         role: "button",
-        "aria-label": (reward.bar || reward.label) + ", locked. Enter a teacher code to unlock.",
+        "aria-label": (reward.bar || reward.label) + ", locked until a streak of " + reward.streakAt + ". Tap to enter a teacher code.",
         onClick: function (event) {
           event.preventDefault();
           openCodeBox({ kind: "game", beatId: beatId, opener: event.currentTarget });
@@ -7184,6 +7196,12 @@
       var layer = document.createElement("div");
       layer.id = "maze-congrats";
       layer.className = "congrats-layer";
+      // Same streak as a beat burst: wait for the burst to fade before showing the popup.
+      var burstLeft = (state.burstUntil || 0) - performance.now();
+      if (burstLeft > 0 && document.getElementById("beat-supernova")) {
+        layer.classList.add("after-burst");
+        setTimeout(function () { layer.classList.add("burst-done"); }, Math.round(burstLeft));
+      }
       var card = document.createElement("div");
       card.className = "congrats-card";
       var title = document.createElement("h2");
@@ -7469,6 +7487,7 @@
       startBtn.appendChild(el("span", { class: "gs-sub", text: opLabel(state.operation) }));
       const minis = el("div", { class: "card mini-games-card" });
       minis.appendChild(el("p", { class: "label", text: "Mini games" }));
+      minis.appendChild(el("p", { class: "beat-unlock-note mini-unlock-note", text: "A new mini game unlocks every streak of " + MINI_UNLOCK_STEP + "." }));
       const miniRow = el("div", { class: "mini-games" });
       appendEarnedRewardLinks(miniRow, true);
       minis.appendChild(miniRow);
@@ -8759,7 +8778,7 @@
             if (PLAY_TRACKS[bi].id === unlockedId) justBeat = PLAY_TRACKS[bi];
           }
         }
-        var justReward = justBeat && BEAT_REWARDS[justBeat.id];
+        var justReward = null;
         var streakRewardId = maybeUnlockStreakReward();
         var mazeNote = justReward ? " Congratulations. " + justBeat.label + " is unlocked. " + justReward.speak : "";
         if (streakRewardId) mazeNote += " Congratulations. " + BEAT_REWARDS[streakRewardId].bar + " is unlocked. " + BEAT_REWARDS[streakRewardId].speak;

@@ -3861,6 +3861,61 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Concrete or Abstract Noun: one noun in big letters; two choices.
+    const CONCAB = [
+      {"id": "c1", "word": "apple", "kind": "Concrete"},
+      {"id": "c2", "word": "dog", "kind": "Concrete"},
+      {"id": "c3", "word": "rain", "kind": "Concrete"},
+      {"id": "c4", "word": "music", "kind": "Concrete"},
+      {"id": "c5", "word": "pizza", "kind": "Concrete"},
+      {"id": "c6", "word": "sand", "kind": "Concrete"},
+      {"id": "c7", "word": "teacher", "kind": "Concrete"},
+      {"id": "c8", "word": "rock", "kind": "Concrete"},
+      {"id": "c9", "word": "flower", "kind": "Concrete"},
+      {"id": "c10", "word": "cookie", "kind": "Concrete"},
+      {"id": "c11", "word": "shoe", "kind": "Concrete"},
+      {"id": "c12", "word": "bird", "kind": "Concrete"},
+      {"id": "c13", "word": "snow", "kind": "Concrete"},
+      {"id": "c14", "word": "bell", "kind": "Concrete"},
+      {"id": "c15", "word": "soap", "kind": "Concrete"},
+      {"id": "c16", "word": "banana", "kind": "Concrete"},
+      {"id": "c17", "word": "ball", "kind": "Concrete"},
+      {"id": "c18", "word": "tree", "kind": "Concrete"},
+      {"id": "c19", "word": "milk", "kind": "Concrete"},
+      {"id": "c20", "word": "horse", "kind": "Concrete"},
+      {"id": "c21", "word": "pillow", "kind": "Concrete"},
+      {"id": "c22", "word": "drum", "kind": "Concrete"},
+      {"id": "c23", "word": "popcorn", "kind": "Concrete"},
+      {"id": "c24", "word": "kite", "kind": "Concrete"},
+      {"id": "c25", "word": "ocean", "kind": "Concrete"},
+      {"id": "a1", "word": "love", "kind": "Abstract"},
+      {"id": "a2", "word": "courage", "kind": "Abstract"},
+      {"id": "a3", "word": "fun", "kind": "Abstract"},
+      {"id": "a4", "word": "idea", "kind": "Abstract"},
+      {"id": "a5", "word": "friendship", "kind": "Abstract"},
+      {"id": "a6", "word": "fear", "kind": "Abstract"},
+      {"id": "a7", "word": "kindness", "kind": "Abstract"},
+      {"id": "a8", "word": "honesty", "kind": "Abstract"},
+      {"id": "a9", "word": "dream", "kind": "Abstract"},
+      {"id": "a10", "word": "hope", "kind": "Abstract"},
+      {"id": "a11", "word": "joy", "kind": "Abstract"},
+      {"id": "a12", "word": "anger", "kind": "Abstract"},
+      {"id": "a13", "word": "bravery", "kind": "Abstract"},
+      {"id": "a14", "word": "luck", "kind": "Abstract"},
+      {"id": "a15", "word": "patience", "kind": "Abstract"},
+      {"id": "a16", "word": "peace", "kind": "Abstract"},
+      {"id": "a17", "word": "freedom", "kind": "Abstract"},
+      {"id": "a18", "word": "sadness", "kind": "Abstract"},
+      {"id": "a19", "word": "trust", "kind": "Abstract"},
+      {"id": "a20", "word": "worry", "kind": "Abstract"},
+      {"id": "a21", "word": "happiness", "kind": "Abstract"},
+      {"id": "a22", "word": "respect", "kind": "Abstract"},
+      {"id": "a23", "word": "wisdom", "kind": "Abstract"},
+      {"id": "a24", "word": "pride", "kind": "Abstract"},
+      {"id": "a25", "word": "fairness", "kind": "Abstract"}
+    ];
+    const CONCAB_BY_ID = CONCAB.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const CONCAB_HINT = "Concrete = you can see, hear, touch, taste, or smell it. Abstract = a feeling or idea you can\u2019t touch.";
     // Proper or Common Noun: one noun in big letters; two choices.
     const PROPCOM = [
       {"id": "p1", "word": "Honolulu", "kind": "Proper", "pair": "city"},
@@ -4224,6 +4279,7 @@
       { id: "punct", label: "Punctuation" },
       { id: "fragrun", label: "Fragment or Run-on" },
       { id: "propcom", label: "Proper or Common Noun" },
+      { id: "concab", label: "Concrete or Abstract Noun" },
       { id: "cartoon", label: "Cartoon Characters" }
     ];
 
@@ -4575,6 +4631,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isConcab() { return state.operation === "concab"; }
     function isPropcom() { return state.operation === "propcom"; }
     function isFragrun() { return state.operation === "fragrun"; }
     function isPunct() { return state.operation === "punct"; }
@@ -4628,6 +4685,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "concab") return CONCAB.map(function (x) { return x.id; });
       if (op === "propcom") return PROPCOM.map(function (x) { return x.id; });
       if (op === "fragrun") return FRAGRUN.map(function (x) { return x.id; });
       if (op === "punct") return PUNCT.map(function (x) { return x.id; });
@@ -5575,6 +5633,7 @@
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) return punctProblem(PUNCT_BY_ID[pair.id]);
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) return fragrunProblem(FRAGRUN_BY_ID[pair.id]);
       if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) return propcomProblem(PROPCOM_BY_ID[pair.id]);
+      if (pair.operation === "concab" && CONCAB_BY_ID[pair.id]) return concabProblem(CONCAB_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5722,6 +5781,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isConcab()) return buildConcab();
         if (isPropcom()) return buildPropcom();
         if (isFragrun()) return buildFragrun();
         if (isPunct()) return buildPunct();
@@ -5842,6 +5902,7 @@
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) { const b = PUNCT_BY_ID[pair.id]; return b.text + b.mark + " " + PUNCT_WHY[b.mark] + " " + PUNCT_HINT.replace(PUNCT_WHY[b.mark], "").replace(/\s+/g, " ").trim(); }
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) { const b = FRAGRUN_BY_ID[pair.id]; return "It\u2019s a " + b.kind.toLowerCase() + ". Fixed: \u201C" + b.fix + "\u201D " + FRAGRUN_HINT; }
       if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) { const b = PROPCOM_BY_ID[pair.id]; if (b.kind === "Proper") return "\u201C" + b.word + "\u201D is proper: it names a special " + b.pair + ". " + PROPCOM_HINT; return "\u201C" + b.word + "\u201D is common" + (b.pair ? ": " + b.pair + " is a special " + b.word : "") + ". " + PROPCOM_HINT; }
+      if (pair.operation === "concab" && CONCAB_BY_ID[pair.id]) { const b = CONCAB_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is " + b.kind.toLowerCase() + ". " + CONCAB_HINT; }
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5902,7 +5963,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "propcom" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "concab" || op === "propcom" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7763,6 +7824,7 @@
       if (isPunct()) hint = "Read the sentence and pick the end mark. Telling = period. Asking = question mark. Strong feeling = exclamation point.";
       if (isFragrun()) hint = "Is it a fragment or a run-on? Fragment = missing part of a sentence. Run-on = two sentences smushed together.";
       if (isPropcom()) hint = "See a noun. Is it proper or common? A proper noun names a special person, place, or thing and starts with a capital letter.";
+      if (isConcab()) hint = "See a noun. Is it concrete or abstract? Concrete = you can see, hear, touch, taste, or smell it. Abstract = a feeling or idea you can\u2019t touch.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7816,6 +7878,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isConcab()) return "Concrete or Abstract Noun";
       if (isPropcom()) return "Proper or Common Noun";
       if (isFragrun()) return "Fragment or Run-on";
       if (isPunct()) return "Punctuation";
@@ -8307,6 +8370,31 @@
       box.appendChild(el("p", { class: "nv-sentence wk-word" }, [el("mark", { class: "nv-word", text: body ? body.word : "" })]));
       return box;
     }
+    // Concrete or Abstract Noun: each word once per pass.
+    function concabProblem(body) {
+      return {
+        operation: "concab", id: body.id, pictureOnly: true, ask: "Is this noun concrete or abstract?",
+        answer: body.kind, key: "concab:" + body.id,
+        choices: ["Concrete", "Abstract"]
+      };
+    }
+    function buildConcab() {
+      if (!state.concabBag || !state.concabBag.length) {
+        const next = shuffle(CONCAB.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.concabLast && next[0] === state.concabLast) next.push(next.shift());
+        state.concabBag = next;
+      }
+      const body = CONCAB_BY_ID[state.concabBag.shift()];
+      state.concabLast = body.id;
+      return concabProblem(body);
+    }
+    function concabCard(id) {
+      const body = CONCAB_BY_ID[id];
+      const box = el("div", { class: "nv-card" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is this noun concrete or abstract?" }));
+      box.appendChild(el("p", { class: "nv-sentence wk-word" }, [el("mark", { class: "nv-word", text: body ? body.word : "" })]));
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -8327,6 +8415,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "concab") return concabCard(problem.id);
       if (op === "propcom") return propcomCard(problem.id);
       if (op === "fragrun") return fragrunCard(problem.id);
       if (op === "punct") return punctCard(problem.id);
@@ -8552,6 +8641,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.concabBag = null;
+      state.concabLast = "";
       state.propcomBag = null;
       state.propcomLast = "";
       state.fragrunBag = null;

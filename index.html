@@ -1895,6 +1895,7 @@
     .answers.punct-answers button > span { font-size: 2.6rem; line-height: 1; font-weight: 900; }
     .answers.punct-answers button > small { font-size: 0.8rem; }
     .nv-sentence.fr-sentence { font-size: clamp(1.6rem, 6.4vw, 2.4rem); }
+    .nv-sentence.wk-word { font-size: clamp(2.4rem, 10vw, 3.4rem); }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -3860,6 +3861,61 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Proper or Common Noun: one noun in big letters; two choices.
+    const PROPCOM = [
+      {"id": "p1", "word": "Honolulu", "kind": "Proper", "pair": "city"},
+      {"id": "p2", "word": "Mr. Lee", "kind": "Proper", "pair": "teacher"},
+      {"id": "p3", "word": "Pacific Ocean", "kind": "Proper", "pair": "ocean"},
+      {"id": "p4", "word": "Monday", "kind": "Proper", "pair": "day"},
+      {"id": "p5", "word": "Lincoln School", "kind": "Proper", "pair": "school"},
+      {"id": "p6", "word": "October", "kind": "Proper", "pair": "month"},
+      {"id": "p7", "word": "Texas", "kind": "Proper", "pair": "state"},
+      {"id": "p8", "word": "Maui", "kind": "Proper", "pair": "island"},
+      {"id": "p9", "word": "Dr. Kim", "kind": "Proper", "pair": "doctor"},
+      {"id": "p10", "word": "Mars", "kind": "Proper", "pair": "planet"},
+      {"id": "p11", "word": "Canada", "kind": "Proper", "pair": "country"},
+      {"id": "p12", "word": "Mount Fuji", "kind": "Proper", "pair": "mountain"},
+      {"id": "p13", "word": "Lake Tahoe", "kind": "Proper", "pair": "lake"},
+      {"id": "p14", "word": "Thanksgiving", "kind": "Proper", "pair": "holiday"},
+      {"id": "p15", "word": "Main Street", "kind": "Proper", "pair": "street"},
+      {"id": "p16", "word": "Africa", "kind": "Proper", "pair": "continent"},
+      {"id": "p17", "word": "Fluffy", "kind": "Proper", "pair": "cat"},
+      {"id": "p18", "word": "Kapiolani Park", "kind": "Proper", "pair": "park"},
+      {"id": "p19", "word": "Mississippi River", "kind": "Proper", "pair": "river"},
+      {"id": "p20", "word": "Hawaii", "kind": "Proper", "pair": "state"},
+      {"id": "p21", "word": "Disneyland", "kind": "Proper", "pair": "park"},
+      {"id": "p22", "word": "Friday", "kind": "Proper", "pair": "day"},
+      {"id": "p23", "word": "July", "kind": "Proper", "pair": "month"},
+      {"id": "p24", "word": "Mrs. Garcia", "kind": "Proper", "pair": "teacher"},
+      {"id": "p25", "word": "New York", "kind": "Proper", "pair": "city"},
+      {"id": "c1", "word": "city", "kind": "Common", "pair": "Honolulu"},
+      {"id": "c2", "word": "teacher", "kind": "Common", "pair": "Mr. Lee"},
+      {"id": "c3", "word": "ocean", "kind": "Common", "pair": "Pacific Ocean"},
+      {"id": "c4", "word": "day", "kind": "Common", "pair": "Monday"},
+      {"id": "c5", "word": "school", "kind": "Common", "pair": "Lincoln School"},
+      {"id": "c6", "word": "month", "kind": "Common", "pair": "October"},
+      {"id": "c7", "word": "state", "kind": "Common", "pair": "Texas"},
+      {"id": "c8", "word": "island", "kind": "Common", "pair": "Maui"},
+      {"id": "c9", "word": "doctor", "kind": "Common", "pair": "Dr. Kim"},
+      {"id": "c10", "word": "planet", "kind": "Common", "pair": "Mars"},
+      {"id": "c11", "word": "country", "kind": "Common", "pair": "Canada"},
+      {"id": "c12", "word": "mountain", "kind": "Common", "pair": "Mount Fuji"},
+      {"id": "c13", "word": "lake", "kind": "Common", "pair": "Lake Tahoe"},
+      {"id": "c14", "word": "holiday", "kind": "Common", "pair": "Thanksgiving"},
+      {"id": "c15", "word": "street", "kind": "Common", "pair": "Main Street"},
+      {"id": "c16", "word": "continent", "kind": "Common", "pair": "Africa"},
+      {"id": "c17", "word": "cat", "kind": "Common", "pair": "Fluffy"},
+      {"id": "c18", "word": "park", "kind": "Common", "pair": "Kapiolani Park"},
+      {"id": "c19", "word": "river", "kind": "Common", "pair": "Mississippi River"},
+      {"id": "c20", "word": "dog", "kind": "Common", "pair": ""},
+      {"id": "c21", "word": "girl", "kind": "Common", "pair": ""},
+      {"id": "c22", "word": "boy", "kind": "Common", "pair": ""},
+      {"id": "c23", "word": "store", "kind": "Common", "pair": ""},
+      {"id": "c24", "word": "friend", "kind": "Common", "pair": ""},
+      {"id": "c25", "word": "book", "kind": "Common", "pair": ""}
+    ];
+    const PROPCOM_BY_ID = PROPCOM.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const PROPCOM_HINT = "A proper noun names a special person, place, or thing and starts with a capital letter.";
     // Fragment or Run-on: a group of words that is not a complete sentence; after a miss show the fixed version.
     const FRAGRUN = [
       {"id": "f1", "text": "Ran to the park.", "fix": "The kids ran to the park.", "kind": "Fragment"},
@@ -4167,6 +4223,7 @@
       { id: "nounverb", label: "Noun or Verb" },
       { id: "punct", label: "Punctuation" },
       { id: "fragrun", label: "Fragment or Run-on" },
+      { id: "propcom", label: "Proper or Common Noun" },
       { id: "cartoon", label: "Cartoon Characters" }
     ];
 
@@ -4518,6 +4575,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isPropcom() { return state.operation === "propcom"; }
     function isFragrun() { return state.operation === "fragrun"; }
     function isPunct() { return state.operation === "punct"; }
     function isNounverb() { return state.operation === "nounverb"; }
@@ -4570,6 +4628,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "propcom") return PROPCOM.map(function (x) { return x.id; });
       if (op === "fragrun") return FRAGRUN.map(function (x) { return x.id; });
       if (op === "punct") return PUNCT.map(function (x) { return x.id; });
       if (op === "nounverb") return NOUN_VERB.map(function (x) { return x.id; });
@@ -5515,6 +5574,7 @@
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) return nvProblem(NV_BY_ID[pair.id]);
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) return punctProblem(PUNCT_BY_ID[pair.id]);
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) return fragrunProblem(FRAGRUN_BY_ID[pair.id]);
+      if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) return propcomProblem(PROPCOM_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5662,6 +5722,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isPropcom()) return buildPropcom();
         if (isFragrun()) return buildFragrun();
         if (isPunct()) return buildPunct();
         if (isNounverb()) return buildNounverb();
@@ -5780,6 +5841,7 @@
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) { const b = NV_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is a " + b.kind + " here. " + NV_HINT; }
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) { const b = PUNCT_BY_ID[pair.id]; return b.text + b.mark + " " + PUNCT_WHY[b.mark] + " " + PUNCT_HINT.replace(PUNCT_WHY[b.mark], "").replace(/\s+/g, " ").trim(); }
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) { const b = FRAGRUN_BY_ID[pair.id]; return "It\u2019s a " + b.kind.toLowerCase() + ". Fixed: \u201C" + b.fix + "\u201D " + FRAGRUN_HINT; }
+      if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) { const b = PROPCOM_BY_ID[pair.id]; if (b.kind === "Proper") return "\u201C" + b.word + "\u201D is proper: it names a special " + b.pair + ". " + PROPCOM_HINT; return "\u201C" + b.word + "\u201D is common" + (b.pair ? ": " + b.pair + " is a special " + b.word : "") + ". " + PROPCOM_HINT; }
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5840,7 +5902,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "propcom" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7700,6 +7762,7 @@
       if (isNounverb()) hint = "See a word in a sentence. Is it a noun or a verb? A noun is a person, place, or thing. A verb is an action.";
       if (isPunct()) hint = "Read the sentence and pick the end mark. Telling = period. Asking = question mark. Strong feeling = exclamation point.";
       if (isFragrun()) hint = "Is it a fragment or a run-on? Fragment = missing part of a sentence. Run-on = two sentences smushed together.";
+      if (isPropcom()) hint = "See a noun. Is it proper or common? A proper noun names a special person, place, or thing and starts with a capital letter.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7753,6 +7816,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isPropcom()) return "Proper or Common Noun";
       if (isFragrun()) return "Fragment or Run-on";
       if (isPunct()) return "Punctuation";
       if (isNounverb()) return "Noun or Verb";
@@ -8218,6 +8282,31 @@
       box.appendChild(el("p", { class: "nv-sentence fr-sentence", text: body ? body.text : "" }));
       return box;
     }
+    // Proper or Common Noun: each word once per pass.
+    function propcomProblem(body) {
+      return {
+        operation: "propcom", id: body.id, pictureOnly: true, ask: "Is this a proper noun or a common noun?",
+        answer: body.kind, key: "propcom:" + body.id,
+        choices: ["Proper", "Common"]
+      };
+    }
+    function buildPropcom() {
+      if (!state.propcomBag || !state.propcomBag.length) {
+        const next = shuffle(PROPCOM.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.propcomLast && next[0] === state.propcomLast) next.push(next.shift());
+        state.propcomBag = next;
+      }
+      const body = PROPCOM_BY_ID[state.propcomBag.shift()];
+      state.propcomLast = body.id;
+      return propcomProblem(body);
+    }
+    function propcomCard(id) {
+      const body = PROPCOM_BY_ID[id];
+      const box = el("div", { class: "nv-card" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is this a proper noun or a common noun?" }));
+      box.appendChild(el("p", { class: "nv-sentence wk-word" }, [el("mark", { class: "nv-word", text: body ? body.word : "" })]));
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -8238,6 +8327,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "propcom") return propcomCard(problem.id);
       if (op === "fragrun") return fragrunCard(problem.id);
       if (op === "punct") return punctCard(problem.id);
       if (op === "nounverb") return nounVerbCard(problem.id);
@@ -8462,6 +8552,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.propcomBag = null;
+      state.propcomLast = "";
       state.fragrunBag = null;
       state.fragrunLast = "";
       state.punctBag = null;

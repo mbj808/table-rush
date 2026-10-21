@@ -2461,7 +2461,10 @@
     .menu-how { margin: 0.2rem 0; padding: 0; background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .menu-how-row { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #fff; font-size: 1.4rem; font-weight: 900; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
     .menu-how-icon { flex: 0 0 1.6rem; font-size: 1.3rem; line-height: 1.1; text-align: center; }
-    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
+    .menu-grid .tile-games { grid-column: 1 / -1; }
+    .menu-tile:not(.tile-games) .menu-label { font-size: 1rem; letter-spacing: 0.02em; white-space: nowrap; }
+    .menu-art .art-svg.art-wide { max-width: 17rem; height: 5.6rem; }
     .menu-tile {
       display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 0.4rem;
       min-height: 10rem; padding: 0.75rem 0.5rem 0.65rem; border-radius: 1.2rem; cursor: pointer;
@@ -2497,9 +2500,12 @@
     .page-back:active { transform: translateY(2px); box-shadow: 0 2px 0 #145537; }
     .page-title { margin: 0; font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255, 95, 210, 0.6), 0 2px 3px rgba(0,0,0,0.6); }
     @media (max-width: 500px) {
-      .menu-tile { min-height: 9.2rem; }
-      .menu-art .art-svg { height: 5.4rem; }
-      .menu-label { font-size: 1.05rem; letter-spacing: 0.04em; }
+      .menu-grid { gap: 0.5rem; }
+      .menu-tile { min-height: 8rem; padding-left: 0.3rem; padding-right: 0.3rem; }
+      .menu-art .art-svg { height: 4.4rem; }
+      .menu-art .art-svg.art-wide { height: 4.8rem; }
+      .menu-tile:not(.tile-games) .menu-label { font-size: 0.8rem; letter-spacing: 0; }
+      .tile-games .menu-label { font-size: 1.1rem; }
       .menu-how-row { font-size: 1.3rem; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -7586,7 +7592,7 @@
 
     // ---- Pages: home (first screen + menu), #menu, #beats, #backgrounds, #games, #minigames ----
     const PAGES = ["menu", "beats", "backgrounds", "games", "minigames"];
-    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Games", minigames: "Mini Games" };
+    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games" };
     let menuSmooth = false;
     function currentPage() {
       const h = (location.hash || "").replace(/^#/, "");
@@ -7624,14 +7630,8 @@
       playerCard.appendChild(player);
       sec.appendChild(playerCard);
       setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
-      const how = el("div", { class: "menu-how", role: "note", "aria-label": "How to unlock" });
-      [["\uD83C\uDFB5", BEAT_UNLOCK_STEP + " in a row = new beat"],
-       ["\uD83D\uDD79\uFE0F", MINI_UNLOCK_STEP + " in a row = mini game"]].forEach(function (row) {
-        how.appendChild(el("p", { class: "menu-how-row" }, [el("span", { class: "menu-how-icon", "aria-hidden": "true", text: row[0] }), el("span", { text: row[1] })]));
-      });
-      sec.appendChild(how);
       const grid = el("div", { class: "menu-grid" });
-      [["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["games", "Games", menuArtCartridge], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
+      [["games", "Fact Challenge", menuArtCartridgeWide], ["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
         const btn = el("button", { type: "button", class: "menu-tile tile-" + t[0], onClick: function () { goPage(t[0]); } });
         const art = el("span", { class: "menu-art", "aria-hidden": "true" });
         art.innerHTML = t[2]();
@@ -7673,6 +7673,15 @@
         '<rect x="26" y="88" width="48" height="8" fill="#6f7383"/><g fill="#c9a24a"><rect x="29" y="88" width="3" height="8"/><rect x="36" y="88" width="3" height="8"/><rect x="43" y="88" width="3" height="8"/><rect x="50" y="88" width="3" height="8"/><rect x="57" y="88" width="3" height="8"/><rect x="64" y="88" width="3" height="8"/></g>' +
         '<g stroke="#6f7383" stroke-width="2"><line x1="22" y1="66" x2="62" y2="66"/><line x1="22" y1="72" x2="62" y2="72"/></g>' +
         '<circle class="led" cx="74" cy="69" r="5" fill="#ff3b5c"/></svg>';
+    }
+    function menuArtCartridgeWide() {
+      return '<svg viewBox="0 0 240 84" class="art-svg art-wide"><defs><linearGradient id="mt-labw" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ff2ff"/><stop offset="1" stop-color="#a66bff"/></linearGradient></defs>' +
+        '<path d="M6 4 H234 V62 H214 V80 H26 V62 H6 Z" fill="#8f93a3" stroke="#e9ecf5" stroke-width="2.5" stroke-linejoin="round"/>' +
+        '<rect x="20" y="12" width="150" height="42" rx="4" fill="url(#mt-labw)"/>' +
+        '<text x="95" y="40" text-anchor="middle" font-size="17" font-weight="900" fill="#14102a" font-family="sans-serif">MAD FACTS</text>' +
+        '<g stroke="#6f7383" stroke-width="2"><line x1="182" y1="22" x2="222" y2="22"/><line x1="182" y1="29" x2="222" y2="29"/></g>' +
+        '<rect x="40" y="68" width="160" height="8" fill="#6f7383"/><g fill="#c9a24a">' + [46,58,70,82,94,106,118,130,142,154,166,178,190].map(function (x) { return '<rect x="' + x + '" y="68" width="4" height="8"/>'; }).join("") + '</g>' +
+        '<circle class="led" cx="202" cy="44" r="6" fill="#ff3b5c"/></svg>';
     }
     function menuArtCoin() {
       return '<svg viewBox="0 0 100 100" class="art-svg"><defs><radialGradient id="mt-gold" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#fff2a8"/><stop offset="0.45" stop-color="#ffc83d"/><stop offset="1" stop-color="#b8790f"/></radialGradient>' +

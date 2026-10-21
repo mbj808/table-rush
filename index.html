@@ -1886,6 +1886,10 @@
     .wonder-photo.nfl-logo { background: #fff; padding: 0.75rem; box-sizing: border-box; }
     .wonder-photo.cartoon-photo { background: #fff; padding: 0.4rem; box-sizing: border-box; }
     .wonder-photo.mlb-logo { background: #fff; padding: 0.75rem; box-sizing: border-box; }
+    .nv-card { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.4rem 0.5rem; text-align: center; }
+    .nv-ask { margin: 0; font-size: 1rem; font-weight: 800; color: #ffe9c7; letter-spacing: 0.02em; }
+    .nv-sentence { margin: 0; font-size: clamp(1.9rem, 7.5vw, 2.8rem); font-weight: 800; line-height: 1.25; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.45); }
+    .nv-word { background: #ffd84d; color: #2a1400; padding: 0 0.25em; border-radius: 0.3em; text-shadow: none; box-shadow: 0 0 14px rgba(255, 216, 77, 0.6); }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -3851,6 +3855,71 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Noun or Verb: a word in a short kid sentence; judge it by how it is used.
+    const NOUN_VERB = [
+      {"id": "n1", "pre": "The ", "word": "dog", "post": " ran fast.", "kind": "noun"},
+      {"id": "n2", "pre": "My ", "word": "mom", "post": " is kind.", "kind": "noun"},
+      {"id": "n3", "pre": "The ", "word": "ball", "post": " is red.", "kind": "noun"},
+      {"id": "n4", "pre": "We went to the ", "word": "park", "post": ".", "kind": "noun"},
+      {"id": "n5", "pre": "A ", "word": "bird", "post": " sat on the tree.", "kind": "noun"},
+      {"id": "n6", "pre": "I ate an ", "word": "apple", "post": ".", "kind": "noun"},
+      {"id": "n7", "pre": "The ", "word": "school", "post": " is big.", "kind": "noun"},
+      {"id": "n8", "pre": "My ", "word": "teacher", "post": " smiles a lot.", "kind": "noun"},
+      {"id": "n9", "pre": "The ", "word": "cat", "post": " is sleeping.", "kind": "noun"},
+      {"id": "n10", "pre": "I like my new ", "word": "shoes", "post": ".", "kind": "noun"},
+      {"id": "n11", "pre": "The ", "word": "sun", "post": " is hot.", "kind": "noun"},
+      {"id": "n12", "pre": "We read a ", "word": "book", "post": ".", "kind": "noun"},
+      {"id": "n13", "pre": "Grandpa has a ", "word": "truck", "post": ".", "kind": "noun"},
+      {"id": "n14", "pre": "The ", "word": "beach", "post": " has sand.", "kind": "noun"},
+      {"id": "n15", "pre": "I drink ", "word": "milk", "post": ".", "kind": "noun"},
+      {"id": "n16", "pre": "The ", "word": "baby", "post": " is crying.", "kind": "noun"},
+      {"id": "n17", "pre": "She lost her ", "word": "hat", "post": ".", "kind": "noun"},
+      {"id": "n18", "pre": "That was a good ", "word": "kick", "post": ".", "kind": "noun"},
+      {"id": "n19", "pre": "We went for a ", "word": "run", "post": ".", "kind": "noun"},
+      {"id": "n20", "pre": "The class put on a ", "word": "play", "post": ".", "kind": "noun"},
+      {"id": "n21", "pre": "He took a long ", "word": "walk", "post": ".", "kind": "noun"},
+      {"id": "n22", "pre": "I hear a ", "word": "song", "post": ".", "kind": "noun"},
+      {"id": "n23", "pre": "The ", "word": "fish", "post": " swims.", "kind": "noun"},
+      {"id": "n24", "pre": "Dad made a ", "word": "cake", "post": ".", "kind": "noun"},
+      {"id": "n25", "pre": "The ", "word": "frog", "post": " is green.", "kind": "noun"},
+      {"id": "n26", "pre": "My ", "word": "friend", "post": " is funny.", "kind": "noun"},
+      {"id": "n27", "pre": "Look at the ", "word": "moon", "post": ".", "kind": "noun"},
+      {"id": "n28", "pre": "The ", "word": "farm", "post": " has cows.", "kind": "noun"},
+      {"id": "n29", "pre": "She has a red ", "word": "kite", "post": ".", "kind": "noun"},
+      {"id": "n30", "pre": "The ", "word": "pencil", "post": " is sharp.", "kind": "noun"},
+      {"id": "v1", "pre": "We ", "word": "jump", "post": " high.", "kind": "verb"},
+      {"id": "v2", "pre": "I ", "word": "run", "post": " to school.", "kind": "verb"},
+      {"id": "v3", "pre": "Birds ", "word": "fly", "post": " in the sky.", "kind": "verb"},
+      {"id": "v4", "pre": "We ", "word": "play", "post": " tag.", "kind": "verb"},
+      {"id": "v5", "pre": "Kids ", "word": "kick", "post": " the ball.", "kind": "verb"},
+      {"id": "v6", "pre": "I ", "word": "eat", "post": " lunch at noon.", "kind": "verb"},
+      {"id": "v7", "pre": "Fish ", "word": "swim", "post": " in the pond.", "kind": "verb"},
+      {"id": "v8", "pre": "We ", "word": "sing", "post": " songs.", "kind": "verb"},
+      {"id": "v9", "pre": "I ", "word": "read", "post": " every night.", "kind": "verb"},
+      {"id": "v10", "pre": "Dogs ", "word": "bark", "post": " loudly.", "kind": "verb"},
+      {"id": "v11", "pre": "She ", "word": "draws", "post": " a cat.", "kind": "verb"},
+      {"id": "v12", "pre": "They ", "word": "dance", "post": " at the party.", "kind": "verb"},
+      {"id": "v13", "pre": "I ", "word": "walk", "post": " my dog.", "kind": "verb"},
+      {"id": "v14", "pre": "We ", "word": "clap", "post": " our hands.", "kind": "verb"},
+      {"id": "v15", "pre": "Frogs ", "word": "hop", "post": " fast.", "kind": "verb"},
+      {"id": "v16", "pre": "I ", "word": "brush", "post": " my teeth.", "kind": "verb"},
+      {"id": "v17", "pre": "He ", "word": "throws", "post": " the ball.", "kind": "verb"},
+      {"id": "v18", "pre": "We ", "word": "laugh", "post": " at jokes.", "kind": "verb"},
+      {"id": "v19", "pre": "Mom ", "word": "cooks", "post": " dinner.", "kind": "verb"},
+      {"id": "v20", "pre": "I ", "word": "sleep", "post": " in my bed.", "kind": "verb"},
+      {"id": "v21", "pre": "Babies ", "word": "cry", "post": " a lot.", "kind": "verb"},
+      {"id": "v22", "pre": "We ", "word": "climb", "post": " the hill.", "kind": "verb"},
+      {"id": "v23", "pre": "She ", "word": "writes", "post": " her name.", "kind": "verb"},
+      {"id": "v24", "pre": "They ", "word": "build", "post": " a fort.", "kind": "verb"},
+      {"id": "v25", "pre": "I ", "word": "wash", "post": " my hands.", "kind": "verb"},
+      {"id": "v26", "pre": "Cats ", "word": "nap", "post": " in the sun.", "kind": "verb"},
+      {"id": "v27", "pre": "We ", "word": "paint", "post": " the fence.", "kind": "verb"},
+      {"id": "v28", "pre": "He ", "word": "catches", "post": " the ball.", "kind": "verb"},
+      {"id": "v29", "pre": "I ", "word": "drink", "post": " water.", "kind": "verb"},
+      {"id": "v30", "pre": "We ", "word": "ride", "post": " bikes.", "kind": "verb"}
+    ];
+    const NV_BY_ID = NOUN_VERB.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const NV_HINT = "A noun is a person, place, or thing. A verb is an action.";
     // MLB Team Logos: current logos from Wikipedia/Wikimedia Commons in assets/mlb/ (educational fair use; credits in CREDITS.md).
     const MLB_TEAMS = [
       { id: "orioles", name: "Baltimore Orioles", div: "AL East" },
@@ -3993,6 +4062,7 @@
       { id: "nfl", label: "NFL Team Logos" },
       { id: "mlb", label: "MLB Team Logos" },
       { id: "bor", label: "Bill of Rights" },
+      { id: "nounverb", label: "Noun or Verb" },
       { id: "cartoon", label: "Cartoon Characters" }
     ];
 
@@ -4344,6 +4414,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isNounverb() { return state.operation === "nounverb"; }
     function isMlb() { return state.operation === "mlb"; }
     function isCartoon() { return state.operation === "cartoon"; }
     function isBor() { return state.operation === "bor"; }
@@ -4393,6 +4464,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "nounverb") return NOUN_VERB.map(function (x) { return x.id; });
       if (op === "mlb") return MLB_TEAMS.map(function (x) { return x.id; });
       if (op === "cartoon") return CARTOONS.map(function (x) { return x.id; });
       if (op === "bor") return BOR_ITEMS.map(function (x) { return x.id; });
@@ -5332,6 +5404,7 @@
       if (pair.operation === "bor" && BOR_BY_ID[pair.id]) return borProblem(BOR_BY_ID[pair.id]);
       if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return cartoonProblem(CARTOON_BY_ID[pair.id]);
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return mlbProblem(MLB_BY_ID[pair.id]);
+      if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) return nvProblem(NV_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5479,6 +5552,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isNounverb()) return buildNounverb();
         if (isMlb()) return buildMlb();
         if (isCartoon()) return buildCartoon();
         if (isBor()) return buildBor();
@@ -5591,6 +5665,7 @@
       if (pair.operation === "bor" && BOR_BY_ID[pair.id]) { const a = BOR_BY_ID[pair.id].a; return a.name + ": " + a.text; }
       if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return CARTOON_BY_ID[pair.id].name;
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return MLB_BY_ID[pair.id].name;
+      if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) { const b = NV_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is a " + b.kind + " here. " + NV_HINT; }
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5651,7 +5726,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7508,6 +7583,7 @@
       if (isBor()) hint = "Learn the first 10 amendments in simple words. Match each one to what it says.";
       if (isCartoon()) hint = "See a famous cartoon character and choose their name.";
       if (isMlb()) hint = "See an MLB team logo and choose the team. All 30 teams.";
+      if (isNounverb()) hint = "See a word in a sentence. Is it a noun or a verb? A noun is a person, place, or thing. A verb is an action.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7561,6 +7637,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isNounverb()) return "Noun or Verb";
       if (isMlb()) return "MLB Team Logos";
       if (isCartoon()) return "Cartoon Characters";
       if (isBor()) return "Bill of Rights";
@@ -7937,6 +8014,37 @@
       img.decoding = "async";
       return img;
     }
+    // Noun or Verb: each sentence once per pass; answers are always Noun and Verb.
+    function nvProblem(body) {
+      return {
+        operation: "nounverb", id: body.id, pictureOnly: true, ask: "Is the word a noun or a verb?",
+        answer: body.kind === "noun" ? "Noun" : "Verb", key: "nounverb:" + body.id,
+        choices: ["Noun", "Verb"]
+      };
+    }
+    function buildNounverb() {
+      if (!state.nounverbBag || !state.nounverbBag.length) {
+        const next = shuffle(NOUN_VERB.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.nounverbLast && next[0] === state.nounverbLast) next.push(next.shift());
+        state.nounverbBag = next;
+      }
+      const body = NV_BY_ID[state.nounverbBag.shift()];
+      state.nounverbLast = body.id;
+      return nvProblem(body);
+    }
+    function nounVerbCard(id) {
+      const body = NV_BY_ID[id];
+      const box = el("div", { class: "nv-card" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is the bright word a noun or a verb?" }));
+      const line = el("p", { class: "nv-sentence" });
+      if (body) {
+        line.appendChild(document.createTextNode(body.pre));
+        line.appendChild(el("mark", { class: "nv-word", text: body.word }));
+        line.appendChild(document.createTextNode(body.post));
+      }
+      box.appendChild(line);
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -7957,6 +8065,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "nounverb") return nounVerbCard(problem.id);
       if (op === "mlb") return mlbLogo(problem.id);
       if (op === "cartoon") return cartoonPicture(problem.id);
       if (op === "nfl") return nflLogo(problem.id);
@@ -8178,6 +8287,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.nounverbBag = null;
+      state.nounverbLast = "";
       state.mlbBag = null;
       state.mlbLast = "";
       state.cartoonBag = null;

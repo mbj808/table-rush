@@ -1894,6 +1894,7 @@
     .answers.punct-answers { grid-template-columns: repeat(3, 1fr); }
     .answers.punct-answers button > span { font-size: 2.6rem; line-height: 1; font-weight: 900; }
     .answers.punct-answers button > small { font-size: 0.8rem; }
+    .nv-sentence.fr-sentence { font-size: clamp(1.6rem, 6.4vw, 2.4rem); }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -3859,6 +3860,51 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Fragment or Run-on: a group of words that is not a complete sentence; after a miss show the fixed version.
+    const FRAGRUN = [
+      {"id": "f1", "text": "Ran to the park.", "fix": "The kids ran to the park.", "kind": "Fragment"},
+      {"id": "f2", "text": "The big red dog.", "fix": "The big red dog barked.", "kind": "Fragment"},
+      {"id": "f3", "text": "After school.", "fix": "We play after school.", "kind": "Fragment"},
+      {"id": "f4", "text": "Jumped over the log.", "fix": "The frog jumped over the log.", "kind": "Fragment"},
+      {"id": "f5", "text": "My best friend.", "fix": "My best friend is Sam.", "kind": "Fragment"},
+      {"id": "f6", "text": "In the box.", "fix": "The toy is in the box.", "kind": "Fragment"},
+      {"id": "f7", "text": "Because it was raining.", "fix": "We stayed in because it was raining.", "kind": "Fragment"},
+      {"id": "f8", "text": "Eats bananas.", "fix": "The monkey eats bananas.", "kind": "Fragment"},
+      {"id": "f9", "text": "A tall green tree.", "fix": "A tall green tree grew in the yard.", "kind": "Fragment"},
+      {"id": "f10", "text": "Under the bed.", "fix": "My shoes are under the bed.", "kind": "Fragment"},
+      {"id": "f11", "text": "Swam in the pool.", "fix": "We swam in the pool.", "kind": "Fragment"},
+      {"id": "f12", "text": "The little kitten.", "fix": "The little kitten slept.", "kind": "Fragment"},
+      {"id": "f13", "text": "On Saturday morning.", "fix": "We go hiking on Saturday morning.", "kind": "Fragment"},
+      {"id": "f14", "text": "Sings very loudly.", "fix": "My brother sings very loudly.", "kind": "Fragment"},
+      {"id": "f15", "text": "When the bell rang.", "fix": "We lined up when the bell rang.", "kind": "Fragment"},
+      {"id": "f16", "text": "A bowl of soup.", "fix": "I ate a bowl of soup.", "kind": "Fragment"},
+      {"id": "f17", "text": "Flew over the house.", "fix": "A bird flew over the house.", "kind": "Fragment"},
+      {"id": "f18", "text": "The funny clown.", "fix": "The funny clown waved.", "kind": "Fragment"},
+      {"id": "f19", "text": "Before bed.", "fix": "I read before bed.", "kind": "Fragment"},
+      {"id": "f20", "text": "Reads a book.", "fix": "Mia reads a book.", "kind": "Fragment"},
+      {"id": "r1", "text": "I like pizza it is yummy.", "fix": "I like pizza. It is yummy.", "kind": "Run-on"},
+      {"id": "r2", "text": "We went home then we ate then we slept.", "fix": "We went home. Then we ate. Then we slept.", "kind": "Run-on"},
+      {"id": "r3", "text": "The dog barked the cat ran away.", "fix": "The dog barked. The cat ran away.", "kind": "Run-on"},
+      {"id": "r4", "text": "It is cold I need my coat.", "fix": "It is cold. I need my coat.", "kind": "Run-on"},
+      {"id": "r5", "text": "My mom is nice she makes cookies.", "fix": "My mom is nice. She makes cookies.", "kind": "Run-on"},
+      {"id": "r6", "text": "I have a cat her name is Lulu.", "fix": "I have a cat. Her name is Lulu.", "kind": "Run-on"},
+      {"id": "r7", "text": "We went to the beach we built a sandcastle.", "fix": "We went to the beach. We built a sandcastle.", "kind": "Run-on"},
+      {"id": "r8", "text": "The sun came out the snow melted.", "fix": "The sun came out. The snow melted.", "kind": "Run-on"},
+      {"id": "r9", "text": "I lost my tooth I put it under my pillow.", "fix": "I lost my tooth. I put it under my pillow.", "kind": "Run-on"},
+      {"id": "r10", "text": "Sam has a bike it is blue.", "fix": "Sam has a bike. It is blue.", "kind": "Run-on"},
+      {"id": "r11", "text": "We played tag then we played ball then we went inside.", "fix": "We played tag. Then we played ball. Then we went inside.", "kind": "Run-on"},
+      {"id": "r12", "text": "The bus is late we will wait.", "fix": "The bus is late. We will wait.", "kind": "Run-on"},
+      {"id": "r13", "text": "I love dogs they are so cute.", "fix": "I love dogs. They are so cute.", "kind": "Run-on"},
+      {"id": "r14", "text": "It rained all day we stayed inside.", "fix": "It rained all day. We stayed inside.", "kind": "Run-on"},
+      {"id": "r15", "text": "My shoe is untied I will tie it.", "fix": "My shoe is untied. I will tie it.", "kind": "Run-on"},
+      {"id": "r16", "text": "The baby is sleeping be quiet.", "fix": "The baby is sleeping. Be quiet.", "kind": "Run-on"},
+      {"id": "r17", "text": "I ate lunch then I played outside.", "fix": "I ate lunch. Then I played outside.", "kind": "Run-on"},
+      {"id": "r18", "text": "Ben is my friend he lives next door.", "fix": "Ben is my friend. He lives next door.", "kind": "Run-on"},
+      {"id": "r19", "text": "The birds sing they wake me up.", "fix": "The birds sing. They wake me up.", "kind": "Run-on"},
+      {"id": "r20", "text": "We made a fort it was so fun.", "fix": "We made a fort. It was so fun.", "kind": "Run-on"}
+    ];
+    const FRAGRUN_BY_ID = FRAGRUN.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const FRAGRUN_HINT = "Fragment = missing part of a sentence. Run-on = two sentences smushed together.";
     // Punctuation: a kid sentence missing its end mark; pick period, question mark or exclamation point.
     const PUNCT = [
       {"id": "p1", "text": "I have a red bike", "mark": "."},
@@ -4120,6 +4166,7 @@
       { id: "bor", label: "Bill of Rights" },
       { id: "nounverb", label: "Noun or Verb" },
       { id: "punct", label: "Punctuation" },
+      { id: "fragrun", label: "Fragment or Run-on" },
       { id: "cartoon", label: "Cartoon Characters" }
     ];
 
@@ -4471,6 +4518,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isFragrun() { return state.operation === "fragrun"; }
     function isPunct() { return state.operation === "punct"; }
     function isNounverb() { return state.operation === "nounverb"; }
     function isMlb() { return state.operation === "mlb"; }
@@ -4522,6 +4570,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "fragrun") return FRAGRUN.map(function (x) { return x.id; });
       if (op === "punct") return PUNCT.map(function (x) { return x.id; });
       if (op === "nounverb") return NOUN_VERB.map(function (x) { return x.id; });
       if (op === "mlb") return MLB_TEAMS.map(function (x) { return x.id; });
@@ -5465,6 +5514,7 @@
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return mlbProblem(MLB_BY_ID[pair.id]);
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) return nvProblem(NV_BY_ID[pair.id]);
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) return punctProblem(PUNCT_BY_ID[pair.id]);
+      if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) return fragrunProblem(FRAGRUN_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5612,6 +5662,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isFragrun()) return buildFragrun();
         if (isPunct()) return buildPunct();
         if (isNounverb()) return buildNounverb();
         if (isMlb()) return buildMlb();
@@ -5728,6 +5779,7 @@
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return MLB_BY_ID[pair.id].name;
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) { const b = NV_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is a " + b.kind + " here. " + NV_HINT; }
       if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) { const b = PUNCT_BY_ID[pair.id]; return b.text + b.mark + " " + PUNCT_WHY[b.mark] + " " + PUNCT_HINT.replace(PUNCT_WHY[b.mark], "").replace(/\s+/g, " ").trim(); }
+      if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) { const b = FRAGRUN_BY_ID[pair.id]; return "It\u2019s a " + b.kind.toLowerCase() + ". Fixed: \u201C" + b.fix + "\u201D " + FRAGRUN_HINT; }
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5788,7 +5840,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7647,6 +7699,7 @@
       if (isMlb()) hint = "See an MLB team logo and choose the team. All 30 teams.";
       if (isNounverb()) hint = "See a word in a sentence. Is it a noun or a verb? A noun is a person, place, or thing. A verb is an action.";
       if (isPunct()) hint = "Read the sentence and pick the end mark. Telling = period. Asking = question mark. Strong feeling = exclamation point.";
+      if (isFragrun()) hint = "Is it a fragment or a run-on? Fragment = missing part of a sentence. Run-on = two sentences smushed together.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7700,6 +7753,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isFragrun()) return "Fragment or Run-on";
       if (isPunct()) return "Punctuation";
       if (isNounverb()) return "Noun or Verb";
       if (isMlb()) return "MLB Team Logos";
@@ -8139,6 +8193,31 @@
       box.appendChild(line);
       return box;
     }
+    // Fragment or Run-on: each example once per pass.
+    function fragrunProblem(body) {
+      return {
+        operation: "fragrun", id: body.id, pictureOnly: true, ask: "Fragment or run-on?",
+        answer: body.kind, key: "fragrun:" + body.id,
+        choices: ["Fragment", "Run-on"]
+      };
+    }
+    function buildFragrun() {
+      if (!state.fragrunBag || !state.fragrunBag.length) {
+        const next = shuffle(FRAGRUN.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.fragrunLast && next[0] === state.fragrunLast) next.push(next.shift());
+        state.fragrunBag = next;
+      }
+      const body = FRAGRUN_BY_ID[state.fragrunBag.shift()];
+      state.fragrunLast = body.id;
+      return fragrunProblem(body);
+    }
+    function fragrunCard(id) {
+      const body = FRAGRUN_BY_ID[id];
+      const box = el("div", { class: "nv-card" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is this a fragment or a run-on?" }));
+      box.appendChild(el("p", { class: "nv-sentence fr-sentence", text: body ? body.text : "" }));
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -8159,6 +8238,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "fragrun") return fragrunCard(problem.id);
       if (op === "punct") return punctCard(problem.id);
       if (op === "nounverb") return nounVerbCard(problem.id);
       if (op === "mlb") return mlbLogo(problem.id);
@@ -8382,6 +8462,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.fragrunBag = null;
+      state.fragrunLast = "";
       state.punctBag = null;
       state.punctLast = "";
       state.nounverbBag = null;

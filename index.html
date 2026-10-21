@@ -1890,6 +1890,10 @@
     .nv-ask { margin: 0; font-size: 1rem; font-weight: 800; color: #ffe9c7; letter-spacing: 0.02em; }
     .nv-sentence { margin: 0; font-size: clamp(1.9rem, 7.5vw, 2.8rem); font-weight: 800; line-height: 1.25; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.45); }
     .nv-word { background: #ffd84d; color: #2a1400; padding: 0 0.25em; border-radius: 0.3em; text-shadow: none; box-shadow: 0 0 14px rgba(255, 216, 77, 0.6); }
+    .punct-blank { display: inline-block; width: 0.9em; height: 0.95em; margin-left: 0.12em; vertical-align: -0.08em; border-bottom: 0.14em solid #ffd84d; border-radius: 0.1em; box-shadow: 0 6px 10px -6px rgba(255, 216, 77, 0.8); }
+    .answers.punct-answers { grid-template-columns: repeat(3, 1fr); }
+    .answers.punct-answers button > span { font-size: 2.6rem; line-height: 1; font-weight: 900; }
+    .answers.punct-answers button > small { font-size: 0.8rem; }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -3855,6 +3859,58 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Punctuation: a kid sentence missing its end mark; pick period, question mark or exclamation point.
+    const PUNCT = [
+      {"id": "p1", "text": "I have a red bike", "mark": "."},
+      {"id": "p2", "text": "We eat lunch at noon", "mark": "."},
+      {"id": "p3", "text": "My cat is black", "mark": "."},
+      {"id": "p4", "text": "The sun is up", "mark": "."},
+      {"id": "p5", "text": "I like to read books", "mark": "."},
+      {"id": "p6", "text": "Dad drives a blue car", "mark": "."},
+      {"id": "p7", "text": "We live in a small house", "mark": "."},
+      {"id": "p8", "text": "The dog sleeps on the rug", "mark": "."},
+      {"id": "p9", "text": "My sister is six", "mark": "."},
+      {"id": "p10", "text": "I brush my teeth at night", "mark": "."},
+      {"id": "p11", "text": "The grass is green", "mark": "."},
+      {"id": "p12", "text": "We go to school on Monday", "mark": "."},
+      {"id": "p13", "text": "Mom made soup", "mark": "."},
+      {"id": "p14", "text": "Birds build nests", "mark": "."},
+      {"id": "p15", "text": "I have two pets", "mark": "."},
+      {"id": "q1", "text": "Where is my backpack", "mark": "?"},
+      {"id": "q2", "text": "What is your name", "mark": "?"},
+      {"id": "q3", "text": "Can we go to the park", "mark": "?"},
+      {"id": "q4", "text": "Do you like pizza", "mark": "?"},
+      {"id": "q5", "text": "How old are you", "mark": "?"},
+      {"id": "q6", "text": "Who is at the door", "mark": "?"},
+      {"id": "q7", "text": "Why is the sky blue", "mark": "?"},
+      {"id": "q8", "text": "Is it raining", "mark": "?"},
+      {"id": "q9", "text": "When is lunch", "mark": "?"},
+      {"id": "q10", "text": "Can I have a cookie", "mark": "?"},
+      {"id": "q11", "text": "Where do fish sleep", "mark": "?"},
+      {"id": "q12", "text": "Are you ready", "mark": "?"},
+      {"id": "q13", "text": "What time is it", "mark": "?"},
+      {"id": "q14", "text": "Did you see that bird", "mark": "?"},
+      {"id": "q15", "text": "How many cats do you have", "mark": "?"},
+      {"id": "e1", "text": "Look out", "mark": "!"},
+      {"id": "e2", "text": "Wow, that is huge", "mark": "!"},
+      {"id": "e3", "text": "Yay, I won the race", "mark": "!"},
+      {"id": "e4", "text": "Help me", "mark": "!"},
+      {"id": "e5", "text": "Watch out for the car", "mark": "!"},
+      {"id": "e6", "text": "Hooray, it snowed", "mark": "!"},
+      {"id": "e7", "text": "Ouch, that hurts", "mark": "!"},
+      {"id": "e8", "text": "Stop right now", "mark": "!"},
+      {"id": "e9", "text": "Hooray, we did it", "mark": "!"},
+      {"id": "e10", "text": "Yay, it is my birthday", "mark": "!"},
+      {"id": "e11", "text": "Ouch, a bee stung me", "mark": "!"},
+      {"id": "e12", "text": "Oh no, I spilled my milk", "mark": "!"},
+      {"id": "e13", "text": "Wow, look at that rainbow", "mark": "!"},
+      {"id": "e14", "text": "Run, it is a bear", "mark": "!"},
+      {"id": "e15", "text": "Wow, I love this game", "mark": "!"}
+    ];
+    const PUNCT_BY_ID = PUNCT.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    const PUNCT_NAMES = { ".": "Period", "?": "Question", "!": "Exclamation" };
+    const PUNCT_WHY = { ".": "Telling = period.", "?": "Asking = question mark.", "!": "Strong feeling = exclamation point." };
+    const PUNCT_HINT = "Telling = period. Asking = question mark. Strong feeling = exclamation point.";
     // Noun or Verb: a word in a short kid sentence; judge it by how it is used.
     const NOUN_VERB = [
       {"id": "n1", "pre": "The ", "word": "dog", "post": " ran fast.", "kind": "noun"},
@@ -4063,6 +4119,7 @@
       { id: "mlb", label: "MLB Team Logos" },
       { id: "bor", label: "Bill of Rights" },
       { id: "nounverb", label: "Noun or Verb" },
+      { id: "punct", label: "Punctuation" },
       { id: "cartoon", label: "Cartoon Characters" }
     ];
 
@@ -4414,6 +4471,7 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isPunct() { return state.operation === "punct"; }
     function isNounverb() { return state.operation === "nounverb"; }
     function isMlb() { return state.operation === "mlb"; }
     function isCartoon() { return state.operation === "cartoon"; }
@@ -4464,6 +4522,7 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "punct") return PUNCT.map(function (x) { return x.id; });
       if (op === "nounverb") return NOUN_VERB.map(function (x) { return x.id; });
       if (op === "mlb") return MLB_TEAMS.map(function (x) { return x.id; });
       if (op === "cartoon") return CARTOONS.map(function (x) { return x.id; });
@@ -5405,6 +5464,7 @@
       if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return cartoonProblem(CARTOON_BY_ID[pair.id]);
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return mlbProblem(MLB_BY_ID[pair.id]);
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) return nvProblem(NV_BY_ID[pair.id]);
+      if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) return punctProblem(PUNCT_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5552,6 +5612,7 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isPunct()) return buildPunct();
         if (isNounverb()) return buildNounverb();
         if (isMlb()) return buildMlb();
         if (isCartoon()) return buildCartoon();
@@ -5666,6 +5727,7 @@
       if (pair.operation === "cartoon" && CARTOON_BY_ID[pair.id]) return CARTOON_BY_ID[pair.id].name;
       if (pair.operation === "mlb" && MLB_BY_ID[pair.id]) return MLB_BY_ID[pair.id].name;
       if (pair.operation === "nounverb" && NV_BY_ID[pair.id]) { const b = NV_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is a " + b.kind + " here. " + NV_HINT; }
+      if (pair.operation === "punct" && PUNCT_BY_ID[pair.id]) { const b = PUNCT_BY_ID[pair.id]; return b.text + b.mark + " " + PUNCT_WHY[b.mark] + " " + PUNCT_HINT.replace(PUNCT_WHY[b.mark], "").replace(/\s+/g, " ").trim(); }
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -5726,7 +5788,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -7584,6 +7646,7 @@
       if (isCartoon()) hint = "See a famous cartoon character and choose their name.";
       if (isMlb()) hint = "See an MLB team logo and choose the team. All 30 teams.";
       if (isNounverb()) hint = "See a word in a sentence. Is it a noun or a verb? A noun is a person, place, or thing. A verb is an action.";
+      if (isPunct()) hint = "Read the sentence and pick the end mark. Telling = period. Asking = question mark. Strong feeling = exclamation point.";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -7637,6 +7700,7 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isPunct()) return "Punctuation";
       if (isNounverb()) return "Noun or Verb";
       if (isMlb()) return "MLB Team Logos";
       if (isCartoon()) return "Cartoon Characters";
@@ -8045,6 +8109,36 @@
       box.appendChild(line);
       return box;
     }
+    // Punctuation: each sentence once per pass; always the same three choices.
+    function punctProblem(body) {
+      return {
+        operation: "punct", id: body.id, pictureOnly: true, ask: "Which mark ends this sentence?",
+        answer: body.mark, key: "punct:" + body.id,
+        choices: [".", "?", "!"], choiceLabels: [PUNCT_NAMES["."], PUNCT_NAMES["?"], PUNCT_NAMES["!"]]
+      };
+    }
+    function buildPunct() {
+      if (!state.punctBag || !state.punctBag.length) {
+        const next = shuffle(PUNCT.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.punctLast && next[0] === state.punctLast) next.push(next.shift());
+        state.punctBag = next;
+      }
+      const body = PUNCT_BY_ID[state.punctBag.shift()];
+      state.punctLast = body.id;
+      return punctProblem(body);
+    }
+    function punctCard(id) {
+      const body = PUNCT_BY_ID[id];
+      const box = el("div", { class: "nv-card" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Which mark ends this sentence?" }));
+      const line = el("p", { class: "nv-sentence" });
+      if (body) {
+        line.appendChild(document.createTextNode(body.text));
+        line.appendChild(el("span", { class: "punct-blank", "aria-label": "missing mark", text: "\u00a0" }));
+      }
+      box.appendChild(line);
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -8065,6 +8159,7 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "punct") return punctCard(problem.id);
       if (op === "nounverb") return nounVerbCard(problem.id);
       if (op === "mlb") return mlbLogo(problem.id);
       if (op === "cartoon") return cartoonPicture(problem.id);
@@ -8176,13 +8271,13 @@
       if (locked && state.picked !== problem.answer) eq.appendChild(el("p", { class: "fact", text: factLabel(problem) }));
       app.appendChild(eq);
       const ink = isOceanMap() || isFlag() || isState() || isPiano() || isVehicle() || isWonder() || isAthlete() || isMlb() || isCartoon() || isNfl();
-      const answers = el("div", { class: "answers" + (isDecimals() || isRounding() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
+      const answers = el("div", { class: "answers" + (isDecimals() || isRounding() ? " multiples-answers dec-answers" : isMultiples() || isMakeTen() ? " multiples-answers" : ink ? " ink-answers" : isPunct() ? " quiz-answers punct-answers" : isQuiz() ? " quiz-answers" : ""), role: "group", "aria-label": "Answers" });
       problem.choices.forEach(function (choice, index) {
         const right = locked && choice === problem.answer;
         const wrong = locked && state.picked === choice && choice !== problem.answer;
         const btn = el("button", { type: "button", class: right ? "right" : wrong ? "wrong" : "", onClick: function () { answer(choice); } });
         btn.appendChild(el("span", { text: String(choice) }));
-        btn.appendChild(el("small", { text: "Key " + (index + 1) }));
+        btn.appendChild(el("small", { text: problem.choiceLabels ? problem.choiceLabels[index] : "Key " + (index + 1) }));
         answers.appendChild(btn);
       });
       app.appendChild(answers);
@@ -8287,6 +8382,8 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.punctBag = null;
+      state.punctLast = "";
       state.nounverbBag = null;
       state.nounverbLast = "";
       state.mlbBag = null;

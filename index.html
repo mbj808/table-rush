@@ -2451,6 +2451,61 @@
       background: rgba(24, 18, 46, 0.9); border-color: rgba(255, 247, 234, 0.6); color: #fff7ea !important;
     }
     body.bg-thunder .answers button small { opacity: 0.85; }
+    /* ---- Menu page and subpages ---- */
+    body.setup-screen[data-page="beats"] header h1,
+    body.setup-screen[data-page="backgrounds"] header h1,
+    body.setup-screen[data-page="games"] header h1,
+    body.setup-screen[data-page="minigames"] header h1 { display: none; }
+    .menu-page { display: flex; flex-direction: column; gap: 0.9rem; padding-top: 0.6rem; scroll-margin-top: 0.4rem; }
+    .menu-page .menu-player { padding-bottom: 0.5rem; }
+    .menu-how { margin: 0.2rem 0; padding: 0; background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .menu-how-row { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #fff; font-size: 1.4rem; font-weight: 900; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+    .menu-how-icon { flex: 0 0 1.6rem; font-size: 1.3rem; line-height: 1.1; text-align: center; }
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .menu-tile {
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 0.4rem;
+      min-height: 10rem; padding: 0.75rem 0.5rem 0.65rem; border-radius: 1.2rem; cursor: pointer;
+      background: linear-gradient(180deg, #1d1736, #0f0b22); border: 3px solid var(--tile, #5ff2ff); color: #fff;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.45), 0 0 16px var(--tile-glow, rgba(95,242,255,0.45)), inset 0 0 12px var(--tile-glow, rgba(95,242,255,0.25));
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-tile:active { transform: translateY(3px) scale(0.97); box-shadow: 0 2px 0 rgba(0,0,0,0.45), 0 0 26px var(--tile-glow, rgba(95,242,255,0.7)); }
+    .menu-tile:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .tile-beats { --tile: #5ff2ff; --tile-glow: rgba(95, 242, 255, 0.5); }
+    .tile-backgrounds { --tile: #ffd36a; --tile-glow: rgba(255, 211, 106, 0.5); }
+    .tile-games { --tile: #a66bff; --tile-glow: rgba(166, 107, 255, 0.55); }
+    .tile-minigames { --tile: #ffc83d; --tile-glow: rgba(255, 200, 61, 0.55); }
+    .menu-art { display: flex; align-items: center; justify-content: center; flex: 1; width: 100%; }
+    .menu-art .art-svg { width: 100%; max-width: 8.5rem; height: 6.2rem; overflow: visible; }
+    .menu-label { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; text-shadow: 0 0 8px var(--tile-glow), 0 2px 2px rgba(0,0,0,0.6); }
+    .art-svg .reel { transform-box: fill-box; transform-origin: center; animation: mt-spin 6s linear infinite; }
+    .art-svg .veil { animation: mt-develop 9s ease-in-out infinite; }
+    .art-svg .led { animation: mt-blink 2.4s ease-in-out infinite; }
+    .art-svg .shine { animation: mt-shine 4.5s ease-in-out infinite; }
+    @keyframes mt-spin { to { transform: rotate(360deg); } }
+    @keyframes mt-develop { 0% { opacity: 1; } 45%, 85% { opacity: 0; } 100% { opacity: 1; } }
+    @keyframes mt-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    @keyframes mt-shine { 0%, 55% { transform: skewX(-20deg) translateX(0); } 85%, 100% { transform: skewX(-20deg) translateX(150px); } }
+    .page-head { display: flex; align-items: center; gap: 0.75rem; margin: 0.2rem 0 0.1rem; }
+    .page-back {
+      min-height: 2.9rem; padding: 0.3rem 1rem; border-radius: 0.8rem; border: 2px solid #fffef6;
+      background: #1e7a4d; color: #fff; font-size: 1.05rem; font-weight: 800; cursor: pointer;
+      box-shadow: 0 4px 0 #145537;
+    }
+    .page-back:active { transform: translateY(2px); box-shadow: 0 2px 0 #145537; }
+    .page-title { margin: 0; font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255, 95, 210, 0.6), 0 2px 3px rgba(0,0,0,0.6); }
+    @media (max-width: 500px) {
+      .menu-tile { min-height: 9.2rem; }
+      .menu-art .art-svg { height: 5.4rem; }
+      .menu-label { font-size: 1.05rem; letter-spacing: 0.04em; }
+      .menu-how-row { font-size: 1.3rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .art-svg .reel, .art-svg .led, .art-svg .shine { animation: none; }
+      .art-svg .veil { animation: none; opacity: 0; }
+      .menu-tile { transition: none; }
+    }
     /* First-screen hint: neon gradient label on a dark pill with a glowing double chevron that gently bobs. */
     .scroll-hint {
       position: absolute;
@@ -6965,6 +7020,7 @@
       const headerActions = document.querySelector(".header-actions");
       if (muteBtn && headerActions && muteBtn.parentElement !== headerActions) headerActions.appendChild(muteBtn);
       document.body.classList.toggle("setup-screen", state.phase === "setup");
+      document.body.dataset.page = state.phase === "setup" ? currentPage() : "play";
       app.replaceChildren();
       updateMuteButton();
       const back = document.getElementById("back");
@@ -7258,6 +7314,7 @@
       return wrap;
     }
     function renderSetup(app) {
+      const page = currentPage();
       // Order from the title down: Start, Games, game options, music player + beats, mini games.
       // First screen: only the title and Start Challenge. Everything else is below the fold.
       const hero = el("section", { class: "challenge-hero", "aria-label": "Timed challenge" });
@@ -7285,14 +7342,21 @@
       hero.appendChild(el("button", {
         class: "scroll-hint", type: "button", "aria-label": "Scroll to beats, backgrounds and games",
         onClick: function () {
-          const target = document.getElementById("more-games");
-          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (location.hash === "#menu") { scrollToMenu(true); return; }
+          menuSmooth = true;
+          location.hash = "#menu";
         }
       }, [hintPill(), hintArrow()]));
-      app.appendChild(hero);
-      const stack = el("div", { class: "stack", id: "more-games" });
-      stack.appendChild(musicCard(true));
-      stack.appendChild(backgroundsCard());
+      // Home and #menu: the first screen with the menu right below it. Other pages stand alone.
+      if (page === "home" || page === "menu") {
+        app.appendChild(hero);
+        app.appendChild(menuPage());
+        return;
+      }
+      const stack = el("div", { class: "stack subpage subpage-" + page, id: "more-games" });
+      stack.appendChild(pageHeader(page));
+      if (page === "beats") stack.appendChild(musicCard(true, true));
+      if (page === "backgrounds") stack.appendChild(backgroundsCard());
       const opsCard = operationCard();
       stack.appendChild(opsCard);
       const optionsFrom = stack.children.length;
@@ -7491,9 +7555,9 @@
       const miniRow = el("div", { class: "mini-games" });
       appendEarnedRewardLinks(miniRow, true);
       minis.appendChild(miniRow);
-      stack.appendChild(minis);
+      if (page === "minigames") stack.appendChild(minis);
       const counter = hitCounter();
-      if (counter) stack.appendChild(counter);
+      if (counter && page === "games") stack.appendChild(counter);
       startBtn.disabled = state.tables.length === 0;
       if (state.gameOpen) {
         const panel = el("div", { class: "game-panel", id: "game-panel", role: "region", "aria-label": opLabel(state.operation) + " options" });
@@ -7515,7 +7579,108 @@
         const hint = opsCard.querySelector(".hint");
         if (hint) hint.remove();
       }
+      if (page !== "games") opsCard.remove();
       app.appendChild(stack);
+    }
+
+    // ---- Pages: home (first screen + menu), #menu, #beats, #backgrounds, #games, #minigames ----
+    const PAGES = ["menu", "beats", "backgrounds", "games", "minigames"];
+    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Games", minigames: "Mini Games" };
+    let menuSmooth = false;
+    function currentPage() {
+      const h = (location.hash || "").replace(/^#/, "");
+      return PAGES.indexOf(h) >= 0 ? h : "home";
+    }
+    function goPage(page) { location.hash = "#" + page; }
+    function scrollToMenu(smooth) {
+      const target = document.getElementById("menu-page");
+      if (target) target.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    }
+    function afterPageChange() {
+      const page = currentPage();
+      if (page === "menu") scrollToMenu(menuSmooth);
+      else window.scrollTo(0, 0);
+      menuSmooth = false;
+    }
+    window.addEventListener("hashchange", function () {
+      if (state.phase !== "setup") return;
+      state.heroPick = false;
+      render();
+      afterPageChange();
+    });
+    function pageHeader(page) {
+      const head = el("div", { class: "page-head" });
+      head.appendChild(el("button", { type: "button", class: "page-back", text: "\u2039 Menu", onClick: function () { goPage("menu"); } }));
+      head.appendChild(el("h2", { class: "page-title", text: PAGE_TITLES[page] || "" }));
+      return head;
+    }
+    function menuPage() {
+      const sec = el("section", { class: "menu-page", id: "menu-page", "aria-label": "Menu" });
+      const playerCard = el("div", { class: "card beats-card menu-player" });
+      const player = el("div", { class: "setup-player" });
+      const box = makeBoombox("boombox-home", "home-box");
+      player.appendChild(box);
+      playerCard.appendChild(player);
+      sec.appendChild(playerCard);
+      setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
+      const how = el("div", { class: "menu-how", role: "note", "aria-label": "How to unlock" });
+      [["\uD83C\uDFB5", BEAT_UNLOCK_STEP + " in a row = new beat"],
+       ["\uD83D\uDD79\uFE0F", MINI_UNLOCK_STEP + " in a row = mini game"]].forEach(function (row) {
+        how.appendChild(el("p", { class: "menu-how-row" }, [el("span", { class: "menu-how-icon", "aria-hidden": "true", text: row[0] }), el("span", { text: row[1] })]));
+      });
+      sec.appendChild(how);
+      const grid = el("div", { class: "menu-grid" });
+      [["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["games", "Games", menuArtCartridge], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
+        const btn = el("button", { type: "button", class: "menu-tile tile-" + t[0], onClick: function () { goPage(t[0]); } });
+        const art = el("span", { class: "menu-art", "aria-hidden": "true" });
+        art.innerHTML = t[2]();
+        btn.appendChild(art);
+        btn.appendChild(el("span", { class: "menu-label", text: t[1] }));
+        grid.appendChild(btn);
+      });
+      sec.appendChild(grid);
+      return sec;
+    }
+    function menuArtCassette() {
+      const reel = function (x) {
+        return '<g class="reel"><circle cx="' + x + '" cy="40" r="11" fill="#f4f1ea"/><circle cx="' + x + '" cy="40" r="4" fill="#2a2238"/>' +
+          '<rect x="' + (x - 1.5) + '" y="29.5" width="3" height="6" rx="1" fill="#2a2238"/><rect x="' + (x - 1.5) + '" y="44.5" width="3" height="6" rx="1" fill="#2a2238"/>' +
+          '<rect x="' + (x - 10.5) + '" y="38.5" width="6" height="3" rx="1" fill="#2a2238"/><rect x="' + (x + 4.5) + '" y="38.5" width="6" height="3" rx="1" fill="#2a2238"/></g>';
+      };
+      return '<svg viewBox="0 0 120 78" class="art-svg"><defs><linearGradient id="mt-cas" x1="0" x2="1"><stop offset="0" stop-color="#ff8a00"/><stop offset="0.5" stop-color="#ff4fa0"/><stop offset="1" stop-color="#a66bff"/></linearGradient></defs>' +
+        '<rect x="3" y="3" width="114" height="72" rx="8" fill="#1b1730" stroke="#5ff2ff" stroke-width="3"/>' +
+        '<rect x="12" y="10" width="96" height="15" rx="3" fill="url(#mt-cas)"/><text x="60" y="21.5" text-anchor="middle" font-size="10" font-weight="900" fill="#1b1730" font-family="sans-serif">MAD MIX</text>' +
+        '<rect x="24" y="28" width="72" height="24" rx="12" fill="#0b0918" stroke="#3d3560" stroke-width="2"/>' +
+        reel(40) + reel(80) +
+        '<path d="M30 75 L36 60 H84 L90 75" fill="#2a2440" stroke="#5ff2ff" stroke-width="2"/></svg>';
+    }
+    function menuArtPolaroid() {
+      return '<svg viewBox="0 0 100 112" class="art-svg"><defs><linearGradient id="mt-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1458"/><stop offset="1" stop-color="#d0567a"/></linearGradient></defs>' +
+        '<rect x="3" y="3" width="94" height="106" rx="4" fill="#fbf8ef" stroke="#ffd36a" stroke-width="2.5"/>' +
+        '<g class="photo"><rect x="11" y="11" width="78" height="70" fill="url(#mt-sky)"/>' +
+        '<circle cx="70" cy="28" r="9" fill="#fff4c9"/>' +
+        '<path d="M11 81 V66 L22 58 L33 66 V56 L41 48 L49 56 V62 H57 V52 L64 46 L71 52 V66 L80 60 L89 66 V81 Z" fill="#160b26"/>' +
+        '<rect x="44" y="62" width="4" height="5" fill="#ffd36a"/><rect x="62" y="57" width="4" height="5" fill="#ffd36a"/>' +
+        '<path d="M24 30 q3 -3 6 0 q3 -3 6 0 q-3 1 -6 4 q-3 -3 -6 -4z" fill="#160b26"/><path d="M44 22 q2 -2 4 0 q2 -2 4 0 q-2 1 -4 3 q-2 -2 -4 -3z" fill="#160b26"/></g>' +
+        '<rect class="veil" x="11" y="11" width="78" height="70" fill="#d9d2bf"/></svg>';
+    }
+    function menuArtCartridge() {
+      return '<svg viewBox="0 0 100 104" class="art-svg"><defs><linearGradient id="mt-lab" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5ff2ff"/><stop offset="1" stop-color="#a66bff"/></linearGradient></defs>' +
+        '<path d="M10 4 H90 V82 H80 V100 H20 V82 H10 Z" fill="#8f93a3" stroke="#e9ecf5" stroke-width="2.5" stroke-linejoin="round"/>' +
+        '<rect x="20" y="14" width="60" height="44" rx="4" fill="url(#mt-lab)"/>' +
+        '<text x="50" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#14102a" font-family="sans-serif">MAD</text><text x="50" y="49" text-anchor="middle" font-size="12" font-weight="900" fill="#14102a" font-family="sans-serif">FACTS</text>' +
+        '<rect x="26" y="88" width="48" height="8" fill="#6f7383"/><g fill="#c9a24a"><rect x="29" y="88" width="3" height="8"/><rect x="36" y="88" width="3" height="8"/><rect x="43" y="88" width="3" height="8"/><rect x="50" y="88" width="3" height="8"/><rect x="57" y="88" width="3" height="8"/><rect x="64" y="88" width="3" height="8"/></g>' +
+        '<g stroke="#6f7383" stroke-width="2"><line x1="22" y1="66" x2="62" y2="66"/><line x1="22" y1="72" x2="62" y2="72"/></g>' +
+        '<circle class="led" cx="74" cy="69" r="5" fill="#ff3b5c"/></svg>';
+    }
+    function menuArtCoin() {
+      return '<svg viewBox="0 0 100 100" class="art-svg"><defs><radialGradient id="mt-gold" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#fff2a8"/><stop offset="0.45" stop-color="#ffc83d"/><stop offset="1" stop-color="#b8790f"/></radialGradient>' +
+        '<linearGradient id="mt-shine" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+        '<clipPath id="mt-coin-clip"><circle cx="50" cy="50" r="45"/></clipPath></defs>' +
+        '<circle cx="50" cy="50" r="45" fill="url(#mt-gold)" stroke="#8a5a08" stroke-width="3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#a8700c" stroke-width="2" stroke-dasharray="3 3"/>' +
+        '<g fill="#7a4d06"><rect x="34" y="54" width="32" height="9" rx="3"/><rect x="48" y="34" width="4" height="22"/><circle cx="50" cy="31" r="7"/><circle cx="61" cy="52" r="3"/></g>' +
+        '<text x="50" y="76" text-anchor="middle" font-size="8.5" font-weight="900" fill="#7a4d06" font-family="sans-serif" letter-spacing="0.5">MINI GAMES</text>' +
+        '<g clip-path="url(#mt-coin-clip)"><rect class="shine" x="-40" y="0" width="28" height="100" fill="url(#mt-shine)" transform="skewX(-20)"/></g></svg>';
     }
 
     function beatNoteStage() {
@@ -7598,9 +7763,9 @@
       card.appendChild(el("p", { class: "hint", text: "Each background unlocks with its beat. Tap one to use it; tap it again to go back to the newest." }));
       return card;
     }
-    function musicCard(includeReset) {
+    function musicCard(includeReset, noPlayer) {
       const card = el("div", { class: "card beats-card" });
-      if (includeReset) {
+      if (includeReset && !noPlayer) {
         // Home: the same boom box as in play (bigger), replacing the round music button.
         const player = el("div", { class: "setup-player" });
         const box = makeBoombox("boombox-home", "home-box");
@@ -8884,6 +9049,7 @@
       }
     });
     loadSave();
+    if (currentPage() !== "home") setTimeout(afterPageChange, 60);
     primeHomeMusicAutoplay();
     render();
     loadHitCount();

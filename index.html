@@ -1916,6 +1916,28 @@
     .answers.punct-answers button > small { font-size: 0.8rem; }
     .nv-sentence.fr-sentence { font-size: clamp(1.6rem, 6.4vw, 2.4rem); }
     .nv-sentence.wk-word { font-size: clamp(2.4rem, 10vw, 3.4rem); }
+    .gx-card { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; text-align: center; color: #fff; }
+    .gx-big { margin: 0; font-size: clamp(3rem, 14vw, 4.6rem); font-weight: 900; line-height: 1.05; text-shadow: 0 3px 6px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
+    .gx-pv mark { background: #ffd84d; color: #2a1400; padding: 0 0.08em; border-radius: 0.2em; text-shadow: none; box-shadow: 0 0 14px rgba(255,216,77,0.55); }
+    .gx-fracs { display: flex; gap: 1.2rem; justify-content: center; }
+    .gx-frac { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+    .gx-fnum { font-size: clamp(2.2rem, 10vw, 3rem); font-weight: 900; line-height: 1; display: flex; flex-direction: column; align-items: center; }
+    .gx-fnum span:first-child { border-bottom: 4px solid currentColor; padding: 0 0.2em; }
+    .gx-bar { display: flex; width: 7.5rem; height: 1.4rem; border: 2px solid #fff; border-radius: 0.4rem; overflow: hidden; background: rgba(0,0,0,0.35); }
+    .gx-bar i { flex: 1; border-right: 1px solid rgba(255,255,255,0.6); }
+    .gx-bar i:last-child { border-right: 0; }
+    .gx-bar i.on { background: #5ff2ff; }
+    .gx-clock { width: min(15rem, 62vw); height: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)); }
+    .gx-coins { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; max-width: 20rem; }
+    .gx-coin { border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #1b1300; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25), inset 0 3px 0 rgba(255,255,255,0.45), 0 3px 6px rgba(0,0,0,0.45); text-align: center; line-height: 1.05; }
+    .gx-coin small { display: block; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.02em; }
+    .gx-coin.c1 { width: 3.4rem; height: 3.4rem; background: radial-gradient(circle at 35% 30%, #f3b98a, #b8692e 70%); font-size: 1rem; }
+    .gx-coin.c5 { width: 3.9rem; height: 3.9rem; background: radial-gradient(circle at 35% 30%, #f4f4f4, #9a9fa6 70%); font-size: 1.05rem; }
+    .gx-coin.c10 { width: 3.2rem; height: 3.2rem; background: radial-gradient(circle at 35% 30%, #fbfbfb, #a9aeb5 70%); font-size: 0.95rem; }
+    .gx-coin.c25 { width: 4.4rem; height: 4.4rem; background: radial-gradient(circle at 35% 30%, #ffffff, #8f949b 70%); font-size: 1.15rem; }
+    .gx-state { width: min(15rem, 66vw); height: 11rem; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+    .gx-emoji { font-size: clamp(4.5rem, 20vw, 6rem); line-height: 1; }
+    .gx-name { margin: 0; font-size: 1.8rem; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
     .athlete-figure { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
     .sport-tag {
       display: inline-block; padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 800;
@@ -4025,6 +4047,428 @@
       { id: "sorenstam", name: "Annika Sörenstam", sport: "golf" }
     ];
     const ATHLETE_BY_ID = ATHLETES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Animal Habitats: fixed pool, each item once per pass; two choices.
+    const HABITATS = [
+      {"id": "a0", "emoji": "🦁", "name": "Lion", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A lion lives on land."},
+      {"id": "a1", "emoji": "🐘", "name": "Elephant", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A elephant lives on land."},
+      {"id": "a2", "emoji": "🦒", "name": "Giraffe", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A giraffe lives on land."},
+      {"id": "a3", "emoji": "🦓", "name": "Zebra", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A zebra lives on land."},
+      {"id": "a4", "emoji": "🐪", "name": "Camel", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A camel lives on land."},
+      {"id": "a5", "emoji": "🐴", "name": "Horse", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A horse lives on land."},
+      {"id": "a6", "emoji": "🐄", "name": "Cow", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A cow lives on land."},
+      {"id": "a7", "emoji": "🦘", "name": "Kangaroo", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A kangaroo lives on land."},
+      {"id": "a8", "emoji": "🐒", "name": "Monkey", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A monkey lives on land."},
+      {"id": "a9", "emoji": "🐅", "name": "Tiger", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A tiger lives on land."},
+      {"id": "a10", "emoji": "🐇", "name": "Rabbit", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A rabbit lives on land."},
+      {"id": "a11", "emoji": "🐿️", "name": "Squirrel", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A squirrel lives on land."},
+      {"id": "a12", "emoji": "🐖", "name": "Pig", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A pig lives on land."},
+      {"id": "a13", "emoji": "🐑", "name": "Sheep", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A sheep lives on land."},
+      {"id": "a14", "emoji": "🦌", "name": "Deer", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A deer lives on land."},
+      {"id": "a15", "emoji": "🦏", "name": "Rhino", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A rhino lives on land."},
+      {"id": "a16", "emoji": "🦍", "name": "Gorilla", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A gorilla lives on land."},
+      {"id": "a17", "emoji": "🦊", "name": "Fox", "answer": "Land", "choices": ["Land", "Ocean"], "why": "A fox lives on land."},
+      {"id": "a18", "emoji": "🐋", "name": "Whale", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A whale lives in the ocean."},
+      {"id": "a19", "emoji": "🐬", "name": "Dolphin", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A dolphin lives in the ocean."},
+      {"id": "a20", "emoji": "🦈", "name": "Shark", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A shark lives in the ocean."},
+      {"id": "a21", "emoji": "🐙", "name": "Octopus", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A octopus lives in the ocean."},
+      {"id": "a22", "emoji": "🦑", "name": "Squid", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A squid lives in the ocean."},
+      {"id": "a23", "emoji": "🦞", "name": "Lobster", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A lobster lives in the ocean."},
+      {"id": "a24", "emoji": "🐡", "name": "Pufferfish", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A pufferfish lives in the ocean."},
+      {"id": "a25", "emoji": "🐠", "name": "Tropical Fish", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A tropical fish lives in the ocean."},
+      {"id": "a26", "emoji": "🪼", "name": "Jellyfish", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A jellyfish lives in the ocean."},
+      {"id": "a27", "emoji": "🦪", "name": "Oyster", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A oyster lives in the ocean."},
+      {"id": "a28", "emoji": "🐳", "name": "Blue Whale", "answer": "Ocean", "choices": ["Land", "Ocean"], "why": "A blue whale lives in the ocean."}
+    ];
+    const HABITATS_BY_ID = HABITATS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // US States: fixed pool, each item once per pass; two choices.
+    const US_STATES = [
+      {"id": "AL", "answer": "Alabama", "choices": ["Alabama", "Wyoming"], "why": "This is Alabama."},
+      {"id": "AK", "answer": "Alaska", "choices": ["Alaska", "Minnesota"], "why": "This is Alaska."},
+      {"id": "AZ", "answer": "Arizona", "choices": ["Arizona", "Utah"], "why": "This is Arizona."},
+      {"id": "AR", "answer": "Arkansas", "choices": ["Arkansas", "Maryland"], "why": "This is Arkansas."},
+      {"id": "CA", "answer": "California", "choices": ["California", "Oklahoma"], "why": "This is California."},
+      {"id": "CO", "answer": "Colorado", "choices": ["Colorado", "Oregon"], "why": "This is Colorado."},
+      {"id": "CT", "answer": "Connecticut", "choices": ["Connecticut", "Hawaii"], "why": "This is Connecticut."},
+      {"id": "DE", "answer": "Delaware", "choices": ["Delaware", "Alabama"], "why": "This is Delaware."},
+      {"id": "FL", "answer": "Florida", "choices": ["Florida", "Oklahoma"], "why": "This is Florida."},
+      {"id": "GA", "answer": "Georgia", "choices": ["Georgia", "Washington"], "why": "This is Georgia."},
+      {"id": "HI", "answer": "Hawaii", "choices": ["Hawaii", "Kentucky"], "why": "This is Hawaii."},
+      {"id": "ID", "answer": "Idaho", "choices": ["Idaho", "Ohio"], "why": "This is Idaho."},
+      {"id": "IL", "answer": "Illinois", "choices": ["Illinois", "Alabama"], "why": "This is Illinois."},
+      {"id": "IN", "answer": "Indiana", "choices": ["Indiana", "Maine"], "why": "This is Indiana."},
+      {"id": "IA", "answer": "Iowa", "choices": ["Iowa", "Utah"], "why": "This is Iowa."},
+      {"id": "KS", "answer": "Kansas", "choices": ["Kansas", "Arkansas"], "why": "This is Kansas."},
+      {"id": "KY", "answer": "Kentucky", "choices": ["Kentucky", "Illinois"], "why": "This is Kentucky."},
+      {"id": "LA", "answer": "Louisiana", "choices": ["Louisiana", "South Carolina"], "why": "This is Louisiana."},
+      {"id": "ME", "answer": "Maine", "choices": ["Maine", "New Jersey"], "why": "This is Maine."},
+      {"id": "MD", "answer": "Maryland", "choices": ["Maryland", "New Mexico"], "why": "This is Maryland."},
+      {"id": "MA", "answer": "Massachusetts", "choices": ["Massachusetts", "Arkansas"], "why": "This is Massachusetts."},
+      {"id": "MI", "answer": "Michigan", "choices": ["Michigan", "Louisiana"], "why": "This is Michigan."},
+      {"id": "MN", "answer": "Minnesota", "choices": ["Minnesota", "Florida"], "why": "This is Minnesota."},
+      {"id": "MS", "answer": "Mississippi", "choices": ["Mississippi", "Nebraska"], "why": "This is Mississippi."},
+      {"id": "MO", "answer": "Missouri", "choices": ["Missouri", "Oregon"], "why": "This is Missouri."},
+      {"id": "MT", "answer": "Montana", "choices": ["Montana", "Maine"], "why": "This is Montana."},
+      {"id": "NE", "answer": "Nebraska", "choices": ["Nebraska", "Missouri"], "why": "This is Nebraska."},
+      {"id": "NV", "answer": "Nevada", "choices": ["Nevada", "Hawaii"], "why": "This is Nevada."},
+      {"id": "NH", "answer": "New Hampshire", "choices": ["New Hampshire", "Illinois"], "why": "This is New Hampshire."},
+      {"id": "NJ", "answer": "New Jersey", "choices": ["New Jersey", "Illinois"], "why": "This is New Jersey."},
+      {"id": "NM", "answer": "New Mexico", "choices": ["New Mexico", "Florida"], "why": "This is New Mexico."},
+      {"id": "NY", "answer": "New York", "choices": ["New York", "New Mexico"], "why": "This is New York."},
+      {"id": "NC", "answer": "North Carolina", "choices": ["North Carolina", "Mississippi"], "why": "This is North Carolina."},
+      {"id": "ND", "answer": "North Dakota", "choices": ["North Dakota", "Pennsylvania"], "why": "This is North Dakota."},
+      {"id": "OH", "answer": "Ohio", "choices": ["Ohio", "Oregon"], "why": "This is Ohio."},
+      {"id": "OK", "answer": "Oklahoma", "choices": ["Oklahoma", "West Virginia"], "why": "This is Oklahoma."},
+      {"id": "OR", "answer": "Oregon", "choices": ["Oregon", "Louisiana"], "why": "This is Oregon."},
+      {"id": "PA", "answer": "Pennsylvania", "choices": ["Pennsylvania", "Connecticut"], "why": "This is Pennsylvania."},
+      {"id": "RI", "answer": "Rhode Island", "choices": ["Rhode Island", "Connecticut"], "why": "This is Rhode Island."},
+      {"id": "SC", "answer": "South Carolina", "choices": ["South Carolina", "Iowa"], "why": "This is South Carolina."},
+      {"id": "SD", "answer": "South Dakota", "choices": ["South Dakota", "Ohio"], "why": "This is South Dakota."},
+      {"id": "TN", "answer": "Tennessee", "choices": ["Tennessee", "Idaho"], "why": "This is Tennessee."},
+      {"id": "TX", "answer": "Texas", "choices": ["Texas", "Vermont"], "why": "This is Texas."},
+      {"id": "UT", "answer": "Utah", "choices": ["Utah", "Michigan"], "why": "This is Utah."},
+      {"id": "VT", "answer": "Vermont", "choices": ["Vermont", "Iowa"], "why": "This is Vermont."},
+      {"id": "VA", "answer": "Virginia", "choices": ["Virginia", "New Hampshire"], "why": "This is Virginia."},
+      {"id": "WA", "answer": "Washington", "choices": ["Washington", "Arkansas"], "why": "This is Washington."},
+      {"id": "WV", "answer": "West Virginia", "choices": ["West Virginia", "Texas"], "why": "This is West Virginia."},
+      {"id": "WI", "answer": "Wisconsin", "choices": ["Wisconsin", "Kentucky"], "why": "This is Wisconsin."},
+      {"id": "WY", "answer": "Wyoming", "choices": ["Wyoming", "Delaware"], "why": "This is Wyoming."}
+    ];
+    const US_STATES_BY_ID = US_STATES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Counting Money: fixed pool, each item once per pass; two choices.
+    const MONEY_COINS = [
+      {"id": "m0", "coins": [25, 5, 1], "answer": "31¢", "choices": ["31¢", "26¢"], "why": "25 + 5 + 1 = 31¢."},
+      {"id": "m1", "coins": [25, 25], "answer": "50¢", "choices": ["50¢", "49¢"], "why": "25 + 25 = 50¢."},
+      {"id": "m2", "coins": [25, 5, 5], "answer": "35¢", "choices": ["35¢", "45¢"], "why": "25 + 5 + 5 = 35¢."},
+      {"id": "m3", "coins": [25, 10, 5], "answer": "40¢", "choices": ["40¢", "50¢"], "why": "25 + 10 + 5 = 40¢."},
+      {"id": "m4", "coins": [25, 10, 10, 1, 1], "answer": "47¢", "choices": ["47¢", "42¢"], "why": "25 + 10 + 10 + 1 + 1 = 47¢."},
+      {"id": "m5", "coins": [25, 10, 10, 5], "answer": "50¢", "choices": ["50¢", "60¢"], "why": "25 + 10 + 10 + 5 = 50¢."},
+      {"id": "m6", "coins": [25, 1], "answer": "26¢", "choices": ["26¢", "27¢"], "why": "25 + 1 = 26¢."},
+      {"id": "m7", "coins": [25, 25, 25], "answer": "75¢", "choices": ["75¢", "74¢"], "why": "25 + 25 + 25 = 75¢."},
+      {"id": "m8", "coins": [25, 25, 10, 5, 5], "answer": "70¢", "choices": ["70¢", "80¢"], "why": "25 + 25 + 10 + 5 + 5 = 70¢."},
+      {"id": "m9", "coins": [10, 10, 5, 1], "answer": "26¢", "choices": ["26¢", "31¢"], "why": "10 + 10 + 5 + 1 = 26¢."},
+      {"id": "m10", "coins": [25, 25, 10], "answer": "60¢", "choices": ["60¢", "70¢"], "why": "25 + 25 + 10 = 60¢."},
+      {"id": "m11", "coins": [25, 5, 5, 1, 1], "answer": "37¢", "choices": ["37¢", "27¢"], "why": "25 + 5 + 5 + 1 + 1 = 37¢."},
+      {"id": "m12", "coins": [10, 10, 5], "answer": "25¢", "choices": ["25¢", "30¢"], "why": "10 + 10 + 5 = 25¢."},
+      {"id": "m13", "coins": [25, 25, 5], "answer": "55¢", "choices": ["55¢", "60¢"], "why": "25 + 25 + 5 = 55¢."},
+      {"id": "m14", "coins": [10, 5, 5, 5, 5], "answer": "30¢", "choices": ["30¢", "31¢"], "why": "10 + 5 + 5 + 5 + 5 = 30¢."},
+      {"id": "m15", "coins": [25, 10, 10, 5, 5], "answer": "55¢", "choices": ["55¢", "60¢"], "why": "25 + 10 + 10 + 5 + 5 = 55¢."},
+      {"id": "m16", "coins": [10, 5], "answer": "15¢", "choices": ["15¢", "25¢"], "why": "10 + 5 = 15¢."},
+      {"id": "m17", "coins": [5, 5, 1], "answer": "11¢", "choices": ["11¢", "12¢"], "why": "5 + 5 + 1 = 11¢."},
+      {"id": "m18", "coins": [25, 10, 10, 10], "answer": "55¢", "choices": ["55¢", "54¢"], "why": "25 + 10 + 10 + 10 = 55¢."},
+      {"id": "m19", "coins": [5, 1, 1], "answer": "7¢", "choices": ["7¢", "8¢"], "why": "5 + 1 + 1 = 7¢."},
+      {"id": "m20", "coins": [25, 10, 1, 1], "answer": "37¢", "choices": ["37¢", "38¢"], "why": "25 + 10 + 1 + 1 = 37¢."},
+      {"id": "m21", "coins": [25, 5, 5, 5], "answer": "40¢", "choices": ["40¢", "39¢"], "why": "25 + 5 + 5 + 5 = 40¢."},
+      {"id": "m22", "coins": [10, 10, 10], "answer": "30¢", "choices": ["30¢", "25¢"], "why": "10 + 10 + 10 = 30¢."},
+      {"id": "m23", "coins": [25, 25, 10, 1, 1], "answer": "62¢", "choices": ["62¢", "67¢"], "why": "25 + 25 + 10 + 1 + 1 = 62¢."},
+      {"id": "m24", "coins": [25, 10, 5, 1], "answer": "41¢", "choices": ["41¢", "42¢"], "why": "25 + 10 + 5 + 1 = 41¢."},
+      {"id": "m25", "coins": [25, 10, 5, 5, 1], "answer": "46¢", "choices": ["46¢", "45¢"], "why": "25 + 10 + 5 + 5 + 1 = 46¢."},
+      {"id": "m26", "coins": [25, 10, 10, 10, 10], "answer": "65¢", "choices": ["65¢", "66¢"], "why": "25 + 10 + 10 + 10 + 10 = 65¢."},
+      {"id": "m27", "coins": [1, 1, 1], "answer": "3¢", "choices": ["3¢", "13¢"], "why": "1 + 1 + 1 = 3¢."},
+      {"id": "m28", "coins": [25, 25, 10, 1], "answer": "61¢", "choices": ["61¢", "71¢"], "why": "25 + 25 + 10 + 1 = 61¢."},
+      {"id": "m29", "coins": [10, 1, 1, 1, 1], "answer": "14¢", "choices": ["14¢", "4¢"], "why": "10 + 1 + 1 + 1 + 1 = 14¢."},
+      {"id": "m30", "coins": [5, 5, 1, 1], "answer": "12¢", "choices": ["12¢", "22¢"], "why": "5 + 5 + 1 + 1 = 12¢."},
+      {"id": "m31", "coins": [25, 10], "answer": "35¢", "choices": ["35¢", "34¢"], "why": "25 + 10 = 35¢."},
+      {"id": "m32", "coins": [5, 5, 5], "answer": "15¢", "choices": ["15¢", "16¢"], "why": "5 + 5 + 5 = 15¢."},
+      {"id": "m33", "coins": [10, 5, 5], "answer": "20¢", "choices": ["20¢", "15¢"], "why": "10 + 5 + 5 = 20¢."},
+      {"id": "m34", "coins": [5, 5, 5, 1], "answer": "16¢", "choices": ["16¢", "21¢"], "why": "5 + 5 + 5 + 1 = 16¢."},
+      {"id": "m35", "coins": [25, 10, 5, 5, 5], "answer": "50¢", "choices": ["50¢", "55¢"], "why": "25 + 10 + 5 + 5 + 5 = 50¢."},
+      {"id": "m36", "coins": [25, 25, 10, 5], "answer": "65¢", "choices": ["65¢", "60¢"], "why": "25 + 25 + 10 + 5 = 65¢."},
+      {"id": "m37", "coins": [25, 5], "answer": "30¢", "choices": ["30¢", "29¢"], "why": "25 + 5 = 30¢."},
+      {"id": "m38", "coins": [25, 25, 5, 5, 5], "answer": "65¢", "choices": ["65¢", "66¢"], "why": "25 + 25 + 5 + 5 + 5 = 65¢."},
+      {"id": "m39", "coins": [25, 25, 25, 5, 1], "answer": "81¢", "choices": ["81¢", "82¢"], "why": "25 + 25 + 25 + 5 + 1 = 81¢."}
+    ];
+    const MONEY_COINS_BY_ID = MONEY_COINS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Telling Time: fixed pool, each item once per pass; two choices.
+    const CLOCK_TIMES = [
+      {"id": "t8_00", "h": 8, "m": 0, "answer": "8:00", "choices": ["8:00", "8:30"], "why": "The short hand shows the hour (8). The long hand shows the minutes (0). It is 8:00."},
+      {"id": "t2_00", "h": 2, "m": 0, "answer": "2:00", "choices": ["2:00", "2:30"], "why": "The short hand shows the hour (2). The long hand shows the minutes (0). It is 2:00."},
+      {"id": "t3_00", "h": 3, "m": 0, "answer": "3:00", "choices": ["3:00", "3:30"], "why": "The short hand shows the hour (3). The long hand shows the minutes (0). It is 3:00."},
+      {"id": "t11_00", "h": 11, "m": 0, "answer": "11:00", "choices": ["11:00", "11:30"], "why": "The short hand shows the hour (11). The long hand shows the minutes (0). It is 11:00."},
+      {"id": "t7_00", "h": 7, "m": 0, "answer": "7:00", "choices": ["7:00", "7:30"], "why": "The short hand shows the hour (7). The long hand shows the minutes (0). It is 7:00."},
+      {"id": "t10_00", "h": 10, "m": 0, "answer": "10:00", "choices": ["10:00", "10:30"], "why": "The short hand shows the hour (10). The long hand shows the minutes (0). It is 10:00."},
+      {"id": "t4_00", "h": 4, "m": 0, "answer": "4:00", "choices": ["4:00", "4:30"], "why": "The short hand shows the hour (4). The long hand shows the minutes (0). It is 4:00."},
+      {"id": "t6_00", "h": 6, "m": 0, "answer": "6:00", "choices": ["6:00", "6:30"], "why": "The short hand shows the hour (6). The long hand shows the minutes (0). It is 6:00."},
+      {"id": "t1_00", "h": 1, "m": 0, "answer": "1:00", "choices": ["1:00", "1:30"], "why": "The short hand shows the hour (1). The long hand shows the minutes (0). It is 1:00."},
+      {"id": "t5_00", "h": 5, "m": 0, "answer": "5:00", "choices": ["5:00", "5:30"], "why": "The short hand shows the hour (5). The long hand shows the minutes (0). It is 5:00."},
+      {"id": "t10_30", "h": 10, "m": 30, "answer": "10:30", "choices": ["10:30", "11:30"], "why": "The short hand shows the hour (10). The long hand shows the minutes (30). It is 10:30."},
+      {"id": "t4_30", "h": 4, "m": 30, "answer": "4:30", "choices": ["4:30", "5:30"], "why": "The short hand shows the hour (4). The long hand shows the minutes (30). It is 4:30."},
+      {"id": "t2_30", "h": 2, "m": 30, "answer": "2:30", "choices": ["2:30", "3:30"], "why": "The short hand shows the hour (2). The long hand shows the minutes (30). It is 2:30."},
+      {"id": "t8_30", "h": 8, "m": 30, "answer": "8:30", "choices": ["8:30", "9:00"], "why": "The short hand shows the hour (8). The long hand shows the minutes (30). It is 8:30."},
+      {"id": "t3_30", "h": 3, "m": 30, "answer": "3:30", "choices": ["3:30", "4:30"], "why": "The short hand shows the hour (3). The long hand shows the minutes (30). It is 3:30."},
+      {"id": "t5_30", "h": 5, "m": 30, "answer": "5:30", "choices": ["5:30", "6:00"], "why": "The short hand shows the hour (5). The long hand shows the minutes (30). It is 5:30."},
+      {"id": "t12_30", "h": 12, "m": 30, "answer": "12:30", "choices": ["12:30", "1:00"], "why": "The short hand shows the hour (12). The long hand shows the minutes (30). It is 12:30."},
+      {"id": "t7_30", "h": 7, "m": 30, "answer": "7:30", "choices": ["7:30", "8:30"], "why": "The short hand shows the hour (7). The long hand shows the minutes (30). It is 7:30."},
+      {"id": "t1_30", "h": 1, "m": 30, "answer": "1:30", "choices": ["1:30", "2:30"], "why": "The short hand shows the hour (1). The long hand shows the minutes (30). It is 1:30."},
+      {"id": "t11_30", "h": 11, "m": 30, "answer": "11:30", "choices": ["11:30", "12:30"], "why": "The short hand shows the hour (11). The long hand shows the minutes (30). It is 11:30."},
+      {"id": "t3_15", "h": 3, "m": 15, "answer": "3:15", "choices": ["3:15", "4:15"], "why": "The short hand shows the hour (3). The long hand shows the minutes (15). It is 3:15."},
+      {"id": "t5_15", "h": 5, "m": 15, "answer": "5:15", "choices": ["5:15", "6:15"], "why": "The short hand shows the hour (5). The long hand shows the minutes (15). It is 5:15."},
+      {"id": "t11_15", "h": 11, "m": 15, "answer": "11:15", "choices": ["11:15", "12:15"], "why": "The short hand shows the hour (11). The long hand shows the minutes (15). It is 11:15."},
+      {"id": "t4_15", "h": 4, "m": 15, "answer": "4:15", "choices": ["4:15", "5:15"], "why": "The short hand shows the hour (4). The long hand shows the minutes (15). It is 4:15."},
+      {"id": "t1_15", "h": 1, "m": 15, "answer": "1:15", "choices": ["1:15", "2:15"], "why": "The short hand shows the hour (1). The long hand shows the minutes (15). It is 1:15."},
+      {"id": "t8_15", "h": 8, "m": 15, "answer": "8:15", "choices": ["8:15", "3:40"], "why": "The short hand shows the hour (8). The long hand shows the minutes (15). It is 8:15."},
+      {"id": "t10_15", "h": 10, "m": 15, "answer": "10:15", "choices": ["10:15", "11:15"], "why": "The short hand shows the hour (10). The long hand shows the minutes (15). It is 10:15."},
+      {"id": "t12_15", "h": 12, "m": 15, "answer": "12:15", "choices": ["12:15", "3:00"], "why": "The short hand shows the hour (12). The long hand shows the minutes (15). It is 12:15."},
+      {"id": "t1_45", "h": 1, "m": 45, "answer": "1:45", "choices": ["1:45", "9:05"], "why": "The short hand shows the hour (1). The long hand shows the minutes (45). It is 1:45."},
+      {"id": "t10_45", "h": 10, "m": 45, "answer": "10:45", "choices": ["10:45", "11:45"], "why": "The short hand shows the hour (10). The long hand shows the minutes (45). It is 10:45."},
+      {"id": "t9_45", "h": 9, "m": 45, "answer": "9:45", "choices": ["9:45", "10:45"], "why": "The short hand shows the hour (9). The long hand shows the minutes (45). It is 9:45."},
+      {"id": "t8_45", "h": 8, "m": 45, "answer": "8:45", "choices": ["8:45", "9:45"], "why": "The short hand shows the hour (8). The long hand shows the minutes (45). It is 8:45."},
+      {"id": "t3_45", "h": 3, "m": 45, "answer": "3:45", "choices": ["3:45", "4:45"], "why": "The short hand shows the hour (3). The long hand shows the minutes (45). It is 3:45."},
+      {"id": "t2_45", "h": 2, "m": 45, "answer": "2:45", "choices": ["2:45", "9:10"], "why": "The short hand shows the hour (2). The long hand shows the minutes (45). It is 2:45."},
+      {"id": "t6_45", "h": 6, "m": 45, "answer": "6:45", "choices": ["6:45", "7:45"], "why": "The short hand shows the hour (6). The long hand shows the minutes (45). It is 6:45."},
+      {"id": "t7_45", "h": 7, "m": 45, "answer": "7:45", "choices": ["7:45", "9:35"], "why": "The short hand shows the hour (7). The long hand shows the minutes (45). It is 7:45."},
+      {"id": "t3_05", "h": 3, "m": 5, "answer": "3:05", "choices": ["3:05", "4:05"], "why": "The short hand shows the hour (3). The long hand shows the minutes (5). It is 3:05."},
+      {"id": "t12_10", "h": 12, "m": 10, "answer": "12:10", "choices": ["12:10", "2:00"], "why": "The short hand shows the hour (12). The long hand shows the minutes (10). It is 12:10."},
+      {"id": "t5_20", "h": 5, "m": 20, "answer": "5:20", "choices": ["5:20", "6:20"], "why": "The short hand shows the hour (5). The long hand shows the minutes (20). It is 5:20."},
+      {"id": "t12_25", "h": 12, "m": 25, "answer": "12:25", "choices": ["12:25", "5:00"], "why": "The short hand shows the hour (12). The long hand shows the minutes (25). It is 12:25."},
+      {"id": "t1_35", "h": 1, "m": 35, "answer": "1:35", "choices": ["1:35", "2:35"], "why": "The short hand shows the hour (1). The long hand shows the minutes (35). It is 1:35."},
+      {"id": "t6_40", "h": 6, "m": 40, "answer": "6:40", "choices": ["6:40", "7:40"], "why": "The short hand shows the hour (6). The long hand shows the minutes (40). It is 6:40."},
+      {"id": "t1_50", "h": 1, "m": 50, "answer": "1:50", "choices": ["1:50", "2:50"], "why": "The short hand shows the hour (1). The long hand shows the minutes (50). It is 1:50."},
+      {"id": "t4_55", "h": 4, "m": 55, "answer": "4:55", "choices": ["4:55", "5:55"], "why": "The short hand shows the hour (4). The long hand shows the minutes (55). It is 4:55."},
+      {"id": "t12_05", "h": 12, "m": 5, "answer": "12:05", "choices": ["12:05", "1:05"], "why": "The short hand shows the hour (12). The long hand shows the minutes (5). It is 12:05."},
+      {"id": "t5_10", "h": 5, "m": 10, "answer": "5:10", "choices": ["5:10", "2:25"], "why": "The short hand shows the hour (5). The long hand shows the minutes (10). It is 5:10."},
+      {"id": "t2_20", "h": 2, "m": 20, "answer": "2:20", "choices": ["2:20", "3:20"], "why": "The short hand shows the hour (2). The long hand shows the minutes (20). It is 2:20."},
+      {"id": "t10_25", "h": 10, "m": 25, "answer": "10:25", "choices": ["10:25", "5:50"], "why": "The short hand shows the hour (10). The long hand shows the minutes (25). It is 10:25."},
+      {"id": "t5_35", "h": 5, "m": 35, "answer": "5:35", "choices": ["5:35", "6:35"], "why": "The short hand shows the hour (5). The long hand shows the minutes (35). It is 5:35."},
+      {"id": "t9_40", "h": 9, "m": 40, "answer": "9:40", "choices": ["9:40", "10:40"], "why": "The short hand shows the hour (9). The long hand shows the minutes (40). It is 9:40."},
+      {"id": "t6_50", "h": 6, "m": 50, "answer": "6:50", "choices": ["6:50", "7:50"], "why": "The short hand shows the hour (6). The long hand shows the minutes (50). It is 6:50."},
+      {"id": "t10_55", "h": 10, "m": 55, "answer": "10:55", "choices": ["10:55", "11:50"], "why": "The short hand shows the hour (10). The long hand shows the minutes (55). It is 10:55."}
+    ];
+    const CLOCK_TIMES_BY_ID = CLOCK_TIMES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Prime or Composite: fixed pool, each item once per pass; two choices.
+    const PRIME_COMP = [
+      {"id": "n2", "n": 2, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "2 is prime. Only 1 and 2 go into it."},
+      {"id": "n3", "n": 3, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "3 is prime. Only 1 and 3 go into it."},
+      {"id": "n4", "n": 4, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "4 is composite. 2 × 2 = 4."},
+      {"id": "n5", "n": 5, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "5 is prime. Only 1 and 5 go into it."},
+      {"id": "n6", "n": 6, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "6 is composite. 2 × 3 = 6."},
+      {"id": "n7", "n": 7, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "7 is prime. Only 1 and 7 go into it."},
+      {"id": "n8", "n": 8, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "8 is composite. 2 × 4 = 8."},
+      {"id": "n9", "n": 9, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "9 is composite. 3 × 3 = 9."},
+      {"id": "n10", "n": 10, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "10 is composite. 2 × 5 = 10."},
+      {"id": "n11", "n": 11, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "11 is prime. Only 1 and 11 go into it."},
+      {"id": "n12", "n": 12, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "12 is composite. 2 × 6 = 12."},
+      {"id": "n13", "n": 13, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "13 is prime. Only 1 and 13 go into it."},
+      {"id": "n14", "n": 14, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "14 is composite. 2 × 7 = 14."},
+      {"id": "n15", "n": 15, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "15 is composite. 3 × 5 = 15."},
+      {"id": "n16", "n": 16, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "16 is composite. 2 × 8 = 16."},
+      {"id": "n17", "n": 17, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "17 is prime. Only 1 and 17 go into it."},
+      {"id": "n18", "n": 18, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "18 is composite. 2 × 9 = 18."},
+      {"id": "n19", "n": 19, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "19 is prime. Only 1 and 19 go into it."},
+      {"id": "n20", "n": 20, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "20 is composite. 2 × 10 = 20."},
+      {"id": "n21", "n": 21, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "21 is composite. 3 × 7 = 21."},
+      {"id": "n22", "n": 22, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "22 is composite. 2 × 11 = 22."},
+      {"id": "n23", "n": 23, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "23 is prime. Only 1 and 23 go into it."},
+      {"id": "n24", "n": 24, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "24 is composite. 2 × 12 = 24."},
+      {"id": "n25", "n": 25, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "25 is composite. 5 × 5 = 25."},
+      {"id": "n26", "n": 26, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "26 is composite. 2 × 13 = 26."},
+      {"id": "n27", "n": 27, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "27 is composite. 3 × 9 = 27."},
+      {"id": "n28", "n": 28, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "28 is composite. 2 × 14 = 28."},
+      {"id": "n29", "n": 29, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "29 is prime. Only 1 and 29 go into it."},
+      {"id": "n30", "n": 30, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "30 is composite. 2 × 15 = 30."},
+      {"id": "n31", "n": 31, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "31 is prime. Only 1 and 31 go into it."},
+      {"id": "n32", "n": 32, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "32 is composite. 2 × 16 = 32."},
+      {"id": "n33", "n": 33, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "33 is composite. 3 × 11 = 33."},
+      {"id": "n34", "n": 34, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "34 is composite. 2 × 17 = 34."},
+      {"id": "n35", "n": 35, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "35 is composite. 5 × 7 = 35."},
+      {"id": "n36", "n": 36, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "36 is composite. 2 × 18 = 36."},
+      {"id": "n37", "n": 37, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "37 is prime. Only 1 and 37 go into it."},
+      {"id": "n38", "n": 38, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "38 is composite. 2 × 19 = 38."},
+      {"id": "n39", "n": 39, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "39 is composite. 3 × 13 = 39."},
+      {"id": "n40", "n": 40, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "40 is composite. 2 × 20 = 40."},
+      {"id": "n41", "n": 41, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "41 is prime. Only 1 and 41 go into it."},
+      {"id": "n42", "n": 42, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "42 is composite. 2 × 21 = 42."},
+      {"id": "n43", "n": 43, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "43 is prime. Only 1 and 43 go into it."},
+      {"id": "n44", "n": 44, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "44 is composite. 2 × 22 = 44."},
+      {"id": "n45", "n": 45, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "45 is composite. 3 × 15 = 45."},
+      {"id": "n46", "n": 46, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "46 is composite. 2 × 23 = 46."},
+      {"id": "n47", "n": 47, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "47 is prime. Only 1 and 47 go into it."},
+      {"id": "n48", "n": 48, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "48 is composite. 2 × 24 = 48."},
+      {"id": "n49", "n": 49, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "49 is composite. 7 × 7 = 49."},
+      {"id": "n50", "n": 50, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "50 is composite. 2 × 25 = 50."},
+      {"id": "n51", "n": 51, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "51 is composite. 3 × 17 = 51."},
+      {"id": "n52", "n": 52, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "52 is composite. 2 × 26 = 52."},
+      {"id": "n53", "n": 53, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "53 is prime. Only 1 and 53 go into it."},
+      {"id": "n54", "n": 54, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "54 is composite. 2 × 27 = 54."},
+      {"id": "n55", "n": 55, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "55 is composite. 5 × 11 = 55."},
+      {"id": "n56", "n": 56, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "56 is composite. 2 × 28 = 56."},
+      {"id": "n57", "n": 57, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "57 is composite. 3 × 19 = 57."},
+      {"id": "n58", "n": 58, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "58 is composite. 2 × 29 = 58."},
+      {"id": "n59", "n": 59, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "59 is prime. Only 1 and 59 go into it."},
+      {"id": "n60", "n": 60, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "60 is composite. 2 × 30 = 60."},
+      {"id": "n61", "n": 61, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "61 is prime. Only 1 and 61 go into it."},
+      {"id": "n62", "n": 62, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "62 is composite. 2 × 31 = 62."},
+      {"id": "n63", "n": 63, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "63 is composite. 3 × 21 = 63."},
+      {"id": "n64", "n": 64, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "64 is composite. 2 × 32 = 64."},
+      {"id": "n65", "n": 65, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "65 is composite. 5 × 13 = 65."},
+      {"id": "n66", "n": 66, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "66 is composite. 2 × 33 = 66."},
+      {"id": "n67", "n": 67, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "67 is prime. Only 1 and 67 go into it."},
+      {"id": "n68", "n": 68, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "68 is composite. 2 × 34 = 68."},
+      {"id": "n69", "n": 69, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "69 is composite. 3 × 23 = 69."},
+      {"id": "n70", "n": 70, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "70 is composite. 2 × 35 = 70."},
+      {"id": "n71", "n": 71, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "71 is prime. Only 1 and 71 go into it."},
+      {"id": "n72", "n": 72, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "72 is composite. 2 × 36 = 72."},
+      {"id": "n73", "n": 73, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "73 is prime. Only 1 and 73 go into it."},
+      {"id": "n74", "n": 74, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "74 is composite. 2 × 37 = 74."},
+      {"id": "n75", "n": 75, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "75 is composite. 3 × 25 = 75."},
+      {"id": "n76", "n": 76, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "76 is composite. 2 × 38 = 76."},
+      {"id": "n77", "n": 77, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "77 is composite. 7 × 11 = 77."},
+      {"id": "n78", "n": 78, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "78 is composite. 2 × 39 = 78."},
+      {"id": "n79", "n": 79, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "79 is prime. Only 1 and 79 go into it."},
+      {"id": "n80", "n": 80, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "80 is composite. 2 × 40 = 80."},
+      {"id": "n81", "n": 81, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "81 is composite. 3 × 27 = 81."},
+      {"id": "n82", "n": 82, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "82 is composite. 2 × 41 = 82."},
+      {"id": "n83", "n": 83, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "83 is prime. Only 1 and 83 go into it."},
+      {"id": "n84", "n": 84, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "84 is composite. 2 × 42 = 84."},
+      {"id": "n85", "n": 85, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "85 is composite. 5 × 17 = 85."},
+      {"id": "n86", "n": 86, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "86 is composite. 2 × 43 = 86."},
+      {"id": "n87", "n": 87, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "87 is composite. 3 × 29 = 87."},
+      {"id": "n88", "n": 88, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "88 is composite. 2 × 44 = 88."},
+      {"id": "n89", "n": 89, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "89 is prime. Only 1 and 89 go into it."},
+      {"id": "n90", "n": 90, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "90 is composite. 2 × 45 = 90."},
+      {"id": "n91", "n": 91, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "91 is composite. 7 × 13 = 91."},
+      {"id": "n92", "n": 92, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "92 is composite. 2 × 46 = 92."},
+      {"id": "n93", "n": 93, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "93 is composite. 3 × 31 = 93."},
+      {"id": "n94", "n": 94, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "94 is composite. 2 × 47 = 94."},
+      {"id": "n95", "n": 95, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "95 is composite. 5 × 19 = 95."},
+      {"id": "n96", "n": 96, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "96 is composite. 2 × 48 = 96."},
+      {"id": "n97", "n": 97, "answer": "Prime", "choices": ["Prime", "Composite"], "why": "97 is prime. Only 1 and 97 go into it."},
+      {"id": "n98", "n": 98, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "98 is composite. 2 × 49 = 98."},
+      {"id": "n99", "n": 99, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "99 is composite. 3 × 33 = 99."},
+      {"id": "n100", "n": 100, "answer": "Composite", "choices": ["Prime", "Composite"], "why": "100 is composite. 2 × 50 = 100."}
+    ];
+    const PRIME_COMP_BY_ID = PRIME_COMP.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Even or Odd: fixed pool, each item once per pass; two choices.
+    const EVEN_ODD = [
+      {"id": "n89", "n": 89, "answer": "Odd", "choices": ["Even", "Odd"], "why": "89 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n71", "n": 71, "answer": "Odd", "choices": ["Even", "Odd"], "why": "71 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n15", "n": 15, "answer": "Odd", "choices": ["Even", "Odd"], "why": "15 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n92", "n": 92, "answer": "Even", "choices": ["Even", "Odd"], "why": "92 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n97", "n": 97, "answer": "Odd", "choices": ["Even", "Odd"], "why": "97 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n70", "n": 70, "answer": "Even", "choices": ["Even", "Odd"], "why": "70 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n32", "n": 32, "answer": "Even", "choices": ["Even", "Odd"], "why": "32 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n41", "n": 41, "answer": "Odd", "choices": ["Even", "Odd"], "why": "41 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n78", "n": 78, "answer": "Even", "choices": ["Even", "Odd"], "why": "78 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n50", "n": 50, "answer": "Even", "choices": ["Even", "Odd"], "why": "50 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n36", "n": 36, "answer": "Even", "choices": ["Even", "Odd"], "why": "36 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n21", "n": 21, "answer": "Odd", "choices": ["Even", "Odd"], "why": "21 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n65", "n": 65, "answer": "Odd", "choices": ["Even", "Odd"], "why": "65 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n64", "n": 64, "answer": "Even", "choices": ["Even", "Odd"], "why": "64 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n1", "n": 1, "answer": "Odd", "choices": ["Even", "Odd"], "why": "1 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n17", "n": 17, "answer": "Odd", "choices": ["Even", "Odd"], "why": "17 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n9", "n": 9, "answer": "Odd", "choices": ["Even", "Odd"], "why": "9 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n4", "n": 4, "answer": "Even", "choices": ["Even", "Odd"], "why": "4 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n96", "n": 96, "answer": "Even", "choices": ["Even", "Odd"], "why": "96 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n69", "n": 69, "answer": "Odd", "choices": ["Even", "Odd"], "why": "69 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n51", "n": 51, "answer": "Odd", "choices": ["Even", "Odd"], "why": "51 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n42", "n": 42, "answer": "Even", "choices": ["Even", "Odd"], "why": "42 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n11", "n": 11, "answer": "Odd", "choices": ["Even", "Odd"], "why": "11 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n23", "n": 23, "answer": "Odd", "choices": ["Even", "Odd"], "why": "23 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n75", "n": 75, "answer": "Odd", "choices": ["Even", "Odd"], "why": "75 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n68", "n": 68, "answer": "Even", "choices": ["Even", "Odd"], "why": "68 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n94", "n": 94, "answer": "Even", "choices": ["Even", "Odd"], "why": "94 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n38", "n": 38, "answer": "Even", "choices": ["Even", "Odd"], "why": "38 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n93", "n": 93, "answer": "Odd", "choices": ["Even", "Odd"], "why": "93 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n27", "n": 27, "answer": "Odd", "choices": ["Even", "Odd"], "why": "27 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n77", "n": 77, "answer": "Odd", "choices": ["Even", "Odd"], "why": "77 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n90", "n": 90, "answer": "Even", "choices": ["Even", "Odd"], "why": "90 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n98", "n": 98, "answer": "Even", "choices": ["Even", "Odd"], "why": "98 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n72", "n": 72, "answer": "Even", "choices": ["Even", "Odd"], "why": "72 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n8", "n": 8, "answer": "Even", "choices": ["Even", "Odd"], "why": "8 is even. It ends in 0, 2, 4, 6, or 8."},
+      {"id": "n67", "n": 67, "answer": "Odd", "choices": ["Even", "Odd"], "why": "67 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n45", "n": 45, "answer": "Odd", "choices": ["Even", "Odd"], "why": "45 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n7", "n": 7, "answer": "Odd", "choices": ["Even", "Odd"], "why": "7 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n31", "n": 31, "answer": "Odd", "choices": ["Even", "Odd"], "why": "31 is odd. It ends in 1, 3, 5, 7, or 9."},
+      {"id": "n30", "n": 30, "answer": "Even", "choices": ["Even", "Odd"], "why": "30 is even. It ends in 0, 2, 4, 6, or 8."}
+    ];
+    const EVEN_ODD_BY_ID = EVEN_ODD.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Place Value: fixed pool, each item once per pass; two choices.
+    const PLACE_VALUE = [
+      {"id": "p0", "num": "954", "digit": "4", "answer": "4", "choices": ["4", "40"], "why": "The 4 is in the ones place, so it is worth 4."},
+      {"id": "p1", "num": "5,236", "digit": "3", "answer": "30", "choices": ["30", "3"], "why": "The 3 is in the tens place, so it is worth 30."},
+      {"id": "p2", "num": "6,849", "digit": "4", "answer": "40", "choices": ["40", "4"], "why": "The 4 is in the tens place, so it is worth 40."},
+      {"id": "p3", "num": "8,942", "digit": "9", "answer": "900", "choices": ["900", "9,000"], "why": "The 9 is in the hundreds place, so it is worth 900."},
+      {"id": "p4", "num": "3,241", "digit": "4", "answer": "40", "choices": ["40", "400"], "why": "The 4 is in the tens place, so it is worth 40."},
+      {"id": "p5", "num": "3,487", "digit": "8", "answer": "80", "choices": ["80", "8"], "why": "The 8 is in the tens place, so it is worth 80."},
+      {"id": "p6", "num": "149", "digit": "1", "answer": "100", "choices": ["100", "10"], "why": "The 1 is in the hundreds place, so it is worth 100."},
+      {"id": "p7", "num": "1,706", "digit": "7", "answer": "700", "choices": ["700", "70"], "why": "The 7 is in the hundreds place, so it is worth 700."},
+      {"id": "p8", "num": "702", "digit": "7", "answer": "700", "choices": ["700", "70"], "why": "The 7 is in the hundreds place, so it is worth 700."},
+      {"id": "p9", "num": "5,942", "digit": "5", "answer": "5,000", "choices": ["5,000", "500"], "why": "The 5 is in the thousands place, so it is worth 5,000."},
+      {"id": "p10", "num": "6,294", "digit": "6", "answer": "6,000", "choices": ["6,000", "600"], "why": "The 6 is in the thousands place, so it is worth 6,000."},
+      {"id": "p11", "num": "745", "digit": "5", "answer": "5", "choices": ["5", "50"], "why": "The 5 is in the ones place, so it is worth 5."},
+      {"id": "p12", "num": "7,160", "digit": "6", "answer": "60", "choices": ["60", "600"], "why": "The 6 is in the tens place, so it is worth 60."},
+      {"id": "p13", "num": "9,546", "digit": "6", "answer": "6", "choices": ["6", "60"], "why": "The 6 is in the ones place, so it is worth 6."},
+      {"id": "p14", "num": "514", "digit": "5", "answer": "500", "choices": ["500", "50"], "why": "The 5 is in the hundreds place, so it is worth 500."},
+      {"id": "p15", "num": "832", "digit": "3", "answer": "30", "choices": ["30", "3"], "why": "The 3 is in the tens place, so it is worth 30."},
+      {"id": "p16", "num": "7,341", "digit": "7", "answer": "7,000", "choices": ["7,000", "700"], "why": "The 7 is in the thousands place, so it is worth 7,000."},
+      {"id": "p17", "num": "7,528", "digit": "8", "answer": "8", "choices": ["8", "80"], "why": "The 8 is in the ones place, so it is worth 8."},
+      {"id": "p18", "num": "987", "digit": "8", "answer": "80", "choices": ["80", "800"], "why": "The 8 is in the tens place, so it is worth 80."},
+      {"id": "p19", "num": "1,648", "digit": "4", "answer": "40", "choices": ["40", "400"], "why": "The 4 is in the tens place, so it is worth 40."},
+      {"id": "p20", "num": "317", "digit": "1", "answer": "10", "choices": ["10", "100"], "why": "The 1 is in the tens place, so it is worth 10."},
+      {"id": "p21", "num": "397", "digit": "9", "answer": "90", "choices": ["90", "900"], "why": "The 9 is in the tens place, so it is worth 90."},
+      {"id": "p22", "num": "4,269", "digit": "2", "answer": "200", "choices": ["200", "20"], "why": "The 2 is in the hundreds place, so it is worth 200."},
+      {"id": "p23", "num": "498", "digit": "4", "answer": "400", "choices": ["400", "40"], "why": "The 4 is in the hundreds place, so it is worth 400."},
+      {"id": "p24", "num": "3,610", "digit": "6", "answer": "600", "choices": ["600", "6,000"], "why": "The 6 is in the hundreds place, so it is worth 600."},
+      {"id": "p25", "num": "7,648", "digit": "8", "answer": "8", "choices": ["8", "80"], "why": "The 8 is in the ones place, so it is worth 8."},
+      {"id": "p26", "num": "5,914", "digit": "5", "answer": "5,000", "choices": ["5,000", "500"], "why": "The 5 is in the thousands place, so it is worth 5,000."},
+      {"id": "p27", "num": "2,970", "digit": "9", "answer": "900", "choices": ["900", "9,000"], "why": "The 9 is in the hundreds place, so it is worth 900."},
+      {"id": "p28", "num": "689", "digit": "9", "answer": "9", "choices": ["9", "90"], "why": "The 9 is in the ones place, so it is worth 9."},
+      {"id": "p29", "num": "543", "digit": "5", "answer": "500", "choices": ["500", "50"], "why": "The 5 is in the hundreds place, so it is worth 500."},
+      {"id": "p30", "num": "6,857", "digit": "6", "answer": "6,000", "choices": ["6,000", "600"], "why": "The 6 is in the thousands place, so it is worth 6,000."},
+      {"id": "p31", "num": "9,710", "digit": "7", "answer": "700", "choices": ["700", "70"], "why": "The 7 is in the hundreds place, so it is worth 700."},
+      {"id": "p32", "num": "527", "digit": "5", "answer": "500", "choices": ["500", "50"], "why": "The 5 is in the hundreds place, so it is worth 500."},
+      {"id": "p33", "num": "8,907", "digit": "8", "answer": "8,000", "choices": ["8,000", "800"], "why": "The 8 is in the thousands place, so it is worth 8,000."},
+      {"id": "p34", "num": "5,142", "digit": "2", "answer": "2", "choices": ["2", "20"], "why": "The 2 is in the ones place, so it is worth 2."},
+      {"id": "p35", "num": "3,960", "digit": "3", "answer": "3,000", "choices": ["3,000", "300"], "why": "The 3 is in the thousands place, so it is worth 3,000."},
+      {"id": "p36", "num": "8,056", "digit": "6", "answer": "6", "choices": ["6", "60"], "why": "The 6 is in the ones place, so it is worth 6."},
+      {"id": "p37", "num": "732", "digit": "3", "answer": "30", "choices": ["30", "3"], "why": "The 3 is in the tens place, so it is worth 30."},
+      {"id": "p38", "num": "4,702", "digit": "4", "answer": "4,000", "choices": ["4,000", "400"], "why": "The 4 is in the thousands place, so it is worth 4,000."},
+      {"id": "p39", "num": "1,295", "digit": "1", "answer": "1,000", "choices": ["1,000", "100"], "why": "The 1 is in the thousands place, so it is worth 1,000."}
+    ];
+    const PLACE_VALUE_BY_ID = PLACE_VALUE.reduce(function (m, x) { m[x.id] = x; return m; }, {});
+    // Fractions: fixed pool, each item once per pass; two choices.
+    const FRACTIONS = [
+      {"id": "f0", "l": [3, 4], "r": [3, 5], "answer": "3/4", "choices": ["3/4", "3/5"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f1", "l": [4, 7], "r": [1, 3], "answer": "4/7", "choices": ["4/7", "1/3"], "why": "4/7 is bigger. More of the bar is filled."},
+      {"id": "f2", "l": [6, 8], "r": [2, 6], "answer": "6/8", "choices": ["6/8", "2/6"], "why": "6/8 is bigger. More of the bar is filled."},
+      {"id": "f3", "l": [1, 2], "r": [3, 4], "answer": "3/4", "choices": ["1/2", "3/4"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f4", "l": [1, 8], "r": [3, 4], "answer": "3/4", "choices": ["1/8", "3/4"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f5", "l": [1, 2], "r": [5, 6], "answer": "5/6", "choices": ["1/2", "5/6"], "why": "5/6 is bigger. More of the bar is filled."},
+      {"id": "f6", "l": [3, 4], "r": [1, 6], "answer": "3/4", "choices": ["3/4", "1/6"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f7", "l": [5, 7], "r": [1, 6], "answer": "5/7", "choices": ["5/7", "1/6"], "why": "5/7 is bigger. More of the bar is filled."},
+      {"id": "f8", "l": [5, 7], "r": [1, 3], "answer": "5/7", "choices": ["5/7", "1/3"], "why": "5/7 is bigger. More of the bar is filled."},
+      {"id": "f9", "l": [7, 8], "r": [4, 6], "answer": "7/8", "choices": ["7/8", "4/6"], "why": "7/8 is bigger. More of the bar is filled."},
+      {"id": "f10", "l": [7, 8], "r": [1, 2], "answer": "7/8", "choices": ["7/8", "1/2"], "why": "7/8 is bigger. More of the bar is filled."},
+      {"id": "f11", "l": [6, 8], "r": [1, 6], "answer": "6/8", "choices": ["6/8", "1/6"], "why": "6/8 is bigger. More of the bar is filled."},
+      {"id": "f12", "l": [4, 6], "r": [5, 6], "answer": "5/6", "choices": ["4/6", "5/6"], "why": "5/6 is bigger. More of the bar is filled."},
+      {"id": "f13", "l": [1, 2], "r": [5, 8], "answer": "5/8", "choices": ["1/2", "5/8"], "why": "5/8 is bigger. More of the bar is filled."},
+      {"id": "f14", "l": [4, 5], "r": [1, 2], "answer": "4/5", "choices": ["4/5", "1/2"], "why": "4/5 is bigger. More of the bar is filled."},
+      {"id": "f15", "l": [1, 7], "r": [1, 3], "answer": "1/3", "choices": ["1/7", "1/3"], "why": "1/3 is bigger. More of the bar is filled."},
+      {"id": "f16", "l": [3, 6], "r": [2, 6], "answer": "3/6", "choices": ["3/6", "2/6"], "why": "3/6 is bigger. More of the bar is filled."},
+      {"id": "f17", "l": [6, 7], "r": [5, 8], "answer": "6/7", "choices": ["6/7", "5/8"], "why": "6/7 is bigger. More of the bar is filled."},
+      {"id": "f18", "l": [2, 6], "r": [1, 5], "answer": "2/6", "choices": ["2/6", "1/5"], "why": "2/6 is bigger. More of the bar is filled."},
+      {"id": "f19", "l": [3, 8], "r": [4, 6], "answer": "4/6", "choices": ["3/8", "4/6"], "why": "4/6 is bigger. More of the bar is filled."},
+      {"id": "f20", "l": [1, 2], "r": [6, 8], "answer": "6/8", "choices": ["1/2", "6/8"], "why": "6/8 is bigger. More of the bar is filled."},
+      {"id": "f21", "l": [1, 2], "r": [1, 3], "answer": "1/2", "choices": ["1/2", "1/3"], "why": "1/2 is bigger. More of the bar is filled."},
+      {"id": "f22", "l": [2, 4], "r": [2, 7], "answer": "2/4", "choices": ["2/4", "2/7"], "why": "2/4 is bigger. More of the bar is filled."},
+      {"id": "f23", "l": [1, 2], "r": [1, 4], "answer": "1/2", "choices": ["1/2", "1/4"], "why": "1/2 is bigger. More of the bar is filled."},
+      {"id": "f24", "l": [1, 6], "r": [1, 2], "answer": "1/2", "choices": ["1/6", "1/2"], "why": "1/2 is bigger. More of the bar is filled."},
+      {"id": "f25", "l": [1, 3], "r": [4, 6], "answer": "4/6", "choices": ["1/3", "4/6"], "why": "4/6 is bigger. More of the bar is filled."},
+      {"id": "f26", "l": [2, 7], "r": [5, 8], "answer": "5/8", "choices": ["2/7", "5/8"], "why": "5/8 is bigger. More of the bar is filled."},
+      {"id": "f27", "l": [3, 5], "r": [1, 7], "answer": "3/5", "choices": ["3/5", "1/7"], "why": "3/5 is bigger. More of the bar is filled."},
+      {"id": "f28", "l": [3, 6], "r": [1, 5], "answer": "3/6", "choices": ["3/6", "1/5"], "why": "3/6 is bigger. More of the bar is filled."},
+      {"id": "f29", "l": [4, 5], "r": [2, 3], "answer": "4/5", "choices": ["4/5", "2/3"], "why": "4/5 is bigger. More of the bar is filled."},
+      {"id": "f30", "l": [2, 8], "r": [3, 4], "answer": "3/4", "choices": ["2/8", "3/4"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f31", "l": [5, 6], "r": [1, 6], "answer": "5/6", "choices": ["5/6", "1/6"], "why": "5/6 is bigger. More of the bar is filled."},
+      {"id": "f32", "l": [2, 3], "r": [2, 8], "answer": "2/3", "choices": ["2/3", "2/8"], "why": "2/3 is bigger. More of the bar is filled."},
+      {"id": "f33", "l": [1, 2], "r": [5, 7], "answer": "5/7", "choices": ["1/2", "5/7"], "why": "5/7 is bigger. More of the bar is filled."},
+      {"id": "f34", "l": [2, 3], "r": [4, 8], "answer": "2/3", "choices": ["2/3", "4/8"], "why": "2/3 is bigger. More of the bar is filled."},
+      {"id": "f35", "l": [2, 3], "r": [3, 8], "answer": "2/3", "choices": ["2/3", "3/8"], "why": "2/3 is bigger. More of the bar is filled."},
+      {"id": "f36", "l": [2, 3], "r": [1, 2], "answer": "2/3", "choices": ["2/3", "1/2"], "why": "2/3 is bigger. More of the bar is filled."},
+      {"id": "f37", "l": [3, 4], "r": [5, 8], "answer": "3/4", "choices": ["3/4", "5/8"], "why": "3/4 is bigger. More of the bar is filled."},
+      {"id": "f38", "l": [1, 4], "r": [5, 6], "answer": "5/6", "choices": ["1/4", "5/6"], "why": "5/6 is bigger. More of the bar is filled."},
+      {"id": "f39", "l": [3, 7], "r": [5, 6], "answer": "5/6", "choices": ["3/7", "5/6"], "why": "5/6 is bigger. More of the bar is filled."}
+    ];
+    const FRACTIONS_BY_ID = FRACTIONS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     // Concrete or Abstract Noun: one noun in big letters; two choices.
     const CONCAB = [
       {"id": "c1", "word": "apple", "kind": "Concrete"},
@@ -4419,12 +4863,19 @@
       { id: "maketen", label: "Make Ten" },
       { id: "decimals", label: "Order Decimals" },
       { id: "rounding", label: "Rounding" },
+      { id: "fraction", label: "Fractions" },
+      { id: "placevalue", label: "Place Value" },
+      { id: "evenodd", label: "Even or Odd" },
+      { id: "prime", label: "Prime or Composite" },
+      { id: "clock", label: "Telling Time" },
+      { id: "money", label: "Counting Money" },
       { id: "oceanmap", label: "Ocean map" },
       { id: "ocean", label: "Oceans" },
       { id: "sport", label: "Sports" },
       { id: "hawaii", label: "Hawaiian Islands" },
       { id: "capital", label: "Capital trivia" },
       { id: "state", label: "Capital map" },
+      { id: "usstate", label: "US States" },
       { id: "element", label: "Elements" },
       { id: "flag", label: "Flags" },
       { id: "flagtrivia", label: "Flag trivia" },
@@ -4432,6 +4883,7 @@
       { id: "synonym", label: "Synonyms & Antonyms" },
       { id: "piano", label: "Piano Notes" },
       { id: "instrument", label: "Instruments" },
+      { id: "habitat", label: "Animal Habitats" },
       { id: "vehicle", label: "Vehicles" },
       { id: "vehicletrivia", label: "Vehicle trivia" },
       { id: "wonder", label: "Wonders of the World" },
@@ -4808,6 +5260,14 @@
     function isVehicleTrivia() { return state.operation === "vehicletrivia"; }
     function isWonder() { return state.operation === "wonder"; }
     function isAthlete() { return state.operation === "athlete"; }
+    function isHabitat() { return state.operation === "habitat"; }
+    function isUsstate() { return state.operation === "usstate"; }
+    function isMoney() { return state.operation === "money"; }
+    function isClock() { return state.operation === "clock"; }
+    function isPrime() { return state.operation === "prime"; }
+    function isEvenodd() { return state.operation === "evenodd"; }
+    function isPlacevalue() { return state.operation === "placevalue"; }
+    function isFraction() { return state.operation === "fraction"; }
     function isConcab() { return state.operation === "concab"; }
     function isPropcom() { return state.operation === "propcom"; }
     function isFragrun() { return state.operation === "fragrun"; }
@@ -4862,6 +5322,14 @@
       if (op === "vehicletrivia") return defaultVehicleTables();
       if (op === "wonder") return defaultWonderTables();
       if (op === "athlete") return ATHLETES.map(function (x) { return x.id; });
+      if (op === "habitat") return HABITATS.map(function (x) { return x.id; });
+      if (op === "usstate") return US_STATES.map(function (x) { return x.id; });
+      if (op === "money") return MONEY_COINS.map(function (x) { return x.id; });
+      if (op === "clock") return CLOCK_TIMES.map(function (x) { return x.id; });
+      if (op === "prime") return PRIME_COMP.map(function (x) { return x.id; });
+      if (op === "evenodd") return EVEN_ODD.map(function (x) { return x.id; });
+      if (op === "placevalue") return PLACE_VALUE.map(function (x) { return x.id; });
+      if (op === "fraction") return FRACTIONS.map(function (x) { return x.id; });
       if (op === "concab") return CONCAB.map(function (x) { return x.id; });
       if (op === "propcom") return PROPCOM.map(function (x) { return x.id; });
       if (op === "fragrun") return FRAGRUN.map(function (x) { return x.id; });
@@ -5811,6 +6279,14 @@
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) return fragrunProblem(FRAGRUN_BY_ID[pair.id]);
       if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) return propcomProblem(PROPCOM_BY_ID[pair.id]);
       if (pair.operation === "concab" && CONCAB_BY_ID[pair.id]) return concabProblem(CONCAB_BY_ID[pair.id]);
+      if (pair.operation === "fraction" && FRACTIONS_BY_ID[pair.id]) return fractionProblem(FRACTIONS_BY_ID[pair.id]);
+      if (pair.operation === "placevalue" && PLACE_VALUE_BY_ID[pair.id]) return placevalueProblem(PLACE_VALUE_BY_ID[pair.id]);
+      if (pair.operation === "evenodd" && EVEN_ODD_BY_ID[pair.id]) return evenoddProblem(EVEN_ODD_BY_ID[pair.id]);
+      if (pair.operation === "prime" && PRIME_COMP_BY_ID[pair.id]) return primeProblem(PRIME_COMP_BY_ID[pair.id]);
+      if (pair.operation === "clock" && CLOCK_TIMES_BY_ID[pair.id]) return clockProblem(CLOCK_TIMES_BY_ID[pair.id]);
+      if (pair.operation === "money" && MONEY_COINS_BY_ID[pair.id]) return moneyProblem(MONEY_COINS_BY_ID[pair.id]);
+      if (pair.operation === "usstate" && US_STATES_BY_ID[pair.id]) return usstateProblem(US_STATES_BY_ID[pair.id]);
+      if (pair.operation === "habitat" && HABITATS_BY_ID[pair.id]) return habitatProblem(HABITATS_BY_ID[pair.id]);
       if (pair.operation === "athlete" && ATHLETE_BY_ID[pair.id]) {
         return athleteProblem(ATHLETE_BY_ID[pair.id]);
       }
@@ -5958,6 +6434,14 @@
         if (isVehicleTrivia()) return buildVehicleTrivia(avoid);
         if (isWonder()) return buildWonder(avoid);
         if (isAthlete()) return buildAthlete();
+        if (isHabitat()) return buildHabitat();
+        if (isUsstate()) return buildUsstate();
+        if (isMoney()) return buildMoney();
+        if (isClock()) return buildClock();
+        if (isPrime()) return buildPrime();
+        if (isEvenodd()) return buildEvenodd();
+        if (isPlacevalue()) return buildPlacevalue();
+        if (isFraction()) return buildFraction();
         if (isConcab()) return buildConcab();
         if (isPropcom()) return buildPropcom();
         if (isFragrun()) return buildFragrun();
@@ -6080,6 +6564,14 @@
       if (pair.operation === "fragrun" && FRAGRUN_BY_ID[pair.id]) { const b = FRAGRUN_BY_ID[pair.id]; return "It\u2019s a " + b.kind.toLowerCase() + ". Fixed: \u201C" + b.fix + "\u201D " + FRAGRUN_HINT; }
       if (pair.operation === "propcom" && PROPCOM_BY_ID[pair.id]) { const b = PROPCOM_BY_ID[pair.id]; if (b.kind === "Proper") return "\u201C" + b.word + "\u201D is proper: it names a special " + b.pair + ". " + PROPCOM_HINT; return "\u201C" + b.word + "\u201D is common" + (b.pair ? ": " + b.pair + " is a special " + b.word : "") + ". " + PROPCOM_HINT; }
       if (pair.operation === "concab" && CONCAB_BY_ID[pair.id]) { const b = CONCAB_BY_ID[pair.id]; return "\u201C" + b.word + "\u201D is " + b.kind.toLowerCase() + ". " + CONCAB_HINT; }
+      if (pair.operation === "fraction" && FRACTIONS_BY_ID[pair.id]) return FRACTIONS_BY_ID[pair.id].why;
+      if (pair.operation === "placevalue" && PLACE_VALUE_BY_ID[pair.id]) return PLACE_VALUE_BY_ID[pair.id].why;
+      if (pair.operation === "evenodd" && EVEN_ODD_BY_ID[pair.id]) return EVEN_ODD_BY_ID[pair.id].why;
+      if (pair.operation === "prime" && PRIME_COMP_BY_ID[pair.id]) return PRIME_COMP_BY_ID[pair.id].why;
+      if (pair.operation === "clock" && CLOCK_TIMES_BY_ID[pair.id]) return CLOCK_TIMES_BY_ID[pair.id].why;
+      if (pair.operation === "money" && MONEY_COINS_BY_ID[pair.id]) return MONEY_COINS_BY_ID[pair.id].why;
+      if (pair.operation === "usstate" && US_STATES_BY_ID[pair.id]) return US_STATES_BY_ID[pair.id].why;
+      if (pair.operation === "habitat" && HABITATS_BY_ID[pair.id]) return HABITATS_BY_ID[pair.id].why;
       if (pair.operation === "athlete") {
         const body = ATHLETE_BY_ID[pair.id];
         return body ? body.name + " (" + ATHLETE_SPORT[body.sport] + ")" : pair.answer;
@@ -6140,7 +6632,7 @@
         if (body) return body.symbol + " is " + body.name + ".";
         return "The answer is " + pair.answer + ".";
       }
-      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "concab" || op === "propcom" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
+      if (op === "sport" || op === "hawaii" || op === "flag" || op === "flagtrivia" || op === "rhyme" || op === "synonym" || op === "piano" || op === "instrument" || op === "vehicle" || op === "vehicletrivia" || op === "wonder" || op === "athlete" || op === "habitat" || op === "usstate" || op === "money" || op === "clock" || op === "prime" || op === "evenodd" || op === "placevalue" || op === "fraction" || op === "concab" || op === "propcom" || op === "fragrun" || op === "punct" || op === "nounverb" || op === "mlb" || op === "cartoon" || op === "bor" || op === "nfl") {
         return "The answer is " + (pair.answer || "that") + ".";
       }
       if (op === "multiples") {
@@ -8114,10 +8606,11 @@
     const GAME_ICONS = { multiply: "\u2716\uFE0F", multiples: "\uD83D\uDD22", divide: "\u2797", add: "\u2795", subtract: "\u2796", maketen: "\uD83D\uDD1F", decimals: "\uD83D\uDCCF", rounding: "\uD83C\uDFAF",
       oceanmap: "\uD83D\uDDFA\uFE0F", ocean: "\uD83C\uDF0A", sport: "\u26BD", hawaii: "\uD83C\uDF3A", capital: "\uD83C\uDFDB\uFE0F", state: "\uD83D\uDCCD", element: "\u2697\uFE0F", flag: "\uD83C\uDFF3\uFE0F", flagtrivia: "\uD83D\uDEA9",
       rhyme: "\uD83C\uDFA4", synonym: "\uD83D\uDD04", piano: "\uD83C\uDFB9", instrument: "\uD83C\uDFB8", vehicle: "\uD83D\uDE97", vehicletrivia: "\uD83D\uDE80", wonder: "\uD83D\uDDFF", athlete: "\uD83C\uDFC6",
-      nfl: "\uD83C\uDFC8", mlb: "\u26BE", bor: "\uD83D\uDCDC", nounverb: "\uD83C\uDFC3", punct: "\u2757", fragrun: "\u270F\uFE0F", propcom: "\uD83D\uDD24", concab: "\uD83D\uDCA1", cartoon: "\uD83D\uDC2D" };
+      nfl: "\uD83C\uDFC8", mlb: "\u26BE", bor: "\uD83D\uDCDC", nounverb: "\uD83C\uDFC3", punct: "\u2757", fragrun: "\u270F\uFE0F", propcom: "\uD83D\uDD24", concab: "\uD83D\uDCA1", cartoon: "\uD83D\uDC2D",
+      fraction: "\uD83C\uDF55", placevalue: "\uD83D\uDCAF", evenodd: "\u2696\uFE0F", prime: "\uD83D\uDD0D", clock: "\u23F0", money: "\uD83E\uDE99", usstate: "\uD83C\uDDFA\uD83C\uDDF8", habitat: "\uD83D\uDC33" };
     function gameCategory(id) {
-      if (isMathGame(id)) return "math";
-      if (["oceanmap", "ocean", "hawaii", "capital", "state", "flag", "flagtrivia", "wonder"].indexOf(id) >= 0) return "world";
+      if (isMathGame(id) || ["fraction", "placevalue", "evenodd", "prime", "clock", "money"].indexOf(id) >= 0) return "math";
+      if (["oceanmap", "ocean", "hawaii", "capital", "state", "usstate", "flag", "flagtrivia", "wonder"].indexOf(id) >= 0) return "world";
       if (["rhyme", "synonym", "nounverb", "punct", "fragrun", "propcom", "concab", "bor"].indexOf(id) >= 0) return "words";
       if (["sport", "athlete", "nfl", "mlb", "cartoon"].indexOf(id) >= 0) return "sports";
       return "stuff";
@@ -8172,6 +8665,14 @@
       if (isFragrun()) hint = "Is it a fragment or a run-on? Fragment = missing part of a sentence. Run-on = two sentences smushed together.";
       if (isPropcom()) hint = "See a noun. Is it proper or common? A proper noun names a special person, place, or thing and starts with a capital letter.";
       if (isConcab()) hint = "See a noun. Is it concrete or abstract? Concrete = you can see, hear, touch, taste, or smell it. Abstract = a feeling or idea you can\u2019t touch.";
+      if (isFraction()) hint = "See two fractions. Tap the bigger one. The bars help!";
+      if (isPlacevalue()) hint = "See a number. What is the bright digit worth?";
+      if (isEvenodd()) hint = "See a number. Is it even or odd? Even numbers end in 0, 2, 4, 6, or 8.";
+      if (isPrime()) hint = "Prime = only 1 and itself go into it. Composite = other numbers go into it too.";
+      if (isClock()) hint = "Look at the clock. The short hand is the hour. The long red hand is the minutes.";
+      if (isMoney()) hint = "Add up the coins. Penny 1\u00a2, nickel 5\u00a2, dime 10\u00a2, quarter 25\u00a2.";
+      if (isUsstate()) hint = "See a state shape. Which state is it?";
+      if (isHabitat()) hint = "See an animal. Does it live on land or in the ocean?";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
       if (isInstrument()) hint = "Name instruments from clues, or match each instrument to its family.";
       if (isPiano()) hint = "One octave of 12 keys. Name the highlighted key.";
@@ -8225,6 +8726,14 @@
       if (isVehicleTrivia()) return "Vehicle trivia";
       if (isWonder()) return "Which wonder is this?";
       if (isAthlete()) return "Famous Sports People";
+      if (isHabitat()) return "Animal Habitats";
+      if (isUsstate()) return "US States";
+      if (isMoney()) return "Counting Money";
+      if (isClock()) return "Telling Time";
+      if (isPrime()) return "Prime or Composite";
+      if (isEvenodd()) return "Even or Odd";
+      if (isPlacevalue()) return "Place Value";
+      if (isFraction()) return "Fractions";
       if (isConcab()) return "Concrete or Abstract Noun";
       if (isPropcom()) return "Proper or Common Noun";
       if (isFragrun()) return "Fragment or Run-on";
@@ -8742,6 +9251,248 @@
       box.appendChild(el("p", { class: "nv-sentence wk-word" }, [el("mark", { class: "nv-word", text: body ? body.word : "" })]));
       return box;
     }
+    function fractionProblem(body) {
+      return {
+        operation: "fraction", id: body.id, pictureOnly: true, ask: "Which fraction is bigger?",
+        answer: body.answer, key: "fraction:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildFraction() {
+      if (!state.fractionBag || !state.fractionBag.length) {
+        const next = shuffle(FRACTIONS.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.fractionLast && next[0] === state.fractionLast) next.push(next.shift());
+        state.fractionBag = next;
+      }
+      const body = FRACTIONS_BY_ID[state.fractionBag.shift()];
+      state.fractionLast = body.id;
+      return fractionProblem(body);
+    }
+    function fractionCard(id) {
+      const b = FRACTIONS_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-fraction" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Which fraction is bigger?" }));
+      if (b) {
+        const row = el("div", { class: "gx-fracs" });
+        [b.l, b.r].forEach(function (f) {
+          const col = el("div", { class: "gx-frac" });
+          col.appendChild(el("div", { class: "gx-fnum" }, [el("span", { text: String(f[0]) }), el("span", { text: String(f[1]) })]));
+          const bar = el("div", { class: "gx-bar", "aria-hidden": "true" });
+          for (let i = 0; i < f[1]; i++) bar.appendChild(el("i", { class: i < f[0] ? "on" : "" }));
+          col.appendChild(bar);
+          row.appendChild(col);
+        });
+        box.appendChild(row);
+      }
+      return box;
+    }
+    function placevalueProblem(body) {
+      return {
+        operation: "placevalue", id: body.id, pictureOnly: true, ask: "What is the bright digit worth?",
+        answer: body.answer, key: "placevalue:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildPlacevalue() {
+      if (!state.placevalueBag || !state.placevalueBag.length) {
+        const next = shuffle(PLACE_VALUE.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.placevalueLast && next[0] === state.placevalueLast) next.push(next.shift());
+        state.placevalueBag = next;
+      }
+      const body = PLACE_VALUE_BY_ID[state.placevalueBag.shift()];
+      state.placevalueLast = body.id;
+      return placevalueProblem(body);
+    }
+    function placevalueCard(id) {
+      const b = PLACE_VALUE_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-placevalue" });
+      box.appendChild(el("p", { class: "nv-ask", text: "What is the bright digit worth?" }));
+      if (b) {
+        box.firstChild.textContent = "What is the " + b.digit + " worth?";
+        const p = el("p", { class: "gx-big gx-pv" });
+        const idx = b.num.indexOf(b.digit);
+        p.appendChild(document.createTextNode(b.num.slice(0, idx)));
+        p.appendChild(el("mark", { text: b.digit }));
+        p.appendChild(document.createTextNode(b.num.slice(idx + 1)));
+        box.appendChild(p);
+      }
+      return box;
+    }
+    function evenoddProblem(body) {
+      return {
+        operation: "evenodd", id: body.id, pictureOnly: true, ask: "Is this number even or odd?",
+        answer: body.answer, key: "evenodd:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildEvenodd() {
+      if (!state.evenoddBag || !state.evenoddBag.length) {
+        const next = shuffle(EVEN_ODD.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.evenoddLast && next[0] === state.evenoddLast) next.push(next.shift());
+        state.evenoddBag = next;
+      }
+      const body = EVEN_ODD_BY_ID[state.evenoddBag.shift()];
+      state.evenoddLast = body.id;
+      return evenoddProblem(body);
+    }
+    function evenoddCard(id) {
+      const b = EVEN_ODD_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-evenodd" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is this number even or odd?" }));
+      if (b) {
+        box.appendChild(el("p", { class: "gx-big", text: String(b.n) }));
+      }
+      return box;
+    }
+    function primeProblem(body) {
+      return {
+        operation: "prime", id: body.id, pictureOnly: true, ask: "Is this number prime or composite?",
+        answer: body.answer, key: "prime:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildPrime() {
+      if (!state.primeBag || !state.primeBag.length) {
+        const next = shuffle(PRIME_COMP.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.primeLast && next[0] === state.primeLast) next.push(next.shift());
+        state.primeBag = next;
+      }
+      const body = PRIME_COMP_BY_ID[state.primeBag.shift()];
+      state.primeLast = body.id;
+      return primeProblem(body);
+    }
+    function primeCard(id) {
+      const b = PRIME_COMP_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-prime" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Is this number prime or composite?" }));
+      if (b) {
+        box.appendChild(el("p", { class: "gx-big", text: String(b.n) }));
+      }
+      return box;
+    }
+    function clockProblem(body) {
+      return {
+        operation: "clock", id: body.id, pictureOnly: true, ask: "What time is it?",
+        answer: body.answer, key: "clock:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildClock() {
+      if (!state.clockBag || !state.clockBag.length) {
+        const next = shuffle(CLOCK_TIMES.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.clockLast && next[0] === state.clockLast) next.push(next.shift());
+        state.clockBag = next;
+      }
+      const body = CLOCK_TIMES_BY_ID[state.clockBag.shift()];
+      state.clockLast = body.id;
+      return clockProblem(body);
+    }
+    function clockCard(id) {
+      const b = CLOCK_TIMES_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-clock" });
+      box.appendChild(el("p", { class: "nv-ask", text: "What time is it?" }));
+      if (b) {
+        const hx = (b.h % 12) * 30 + b.m * 0.5, mx = b.m * 6;
+        let marks = "", nums = "";
+        for (let i = 0; i < 60; i++) {
+          const a = i * 6 * Math.PI / 180, r1 = i % 5 ? 88 : 82;
+          marks += '<line x1="' + (100 + Math.sin(a) * r1).toFixed(1) + '" y1="' + (100 - Math.cos(a) * r1).toFixed(1) + '" x2="' + (100 + Math.sin(a) * 92).toFixed(1) + '" y2="' + (100 - Math.cos(a) * 92).toFixed(1) + '" stroke="#1b2430" stroke-width="' + (i % 5 ? 1.2 : 3) + '"/>';
+        }
+        for (let n = 1; n <= 12; n++) {
+          const a = n * 30 * Math.PI / 180;
+          nums += '<text x="' + (100 + Math.sin(a) * 68).toFixed(1) + '" y="' + (100 - Math.cos(a) * 68 + 7).toFixed(1) + '" text-anchor="middle" font-size="20" font-weight="800" fill="#1b2430" font-family="system-ui, sans-serif">' + n + '</text>';
+        }
+        const wrapC = el("div", { "aria-hidden": "true" });
+        wrapC.innerHTML = '<svg class="gx-clock" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96" fill="#fffdf4" stroke="#5ff2ff" stroke-width="6"/>' + marks + nums +
+          '<line x1="100" y1="100" x2="100" y2="52" stroke="#1b2430" stroke-width="8" stroke-linecap="round" transform="rotate(' + hx + ' 100 100)"/>' +
+          '<line x1="100" y1="100" x2="100" y2="22" stroke="#e8364f" stroke-width="5" stroke-linecap="round" transform="rotate(' + mx + ' 100 100)"/>' +
+          '<circle cx="100" cy="100" r="6" fill="#1b2430"/></svg>';
+        box.appendChild(wrapC);
+      }
+      return box;
+    }
+    function moneyProblem(body) {
+      return {
+        operation: "money", id: body.id, pictureOnly: true, ask: "How much money is this?",
+        answer: body.answer, key: "money:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildMoney() {
+      if (!state.moneyBag || !state.moneyBag.length) {
+        const next = shuffle(MONEY_COINS.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.moneyLast && next[0] === state.moneyLast) next.push(next.shift());
+        state.moneyBag = next;
+      }
+      const body = MONEY_COINS_BY_ID[state.moneyBag.shift()];
+      state.moneyLast = body.id;
+      return moneyProblem(body);
+    }
+    function moneyCard(id) {
+      const b = MONEY_COINS_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-money" });
+      box.appendChild(el("p", { class: "nv-ask", text: "How much money is this?" }));
+      if (b) {
+        const row = el("div", { class: "gx-coins" });
+        const NAMES = { 1: "penny", 5: "nickel", 10: "dime", 25: "quarter" };
+        b.coins.forEach(function (c) { row.appendChild(el("span", { class: "gx-coin c" + c, "aria-label": NAMES[c] }, [document.createTextNode(c + "\u00a2"), el("small", { text: NAMES[c] })])); });
+        box.appendChild(row);
+      }
+      return box;
+    }
+    function usstateProblem(body) {
+      return {
+        operation: "usstate", id: body.id, pictureOnly: true, ask: "Which state is this?",
+        answer: body.answer, key: "usstate:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildUsstate() {
+      if (!state.usstateBag || !state.usstateBag.length) {
+        const next = shuffle(US_STATES.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.usstateLast && next[0] === state.usstateLast) next.push(next.shift());
+        state.usstateBag = next;
+      }
+      const body = US_STATES_BY_ID[state.usstateBag.shift()];
+      state.usstateLast = body.id;
+      return usstateProblem(body);
+    }
+    function usstateCard(id) {
+      const b = US_STATES_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-usstate" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Which state is this?" }));
+      if (b) {
+        box.appendChild(el("img", { class: "gx-state", src: "assets/states/" + b.id + ".svg", alt: "", decoding: "async" }));
+      }
+      return box;
+    }
+    function habitatProblem(body) {
+      return {
+        operation: "habitat", id: body.id, pictureOnly: true, ask: "Does it live on land or in the ocean?",
+        answer: body.answer, key: "habitat:" + body.id,
+        choices: shuffle(body.choices.slice())
+      };
+    }
+    function buildHabitat() {
+      if (!state.habitatBag || !state.habitatBag.length) {
+        const next = shuffle(HABITATS.map(function (a) { return a.id; }));
+        if (next.length > 1 && state.habitatLast && next[0] === state.habitatLast) next.push(next.shift());
+        state.habitatBag = next;
+      }
+      const body = HABITATS_BY_ID[state.habitatBag.shift()];
+      state.habitatLast = body.id;
+      return habitatProblem(body);
+    }
+    function habitatCard(id) {
+      const b = HABITATS_BY_ID[id];
+      const box = el("div", { class: "gx-card gx-habitat" });
+      box.appendChild(el("p", { class: "nv-ask", text: "Does it live on land or in the ocean?" }));
+      if (b) {
+        box.appendChild(el("span", { class: "gx-emoji", "aria-hidden": "true", text: b.emoji }));
+        box.appendChild(el("p", { class: "gx-name", text: b.name }));
+      }
+      return box;
+    }
     function athletePhoto(id) {
       const body = ATHLETE_BY_ID[id];
       const fig = el("div", { class: "athlete-figure" });
@@ -8762,6 +9513,14 @@
       if (op === "vehicle") return vehicleSvg(problem.id);
       if (op === "wonder") return wonderPhoto(problem.id);
       if (op === "athlete") return athletePhoto(problem.id);
+      if (op === "habitat") return habitatCard(problem.id);
+      if (op === "usstate") return usstateCard(problem.id);
+      if (op === "money") return moneyCard(problem.id);
+      if (op === "clock") return clockCard(problem.id);
+      if (op === "prime") return primeCard(problem.id);
+      if (op === "evenodd") return evenoddCard(problem.id);
+      if (op === "placevalue") return placevalueCard(problem.id);
+      if (op === "fraction") return fractionCard(problem.id);
       if (op === "concab") return concabCard(problem.id);
       if (op === "propcom") return propcomCard(problem.id);
       if (op === "fragrun") return fragrunCard(problem.id);
@@ -8988,6 +9747,22 @@
       state.wonderBag = null;
       state.wonderLast = "";
       state.athleteBag = null;
+      state.habitatBag = null;
+      state.habitatLast = "";
+      state.usstateBag = null;
+      state.usstateLast = "";
+      state.moneyBag = null;
+      state.moneyLast = "";
+      state.clockBag = null;
+      state.clockLast = "";
+      state.primeBag = null;
+      state.primeLast = "";
+      state.evenoddBag = null;
+      state.evenoddLast = "";
+      state.placevalueBag = null;
+      state.placevalueLast = "";
+      state.fractionBag = null;
+      state.fractionLast = "";
       state.concabBag = null;
       state.concabLast = "";
       state.propcomBag = null;

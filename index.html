@@ -2595,6 +2595,27 @@
     .prize-pick:active { transform: scale(0.97); }
     @keyframes prizeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { .prize-ov { animation: none; } .prize-pick:active { transform: none; } }
+    .buddy-row { display: flex; align-items: center; gap: 0.5rem; }
+    .buddy-row > :first-child { flex: 1 1 auto; min-width: 0; }
+    .game-buddy { position: relative; flex: 0 0 auto; width: 96px; line-height: 0; transform-origin: 50% 100%; pointer-events: none; }
+    .game-buddy svg { display: block; width: 96px; height: auto; }
+    .gb-bob { animation: gbBob 3.2s ease-in-out infinite; transform-origin: 50% 100%; }
+    .gb-hop { animation: gbHop 0.55s ease-out both; }
+    .gb-shake { animation: gbShake 0.4s ease-in-out both; }
+    .gb-cheer { animation: gbCheer 0.7s ease-out both; }
+    .gb-spark { position: absolute; font-size: 1.1rem; line-height: 1; opacity: 0; animation: gbSpark 0.7s ease-out both; }
+    .gb-spark.s1 { left: 0; top: 10%; } .gb-spark.s2 { right: 0; top: 0; animation-delay: 0.1s; } .gb-spark.s3 { left: 40%; top: -8%; animation-delay: 0.2s; }
+    @keyframes gbBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes gbHop { 0% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(0) scale(1.06, 0.92); } 55% { transform: translateY(-16px) scale(0.97, 1.04); } 85% { transform: translateY(0) scale(1.03, 0.97); } 100% { transform: none; } }
+    @keyframes gbShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px) rotate(-3deg); } 45% { transform: translateX(5px) rotate(3deg); } 70% { transform: translateX(-3px); } }
+    @keyframes gbCheer { 0% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-14px) rotate(-12deg) scale(1.08); } 70% { transform: translateY(-6px) rotate(10deg) scale(1.05); } 100% { transform: none; } }
+    @keyframes gbSpark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: translateY(-10px) scale(0.9); } }
+    .buddy-row .streak-banner { margin-bottom: 0.75rem; }
+    .buddy-row .quiz-score { margin: 0; }
+    @media (max-width: 480px) { .buddy-row .streak-next { font-size: 1rem; } }
+    @media (min-width: 700px) { .game-buddy, .game-buddy svg { width: 128px; } }
+    @media (max-width: 699px) { .buddy-row .quiz-score + .game-buddy, .buddy-row .quiz-score + .game-buddy svg { width: 70px; } .buddy-row:has(.quiz-score) { margin: -6px 0; } }
+    @media (prefers-reduced-motion: reduce) { .gb-bob, .gb-hop, .gb-shake, .gb-cheer { animation: none; } .gb-spark { display: none; } }
     .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.1rem; }
     .page-head .page-title { flex: 1 1 100%; text-align: center; font-size: 0; line-height: 0; text-shadow: none; }
     .logo-title { display: block; }
@@ -7402,6 +7423,7 @@
       const right = q.picked === q.fact.a * q.fact.b;
       q.attempted += 1;
       lbPoint(right, "multiply");
+      buddyMood(right ? "hop" : "shake");
       if (right) q.correct += 1;
       else {
         q.mistakes += 1;
@@ -7441,9 +7463,9 @@
         timer.appendChild(tag);
       }
       card.appendChild(timer);
-      card.appendChild(el("p", { class: "quiz-score", text: all
+      card.appendChild(withBuddy(el("p", { class: "quiz-score", text: all
         ? q.correct + "/" + q.total + " · Mistakes " + q.mistakes
-        : "Score " + q.correct + " / " + q.attempted }));
+        : "Score " + q.correct + " / " + q.attempted })));
       card.appendChild(el("p", { class: "quiz-fact", "aria-live": "polite", text: q.fact.a + " \u00d7 " + q.fact.b + " =" }));
       card.appendChild(el("p", { class: "quiz-flash" + (q.flash ? (q.flash.right ? " right" : " wrong") : ""), role: "status", text: q.flash ? q.flash.text : "" }));
       app.appendChild(card);
@@ -8637,6 +8659,26 @@
       say(streak + " in a row! Pick one prize: " + choices.map(function (c) { return c.name; }).join(" or ") + ".");
       const first = ov.querySelector("button");
       if (first) first.focus();
+    }
+    // ---- Game buddy: the kid's avatar next to the streak, gently animated. Nothing shows until an avatar is made. ----
+    let buddy = { mood: "", at: 0 };
+    function buddyMood(m) { buddy = { mood: m, at: performance.now() }; }
+    function withBuddy(node) {
+      if (!avatar.made) return node;
+      const row = el("div", { class: "buddy-row" });
+      row.appendChild(node);
+      const fresh = performance.now() - buddy.at < 700;
+      const mood = fresh ? buddy.mood : "";
+      const wrap = el("div", { class: "game-buddy" + (mood ? " gb-" + mood : ""), "aria-hidden": "true" });
+      if (fresh) wrap.style.animationDelay = "-" + Math.round(performance.now() - buddy.at) + "ms";
+      const bob = el("div", { class: "gb-bob" });
+      // A right answer shows the big smile for a moment.
+      const look = mood === "hop" || mood === "cheer" ? Object.assign({}, avatar, { face: "grin" }) : avatar;
+      bob.appendChild(avNode(look, 96));
+      wrap.appendChild(bob);
+      if (mood === "cheer") ["s1", "s2", "s3"].forEach(function (k) { wrap.appendChild(el("span", { class: "gb-spark " + k, text: "\u2728" })); });
+      row.appendChild(wrap);
+      return row;
     }
     // ---- Closet page ----
     let closetTab = "look";
@@ -10122,7 +10164,7 @@
       if (state.gain) score.appendChild(el("span", { text: " +" + state.gain, style: "color:#1e7a4d" }));
       hud.appendChild(score);
       app.appendChild(hud);
-      app.appendChild(streakBanner());
+      app.appendChild(withBuddy(streakBanner()));
       if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + beatLabel(state.beatJustUnlocked) + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isMultiples()) {
@@ -10382,6 +10424,7 @@
       playTone(ok);
       if (ok) {
         state.streak += 1;
+        buddyMood(state.streak % 10 === 0 ? "cheer" : "hop");
         state.lbOp = problem.operation || state.operation;
         lbPoint(true, problem.operation || state.operation);
         if (state.streak % AV_PRIZE_EVERY === 0) { const prizeAt = state.streak; setTimeout(function () { avPrizeWhenClear(prizeAt, 0); }, 650); }
@@ -10404,6 +10447,7 @@
       } else {
         lbStreakEnded(state.streak, problem.operation || state.operation);
         lbPoint(false, problem.operation || state.operation);
+        buddyMood("shake");
         state.streak = 0;
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {

@@ -2594,7 +2594,30 @@
     .prize-pick.gold { border-color: #f5c542; background: linear-gradient(180deg, #3a2a10, #1a1233); }
     .prize-pick:active { transform: scale(0.97); }
     @keyframes prizeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) { .prize-ov { animation: none; } .prize-pick:active { transform: none; } }
+    .pz-box { width: min(40rem, 100%); max-height: calc(100dvh - 2rem); display: flex; flex-direction: column; padding: 0.9rem; }
+    .pz-wrap { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; flex: 1 1 auto; }
+    .pz-tabs { display: flex; gap: 0.35rem; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; padding-bottom: 0.3rem; scrollbar-width: none; }
+    .pz-tabs::-webkit-scrollbar { display: none; }
+    .pz-tab { flex: 0 0 auto; padding: 0.45rem 0.8rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.3); background: #1a1233; color: #fff; font-weight: 900; font-size: 0.95rem; cursor: pointer; }
+    .pz-tab.on { background: #ffd36a; border-color: #ffd36a; color: #241944; }
+    .pz-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); grid-auto-columns: 5.2rem; gap: 0.45rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding: 0.4rem 0.1rem 0.5rem; }
+    @media (min-width: 700px) { .pz-grid { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr)); overflow: auto; max-height: 52vh; } }
+    .pz-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; padding: 0.35rem 0.2rem; min-height: 6.4rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.22); background: rgba(18,10,38,0.85); color: #fff; font-weight: 800; font-size: 0.8rem; scroll-snap-align: start; cursor: default; }
+    .pz-item .av svg { display: block; }
+    .pz-item.can { cursor: pointer; border-color: #5ff2ff; }
+    .pz-item.gold { border-color: rgba(245,197,66,0.85); }
+    .pz-item.have { opacity: 0.75; }
+    .pz-item.locked, .closet-opt.locked, .closet-swatch.locked { opacity: 0.45; }
+    .closet-opt.locked, .closet-swatch.locked { position: relative; }
+    .pz-name { text-align: center; line-height: 1.1; }
+    .pz-swatch { width: 3rem; height: 3rem; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4); }
+    .pz-badge { position: absolute; top: 0.15rem; right: 0.2rem; font-size: 0.9rem; line-height: 1; }
+    .pz-badge.ok { color: #241944; background: #7ee07a; border-radius: 50%; width: 1.2rem; height: 1.2rem; display: grid; place-items: center; font-weight: 900; }
+    .closet-swatch .pz-badge { top: -0.3rem; right: -0.3rem; }
+    .pz-later { margin-top: 0.6rem; align-self: center; padding: 0.55rem 1.6rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.5); background: transparent; color: #fff; font-weight: 900; font-size: 1.05rem; cursor: pointer; }
+    .pz-claim { padding: 0.7rem; border-radius: 1rem; border: 3px solid #ffd36a; background: #3a2a10; color: #ffd36a; font-weight: 900; font-size: 1.1rem; cursor: pointer; }
+    .pz-item.can:active { transform: scale(0.96); }
+    @media (prefers-reduced-motion: reduce) { .prize-ov { animation: none; } .pz-item.can:active { transform: none; } .prize-pick:active { transform: none; } }
     .buddy-row { display: flex; align-items: center; gap: 0.5rem; }
     .buddy-row > :first-child { flex: 1 1 auto; min-width: 0; }
     .game-buddy { position: relative; flex: 0 0 auto; width: 96px; line-height: 0; transform-origin: 50% 100%; pointer-events: none; }
@@ -8412,15 +8435,34 @@
     ];
     const AV_GOLD_AT = 50;
     function avItem(id) { return AV_ITEMS.find(function (i) { return i.id === id; }) || null; }
+    // Look parts are unlockable too. Short ids keep the saved data small: s.robot, a.fox, c5, f.wow, h.bun, k3.
+    const AV_LOOK = [].concat(
+      AV_STYLES.map(function (x) { return { id: "s." + x[0], cat: "style", key: "style", val: x[0], name: x[1] }; }),
+      AV_ANIMALS.map(function (x) { return { id: "a." + x[0], cat: "animal", key: "animal", val: x[0], name: x[1] }; }),
+      AV_COLORS.map(function (c, i) { return { id: "c" + i, cat: "color", key: "color", val: c, name: "Color", swatch: c }; }),
+      AV_FACES.map(function (x) { return { id: "f." + x[0], cat: "face", key: "face", val: x[0], name: x[1] }; }),
+      AV_HAIRS.filter(function (x) { return x[0] !== "none"; }).map(function (x) { return { id: "h." + x[0], cat: "hair", key: "hair", val: x[0], name: x[1] }; }),
+      AV_HAIR_COLORS.map(function (c, i) { return { id: "k" + i, cat: "hair", key: "hairColor", val: c, name: "Hair color", swatch: c }; }));
+    const AV_FREE = ["s.buddy", "a.cat", "c0", "c1", "c2", "c3", "f.smile", "f.grin", "h.spiky", "h.curly", "k0", "k1"];
+    function avLook(id) { return AV_LOOK.find(function (i) { return i.id === id; }) || null; }
+    function avLookId(key, val) { const it = AV_LOOK.find(function (i) { return i.key === key && i.val === val; }); return it ? it.id : ""; }
+    function avOwns(id) { return !id || AV_FREE.indexOf(id) >= 0 || avatar.owned.indexOf(id) >= 0; }
     function avClean(a) {
       a = a && typeof a === "object" ? a : {};
       const ok = function (list, v, d) { return list.some(function (x) { return x[0] === v; }) ? v : d; };
-      const owned = Array.isArray(a.owned) ? a.owned.filter(function (id, i, arr) { return avItem(id) && arr.indexOf(id) === i; }) : [];
+      let owned = Array.isArray(a.owned) ? a.owned.filter(function (id, i, arr) { return (avItem(id) || (avLook(id) && AV_FREE.indexOf(id) < 0)) && arr.indexOf(id) === i; }) : [];
+      // Saves from before unlockable looks: keep every part the kid already uses.
+      if (Number(a.v) !== 2 && a.made) {
+        [["style", a.style], ["color", a.color], ["face", a.face]].concat(a.style === "animal" ? [["animal", a.animal]] : [])
+          .concat(a.hair && a.hair !== "none" ? [["hair", a.hair], ["hairColor", a.hairColor]] : [])
+          .forEach(function (p) { const id = avLookId(p[0], p[1]); if (id && AV_FREE.indexOf(id) < 0 && owned.indexOf(id) < 0) owned.push(id); });
+      }
       const wear = {};
       AV_SLOTS.forEach(function (s) { const it = a.wear && avItem(a.wear[s[0]]); if (it && it.slot === s[0] && owned.indexOf(it.id) >= 0) wear[s[0]] = it.id; });
-      return { v: 1, made: !!a.made, style: ok(AV_STYLES, a.style, "buddy"), animal: ok(AV_ANIMALS, a.animal, "cat"),
+      return { v: 2, made: !!a.made, style: ok(AV_STYLES, a.style, "buddy"), animal: ok(AV_ANIMALS, a.animal, "cat"),
         color: AV_COLORS.indexOf(a.color) >= 0 ? a.color : AV_COLORS[3], face: ok(AV_FACES, a.face, "smile"),
-        hair: ok(AV_HAIRS, a.hair, "none"), hairColor: AV_HAIR_COLORS.indexOf(a.hairColor) >= 0 ? a.hairColor : AV_HAIR_COLORS[1], wear: wear, owned: owned, updated: Number(a.updated) || 0 };
+        hair: ok(AV_HAIRS, a.hair, "none"), hairColor: AV_HAIR_COLORS.indexOf(a.hairColor) >= 0 ? a.hairColor : AV_HAIR_COLORS[1], wear: wear, owned: owned,
+        pz: Math.max(0, Math.min(99, Number(a.pz) || 0)), pg: a.pg ? 1 : 0, updated: Number(a.updated) || 0 };
     }
     let avatar = (function () { try { return avClean(JSON.parse(localStorage.getItem(AV_KEY) || "null")); } catch (e) { return avClean(null); } })();
     let avPushTimer = 0;
@@ -8614,7 +8656,7 @@
       copy.wear[it.slot] = itemId;
       return copy;
     }
-    // ---- Prize: every 10 in a row, pick 1 of 2 new items. Gold items join at 50+. ----
+    // ---- Prize: every 10 in a row, pick anything from the full list. Gold items need a streak of 50+. ----
     const AV_PRIZE_EVERY = 10;
     // A beat unlock can land on the same streak: wait for its burst / congrats popup to finish, then show the prize.
     function avPrizeWhenClear(at, tries) {
@@ -8623,43 +8665,88 @@
       if (busy && tries < 200) { setTimeout(function () { avPrizeWhenClear(at, tries + 1); }, 400); return; }
       avPrize(at);
     }
-    function avPrizeChoices(streak) {
-      const free = AV_ITEMS.filter(function (i) { return avatar.owned.indexOf(i.id) < 0; });
-      const gold = free.filter(function (i) { return i.gold; }), plain = free.filter(function (i) { return !i.gold; });
-      const shuffle = function (arr) { return arr.slice().sort(function () { return Math.random() - 0.5; }); };
-      let pick = [];
-      if (streak >= AV_GOLD_AT && gold.length) pick.push(shuffle(gold)[0]);
-      shuffle(plain).forEach(function (i) { if (pick.length < 2 && !pick.some(function (x) { return x.slot === i.slot; })) pick.push(i); });
-      shuffle(plain.concat(streak >= AV_GOLD_AT ? gold : [])).forEach(function (i) { if (pick.length < 2 && pick.indexOf(i) < 0) pick.push(i); });
-      return pick;
+    const AV_CATS = [["style", "Styles"], ["animal", "Animals"], ["color", "Colors"], ["face", "Faces"], ["hair", "Hair"]].concat(AV_SLOTS);
+    function avAll(cat) {
+      return AV_LOOK.filter(function (i) { return i.cat === cat; }).concat(AV_ITEMS.filter(function (i) { return i.slot === cat; }));
     }
-    function avPrizeOpen() { return !!document.querySelector(".prize-ov"); }
+    function avCanWin(it) { return !avOwns(it.id) && (!it.gold || avatar.pg); }
+    function avAnyToWin() { return AV_CATS.some(function (c) { return avAll(c[0]).some(avCanWin); }); }
+    function avPreview(it) {
+      const a = Object.assign({}, avatar);
+      if (it.slot) { a.wear = {}; a.wear[it.slot] = it.id; a.owned = avatar.owned.concat([it.id]); return a; }
+      a.wear = {};
+      a[it.key] = it.val;
+      if (it.key === "animal") a.style = "animal";
+      if (it.cat === "hair" && !avHasHair(a)) a.style = "buddy";
+      if (it.key === "hairColor" && a.hair === "none") a.hair = "curly";
+      return a;
+    }
+    function avApply(it) {
+      if (it.slot) { avatar.wear[it.slot] = it.id; return; }
+      const p = avPreview(it);
+      ["style", "animal", "hair"].forEach(function (k) { if (p[k] !== avatar[k] && avOwns(avLookId(k, p[k]) || "")) avatar[k] = p[k]; });
+      avatar[it.key] = it.val;
+    }
+    // The tabbed item grid, shared by the prize screen (win mode) and the Closet's All items view (look only).
+    let avTab = "style";
+    function avGrid(win, onWin) {
+      const wrap = el("div", { class: "pz-wrap" });
+      const tabs = el("div", { class: "pz-tabs", role: "tablist" });
+      AV_CATS.forEach(function (c) {
+        if (!avAll(c[0]).length) return;
+        tabs.appendChild(el("button", { type: "button", role: "tab", class: "pz-tab" + (avTab === c[0] ? " on" : ""), "aria-selected": String(avTab === c[0]), text: c[1], onClick: function () {
+          avTab = c[0]; const fresh = avGrid(win, onWin); wrap.replaceWith(fresh); 
+        } }));
+      });
+      requestAnimationFrame(function () { const t = tabs.querySelector(".pz-tab.on"); if (t) tabs.scrollLeft = Math.max(0, t.offsetLeft - tabs.offsetLeft - 8); });
+      wrap.appendChild(tabs);
+      const grid = el("div", { class: "pz-grid" });
+      avAll(avTab).forEach(function (it) {
+        const have = avOwns(it.id), goldLock = !have && it.gold && !avatar.pg;
+        const pic = it.swatch ? el("span", { class: "pz-swatch", style: "background:" + it.swatch }) : avNode(avPreview(it), 56);
+        const kids = [pic, el("span", { class: "pz-name", text: it.name })];
+        if (have) kids.push(el("span", { class: "pz-badge ok", text: "\u2713" }));
+        else if (goldLock) kids.push(el("span", { class: "pz-badge", text: "\uD83D\uDD12" }));
+        const can = win && !have && !goldLock;
+        grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (goldLock ? " locked" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
+          "aria-label": it.name + (have ? ", yours" : goldLock ? ", needs 50 in a row" : ""), "aria-disabled": String(!can),
+          onClick: function () { if (can) onWin(it); else if (goldLock) say("Gold needs 50 in a row."); } }, kids));
+      });
+      wrap.appendChild(grid);
+      return wrap;
+    }
     function avPrize(streak) {
       if (avPrizeOpen() || (state.phase !== "play" && state.phase !== "quiz")) return;
-      const choices = avPrizeChoices(streak);
-      if (!choices.length) return;
+      if (streak >= AV_GOLD_AT) avatar.pg = 1;
+      if (!avAnyToWin()) return;
+      avatar.pz = (avatar.pz || 0) + 1;
+      avSave();
+      avPrizeShow(streak + " in a row!");
+    }
+    function avPrizeShow(title) {
+      if (avPrizeOpen() || !avatar.pz || !avAnyToWin()) return;
       const ov = el("div", { class: "prize-ov", role: "dialog", "aria-modal": "true", "aria-label": "Pick a prize" });
-      const box = el("div", { class: "prize-box" });
-      box.appendChild(el("p", { class: "prize-title", text: streak + " in a row!" }));
-      box.appendChild(el("p", { class: "prize-sub", text: "Pick one prize" }));
-      const row = el("div", { class: "prize-row" });
-      choices.forEach(function (it) {
-        const b = el("button", { type: "button", class: "prize-pick" + (it.gold ? " gold" : ""), onClick: function () {
-          avatar.owned.push(it.id);
-          avatar.wear[it.slot] = it.id;
-          avSave();
-          ov.remove();
-          say("You got " + it.name + ".");
-        } }, [avNode(avWith(it.id), 110), el("span", { class: "prize-name", text: (it.gold ? "\u2B50 " : "") + it.name })]);
-        row.appendChild(b);
-      });
-      box.appendChild(row);
+      const box = el("div", { class: "prize-box pz-box" });
+      box.appendChild(el("p", { class: "prize-title", text: title || "Pick a prize!" }));
+      box.appendChild(el("p", { class: "prize-sub", text: title ? "Pick a prize!" : "Tap one to keep it." }));
+      const close = function () { ov.remove(); if (state.phase === "setup") render(); };
+      box.appendChild(avGrid(true, function (it) {
+        if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id);
+        avApply(it);
+        avatar.made = true;
+        avatar.pz = Math.max(0, avatar.pz - 1);
+        avSave();
+        close();
+        say("You got " + it.name + "!");
+      }));
+      box.appendChild(el("button", { type: "button", class: "pz-later", text: "Later", onClick: function () { close(); say("Your prize waits in the Closet."); } }));
       ov.appendChild(box);
       document.body.appendChild(ov);
-      say(streak + " in a row! Pick one prize: " + choices.map(function (c) { return c.name; }).join(" or ") + ".");
-      const first = ov.querySelector("button");
-      if (first) first.focus();
+      say((title ? title + " " : "") + "Pick a prize!");
+      const first = ov.querySelector(".pz-item.can") || ov.querySelector("button");
+      if (first) first.focus({ preventScroll: true });
     }
+    function avPrizeOpen() { return !!document.querySelector(".prize-ov"); }
     // ---- Game buddy: the kid's avatar next to the streak, gently animated. Nothing shows until an avatar is made. ----
     let buddy = { mood: "", at: 0 };
     function buddyMood(m) { buddy = { mood: m, at: performance.now() }; }
@@ -8686,39 +8773,44 @@
       const card = el("div", { class: "card closet-card" });
       card.appendChild(el("div", { class: "closet-preview" }, [avNode(avatar, 150)]));
       const tabs = el("div", { class: "lb-tabs", role: "tablist" });
-      [["look", "My Look"], ["clothes", "My Clothes"]].forEach(function (t) {
+      [["look", "My Look"], ["clothes", "My Clothes"], ["all", "All items"]].forEach(function (t) {
         tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (closetTab === t[0] ? " on" : ""), "aria-selected": String(closetTab === t[0]), text: t[1], onClick: function () { closetTab = t[0]; render(); } }));
       });
+      if (avatar.pz > 0 && avAnyToWin()) card.insertBefore(el("button", { type: "button", class: "pz-claim", text: "\uD83C\uDF81 You have a prize! Pick it", onClick: function () { avPrizeShow(""); } }), card.firstChild.nextSibling);
       card.appendChild(tabs);
-      const set = function (k, v) { avatar[k] = v; avatar.made = true; avSave(); render(); };
+      const set = function (k, v) { const id = avLookId(k, v); if (!avOwns(id)) { say("Win it with 10 in a row!"); return; } avatar[k] = v; avatar.made = true; avSave(); render(); };
       const sec = function (title, kids, cls) { return el("div", { class: "closet-sec" }, [el("p", { class: "closet-h", text: title }), el("div", { class: "closet-opts " + (cls || "") }, kids)]); };
-      if (closetTab === "look") {
+      const lk = function (btn, key, val) { if (!avOwns(avLookId(key, val))) { btn.classList.add("locked"); btn.setAttribute("aria-label", "Locked"); btn.appendChild(el("span", { class: "pz-badge", text: "\uD83D\uDD12" })); } return btn; };
+      if (closetTab === "all") {
+        card.appendChild(avGrid(false));
+        card.appendChild(el("p", { class: "lb-hint", text: "Get 10 in a row to pick one." }));
+      } else if (closetTab === "look") {
         card.appendChild(sec("Pick a style", AV_STYLES.map(function (s) {
           const prev = Object.assign({}, avatar, { style: s[0] });
-          return el("button", { type: "button", class: "closet-opt" + (avatar.style === s[0] ? " on" : ""), "aria-pressed": String(avatar.style === s[0]), onClick: function () { set("style", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+          return lk(el("button", { type: "button", class: "closet-opt" + (avatar.style === s[0] ? " on" : ""), "aria-pressed": String(avatar.style === s[0]), onClick: function () { set("style", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]), "style", s[0]);
         })));
         if (avatar.style === "animal") card.appendChild(sec("Pick an animal", AV_ANIMALS.map(function (s) {
           const prev = Object.assign({}, avatar, { animal: s[0] });
-          return el("button", { type: "button", class: "closet-opt" + (avatar.animal === s[0] ? " on" : ""), "aria-pressed": String(avatar.animal === s[0]), onClick: function () { set("animal", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+          return lk(el("button", { type: "button", class: "closet-opt" + (avatar.animal === s[0] ? " on" : ""), "aria-pressed": String(avatar.animal === s[0]), onClick: function () { set("animal", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]), "animal", s[0]);
         })));
         card.appendChild(sec("Pick a color", AV_COLORS.map(function (col) {
-          return el("button", { type: "button", class: "closet-swatch" + (avatar.color === col ? " on" : ""), "aria-label": "Color", "aria-pressed": String(avatar.color === col), style: "background:" + col, onClick: function () { set("color", col); } });
+          return lk(el("button", { type: "button", class: "closet-swatch" + (avatar.color === col ? " on" : ""), "aria-label": "Color", "aria-pressed": String(avatar.color === col), style: "background:" + col, onClick: function () { set("color", col); } }), "color", col);
         }), "swatches"));
         card.appendChild(sec("Pick a face", AV_FACES.map(function (s) {
           const prev = Object.assign({}, avatar, { face: s[0], wear: {} });
-          return el("button", { type: "button", class: "closet-opt" + (avatar.face === s[0] ? " on" : ""), "aria-pressed": String(avatar.face === s[0]), onClick: function () { set("face", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+          return lk(el("button", { type: "button", class: "closet-opt" + (avatar.face === s[0] ? " on" : ""), "aria-pressed": String(avatar.face === s[0]), onClick: function () { set("face", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]), "face", s[0]);
         })));
         if (avHasHair(avatar)) {
           card.appendChild(sec("Pick hair", AV_HAIRS.map(function (s) {
             const prev = Object.assign({}, avatar, { hair: s[0], wear: {} });
-            return el("button", { type: "button", class: "closet-opt" + (avatar.hair === s[0] ? " on" : ""), "aria-pressed": String(avatar.hair === s[0]), onClick: function () { set("hair", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+            return lk(el("button", { type: "button", class: "closet-opt" + (avatar.hair === s[0] ? " on" : ""), "aria-pressed": String(avatar.hair === s[0]), onClick: function () { set("hair", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]), "hair", s[0]);
           })));
           if (avatar.hair !== "none") card.appendChild(sec("Hair color", AV_HAIR_COLORS.map(function (col) {
-            return el("button", { type: "button", class: "closet-swatch" + (avatar.hairColor === col ? " on" : ""), "aria-label": "Hair color", "aria-pressed": String(avatar.hairColor === col), style: "background:" + col, onClick: function () { set("hairColor", col); } });
+            return lk(el("button", { type: "button", class: "closet-swatch" + (avatar.hairColor === col ? " on" : ""), "aria-label": "Hair color", "aria-pressed": String(avatar.hairColor === col), style: "background:" + col, onClick: function () { set("hairColor", col); } }), "hairColor", col);
           }), "swatches"));
         }
       } else {
-        if (!avatar.owned.length) card.appendChild(el("p", { class: "closet-empty", text: "Get 10 right in a row to win clothes!" }));
+        if (!AV_ITEMS.some(function (i) { return avatar.owned.indexOf(i.id) >= 0; })) card.appendChild(el("p", { class: "closet-empty", text: "Get 10 right in a row to win clothes!" }));
         AV_SLOTS.forEach(function (s) {
           const mine = AV_ITEMS.filter(function (i) { return i.slot === s[0] && avatar.owned.indexOf(i.id) >= 0; });
           if (!mine.length) return;
@@ -8730,8 +8822,8 @@
             } }, [avNode(Object.assign({}, avatar, { wear: (function () { const o = {}; o[s[0]] = it.id; return o; })() }), 56), el("span", { text: it.name })]);
           })));
         });
-        const left = AV_ITEMS.length - avatar.owned.length;
-        if (avatar.owned.length) card.appendChild(el("p", { class: "lb-hint", text: left ? left + " more to win. Tap to put on or take off." : "You won them all!" }));
+        const left = AV_ITEMS.filter(function (i) { return avatar.owned.indexOf(i.id) < 0; }).length;
+        if (AV_ITEMS.some(function (i) { return avatar.owned.indexOf(i.id) >= 0; })) card.appendChild(el("p", { class: "lb-hint", text: left ? left + " more to win. Tap to put on or take off." : "You won them all!" }));
       }
       return card;
     }

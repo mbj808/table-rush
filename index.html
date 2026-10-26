@@ -2573,8 +2573,10 @@
     .closet-preview { display: flex; justify-content: center; padding: 0.6rem; border-radius: 1.2rem; background: radial-gradient(circle at 50% 60%, rgba(255,255,255,0.22), rgba(18,10,38,0.8) 70%); border: 2px solid rgba(255,255,255,0.25); }
     .closet-sec { display: flex; flex-direction: column; gap: 0.4rem; }
     .closet-h { margin: 0; font-size: 1.15rem; font-weight: 900; }
-    .closet-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; }
-    .closet-opts.swatches { grid-template-columns: repeat(8, 1fr); }
+    .closet-opts { display: flex; gap: 0.45rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding: 0.15rem 0.1rem 0.45rem; scrollbar-width: thin; }
+    .closet-opts > * { flex: 0 0 4.7rem; scroll-snap-align: start; }
+    .closet-opts.swatches > * { flex: 0 0 2.6rem; width: 2.6rem; }
+    @media (min-width: 700px) { .closet-opts { flex-wrap: wrap; overflow-x: visible; } }
     .closet-opt { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.35rem 0.2rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.25); background: rgba(18,10,38,0.82); color: #fff; font-weight: 800; font-size: 0.85rem; cursor: pointer; min-width: 0; }
     .closet-opt .av svg, .prize-pick .av svg { display: block; }
     .closet-opt span:last-child { text-align: center; line-height: 1.1; }
@@ -8354,10 +8356,14 @@
     }
     // ---- Avatar + Closet. Saved on this device (not cleared by Reset Challenge); synced to the class sheet when a leaderboard name is set. ----
     const AV_KEY = "mad-facts-avatar";
-    const AV_STYLES = [["buddy", "Buddy"], ["robot", "Robot"], ["animal", "Animal"], ["pixel", "Pixel"]];
-    const AV_ANIMALS = [["cat", "Cat"], ["dog", "Dog"], ["bunny", "Bunny"], ["panda", "Panda"]];
-    const AV_COLORS = ["#ff8a5c", "#ffd34e", "#7ee07a", "#4fd1e8", "#6f8cff", "#b47cff", "#ff7ab8", "#c9c9d6"];
-    const AV_FACES = [["smile", "Smile"], ["grin", "Big grin"], ["wow", "Wow"], ["wink", "Wink"]];
+    const AV_STYLES = [["buddy", "Buddy"], ["robot", "Robot"], ["animal", "Animal"], ["pixel", "Pixel"], ["alien", "Alien"], ["dino", "Dino"], ["monster", "Monster"]];
+    const AV_ANIMALS = [["cat", "Cat"], ["dog", "Dog"], ["bunny", "Bunny"], ["panda", "Panda"], ["fox", "Fox"], ["owl", "Owl"], ["turtle", "Turtle"], ["bear", "Bear"], ["mouse", "Mouse"]];
+    const AV_COLORS = ["#ff8a5c", "#ffd34e", "#7ee07a", "#4fd1e8", "#6f8cff", "#b47cff", "#ff7ab8", "#c9c9d6",
+      "#ff5a5a", "#f2a65a", "#b8e05a", "#2fbf9f", "#a0785a", "#f5e6c8"];
+    const AV_FACES = [["smile", "Smile"], ["grin", "Big grin"], ["wow", "Wow"], ["wink", "Wink"], ["happy", "Happy"], ["tongue", "Tongue"], ["sleepy", "Sleepy"], ["silly", "Silly"]];
+    const AV_HAIRS = [["none", "None"], ["spiky", "Spiky"], ["curly", "Curly"], ["long", "Long"], ["bun", "Bun"], ["pony", "Ponytail"], ["mohawk", "Mohawk"], ["bob", "Bob"], ["afro", "Puffy"]];
+    const AV_HAIR_COLORS = ["#2a1d1a", "#6b3e1f", "#e8c25a", "#d2552a", "#ff7ab8", "#4f8cff", "#9b5cff", "#f4f4f8"];
+    function avHasHair(a) { return a.style === "buddy" || a.style === "pixel" || a.style === "alien" || a.style === "monster"; }
     const AV_SLOTS = [["hat", "Hats"], ["shirt", "Shirts"], ["glasses", "Glasses"], ["shoes", "Shoes"], ["pet", "Pets"]];
     const AV_ITEMS = [
       { id: "cap", slot: "hat", name: "Red cap" }, { id: "beanie", slot: "hat", name: "Beanie" }, { id: "party", slot: "hat", name: "Party hat" },
@@ -8372,6 +8378,14 @@
       { id: "pdog", slot: "pet", name: "Puppy", emoji: "\uD83D\uDC36" }, { id: "pcat", slot: "pet", name: "Kitty", emoji: "\uD83D\uDC31" },
       { id: "pturtle", slot: "pet", name: "Turtle", emoji: "\uD83D\uDC22" }, { id: "pfish", slot: "pet", name: "Fish", emoji: "\uD83D\uDC20" },
       { id: "pparrot", slot: "pet", name: "Parrot", emoji: "\uD83E\uDD9C" }, { id: "poctopus", slot: "pet", name: "Octopus", emoji: "\uD83D\uDC19" },
+      { id: "chef", slot: "hat", name: "Chef hat" }, { id: "pirate", slot: "hat", name: "Pirate hat" }, { id: "viking", slot: "hat", name: "Viking hat" },
+      { id: "bow", slot: "hat", name: "Big bow" }, { id: "headphones", slot: "hat", name: "Headphones" }, { id: "halo", slot: "hat", name: "Gold halo", gold: true },
+      { id: "lei", slot: "shirt", name: "Flower lei" }, { id: "tux", slot: "shirt", name: "Fancy suit" }, { id: "rainbowtee", slot: "shirt", name: "Rainbow shirt" },
+      { id: "cape", slot: "shirt", name: "Hero cape" }, { id: "goldsuit", slot: "shirt", name: "Gold suit", gold: true },
+      { id: "goggles", slot: "glasses", name: "Swim goggles" }, { id: "mask", slot: "glasses", name: "Hero mask" }, { id: "diamond", slot: "glasses", name: "Diamond glasses", gold: true },
+      { id: "flippers", slot: "shoes", name: "Flippers" }, { id: "skates", slot: "shoes", name: "Roller skates" },
+      { id: "pbunny", slot: "pet", name: "Bunny", emoji: "\uD83D\uDC30" }, { id: "ppenguin", slot: "pet", name: "Penguin", emoji: "\uD83D\uDC27" },
+      { id: "phamster", slot: "pet", name: "Hamster", emoji: "\uD83D\uDC39" }, { id: "plion", slot: "pet", name: "Gold lion", emoji: "\uD83E\uDD81", gold: true },
       { id: "pdragon", slot: "pet", name: "Gold dragon", emoji: "\uD83D\uDC09", gold: true }, { id: "punicorn", slot: "pet", name: "Unicorn", emoji: "\uD83E\uDD84", gold: true }
     ];
     const AV_GOLD_AT = 50;
@@ -8383,7 +8397,8 @@
       const wear = {};
       AV_SLOTS.forEach(function (s) { const it = a.wear && avItem(a.wear[s[0]]); if (it && it.slot === s[0] && owned.indexOf(it.id) >= 0) wear[s[0]] = it.id; });
       return { v: 1, made: !!a.made, style: ok(AV_STYLES, a.style, "buddy"), animal: ok(AV_ANIMALS, a.animal, "cat"),
-        color: AV_COLORS.indexOf(a.color) >= 0 ? a.color : AV_COLORS[3], face: ok(AV_FACES, a.face, "smile"), wear: wear, owned: owned, updated: Number(a.updated) || 0 };
+        color: AV_COLORS.indexOf(a.color) >= 0 ? a.color : AV_COLORS[3], face: ok(AV_FACES, a.face, "smile"),
+        hair: ok(AV_HAIRS, a.hair, "none"), hairColor: AV_HAIR_COLORS.indexOf(a.hairColor) >= 0 ? a.hairColor : AV_HAIR_COLORS[1], wear: wear, owned: owned, updated: Number(a.updated) || 0 };
     }
     let avatar = (function () { try { return avClean(JSON.parse(localStorage.getItem(AV_KEY) || "null")); } catch (e) { return avClean(null); } })();
     let avPushTimer = 0;
@@ -8433,17 +8448,22 @@
       const p = [];
       // feet
       const shoe = w.shoes;
-      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#avrb)" : dk;
-      if (shoe === "rainbow") p.push('<defs><linearGradient id="avrb" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
+      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#avrb)" : shoe === "flippers" ? "#1fb5a8" : shoe === "skates" ? "#ff7ab8" : dk;
+      if (st === "animal" && a.animal === "turtle") p.push('<ellipse cx="50" cy="78" rx="29" ry="21" fill="#3f8a3a"/><path d="M24 70 L30 62 M76 70 L70 62 M22 84 H30 M78 84 H70" stroke="#2f6a2a" stroke-width="2"/>');
+      if (st === "dino") p.push('<path d="M31 84 Q14 86 8 70 Q18 80 31 76 Z" fill="' + c + '"/>');
+      if (shoe === "rainbow" || w.shirt === "rainbowtee") p.push('<defs><linearGradient id="avrb" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
       [38, 62].forEach(function (x) {
         if (shoe === "boots") p.push('<rect x="' + (x - 8) + '" y="88" width="16" height="14" rx="4" fill="' + shoeFill + '"/>');
+        else if (shoe === "flippers") p.push('<path d="M' + (x - 7) + ' 94 L' + (x - 12) + ' 104 L' + (x + 12) + ' 104 L' + (x + 7) + ' 94 Z" fill="' + shoeFill + '"/>');
         else if (pix) p.push('<rect x="' + (x - 9) + '" y="94" width="18" height="8" fill="' + shoeFill + '"/>');
         else p.push('<ellipse cx="' + x + '" cy="98" rx="10" ry="6" fill="' + shoeFill + '"/>');
+        if (shoe === "skates") p.push('<circle cx="' + (x - 6) + '" cy="105" r="2.6" fill="#ffd34e"/><circle cx="' + (x + 6) + '" cy="105" r="2.6" fill="#ffd34e"/>');
         if (shoe === "sneakers") p.push('<rect x="' + (x - 10) + '" y="100" width="20" height="3" rx="1.5" fill="#fff"/>');
       });
       // torso / shirt
       const sh = w.shirt;
-      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542" }[sh] || c;
+      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542", tux: "#22202c", rainbowtee: "url(#avrb)", goldsuit: "#f5c542", cape: "#e8414f" }[sh] || c;
+      if (sh === "cape") p.push('<path d="M30 64 L20 98 L80 98 L70 64 Z" fill="#b8202e"/>');
       const trx = pix ? 0 : st === "robot" ? 4 : 12;
       p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + shirtFill + '"/>');
       if (sh === "stripes") [68, 76, 84].forEach(function (y) { p.push('<rect x="29" y="' + y + '" width="42" height="4" fill="#e8414f"/>'); });
@@ -8451,11 +8471,18 @@
       if (sh === "aloha") [[38, 72], [56, 70], [47, 84], [63, 86]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.4" fill="#ff7ab8"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.3" fill="#ffd34e"/>'); });
       if (sh === "hoodie") p.push('<rect x="40" y="78" width="20" height="9" rx="3" fill="#2f7d3a"/><path d="M44 63 L46 72 M56 63 L54 72" stroke="#fff" stroke-width="1.5"/>');
       if (sh === "goldjersey") p.push('<text x="50" y="86" font-size="16" font-weight="900" font-family="Arial Black,Arial" fill="#7a4d06" text-anchor="middle">1</text>');
+      if (sh === "cape") p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + c + '"/><path d="M42 64 L50 72 L58 64" fill="#e8414f"/><text x="50" y="86" font-size="11" font-weight="900" fill="#ffd34e" text-anchor="middle">\u2605</text>');
+      if (sh === "tux") p.push('<path d="M44 62 L50 80 L56 62 Z" fill="#fff"/><path d="M45 65 L50 68 L55 65 L55 69 L50 66 L45 69 Z" fill="#e8414f"/><circle cx="50" cy="76" r="1.2" fill="#22202c"/><circle cx="50" cy="82" r="1.2" fill="#fff"/>');
+      if (sh === "goldsuit") p.push('<path d="M44 62 L50 78 L56 62 Z" fill="#fff6d8"/><path d="M29 66 H71" stroke="#a87412" stroke-width="1.5"/><circle cx="50" cy="84" r="2" fill="#a87412"/>');
+      if (sh === "lei") [[33, 64, "#ff7ab8"], [39, 69, "#ffd34e"], [45, 72, "#ff5a5a"], [51, 73, "#b47cff"], [57, 71, "#ff7ab8"], [63, 68, "#ffd34e"], [68, 64, "#ff5a5a"]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.6" fill="' + q[2] + '"/>'); });
       if (st === "robot" && !sh) p.push('<rect x="42" y="70" width="16" height="10" rx="2" fill="' + dk + '"/><circle cx="46" cy="75" r="1.6" fill="#7ef"/><circle cx="54" cy="75" r="1.6" fill="#f7a"/>');
       // head
       if (st === "robot") {
         p.push('<line x1="50" y1="20" x2="50" y2="11" stroke="' + dk + '" stroke-width="3"/><circle cx="50" cy="9" r="4" fill="#ff5a6e"/>');
         p.push('<rect x="25" y="20" width="50" height="42" rx="9" fill="' + c + '"/><rect x="20" y="34" width="6" height="14" rx="2" fill="' + dk + '"/><rect x="74" y="34" width="6" height="14" rx="2" fill="' + dk + '"/>');
+      } else if (st === "alien") {
+        p.push('<path d="M38 22 L32 6 M62 22 L68 6" stroke="' + dk + '" stroke-width="2.5"/><circle cx="32" cy="6" r="3.6" fill="#b8ff5a"/><circle cx="68" cy="6" r="3.6" fill="#b8ff5a"/>');
+        p.push('<ellipse cx="50" cy="40" rx="28" ry="24" fill="' + c + '"/>');
       } else if (pix) {
         p.push('<rect x="28" y="20" width="44" height="42" fill="' + c + '"/><rect x="24" y="26" width="4" height="30" fill="' + c + '"/><rect x="72" y="26" width="4" height="30" fill="' + c + '"/><rect x="28" y="20" width="44" height="6" fill="' + dk + '"/>');
       } else {
@@ -8464,31 +8491,72 @@
           if (an === "cat") p.push('<path d="M30 30 L32 10 L46 22 Z M70 30 L68 10 L54 22 Z" fill="' + c + '"/><path d="M33 26 L34 15 L42 22 Z M67 26 L66 15 L58 22 Z" fill="#ffb3c7"/>');
           if (an === "dog") p.push('<ellipse cx="27" cy="40" rx="8" ry="16" fill="' + dk + '"/><ellipse cx="73" cy="40" rx="8" ry="16" fill="' + dk + '"/>');
           if (an === "bunny") p.push('<ellipse cx="40" cy="12" rx="6" ry="17" fill="' + c + '"/><ellipse cx="60" cy="12" rx="6" ry="17" fill="' + c + '"/><ellipse cx="40" cy="13" rx="2.6" ry="11" fill="#ffb3c7"/><ellipse cx="60" cy="13" rx="2.6" ry="11" fill="#ffb3c7"/>');
+          if (an === "fox") p.push('<path d="M28 34 L28 8 L46 22 Z M72 34 L72 8 L54 22 Z" fill="' + c + '"/><path d="M30 14 L28 8 L36 13 Z M70 14 L72 8 L64 13 Z" fill="#2a1d1a"/>');
+          if (an === "owl") p.push('<path d="M30 26 L28 12 L40 20 Z M70 26 L72 12 L60 20 Z" fill="' + dk + '"/>');
+          if (an === "bear") p.push('<circle cx="31" cy="23" r="8" fill="' + c + '"/><circle cx="69" cy="23" r="8" fill="' + c + '"/><circle cx="31" cy="23" r="4" fill="' + dk + '"/><circle cx="69" cy="23" r="4" fill="' + dk + '"/>');
+          if (an === "mouse") p.push('<circle cx="27" cy="24" r="12" fill="' + c + '"/><circle cx="73" cy="24" r="12" fill="' + c + '"/><circle cx="27" cy="24" r="7" fill="#ffb3c7"/><circle cx="73" cy="24" r="7" fill="#ffb3c7"/>');
           if (an === "panda") p.push('<circle cx="31" cy="23" r="8" fill="#2a2a33"/><circle cx="69" cy="23" r="8" fill="#2a2a33"/>');
         }
+        if (st === "monster") p.push('<path d="M31 28 L24 6 L40 20 Z M69 28 L76 6 L60 20 Z" fill="#fff3d6" stroke="' + dk + '" stroke-width="1.2"/>');
+        if (st === "dino") [[34, 22], [42, 17], [50, 15], [58, 17], [66, 22]].forEach(function (q) { p.push('<path d="M' + (q[0] - 5) + ' ' + (q[1] + 4) + ' L' + q[0] + ' ' + (q[1] - 8) + ' L' + (q[0] + 5) + ' ' + (q[1] + 4) + ' Z" fill="' + dk + '"/>'); });
         p.push('<circle cx="50" cy="42" r="' + (st === "buddy" ? 25 : 24) + '" fill="' + c + '"/>');
+        if (st === "monster") [[28, 36], [72, 36], [30, 52], [70, 52]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4" fill="' + c + '"/>'); });
+        if (st === "animal" && a.animal === "fox") p.push('<path d="M27 46 Q38 58 50 56 Q62 58 73 46 Q66 64 50 66 Q34 64 27 46 Z" fill="#fff" opacity=".8"/>');
+        if (st === "animal" && a.animal === "owl") p.push('<circle cx="41" cy="41" r="8" fill="#fff"/><circle cx="59" cy="41" r="8" fill="#fff"/>');
+        if (st === "animal" && a.animal === "bear") p.push('<ellipse cx="50" cy="52" rx="10" ry="7" fill="#fff" opacity=".45"/>');
         if (st === "animal" && a.animal === "panda") p.push('<ellipse cx="41" cy="42" rx="6" ry="7" fill="#2a2a33"/><ellipse cx="59" cy="42" rx="6" ry="7" fill="#2a2a33"/>');
         if (st === "animal" && a.animal === "dog") p.push('<ellipse cx="50" cy="52" rx="10" ry="7" fill="#fff" opacity=".55"/>');
         if (st === "buddy" || st === "animal") p.push('<circle cx="35" cy="50" r="3.6" fill="#ff7a9a" opacity=".55"/><circle cx="65" cy="50" r="3.6" fill="#ff7a9a" opacity=".55"/>');
       }
-      // face
+      // hair (behind-the-head parts first would need re-ordering, so long styles hang down the sides instead)
+      if (avHasHair(a) && a.hair !== "none") {
+        const hc = a.hairColor, top = st === "alien" ? 16 : 17;
+        const cap = '<path d="M24 40 Q24 ' + (top - 2) + ' 50 ' + (top - 2) + ' Q76 ' + (top - 2) + ' 76 40 Q68 26 50 26 Q32 26 24 40 Z" fill="' + hc + '"/>';
+        if (a.hair === "spiky") p.push('<path d="M25 36 L26 20 L33 25 L37 10 L44 21 L50 6 L56 21 L63 10 L67 25 L74 20 L75 36 Q62 24 50 25 Q38 24 25 36 Z" fill="' + hc + '"/>');
+        if (a.hair === "curly") [[27, 34], [30, 25], [37, 18], [45, 15], [55, 15], [63, 18], [70, 25], [73, 34]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="6.5" fill="' + hc + '"/>'); });
+        if (a.hair === "long") p.push('<path d="M24 40 L22 70 L32 70 L30 40 Z M76 40 L78 70 L68 70 L70 40 Z" fill="' + hc + '"/>' + cap);
+        if (a.hair === "bun") p.push('<circle cx="50" cy="10" r="8" fill="' + hc + '"/>' + cap);
+        if (a.hair === "pony") p.push('<path d="M72 28 Q88 34 82 60 Q78 46 70 38 Z" fill="' + hc + '"/>' + cap);
+        if (a.hair === "mohawk") p.push('<path d="M44 26 L42 8 L50 2 L58 8 L56 26 Z" fill="' + hc + '"/>');
+        if (a.hair === "bob") p.push('<path d="M24 40 Q22 56 28 58 L32 58 L30 40 Z M76 40 Q78 56 72 58 L68 58 L70 40 Z" fill="' + hc + '"/><path d="M24 40 Q24 15 50 15 Q76 15 76 40 L70 32 L30 32 Z" fill="' + hc + '"/>');
+        if (a.hair === "afro") [[24, 30], [30, 18], [40, 11], [50, 9], [60, 11], [70, 18], [76, 30], [22, 42], [78, 42]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="9" fill="' + hc + '"/>'); });
+      }
+      // face: each face = left eye, right eye, mouth
+      const FACE = { smile: ["dot", "dot", "smile"], grin: ["dot", "dot", "grin"], wow: ["dot", "dot", "wow"], wink: ["wink", "dot", "smile"],
+        happy: ["arc", "arc", "smile"], tongue: ["dot", "dot", "tongue"], sleepy: ["line", "line", "o"], silly: ["big", "dot", "tongue"] }[a.face] || ["dot", "dot", "smile"];
       const eyeC = st === "animal" && a.animal === "panda" ? "#fff" : ink;
-      if (a.face === "wink") p.push(pix ? '<rect x="38" y="40" width="6" height="2" fill="' + ink + '"/>' : '<path d="M37 42 Q41 38 45 42" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
-      else p.push(pix ? '<rect x="38" y="37" width="6" height="6" fill="' + eyeC + '"/>' : st === "robot" ? '<rect x="36" y="36" width="9" height="9" rx="2" fill="' + ink + '"/><rect x="38" y="38" width="3" height="3" fill="#7ef"/>' : '<circle cx="41" cy="41" r="3.4" fill="' + eyeC + '"/>');
-      p.push(pix ? '<rect x="56" y="37" width="6" height="6" fill="' + eyeC + '"/>' : st === "robot" ? '<rect x="55" y="36" width="9" height="9" rx="2" fill="' + ink + '"/><rect x="57" y="38" width="3" height="3" fill="#7ef"/>' : '<circle cx="59" cy="41" r="3.4" fill="' + eyeC + '"/>');
-      if (st === "animal" && a.animal !== "dog") p.push('<path d="M47 48 L53 48 L50 51 Z" fill="#ff7a9a"/>');
-      if (st === "animal" && a.animal === "dog") p.push('<ellipse cx="50" cy="48" rx="3.6" ry="2.6" fill="' + ink + '"/>');
-      if (st === "animal" && a.animal === "cat") p.push('<path d="M30 49 H39 M30 53 H39 M61 49 H70 M61 53 H70" stroke="' + ink + '" stroke-width="1" opacity=".6"/>');
+      const sq = pix || st === "robot";
+      [[41, FACE[0]], [59, FACE[1]]].forEach(function (e) {
+        const x = e[0], t = e[1];
+        if (t === "wink" || t === "arc") p.push(sq ? '<rect x="' + (x - 3) + '" y="40" width="6" height="2" fill="' + ink + '"/>' : '<path d="M' + (x - 4) + ' 42 Q' + x + ' ' + (t === "arc" ? 36 : 38) + ' ' + (x + 4) + ' 42" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
+        else if (t === "line") p.push(sq ? '<rect x="' + (x - 3) + '" y="41" width="6" height="2" fill="' + ink + '"/>' : '<path d="M' + (x - 4) + ' 42 Q' + x + ' 45 ' + (x + 4) + ' 42" stroke="' + ink + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>');
+        else if (st === "robot") p.push('<rect x="' + (x - 5) + '" y="36" width="9" height="9" rx="2" fill="' + ink + '"/><rect x="' + (x - 3) + '" y="38" width="3" height="3" fill="#7ef"/>');
+        else if (pix) p.push('<rect x="' + (x - 3 - (t === "big" ? 1 : 0)) + '" y="' + (37 - (t === "big" ? 1 : 0)) + '" width="' + (t === "big" ? 8 : 6) + '" height="' + (t === "big" ? 8 : 6) + '" fill="' + eyeC + '"/>');
+        else if (st === "alien") p.push('<ellipse cx="' + x + '" cy="41" rx="' + (t === "big" ? 6 : 5) + '" ry="' + (t === "big" ? 8 : 6.5) + '" fill="' + ink + '"/><circle cx="' + (x + 1.5) + '" cy="38.5" r="1.6" fill="#fff"/>');
+        else p.push('<circle cx="' + x + '" cy="41" r="' + (t === "big" ? 5 : 3.4) + '" fill="' + eyeC + '"/>' + (t === "big" ? '<circle cx="' + (x + 1.5) + '" cy="39.5" r="1.5" fill="#fff"/>' : ""));
+      });
+      if (st === "animal" && a.animal === "owl") p.push('<path d="M47 46 L53 46 L50 52 Z" fill="#f2a65a"/>');
+      else if (st === "animal" && (a.animal === "dog" || a.animal === "bear")) p.push('<ellipse cx="50" cy="48" rx="3.6" ry="2.6" fill="' + ink + '"/>');
+      else if (st === "animal" && a.animal === "turtle") p.push("");
+      else if (st === "animal") p.push('<path d="M47 48 L53 48 L50 51 Z" fill="' + (a.animal === "fox" ? ink : "#ff7a9a") + '"/>');
+      if (st === "animal" && (a.animal === "cat" || a.animal === "mouse")) p.push('<path d="M30 49 H39 M30 53 H39 M61 49 H70 M61 53 H70" stroke="' + ink + '" stroke-width="1" opacity=".6"/>');
       const my = st === "animal" ? 54 : 51;
-      if (a.face === "smile" || a.face === "wink") p.push(pix ? '<rect x="42" y="' + my + '" width="16" height="3" fill="' + ink + '"/><rect x="40" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/><rect x="57" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/>' : '<path d="M42 ' + my + ' Q50 ' + (my + 6) + ' 58 ' + my + '" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
-      if (a.face === "grin") p.push(pix ? '<rect x="40" y="' + (my - 2) + '" width="20" height="7" fill="' + ink + '"/><rect x="44" y="' + (my + 2) + '" width="12" height="3" fill="#ff7a9a"/>' : '<path d="M40 ' + (my - 1) + ' Q50 ' + (my + 12) + ' 60 ' + (my - 1) + ' Z" fill="' + ink + '"/><path d="M45 ' + (my + 3.5) + ' Q50 ' + (my + 7) + ' 55 ' + (my + 3.5) + '" fill="#ff7a9a"/>');
-      if (a.face === "wow") p.push(pix ? '<rect x="46" y="' + (my - 2) + '" width="8" height="8" fill="' + ink + '"/>' : '<ellipse cx="50" cy="' + (my + 1) + '" rx="4" ry="5" fill="' + ink + '"/>');
+      const mouth = FACE[2];
+      if (mouth === "smile" || mouth === "tongue") p.push(pix ? '<rect x="42" y="' + my + '" width="16" height="3" fill="' + ink + '"/><rect x="40" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/><rect x="57" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/>' : '<path d="M42 ' + my + ' Q50 ' + (my + 6) + ' 58 ' + my + '" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
+      if (mouth === "tongue") p.push(pix ? '<rect x="48" y="' + (my + 3) + '" width="6" height="5" fill="#ff7a9a"/>' : '<path d="M48 ' + (my + 2.5) + ' Q48 ' + (my + 9) + ' 52 ' + (my + 8.5) + ' Q55 ' + (my + 8) + ' 55 ' + (my + 2) + ' Z" fill="#ff7a9a"/>');
+      if (mouth === "grin") p.push(pix ? '<rect x="40" y="' + (my - 2) + '" width="20" height="7" fill="' + ink + '"/><rect x="44" y="' + (my + 2) + '" width="12" height="3" fill="#ff7a9a"/>' : '<path d="M40 ' + (my - 1) + ' Q50 ' + (my + 12) + ' 60 ' + (my - 1) + ' Z" fill="' + ink + '"/><path d="M45 ' + (my + 3.5) + ' Q50 ' + (my + 7) + ' 55 ' + (my + 3.5) + '" fill="#ff7a9a"/>');
+      if (mouth === "wow") p.push(pix ? '<rect x="46" y="' + (my - 2) + '" width="8" height="8" fill="' + ink + '"/>' : '<ellipse cx="50" cy="' + (my + 1) + '" rx="4" ry="5" fill="' + ink + '"/>');
+      if (mouth === "o") p.push(pix ? '<rect x="47" y="' + my + '" width="5" height="4" fill="' + ink + '"/>' : '<ellipse cx="50" cy="' + (my + 1) + '" rx="2.6" ry="2.2" fill="' + ink + '"/>');
+      if (st === "monster" || st === "dino") p.push('<path d="M44 ' + (my + 1) + ' L46 ' + (my + 5) + ' L48 ' + (my + 2) + ' Z M52 ' + (my + 2) + ' L54 ' + (my + 5) + ' L56 ' + (my + 1) + ' Z" fill="#fff"/>');
       // glasses
       const g = w.glasses;
       if (g === "round") p.push('<circle cx="41" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><circle cx="59" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><path d="M48 41 H52" stroke="#3a2a1a" stroke-width="2"/>');
       if (g === "shades" || g === "goldshades") { const f = g === "shades" ? "#1a1a24" : "#f5c542", e2 = g === "shades" ? "#000" : "#a87412"; p.push('<rect x="32" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><rect x="52" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><path d="M48 39 H52" stroke="' + e2 + '" stroke-width="2"/><path d="M35 37.5 H41" stroke="#fff" stroke-width="1.5" opacity=".6"/>'); }
       if (g === "hearts") p.push('<path d="M41 48 L33 40 A4 4 0 0 1 41 35 A4 4 0 0 1 49 40 Z M59 48 L51 40 A4 4 0 0 1 59 35 A4 4 0 0 1 67 40 Z" fill="#ff4f8b" stroke="#b0144f" stroke-width="1.2"/><path d="M49 40 H51" stroke="#b0144f" stroke-width="2"/>');
       if (g === "starglasses") p.push('<text x="41" y="47" font-size="17" text-anchor="middle" fill="#ffd34e" stroke="#b07a00" stroke-width="1">\u2605</text><text x="59" y="47" font-size="17" text-anchor="middle" fill="#ffd34e" stroke="#b07a00" stroke-width="1">\u2605</text><path d="M48 41 H52" stroke="#b07a00" stroke-width="2"/>');
+      if (g === "goggles") p.push('<path d="M22 40 H78" stroke="#1fb5a8" stroke-width="3"/><circle cx="41" cy="41" r="8" fill="#9ff0e4" fill-opacity=".55" stroke="#1fb5a8" stroke-width="3"/><circle cx="59" cy="41" r="8" fill="#9ff0e4" fill-opacity=".55" stroke="#1fb5a8" stroke-width="3"/>');
+      if (g === "mask") p.push('<path d="M28 36 Q50 31 72 36 Q74 46 62 47 Q55 46 50 42 Q45 46 38 47 Q26 46 28 36 Z" fill="#e8414f"/><ellipse cx="41" cy="40.5" rx="4" ry="3" fill="#fff"/><ellipse cx="59" cy="40.5" rx="4" ry="3" fill="#fff"/><circle cx="41" cy="40.5" r="1.8" fill="' + ink + '"/><circle cx="59" cy="40.5" r="1.8" fill="' + ink + '"/>');
+      if (g === "diamond") p.push('<path d="M33 41 L41 33 L49 41 L41 49 Z M51 41 L59 33 L67 41 L59 49 Z" fill="#bff4ff" fill-opacity=".85" stroke="#f5c542" stroke-width="2"/><path d="M49 41 H51" stroke="#f5c542" stroke-width="2"/>');
       // hats (head top ~ y18-20)
       const h = w.hat;
       if (h === "cap") p.push('<path d="M27 26 Q28 10 50 9 Q72 10 73 26 Z" fill="#e8414f"/><path d="M60 24 Q78 22 86 27 Q74 30 60 28 Z" fill="#b8202e"/><circle cx="50" cy="9.5" r="2" fill="#b8202e"/>');
@@ -8499,6 +8567,12 @@
       if (h === "cowboy") p.push('<path d="M36 20 Q36 4 50 4 Q64 4 64 20 Z" fill="#a8652a"/><path d="M18 20 Q50 30 82 20 Q78 26 50 27 Q22 26 18 20 Z" fill="#8a4f1c"/><rect x="36" y="16" width="28" height="3" fill="#5a3410"/>');
       if (h === "flowers") [[30, 24, "#ff7ab8"], [38, 19, "#ffd34e"], [46, 17, "#ff5a5a"], [54, 17, "#b47cff"], [62, 19, "#ff7ab8"], [70, 24, "#ffd34e"]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4.2" fill="' + q[2] + '"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.5" fill="#fff"/>'); });
       if (h === "crown") p.push('<path d="M32 22 L32 6 L41 14 L50 2 L59 14 L68 6 L68 22 Z" fill="#f5c542" stroke="#a87412" stroke-width="1.5"/><circle cx="50" cy="15" r="2.6" fill="#e8414f"/><circle cx="40" cy="18" r="1.8" fill="#4fd1e8"/><circle cx="60" cy="18" r="1.8" fill="#4fd1e8"/>');
+      if (h === "chef") p.push('<rect x="34" y="12" width="32" height="10" fill="#fff" stroke="#ddd"/><circle cx="38" cy="8" r="8" fill="#fff"/><circle cx="50" cy="4" r="9" fill="#fff"/><circle cx="62" cy="8" r="8" fill="#fff"/>');
+      if (h === "pirate") p.push('<path d="M20 24 Q50 -6 80 24 Q50 16 20 24 Z" fill="#22202c"/><circle cx="50" cy="13" r="3.4" fill="#fff"/><path d="M46 18 L54 20 M54 18 L46 20" stroke="#fff" stroke-width="1.2"/>');
+      if (h === "viking") p.push('<path d="M30 22 Q22 14 22 2 Q28 12 36 14 Z M70 22 Q78 14 78 2 Q72 12 64 14 Z" fill="#fff3d6" stroke="#b8a070"/><path d="M27 24 Q27 6 50 6 Q73 6 73 24 Z" fill="#9aa3b5"/><rect x="26" y="20" width="48" height="5" rx="2" fill="#6b7385"/>');
+      if (h === "bow") p.push('<path d="M50 16 L34 6 L34 26 Z M50 16 L66 6 L66 26 Z" fill="#ff4f8b"/><circle cx="50" cy="16" r="4" fill="#d02a6a"/>');
+      if (h === "headphones") p.push('<path d="M24 40 Q24 12 50 12 Q76 12 76 40" stroke="#22202c" stroke-width="4" fill="none"/><rect x="18" y="34" width="10" height="16" rx="4" fill="#e8414f"/><rect x="72" y="34" width="10" height="16" rx="4" fill="#e8414f"/>');
+      if (h === "halo") p.push('<ellipse cx="50" cy="6" rx="16" ry="4.5" fill="none" stroke="#f5c542" stroke-width="3.5"/>');
       // pet
       const pet = w.pet && avItem(w.pet);
       if (pet) p.push((pet.gold ? '<circle cx="88" cy="96" r="12" fill="#f5c542" opacity=".35"/>' : "") + '<text x="88" y="103" font-size="20" text-anchor="middle">' + pet.emoji + '</text>');
@@ -8584,6 +8658,15 @@
           const prev = Object.assign({}, avatar, { face: s[0], wear: {} });
           return el("button", { type: "button", class: "closet-opt" + (avatar.face === s[0] ? " on" : ""), "aria-pressed": String(avatar.face === s[0]), onClick: function () { set("face", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
         })));
+        if (avHasHair(avatar)) {
+          card.appendChild(sec("Pick hair", AV_HAIRS.map(function (s) {
+            const prev = Object.assign({}, avatar, { hair: s[0], wear: {} });
+            return el("button", { type: "button", class: "closet-opt" + (avatar.hair === s[0] ? " on" : ""), "aria-pressed": String(avatar.hair === s[0]), onClick: function () { set("hair", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+          })));
+          if (avatar.hair !== "none") card.appendChild(sec("Hair color", AV_HAIR_COLORS.map(function (col) {
+            return el("button", { type: "button", class: "closet-swatch" + (avatar.hairColor === col ? " on" : ""), "aria-label": "Hair color", "aria-pressed": String(avatar.hairColor === col), style: "background:" + col, onClick: function () { set("hairColor", col); } });
+          }), "swatches"));
+        }
       } else {
         if (!avatar.owned.length) card.appendChild(el("p", { class: "closet-empty", text: "Get 5 right in a row to win clothes!" }));
         AV_SLOTS.forEach(function (s) {

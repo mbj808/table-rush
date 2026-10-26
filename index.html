@@ -2559,6 +2559,40 @@
     .lb-empty { text-align: center; padding: 1rem; font-weight: 800; opacity: 0.85; }
     .lb-hint { margin: 0; text-align: center; font-size: 0.95rem; opacity: 0.8; }
     @media (prefers-reduced-motion: reduce) { .menu-lb { transition: none; } }
+    .menu-pills { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+    .menu-pills.two { grid-template-columns: 1fr 1fr; }
+    .menu-pills .menu-lb { font-size: 1.1rem; min-width: 0; }
+    .menu-closet { background: linear-gradient(180deg, #9ff0e4, #3fb8c8); color: #062a30; box-shadow: 0 5px 0 #145e6a, 0 0 10px rgba(80, 220, 230, 0.3); }
+    .menu-closet:active { box-shadow: 0 1px 0 #145e6a; }
+    .av { display: inline-flex; line-height: 0; flex: none; }
+    .menu-av svg { margin: -4px 0; }
+    .home-av { display: block; margin: 0 auto 0.6rem; padding: 0.3rem; border: 0; border-radius: 50%; background: rgba(255,255,255,0.12); cursor: pointer; line-height: 0; }
+    .lb-name { display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
+    .lb-name > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .closet-card { display: flex; flex-direction: column; gap: 0.8rem; max-width: 30rem; margin: 0 auto; width: 100%; color: #fff; }
+    .closet-preview { display: flex; justify-content: center; padding: 0.6rem; border-radius: 1.2rem; background: radial-gradient(circle at 50% 60%, rgba(255,255,255,0.22), rgba(18,10,38,0.8) 70%); border: 2px solid rgba(255,255,255,0.25); }
+    .closet-sec { display: flex; flex-direction: column; gap: 0.4rem; }
+    .closet-h { margin: 0; font-size: 1.15rem; font-weight: 900; }
+    .closet-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; }
+    .closet-opts.swatches { grid-template-columns: repeat(8, 1fr); }
+    .closet-opt { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.35rem 0.2rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.25); background: rgba(18,10,38,0.82); color: #fff; font-weight: 800; font-size: 0.85rem; cursor: pointer; min-width: 0; }
+    .closet-opt .av svg, .prize-pick .av svg { display: block; }
+    .closet-opt span:last-child { text-align: center; line-height: 1.1; }
+    .closet-opt.on { border-color: #5ff2ff; background: rgba(95,242,255,0.2); }
+    .closet-opt.gold { border-color: rgba(245,197,66,0.8); }
+    .closet-swatch { aspect-ratio: 1; border-radius: 50%; border: 3px solid rgba(255,255,255,0.35); cursor: pointer; }
+    .closet-swatch.on { border-color: #fff; box-shadow: 0 0 0 3px #5ff2ff; }
+    .closet-empty { margin: 0.5rem 0; text-align: center; font-size: 1.2rem; font-weight: 900; }
+    .prize-ov { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(10, 6, 24, 0.82); animation: prizeIn 0.35s ease-out; }
+    .prize-box { width: min(26rem, 100%); padding: 1.1rem; border-radius: 1.4rem; background: #241944; border: 3px solid #ffd36a; text-align: center; color: #fff; }
+    .prize-title { margin: 0; font: 900 2rem/1.1 "Titan One", "Arial Black", sans-serif; color: #ffd36a; }
+    .prize-sub { margin: 0.2rem 0 0.8rem; font-size: 1.25rem; font-weight: 800; }
+    .prize-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .prize-pick { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.6rem 0.3rem; border-radius: 1.1rem; border: 3px solid rgba(255,255,255,0.4); background: #1a1233; color: #fff; font-size: 1.05rem; font-weight: 900; cursor: pointer; }
+    .prize-pick.gold { border-color: #f5c542; background: linear-gradient(180deg, #3a2a10, #1a1233); }
+    .prize-pick:active { transform: scale(0.97); }
+    @keyframes prizeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .prize-ov { animation: none; } .prize-pick:active { transform: none; } }
     .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.1rem; }
     .page-head .page-title { flex: 1 1 100%; text-align: center; font-size: 0; line-height: 0; text-shadow: none; }
     .logo-title { display: block; }
@@ -7892,6 +7926,9 @@
       // Order from the title down: Start, Games, game options, music player + beats, mini games.
       // First screen: only the title and Start Challenge. Everything else is below the fold.
       const hero = el("section", { class: "challenge-hero", "aria-label": "Timed challenge" });
+      if (avatar.made && !state.heroPick) {
+        hero.appendChild(el("button", { type: "button", class: "home-av", "aria-label": "My closet", onClick: function () { goPage("closet"); } }, [avNode(avatar, 64)]));
+      }
       if (!state.heroPick) {
         hero.appendChild(el("button", { class: "start start-challenge", type: "button", text: "Start Challenge", onClick: function () {
           state.heroPick = true;
@@ -7933,6 +7970,7 @@
       stack.appendChild(pageHeader(page));
       if (page === "beats") stack.appendChild(musicCard(true, true));
       if (page === "backgrounds") stack.appendChild(backgroundsCard());
+      if (page === "closet") { stack.appendChild(closetCard()); app.appendChild(stack); return; }
       if (page === "leaders") { stack.appendChild(leaderboardCard()); app.appendChild(stack); return; }
       const opsCard = operationCard();
       stack.appendChild(opsCard);
@@ -8177,6 +8215,7 @@
       if (!LEADERBOARD_URL || lb.loading) return;
       lb.loading = true;
       const me = lbMe();
+      avPull();
       Promise.all([me ? Promise.resolve(lb.names) : lbGet("action=roster").then(function (d) { return (d && d.names) || []; }), lbGet("action=board")])
         .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; })
         .catch(function () { lb.failed = true; })
@@ -8217,7 +8256,7 @@
           if (!name || !c) { note.textContent = "Pick your name and type the code."; return; }
           note.textContent = "Checking\u2026";
           lbGet("action=check&code=" + encodeURIComponent(c)).then(function (d) {
-            if (d && d.ok) { localStorage.setItem(LB_KEY, JSON.stringify({ name: name, code: c })); lb.msg = ""; render(); }
+            if (d && d.ok) { localStorage.setItem(LB_KEY, JSON.stringify({ name: name, code: c })); lb.msg = ""; avPull(true); render(); }
             else note.textContent = "That code is not right.";
           }).catch(function () { note.textContent = "Can\u2019t connect right now."; });
         } }));
@@ -8249,7 +8288,7 @@
         const mine = me && r.name.toLowerCase() === me.name.toLowerCase();
         list.appendChild(el("li", { class: "lb-row" + (mine ? " me" : "") + (i < 3 ? " top" + (i + 1) : "") }, [
           el("span", { class: "lb-rank", text: i < 3 ? ["\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"][i] : String(i + 1) }),
-          el("span", { class: "lb-name", text: r.name }),
+          el("span", { class: "lb-name" }, [avNode(mine ? avatar : (lb.board.avatars && lb.board.avatars[r.name]) || { color: "#c9c9d6" }, 30, "lb-av"), el("span", { text: r.name })]),
           el("span", { class: "lb-streak", text: String(r.streak) + " \uD83D\uDD25" })
         ]));
       });
@@ -8257,8 +8296,258 @@
       card.appendChild(el("p", { class: "lb-hint", text: "Your best streak goes up when it ends." }));
       return card;
     }
-    const PAGES = ["menu", "beats", "backgrounds", "games", "minigames", "leaders"];
-    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games", leaders: "Leaders" };
+    // ---- Avatar + Closet. Saved on this device (not cleared by Reset Challenge); synced to the class sheet when a leaderboard name is set. ----
+    const AV_KEY = "mad-facts-avatar";
+    const AV_STYLES = [["buddy", "Buddy"], ["robot", "Robot"], ["animal", "Animal"], ["pixel", "Pixel"]];
+    const AV_ANIMALS = [["cat", "Cat"], ["dog", "Dog"], ["bunny", "Bunny"], ["panda", "Panda"]];
+    const AV_COLORS = ["#ff8a5c", "#ffd34e", "#7ee07a", "#4fd1e8", "#6f8cff", "#b47cff", "#ff7ab8", "#c9c9d6"];
+    const AV_FACES = [["smile", "Smile"], ["grin", "Big grin"], ["wow", "Wow"], ["wink", "Wink"]];
+    const AV_SLOTS = [["hat", "Hats"], ["shirt", "Shirts"], ["glasses", "Glasses"], ["shoes", "Shoes"], ["pet", "Pets"]];
+    const AV_ITEMS = [
+      { id: "cap", slot: "hat", name: "Red cap" }, { id: "beanie", slot: "hat", name: "Beanie" }, { id: "party", slot: "hat", name: "Party hat" },
+      { id: "tophat", slot: "hat", name: "Top hat" }, { id: "wizard", slot: "hat", name: "Wizard hat" }, { id: "cowboy", slot: "hat", name: "Cowboy hat" },
+      { id: "flowers", slot: "hat", name: "Flower crown" }, { id: "crown", slot: "hat", name: "Gold crown", gold: true },
+      { id: "tee", slot: "shirt", name: "Red shirt" }, { id: "stripes", slot: "shirt", name: "Stripes" }, { id: "stars", slot: "shirt", name: "Star shirt" },
+      { id: "aloha", slot: "shirt", name: "Aloha shirt" }, { id: "hoodie", slot: "shirt", name: "Hoodie" }, { id: "goldjersey", slot: "shirt", name: "Gold jersey", gold: true },
+      { id: "round", slot: "glasses", name: "Round glasses" }, { id: "shades", slot: "glasses", name: "Sunglasses" }, { id: "hearts", slot: "glasses", name: "Heart glasses" },
+      { id: "starglasses", slot: "glasses", name: "Star glasses" }, { id: "goldshades", slot: "glasses", name: "Gold shades", gold: true },
+      { id: "sneakers", slot: "shoes", name: "Sneakers" }, { id: "boots", slot: "shoes", name: "Boots" }, { id: "rainbow", slot: "shoes", name: "Rainbow shoes" },
+      { id: "goldshoes", slot: "shoes", name: "Gold shoes", gold: true },
+      { id: "pdog", slot: "pet", name: "Puppy", emoji: "\uD83D\uDC36" }, { id: "pcat", slot: "pet", name: "Kitty", emoji: "\uD83D\uDC31" },
+      { id: "pturtle", slot: "pet", name: "Turtle", emoji: "\uD83D\uDC22" }, { id: "pfish", slot: "pet", name: "Fish", emoji: "\uD83D\uDC20" },
+      { id: "pparrot", slot: "pet", name: "Parrot", emoji: "\uD83E\uDD9C" }, { id: "poctopus", slot: "pet", name: "Octopus", emoji: "\uD83D\uDC19" },
+      { id: "pdragon", slot: "pet", name: "Gold dragon", emoji: "\uD83D\uDC09", gold: true }, { id: "punicorn", slot: "pet", name: "Unicorn", emoji: "\uD83E\uDD84", gold: true }
+    ];
+    const AV_GOLD_AT = 50;
+    function avItem(id) { return AV_ITEMS.find(function (i) { return i.id === id; }) || null; }
+    function avClean(a) {
+      a = a && typeof a === "object" ? a : {};
+      const ok = function (list, v, d) { return list.some(function (x) { return x[0] === v; }) ? v : d; };
+      const owned = Array.isArray(a.owned) ? a.owned.filter(function (id, i, arr) { return avItem(id) && arr.indexOf(id) === i; }) : [];
+      const wear = {};
+      AV_SLOTS.forEach(function (s) { const it = a.wear && avItem(a.wear[s[0]]); if (it && it.slot === s[0] && owned.indexOf(it.id) >= 0) wear[s[0]] = it.id; });
+      return { v: 1, made: !!a.made, style: ok(AV_STYLES, a.style, "buddy"), animal: ok(AV_ANIMALS, a.animal, "cat"),
+        color: AV_COLORS.indexOf(a.color) >= 0 ? a.color : AV_COLORS[3], face: ok(AV_FACES, a.face, "smile"), wear: wear, owned: owned, updated: Number(a.updated) || 0 };
+    }
+    let avatar = (function () { try { return avClean(JSON.parse(localStorage.getItem(AV_KEY) || "null")); } catch (e) { return avClean(null); } })();
+    let avPushTimer = 0;
+    function avSave(sync) {
+      avatar.updated = Date.now();
+      try { localStorage.setItem(AV_KEY, JSON.stringify(avatar)); } catch (e) {}
+      if (sync !== false) { clearTimeout(avPushTimer); avPushTimer = setTimeout(avPush, 1200); }
+    }
+    function avPush() {
+      const me = typeof lbMe === "function" && LEADERBOARD_URL ? lbMe() : null;
+      if (!me) return;
+      try {
+        fetch(LEADERBOARD_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, keepalive: true,
+          body: JSON.stringify({ type: "avatar", name: me.name, code: me.code, avatar: avatar }) }).catch(function () {});
+      } catch (e) {}
+    }
+    let avPulled = "";
+    function avPull(force) {
+      const me = LEADERBOARD_URL ? lbMe() : null;
+      if (!me || (avPulled === me.name && !force)) return;
+      avPulled = me.name;
+      lbGet("action=avatar&name=" + encodeURIComponent(me.name)).then(function (d) {
+        const remote = d && d.avatar ? avClean(d.avatar) : null;
+        if (!remote) { if (avatar.made || avatar.owned.length) avPush(); return; }
+        const merged = remote.updated > avatar.updated ? remote : avatar;
+        const owned = avatar.owned.concat(remote.owned.filter(function (id) { return avatar.owned.indexOf(id) < 0; }));
+        const before = JSON.stringify(avatar);
+        avatar = avClean(Object.assign({}, merged, { owned: owned, made: avatar.made || remote.made }));
+        avatar.updated = Math.max(remote.updated, avatar.updated);
+        try { localStorage.setItem(AV_KEY, JSON.stringify(avatar)); } catch (e) {}
+        if (JSON.stringify(remote) !== JSON.stringify(avatar)) avPush();
+        if (before !== JSON.stringify(avatar) && state.phase === "setup") render();
+      }).catch(function () { avPulled = ""; });
+    }
+    function avShade(hex, f) {
+      const n = parseInt(hex.slice(1), 16);
+      const c = [n >> 16, (n >> 8) & 255, n & 255].map(function (v) { return Math.max(0, Math.min(255, Math.round(v * f))); });
+      return "rgb(" + c.join(",") + ")";
+    }
+    // Returns an SVG string. Head centre (50,42); torso 30..70 x 64..92; feet y~98.
+    function avatarSVG(a, opts) {
+      a = avClean(a);
+      opts = opts || {};
+      const c = a.color, dk = avShade(c, 0.7), ink = "#2a1d3a";
+      const st = a.style, pix = st === "pixel";
+      const w = a.wear;
+      const p = [];
+      // feet
+      const shoe = w.shoes;
+      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#avrb)" : dk;
+      if (shoe === "rainbow") p.push('<defs><linearGradient id="avrb" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
+      [38, 62].forEach(function (x) {
+        if (shoe === "boots") p.push('<rect x="' + (x - 8) + '" y="88" width="16" height="14" rx="4" fill="' + shoeFill + '"/>');
+        else if (pix) p.push('<rect x="' + (x - 9) + '" y="94" width="18" height="8" fill="' + shoeFill + '"/>');
+        else p.push('<ellipse cx="' + x + '" cy="98" rx="10" ry="6" fill="' + shoeFill + '"/>');
+        if (shoe === "sneakers") p.push('<rect x="' + (x - 10) + '" y="100" width="20" height="3" rx="1.5" fill="#fff"/>');
+      });
+      // torso / shirt
+      const sh = w.shirt;
+      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542" }[sh] || c;
+      const trx = pix ? 0 : st === "robot" ? 4 : 12;
+      p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + shirtFill + '"/>');
+      if (sh === "stripes") [68, 76, 84].forEach(function (y) { p.push('<rect x="29" y="' + y + '" width="42" height="4" fill="#e8414f"/>'); });
+      if (sh === "stars") [[40, 72], [58, 78], [46, 86]].forEach(function (q) { p.push('<text x="' + q[0] + '" y="' + q[1] + '" font-size="8" fill="#ffd34e" text-anchor="middle">\u2605</text>'); });
+      if (sh === "aloha") [[38, 72], [56, 70], [47, 84], [63, 86]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.4" fill="#ff7ab8"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.3" fill="#ffd34e"/>'); });
+      if (sh === "hoodie") p.push('<rect x="40" y="78" width="20" height="9" rx="3" fill="#2f7d3a"/><path d="M44 63 L46 72 M56 63 L54 72" stroke="#fff" stroke-width="1.5"/>');
+      if (sh === "goldjersey") p.push('<text x="50" y="86" font-size="16" font-weight="900" font-family="Arial Black,Arial" fill="#7a4d06" text-anchor="middle">1</text>');
+      if (st === "robot" && !sh) p.push('<rect x="42" y="70" width="16" height="10" rx="2" fill="' + dk + '"/><circle cx="46" cy="75" r="1.6" fill="#7ef"/><circle cx="54" cy="75" r="1.6" fill="#f7a"/>');
+      // head
+      if (st === "robot") {
+        p.push('<line x1="50" y1="20" x2="50" y2="11" stroke="' + dk + '" stroke-width="3"/><circle cx="50" cy="9" r="4" fill="#ff5a6e"/>');
+        p.push('<rect x="25" y="20" width="50" height="42" rx="9" fill="' + c + '"/><rect x="20" y="34" width="6" height="14" rx="2" fill="' + dk + '"/><rect x="74" y="34" width="6" height="14" rx="2" fill="' + dk + '"/>');
+      } else if (pix) {
+        p.push('<rect x="28" y="20" width="44" height="42" fill="' + c + '"/><rect x="24" y="26" width="4" height="30" fill="' + c + '"/><rect x="72" y="26" width="4" height="30" fill="' + c + '"/><rect x="28" y="20" width="44" height="6" fill="' + dk + '"/>');
+      } else {
+        if (st === "animal") {
+          const an = a.animal;
+          if (an === "cat") p.push('<path d="M30 30 L32 10 L46 22 Z M70 30 L68 10 L54 22 Z" fill="' + c + '"/><path d="M33 26 L34 15 L42 22 Z M67 26 L66 15 L58 22 Z" fill="#ffb3c7"/>');
+          if (an === "dog") p.push('<ellipse cx="27" cy="40" rx="8" ry="16" fill="' + dk + '"/><ellipse cx="73" cy="40" rx="8" ry="16" fill="' + dk + '"/>');
+          if (an === "bunny") p.push('<ellipse cx="40" cy="12" rx="6" ry="17" fill="' + c + '"/><ellipse cx="60" cy="12" rx="6" ry="17" fill="' + c + '"/><ellipse cx="40" cy="13" rx="2.6" ry="11" fill="#ffb3c7"/><ellipse cx="60" cy="13" rx="2.6" ry="11" fill="#ffb3c7"/>');
+          if (an === "panda") p.push('<circle cx="31" cy="23" r="8" fill="#2a2a33"/><circle cx="69" cy="23" r="8" fill="#2a2a33"/>');
+        }
+        p.push('<circle cx="50" cy="42" r="' + (st === "buddy" ? 25 : 24) + '" fill="' + c + '"/>');
+        if (st === "animal" && a.animal === "panda") p.push('<ellipse cx="41" cy="42" rx="6" ry="7" fill="#2a2a33"/><ellipse cx="59" cy="42" rx="6" ry="7" fill="#2a2a33"/>');
+        if (st === "animal" && a.animal === "dog") p.push('<ellipse cx="50" cy="52" rx="10" ry="7" fill="#fff" opacity=".55"/>');
+        if (st === "buddy" || st === "animal") p.push('<circle cx="35" cy="50" r="3.6" fill="#ff7a9a" opacity=".55"/><circle cx="65" cy="50" r="3.6" fill="#ff7a9a" opacity=".55"/>');
+      }
+      // face
+      const eyeC = st === "animal" && a.animal === "panda" ? "#fff" : ink;
+      if (a.face === "wink") p.push(pix ? '<rect x="38" y="40" width="6" height="2" fill="' + ink + '"/>' : '<path d="M37 42 Q41 38 45 42" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
+      else p.push(pix ? '<rect x="38" y="37" width="6" height="6" fill="' + eyeC + '"/>' : st === "robot" ? '<rect x="36" y="36" width="9" height="9" rx="2" fill="' + ink + '"/><rect x="38" y="38" width="3" height="3" fill="#7ef"/>' : '<circle cx="41" cy="41" r="3.4" fill="' + eyeC + '"/>');
+      p.push(pix ? '<rect x="56" y="37" width="6" height="6" fill="' + eyeC + '"/>' : st === "robot" ? '<rect x="55" y="36" width="9" height="9" rx="2" fill="' + ink + '"/><rect x="57" y="38" width="3" height="3" fill="#7ef"/>' : '<circle cx="59" cy="41" r="3.4" fill="' + eyeC + '"/>');
+      if (st === "animal" && a.animal !== "dog") p.push('<path d="M47 48 L53 48 L50 51 Z" fill="#ff7a9a"/>');
+      if (st === "animal" && a.animal === "dog") p.push('<ellipse cx="50" cy="48" rx="3.6" ry="2.6" fill="' + ink + '"/>');
+      if (st === "animal" && a.animal === "cat") p.push('<path d="M30 49 H39 M30 53 H39 M61 49 H70 M61 53 H70" stroke="' + ink + '" stroke-width="1" opacity=".6"/>');
+      const my = st === "animal" ? 54 : 51;
+      if (a.face === "smile" || a.face === "wink") p.push(pix ? '<rect x="42" y="' + my + '" width="16" height="3" fill="' + ink + '"/><rect x="40" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/><rect x="57" y="' + (my - 3) + '" width="3" height="3" fill="' + ink + '"/>' : '<path d="M42 ' + my + ' Q50 ' + (my + 6) + ' 58 ' + my + '" stroke="' + ink + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
+      if (a.face === "grin") p.push(pix ? '<rect x="40" y="' + (my - 2) + '" width="20" height="7" fill="' + ink + '"/><rect x="44" y="' + (my + 2) + '" width="12" height="3" fill="#ff7a9a"/>' : '<path d="M40 ' + (my - 1) + ' Q50 ' + (my + 12) + ' 60 ' + (my - 1) + ' Z" fill="' + ink + '"/><path d="M45 ' + (my + 3.5) + ' Q50 ' + (my + 7) + ' 55 ' + (my + 3.5) + '" fill="#ff7a9a"/>');
+      if (a.face === "wow") p.push(pix ? '<rect x="46" y="' + (my - 2) + '" width="8" height="8" fill="' + ink + '"/>' : '<ellipse cx="50" cy="' + (my + 1) + '" rx="4" ry="5" fill="' + ink + '"/>');
+      // glasses
+      const g = w.glasses;
+      if (g === "round") p.push('<circle cx="41" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><circle cx="59" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><path d="M48 41 H52" stroke="#3a2a1a" stroke-width="2"/>');
+      if (g === "shades" || g === "goldshades") { const f = g === "shades" ? "#1a1a24" : "#f5c542", e2 = g === "shades" ? "#000" : "#a87412"; p.push('<rect x="32" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><rect x="52" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><path d="M48 39 H52" stroke="' + e2 + '" stroke-width="2"/><path d="M35 37.5 H41" stroke="#fff" stroke-width="1.5" opacity=".6"/>'); }
+      if (g === "hearts") p.push('<path d="M41 48 L33 40 A4 4 0 0 1 41 35 A4 4 0 0 1 49 40 Z M59 48 L51 40 A4 4 0 0 1 59 35 A4 4 0 0 1 67 40 Z" fill="#ff4f8b" stroke="#b0144f" stroke-width="1.2"/><path d="M49 40 H51" stroke="#b0144f" stroke-width="2"/>');
+      if (g === "starglasses") p.push('<text x="41" y="47" font-size="17" text-anchor="middle" fill="#ffd34e" stroke="#b07a00" stroke-width="1">\u2605</text><text x="59" y="47" font-size="17" text-anchor="middle" fill="#ffd34e" stroke="#b07a00" stroke-width="1">\u2605</text><path d="M48 41 H52" stroke="#b07a00" stroke-width="2"/>');
+      // hats (head top ~ y18-20)
+      const h = w.hat;
+      if (h === "cap") p.push('<path d="M27 26 Q28 10 50 9 Q72 10 73 26 Z" fill="#e8414f"/><path d="M60 24 Q78 22 86 27 Q74 30 60 28 Z" fill="#b8202e"/><circle cx="50" cy="9.5" r="2" fill="#b8202e"/>');
+      if (h === "beanie") p.push('<path d="M26 27 Q27 6 50 6 Q73 6 74 27 Z" fill="#4f6dff"/><rect x="25" y="22" width="50" height="8" rx="4" fill="#2f48c8"/><circle cx="50" cy="5" r="5" fill="#fff"/>');
+      if (h === "party") p.push('<path d="M38 22 L50 -2 L62 22 Z" fill="#b47cff"/><path d="M42 14 L58 14 M45 8 L55 8" stroke="#ffd34e" stroke-width="2.5"/><circle cx="50" cy="-2" r="3" fill="#ff7ab8"/>');
+      if (h === "tophat") p.push('<rect x="36" y="-2" width="28" height="22" rx="2" fill="#22202c"/><rect x="36" y="13" width="28" height="4" fill="#e8414f"/><rect x="28" y="18" width="44" height="5" rx="2.5" fill="#22202c"/>');
+      if (h === "wizard") p.push('<path d="M32 22 L52 -6 L68 22 Z" fill="#5b3cc4"/><text x="49" y="16" font-size="8" fill="#ffd34e" text-anchor="middle">\u2605</text><text x="57" y="7" font-size="6" fill="#ffd34e" text-anchor="middle">\u2605</text><ellipse cx="50" cy="22" rx="24" ry="4" fill="#4a2fa6"/>');
+      if (h === "cowboy") p.push('<path d="M36 20 Q36 4 50 4 Q64 4 64 20 Z" fill="#a8652a"/><path d="M18 20 Q50 30 82 20 Q78 26 50 27 Q22 26 18 20 Z" fill="#8a4f1c"/><rect x="36" y="16" width="28" height="3" fill="#5a3410"/>');
+      if (h === "flowers") [[30, 24, "#ff7ab8"], [38, 19, "#ffd34e"], [46, 17, "#ff5a5a"], [54, 17, "#b47cff"], [62, 19, "#ff7ab8"], [70, 24, "#ffd34e"]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4.2" fill="' + q[2] + '"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.5" fill="#fff"/>'); });
+      if (h === "crown") p.push('<path d="M32 22 L32 6 L41 14 L50 2 L59 14 L68 6 L68 22 Z" fill="#f5c542" stroke="#a87412" stroke-width="1.5"/><circle cx="50" cy="15" r="2.6" fill="#e8414f"/><circle cx="40" cy="18" r="1.8" fill="#4fd1e8"/><circle cx="60" cy="18" r="1.8" fill="#4fd1e8"/>');
+      // pet
+      const pet = w.pet && avItem(w.pet);
+      if (pet) p.push((pet.gold ? '<circle cx="88" cy="96" r="12" fill="#f5c542" opacity=".35"/>' : "") + '<text x="88" y="103" font-size="20" text-anchor="middle">' + pet.emoji + '</text>');
+      const size = opts.size || 96;
+      return '<svg class="av-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + (pet ? "0 -8 104 114" : "0 -8 100 114") + '" width="' + size + '" height="' + Math.round(size * 1.14) + '"' + (pix ? ' shape-rendering="crispEdges"' : "") + ' aria-hidden="true">' + p.join("") + "</svg>";
+    }
+    function avNode(a, size, cls) {
+      const span = el("span", { class: "av " + (cls || "") });
+      span.innerHTML = avatarSVG(a, { size: size });
+      return span;
+    }
+    function avWith(itemId) {
+      const it = avItem(itemId);
+      const copy = JSON.parse(JSON.stringify(avatar));
+      copy.owned = copy.owned.concat([itemId]);
+      copy.wear = Object.assign({}, copy.wear);
+      copy.wear[it.slot] = itemId;
+      return copy;
+    }
+    // ---- Prize: every 5 in a row, pick 1 of 2 new items. Gold items join at 50+. ----
+    function avPrizeChoices(streak) {
+      const free = AV_ITEMS.filter(function (i) { return avatar.owned.indexOf(i.id) < 0; });
+      const gold = free.filter(function (i) { return i.gold; }), plain = free.filter(function (i) { return !i.gold; });
+      const shuffle = function (arr) { return arr.slice().sort(function () { return Math.random() - 0.5; }); };
+      let pick = [];
+      if (streak >= AV_GOLD_AT && gold.length) pick.push(shuffle(gold)[0]);
+      shuffle(plain).forEach(function (i) { if (pick.length < 2 && !pick.some(function (x) { return x.slot === i.slot; })) pick.push(i); });
+      shuffle(plain.concat(streak >= AV_GOLD_AT ? gold : [])).forEach(function (i) { if (pick.length < 2 && pick.indexOf(i) < 0) pick.push(i); });
+      return pick;
+    }
+    function avPrizeOpen() { return !!document.querySelector(".prize-ov"); }
+    function avPrize(streak) {
+      if (avPrizeOpen() || (state.phase !== "play" && state.phase !== "quiz")) return;
+      const choices = avPrizeChoices(streak);
+      if (!choices.length) return;
+      const ov = el("div", { class: "prize-ov", role: "dialog", "aria-modal": "true", "aria-label": "Pick a prize" });
+      const box = el("div", { class: "prize-box" });
+      box.appendChild(el("p", { class: "prize-title", text: streak + " in a row!" }));
+      box.appendChild(el("p", { class: "prize-sub", text: "Pick one prize" }));
+      const row = el("div", { class: "prize-row" });
+      choices.forEach(function (it) {
+        const b = el("button", { type: "button", class: "prize-pick" + (it.gold ? " gold" : ""), onClick: function () {
+          avatar.owned.push(it.id);
+          avatar.wear[it.slot] = it.id;
+          avSave();
+          ov.remove();
+          say("You got " + it.name + ".");
+        } }, [avNode(avWith(it.id), 110), el("span", { class: "prize-name", text: (it.gold ? "\u2B50 " : "") + it.name })]);
+        row.appendChild(b);
+      });
+      box.appendChild(row);
+      ov.appendChild(box);
+      document.body.appendChild(ov);
+      say(streak + " in a row! Pick one prize: " + choices.map(function (c) { return c.name; }).join(" or ") + ".");
+      const first = ov.querySelector("button");
+      if (first) first.focus();
+    }
+    // ---- Closet page ----
+    let closetTab = "look";
+    function closetCard() {
+      const card = el("div", { class: "card closet-card" });
+      card.appendChild(el("div", { class: "closet-preview" }, [avNode(avatar, 150)]));
+      const tabs = el("div", { class: "lb-tabs", role: "tablist" });
+      [["look", "My Look"], ["clothes", "My Clothes"]].forEach(function (t) {
+        tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (closetTab === t[0] ? " on" : ""), "aria-selected": String(closetTab === t[0]), text: t[1], onClick: function () { closetTab = t[0]; render(); } }));
+      });
+      card.appendChild(tabs);
+      const set = function (k, v) { avatar[k] = v; avatar.made = true; avSave(); render(); };
+      const sec = function (title, kids, cls) { return el("div", { class: "closet-sec" }, [el("p", { class: "closet-h", text: title }), el("div", { class: "closet-opts " + (cls || "") }, kids)]); };
+      if (closetTab === "look") {
+        card.appendChild(sec("Pick a style", AV_STYLES.map(function (s) {
+          const prev = Object.assign({}, avatar, { style: s[0] });
+          return el("button", { type: "button", class: "closet-opt" + (avatar.style === s[0] ? " on" : ""), "aria-pressed": String(avatar.style === s[0]), onClick: function () { set("style", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+        })));
+        if (avatar.style === "animal") card.appendChild(sec("Pick an animal", AV_ANIMALS.map(function (s) {
+          const prev = Object.assign({}, avatar, { animal: s[0] });
+          return el("button", { type: "button", class: "closet-opt" + (avatar.animal === s[0] ? " on" : ""), "aria-pressed": String(avatar.animal === s[0]), onClick: function () { set("animal", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+        })));
+        card.appendChild(sec("Pick a color", AV_COLORS.map(function (col) {
+          return el("button", { type: "button", class: "closet-swatch" + (avatar.color === col ? " on" : ""), "aria-label": "Color", "aria-pressed": String(avatar.color === col), style: "background:" + col, onClick: function () { set("color", col); } });
+        }), "swatches"));
+        card.appendChild(sec("Pick a face", AV_FACES.map(function (s) {
+          const prev = Object.assign({}, avatar, { face: s[0], wear: {} });
+          return el("button", { type: "button", class: "closet-opt" + (avatar.face === s[0] ? " on" : ""), "aria-pressed": String(avatar.face === s[0]), onClick: function () { set("face", s[0]); } }, [avNode(prev, 56), el("span", { text: s[1] })]);
+        })));
+      } else {
+        if (!avatar.owned.length) card.appendChild(el("p", { class: "closet-empty", text: "Get 5 right in a row to win clothes!" }));
+        AV_SLOTS.forEach(function (s) {
+          const mine = AV_ITEMS.filter(function (i) { return i.slot === s[0] && avatar.owned.indexOf(i.id) >= 0; });
+          if (!mine.length) return;
+          card.appendChild(sec(s[1], mine.map(function (it) {
+            const on = avatar.wear[s[0]] === it.id;
+            return el("button", { type: "button", class: "closet-opt" + (on ? " on" : "") + (it.gold ? " gold" : ""), "aria-pressed": String(on), onClick: function () {
+              if (on) delete avatar.wear[s[0]]; else avatar.wear[s[0]] = it.id;
+              avatar.made = true; avSave(); render();
+            } }, [avNode(Object.assign({}, avatar, { wear: (function () { const o = {}; o[s[0]] = it.id; return o; })() }), 56), el("span", { text: it.name })]);
+          })));
+        });
+        const left = AV_ITEMS.length - avatar.owned.length;
+        if (avatar.owned.length) card.appendChild(el("p", { class: "lb-hint", text: left ? left + " more to win. Tap to put on or take off." : "You won them all!" }));
+      }
+      return card;
+    }
+    const PAGES = ["menu", "beats", "backgrounds", "games", "minigames", "leaders", "closet"];
+    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games", leaders: "Leaders", closet: "Closet" };
     let menuSmooth = false;
     function currentPage() {
       const h = (location.hash || "").replace(/^#/, "");
@@ -8314,12 +8603,18 @@
         btn.appendChild(el("span", { class: "menu-label", text: t[1] }));
         grid.appendChild(btn);
       });
+      const pills = el("div", { class: "menu-pills" + (LEADERBOARD_URL ? " two" : "") });
+      pills.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", onClick: function () { goPage("closet"); } }, [
+        avatar.made ? avNode(avatar, 30, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
+        el("span", { text: "Closet" })
+      ]));
       if (LEADERBOARD_URL) {
-        grid.appendChild(el("button", { type: "button", class: "menu-lb", onClick: function () { goPage("leaders"); } }, [
+        pills.appendChild(el("button", { type: "button", class: "menu-lb", onClick: function () { goPage("leaders"); } }, [
           el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
           el("span", { text: "Leaderboard" })
         ]));
       }
+      grid.appendChild(pills);
       sec.appendChild(grid);
       return sec;
     }
@@ -9928,7 +10223,7 @@
       render();
     }
     function answer(choice) {
-      if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem) return;
+      if (state.phase !== "play" || performance.now() < state.lockUntil || !state.problem || avPrizeOpen()) return;
       const problem = state.problem;
       const ok = choice === problem.answer;
       // Rounding misses stay up longer so the number-line hint can be read.
@@ -9940,6 +10235,7 @@
       if (ok) {
         state.streak += 1;
         state.lbOp = problem.operation || state.operation;
+        if (state.streak % 5 === 0) { const prizeAt = state.streak; setTimeout(function () { avPrize(prizeAt); }, 650); }
         state.bestStreak = Math.max(state.bestStreak, state.streak);
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;

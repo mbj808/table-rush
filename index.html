@@ -7385,6 +7385,7 @@
         }
       }
       state.phase = "results";
+      lbFlush();
       render();
     }
     function quizPick(choice) {
@@ -7398,6 +7399,7 @@
       if (!q || q.picked == null || quizSecondsLeft() <= 0) return;
       const right = q.picked === q.fact.a * q.fact.b;
       q.attempted += 1;
+      lbPoint(right, "multiply");
       if (right) q.correct += 1;
       else {
         q.mistakes += 1;
@@ -7502,6 +7504,7 @@
         writeSave();
       }
       state.drill = null;
+      lbFlush();
       state.phase = "setup";
       state.problem = null;
       state.picked = null;
@@ -8206,7 +8209,58 @@
     function lbMe() {
       try { const v = JSON.parse(localStorage.getItem(LB_KEY) || "null"); return v && v.name && v.code ? v : null; } catch (e) { return null; }
     }
-    function lbForget() { try { localStorage.removeItem(LB_KEY); } catch (e) {} }
+    function lbForget() { lbFlush(true); try { localStorage.removeItem(LB_KEY); localStorage.removeItem(LB_PTS_KEY); } catch (e) {} }
+    // ---- Points: 1 for each right answer, minus 1 for each wrong one. Sent in small batches. ----
+    // lb.mode: "points" once the sheet script says it can total points (version 2), "streak" for the old script.
+    const LB_PTS_KEY = "mad-facts-pts";
+    const LB_BATCH = 10;
+    function lbPtsRead() { try { const v = JSON.parse(localStorage.getItem(LB_PTS_KEY) || "null"); return v && v.games ? v : { games: {}, n: 0 }; } catch (e) { return { games: {}, n: 0 }; } }
+    function lbPtsWrite(v) { try { localStorage.setItem(LB_PTS_KEY, JSON.stringify(v)); } catch (e) {} }
+    function lbCaps() {
+      if (!LEADERBOARD_URL || lb.mode || lb.capsAsked) return;
+      lb.capsAsked = true;
+      lbGet("action=version").then(function (d) {
+        lb.mode = d && d.version >= 2 ? "points" : "streak";
+        if (lb.mode === "points") lbFlush(); else { try { localStorage.removeItem(LB_PTS_KEY); } catch (e) {} }
+      }).catch(function () { lb.capsAsked = false; });
+    }
+    function lbPoint(right, op) {
+      if (!LEADERBOARD_URL || !lbMe() || lb.mode === "streak") return;
+      const v = lbPtsRead(), g = lbGameLabel(op) || "Other";
+      const t = v.games[g] || (v.games[g] = { r: 0, w: 0 });
+      if (right) t.r += 1; else t.w += 1;
+      v.n = (v.n || 0) + 1;
+      lbPtsWrite(v);
+      if (!lb.mode) lbCaps();
+      if (v.n >= LB_BATCH) lbFlush();
+    }
+    function lbFlush(leaving) {
+      if (!LEADERBOARD_URL || lb.mode !== "points") return;
+      const me = lbMe();
+      if (!me) return;
+      const v = lbPtsRead();
+      const games = Object.keys(v.games).filter(function (g) { return v.games[g].r + v.games[g].w > 0; });
+      if (!games.length) return;
+      // Take the batch out of the pending store first so a second flush can't send it twice; put it back if it fails.
+      lbPtsWrite({ games: {}, n: 0 });
+      games.forEach(function (g) {
+        const t = v.games[g];
+        const giveBack = function () {
+          if (leaving) return;
+          const cur = lbPtsRead(), c = cur.games[g] || (cur.games[g] = { r: 0, w: 0 });
+          c.r += t.r; c.w += t.w; lbPtsWrite(cur);
+        };
+        try {
+          fetch(LEADERBOARD_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, keepalive: true,
+            body: JSON.stringify({ type: "points", name: me.name, code: me.code, game: g, right: Math.min(t.r, 200), wrong: Math.min(t.w, 200) }) })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { if (!d || !d.ok) { if (d && (d.error === "code" || d.error === "name")) return; giveBack(); } })
+            .catch(giveBack);
+        } catch (e) { giveBack(); }
+      });
+    }
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") lbFlush(true); });
+    if (LEADERBOARD_URL) setTimeout(function () { if (lbMe()) lbCaps(); }, 1500);
     function lbGet(params) {
       return fetch(LEADERBOARD_URL + (LEADERBOARD_URL.indexOf("?") >= 0 ? "&" : "?") + params, { cache: "no-store" })
         .then(function (r) { if (!r.ok) throw new Error("lb " + r.status); return r.json(); });
@@ -8217,13 +8271,13 @@
       const me = lbMe();
       avPull();
       Promise.all([me ? Promise.resolve(lb.names) : lbGet("action=roster").then(function (d) { return (d && d.names) || []; }), lbGet("action=board")])
-        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; })
+        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; if (lb.board && lb.board.points && lb.mode !== "points") { lb.mode = "points"; lbFlush(); } })
         .catch(function () { lb.failed = true; })
         .then(function () { lb.loading = false; if (state.phase === "setup" && currentPage() === "leaders") render(); });
     }
     function lbGameLabel(op) { return opLabel(op) || String(op || ""); }
     function lbStreakEnded(streak, op) {
-      if (!LEADERBOARD_URL || !(streak > 0)) return;
+      if (!LEADERBOARD_URL || !(streak > 0) || lb.mode === "points") return;
       const me = lbMe();
       if (!me) return;
       const body = JSON.stringify({ name: me.name, code: me.code, game: lbGameLabel(op), streak: Math.min(500, Math.floor(streak)) });
@@ -8235,6 +8289,7 @@
       } catch (e) {}
     }
     window.addEventListener("pagehide", function () {
+      lbFlush(true);
       if (state.phase === "play" && state.streak > 0) { const s = state.streak; state.streak = 0; lbStreakEnded(s, state.lbOp || state.operation); }
     });
     function leaderboardCard() {
@@ -8256,7 +8311,7 @@
           if (!name || !c) { note.textContent = "Pick your name and type the code."; return; }
           note.textContent = "Checking\u2026";
           lbGet("action=check&code=" + encodeURIComponent(c)).then(function (d) {
-            if (d && d.ok) { localStorage.setItem(LB_KEY, JSON.stringify({ name: name, code: c })); lb.msg = ""; avPull(true); render(); }
+            if (d && d.ok) { localStorage.setItem(LB_KEY, JSON.stringify({ name: name, code: c })); lb.msg = ""; avPull(true); lbCaps(); render(); }
             else note.textContent = "That code is not right.";
           }).catch(function () { note.textContent = "Can\u2019t connect right now."; });
         } }));
@@ -8279,21 +8334,22 @@
       sel.value = lb.game;
       sel.addEventListener("change", function () { lb.game = sel.value; render(); });
       card.appendChild(sel);
-      const part = lb.board && lb.board[lb.tab];
+      const usePts = !!(lb.board && lb.board.points);
+      const part = lb.board && (usePts ? lb.board.points[lb.tab] : lb.board[lb.tab]);
       const rows = part ? (lb.game === "__all" ? part.overall : (part.games && part.games[lb.game]) || []) : [];
       const list = el("ol", { class: "lb-list" });
       if (!lb.board) list.appendChild(el("li", { class: "lb-empty", text: lb.failed ? "Can\u2019t load the board right now." : "Loading\u2026" }));
-      else if (!rows.length) list.appendChild(el("li", { class: "lb-empty", text: "No streaks yet. Be the first!" }));
+      else if (!rows.length) list.appendChild(el("li", { class: "lb-empty", text: usePts ? "No points yet. Be the first!" : "No streaks yet. Be the first!" }));
       rows.forEach(function (r, i) {
         const mine = me && r.name.toLowerCase() === me.name.toLowerCase();
         list.appendChild(el("li", { class: "lb-row" + (mine ? " me" : "") + (i < 3 ? " top" + (i + 1) : "") }, [
           el("span", { class: "lb-rank", text: i < 3 ? ["\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"][i] : String(i + 1) }),
           el("span", { class: "lb-name" }, [avNode(mine ? avatar : (lb.board.avatars && lb.board.avatars[r.name]) || { color: "#c9c9d6" }, 30, "lb-av"), el("span", { text: r.name })]),
-          el("span", { class: "lb-streak", text: String(r.streak) + " \uD83D\uDD25" })
+          el("span", { class: "lb-streak", text: usePts ? r.points + (r.points === 1 ? " point" : " points") : String(r.streak) + " \uD83D\uDD25" })
         ]));
       });
       card.appendChild(list);
-      card.appendChild(el("p", { class: "lb-hint", text: "Your best streak goes up when it ends." }));
+      card.appendChild(el("p", { class: "lb-hint", text: usePts ? "1 point for each right answer, minus 1 for each wrong one." : "Your best streak goes up when it ends." }));
       return card;
     }
     // ---- Avatar + Closet. Saved on this device (not cleared by Reset Challenge); synced to the class sheet when a leaderboard name is set. ----
@@ -10158,6 +10214,7 @@
       state.drill = pairs;
       state.score = 0;
       lbStreakEnded(state.streak, state.lbOp || state.operation);
+      lbFlush();
       state.streak = 0;
       state.bestStreak = 0;
       state.correct = 0;
@@ -10235,6 +10292,7 @@
       if (ok) {
         state.streak += 1;
         state.lbOp = problem.operation || state.operation;
+        lbPoint(true, problem.operation || state.operation);
         if (state.streak % 5 === 0) { const prizeAt = state.streak; setTimeout(function () { avPrize(prizeAt); }, 650); }
         state.bestStreak = Math.max(state.bestStreak, state.streak);
         state.gain = 10 + Math.min(state.streak, 8) * 2;
@@ -10254,6 +10312,7 @@
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
         lbStreakEnded(state.streak, problem.operation || state.operation);
+        lbPoint(false, problem.operation || state.operation);
         state.streak = 0;
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {

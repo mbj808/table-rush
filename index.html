@@ -2529,6 +2529,36 @@
     @keyframes mt-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     @keyframes mt-shine { 0%, 55% { transform: skewX(-20deg) translateX(0); } 85%, 100% { transform: skewX(-20deg) translateX(150px); } }
     .subpage .page-head ~ * > p.label:first-child, .subpage p.label, .subpage .beats-title { display: none; }
+    .menu-lb { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3.4rem; border-radius: 1rem; cursor: pointer;
+      font: 900 1.25rem/1 "Titan One", "Arial Black", sans-serif; letter-spacing: 0.04em; color: #2a1800; text-transform: uppercase;
+      background: linear-gradient(180deg, #ffe08a, #e0a43a); border: 2px solid rgba(255, 246, 220, 0.8); box-shadow: 0 5px 0 #7a4d06, 0 0 10px rgba(255, 200, 80, 0.3); transition: transform 0.1s ease, box-shadow 0.1s ease; }
+    .menu-lb:active { transform: translateY(4px); box-shadow: 0 1px 0 #7a4d06; }
+    .menu-lb-ico { font-size: 1.4rem; }
+    .lb-card { display: flex; flex-direction: column; align-items: stretch; gap: 0.8rem; max-width: 30rem; margin: 0 auto; width: 100%; color: #fff; }
+    .lb-join { display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem; border-radius: 1.1rem; background: rgba(18, 10, 38, 0.82); border: 2px solid rgba(255, 211, 106, 0.6); }
+    .lb-big { margin: 0; font-size: 1.5rem; font-weight: 900; text-align: center; }
+    .lb-select, .lb-code { min-height: 3rem; border-radius: 0.8rem; border: 2px solid rgba(255,255,255,0.55); background: #1d1736; color: #fff; font-size: 1.1rem; font-weight: 800; padding: 0 0.8rem; }
+    .lb-select { -webkit-appearance: none; appearance: none; background-color: #1d1736; background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%); background-position: calc(100% - 1.2rem) 50%, calc(100% - 0.8rem) 50%; background-size: 0.4rem 0.4rem; background-repeat: no-repeat; padding-right: 2rem; }
+    .lb-select option { color: #000; background: #fff; }
+    .lb-code { text-transform: uppercase; letter-spacing: 0.1em; }
+    .lb-go { min-height: 3.2rem; border-radius: 0.9rem; border: 2px solid #ffe08a; font-size: 1.3rem; font-weight: 900; color: #fff; cursor: pointer; background: linear-gradient(115deg, #b85a0c, #9c1f5c 55%, #4e1a82); box-shadow: 0 5px 0 #3a0c2c; }
+    .lb-go:active { transform: translateY(4px); box-shadow: 0 1px 0 #3a0c2c; }
+    .lb-note { margin: 0; min-height: 1.2em; text-align: center; font-weight: 800; color: #ffd36a; }
+    .lb-me { margin: 0; text-align: center; font-size: 1.15rem; font-weight: 800; }
+    .lb-change { margin-left: 0.4rem; border: 1px solid rgba(255,255,255,0.6); background: transparent; color: #fff; border-radius: 999px; padding: 0.2rem 0.7rem; font-weight: 800; cursor: pointer; }
+    .lb-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .lb-tab { min-height: 3rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.4); background: #1d1736; color: #fff; font-size: 1.15rem; font-weight: 900; cursor: pointer; }
+    .lb-tab.on { background: linear-gradient(180deg, #ffe08a, #e0a43a); color: #2a1800; border-color: #fff6dc; }
+    .lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+    .lb-row { display: grid; grid-template-columns: 2.6rem 1fr auto; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0 0.9rem; border-radius: 0.9rem; background: rgba(18, 10, 38, 0.82); border: 2px solid rgba(255,255,255,0.18); font-size: 1.15rem; font-weight: 800; }
+    .lb-row.top1 { border-color: rgba(255, 211, 106, 0.85); } .lb-row.top2 { border-color: rgba(220, 225, 235, 0.75); } .lb-row.top3 { border-color: rgba(214, 140, 80, 0.75); }
+    .lb-row.me { background: rgba(95, 242, 255, 0.18); border-color: #5ff2ff; }
+    .lb-rank { font-size: 1.35rem; text-align: center; }
+    .lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lb-streak { font-variant-numeric: tabular-nums; font-weight: 900; }
+    .lb-empty { text-align: center; padding: 1rem; font-weight: 800; opacity: 0.85; }
+    .lb-hint { margin: 0; text-align: center; font-size: 0.95rem; opacity: 0.8; }
+    @media (prefers-reduced-motion: reduce) { .menu-lb { transition: none; } }
     .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.1rem; }
     .page-head .page-title { flex: 1 1 100%; text-align: center; font-size: 0; line-height: 0; text-shadow: none; }
     .logo-title { display: block; }
@@ -6940,6 +6970,7 @@
       state.bgChoice = -1;
       state.beatJustUnlocked = "";
       state.mazeCelebrate = false;
+      lbForget();
       if (!state.beatsUnlocked[state.playMusicId]) {
         state.playMusicId = freeBeatId();
         disposePlayMusic();
@@ -7902,6 +7933,7 @@
       stack.appendChild(pageHeader(page));
       if (page === "beats") stack.appendChild(musicCard(true, true));
       if (page === "backgrounds") stack.appendChild(backgroundsCard());
+      if (page === "leaders") { stack.appendChild(leaderboardCard()); app.appendChild(stack); return; }
       const opsCard = operationCard();
       stack.appendChild(opsCard);
       const optionsFrom = stack.children.length;
@@ -8128,8 +8160,105 @@
     }
 
     // ---- Pages: home (first screen + menu), #menu, #beats, #backgrounds, #games, #minigames ----
-    const PAGES = ["menu", "beats", "backgrounds", "games", "minigames"];
-    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games" };
+
+    // ---- Class leaderboard (Google Apps Script web app). Empty URL = feature hidden. ----
+    const LEADERBOARD_URL = "";
+    const LB_KEY = "mad-facts-lb";
+    const lb = { names: null, board: null, tab: "today", game: "__all", loading: false, failed: false, msg: "" };
+    function lbMe() {
+      try { const v = JSON.parse(localStorage.getItem(LB_KEY) || "null"); return v && v.name && v.code ? v : null; } catch (e) { return null; }
+    }
+    function lbForget() { try { localStorage.removeItem(LB_KEY); } catch (e) {} }
+    function lbGet(params) {
+      return fetch(LEADERBOARD_URL + (LEADERBOARD_URL.indexOf("?") >= 0 ? "&" : "?") + params, { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("lb " + r.status); return r.json(); });
+    }
+    function lbRefresh() {
+      if (!LEADERBOARD_URL || lb.loading) return;
+      lb.loading = true;
+      const me = lbMe();
+      Promise.all([me ? Promise.resolve(lb.names) : lbGet("action=roster").then(function (d) { return (d && d.names) || []; }), lbGet("action=board")])
+        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; })
+        .catch(function () { lb.failed = true; })
+        .then(function () { lb.loading = false; if (state.phase === "setup" && currentPage() === "leaders") render(); });
+    }
+    function lbGameLabel(op) { return opLabel(op) || String(op || ""); }
+    function lbStreakEnded(streak, op) {
+      if (!LEADERBOARD_URL || !(streak > 0)) return;
+      const me = lbMe();
+      if (!me) return;
+      const body = JSON.stringify({ name: me.name, code: me.code, game: lbGameLabel(op), streak: Math.min(500, Math.floor(streak)) });
+      try {
+        fetch(LEADERBOARD_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: body, keepalive: true })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (d && d.ok === false && (d.error === "code" || d.error === "name")) lbForget(); })
+          .catch(function () {});
+      } catch (e) {}
+    }
+    window.addEventListener("pagehide", function () {
+      if (state.phase === "play" && state.streak > 0) { const s = state.streak; state.streak = 0; lbStreakEnded(s, state.lbOp || state.operation); }
+    });
+    function leaderboardCard() {
+      const card = el("div", { class: "card lb-card" });
+      if (!lb.board && !lb.loading && !lb.failed) lbRefresh();
+      const me = lbMe();
+      if (!me) {
+        const form = el("div", { class: "lb-join" });
+        form.appendChild(el("p", { class: "lb-big", text: "Who are you?" }));
+        const pick = el("select", { class: "lb-select", "aria-label": "Your name" });
+        pick.appendChild(el("option", { value: "", text: lb.names ? "Pick your name" : (lb.failed ? "Can\u2019t load names" : "Loading\u2026") }));
+        (lb.names || []).forEach(function (n) { pick.appendChild(el("option", { value: n, text: n })); });
+        form.appendChild(pick);
+        const code = el("input", { class: "lb-code", type: "text", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", placeholder: "Class code", "aria-label": "Class code", maxlength: "20" });
+        form.appendChild(code);
+        const note = el("p", { class: "lb-note", role: "status", text: lb.msg || "" });
+        form.appendChild(el("button", { type: "button", class: "lb-go", text: "Join", onClick: function () {
+          const name = pick.value, c = code.value.trim();
+          if (!name || !c) { note.textContent = "Pick your name and type the code."; return; }
+          note.textContent = "Checking\u2026";
+          lbGet("action=check&code=" + encodeURIComponent(c)).then(function (d) {
+            if (d && d.ok) { localStorage.setItem(LB_KEY, JSON.stringify({ name: name, code: c })); lb.msg = ""; render(); }
+            else note.textContent = "That code is not right.";
+          }).catch(function () { note.textContent = "Can\u2019t connect right now."; });
+        } }));
+        form.appendChild(note);
+        card.appendChild(form);
+      } else {
+        card.appendChild(el("p", { class: "lb-me" }, [
+          document.createTextNode("You are "), el("strong", { text: me.name }), document.createTextNode(" "),
+          el("button", { type: "button", class: "lb-change", text: "Change", onClick: function () { lbForget(); lb.names = null; lb.board = null; render(); } })
+        ]));
+      }
+      const tabs = el("div", { class: "lb-tabs", role: "tablist" });
+      [["today", "Today"], ["week", "This Week"]].forEach(function (t) {
+        tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (lb.tab === t[0] ? " on" : ""), "aria-selected": String(lb.tab === t[0]), text: t[1], onClick: function () { lb.tab = t[0]; render(); } }));
+      });
+      card.appendChild(tabs);
+      const sel = el("select", { class: "lb-select lb-game", "aria-label": "Game" });
+      sel.appendChild(el("option", { value: "__all", text: "All games" }));
+      OPS.forEach(function (o) { sel.appendChild(el("option", { value: o.label, text: o.label })); });
+      sel.value = lb.game;
+      sel.addEventListener("change", function () { lb.game = sel.value; render(); });
+      card.appendChild(sel);
+      const part = lb.board && lb.board[lb.tab];
+      const rows = part ? (lb.game === "__all" ? part.overall : (part.games && part.games[lb.game]) || []) : [];
+      const list = el("ol", { class: "lb-list" });
+      if (!lb.board) list.appendChild(el("li", { class: "lb-empty", text: lb.failed ? "Can\u2019t load the board right now." : "Loading\u2026" }));
+      else if (!rows.length) list.appendChild(el("li", { class: "lb-empty", text: "No streaks yet. Be the first!" }));
+      rows.forEach(function (r, i) {
+        const mine = me && r.name.toLowerCase() === me.name.toLowerCase();
+        list.appendChild(el("li", { class: "lb-row" + (mine ? " me" : "") + (i < 3 ? " top" + (i + 1) : "") }, [
+          el("span", { class: "lb-rank", text: i < 3 ? ["\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"][i] : String(i + 1) }),
+          el("span", { class: "lb-name", text: r.name }),
+          el("span", { class: "lb-streak", text: String(r.streak) + " \uD83D\uDD25" })
+        ]));
+      });
+      card.appendChild(list);
+      card.appendChild(el("p", { class: "lb-hint", text: "Your best streak goes up when it ends." }));
+      return card;
+    }
+    const PAGES = ["menu", "beats", "backgrounds", "games", "minigames", "leaders"];
+    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games", leaders: "Leaders" };
     let menuSmooth = false;
     function currentPage() {
       const h = (location.hash || "").replace(/^#/, "");
@@ -8185,6 +8314,12 @@
         btn.appendChild(el("span", { class: "menu-label", text: t[1] }));
         grid.appendChild(btn);
       });
+      if (LEADERBOARD_URL) {
+        grid.appendChild(el("button", { type: "button", class: "menu-lb", onClick: function () { goPage("leaders"); } }, [
+          el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
+          el("span", { text: "Leaderboard" })
+        ]));
+      }
       sec.appendChild(grid);
       return sec;
     }
@@ -9727,6 +9862,7 @@
       }
       state.drill = pairs;
       state.score = 0;
+      lbStreakEnded(state.streak, state.lbOp || state.operation);
       state.streak = 0;
       state.bestStreak = 0;
       state.correct = 0;
@@ -9803,6 +9939,7 @@
       playTone(ok);
       if (ok) {
         state.streak += 1;
+        state.lbOp = problem.operation || state.operation;
         state.bestStreak = Math.max(state.bestStreak, state.streak);
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
@@ -9820,6 +9957,7 @@
         if (streakRewardId) mazeNote += " Congratulations. " + BEAT_REWARDS[streakRewardId].bar + " is unlocked. " + BEAT_REWARDS[streakRewardId].speak;
         say("Correct. " + spokenFact(problem) + (justBeat ? " " + justBeat.label + " unlocked." : "") + mazeNote);
       } else {
+        lbStreakEnded(state.streak, problem.operation || state.operation);
         state.streak = 0;
         state.gain = null;
         if (isMultiples() || problem.operation === "multiples") {

@@ -8592,7 +8592,15 @@
       copy.wear[it.slot] = itemId;
       return copy;
     }
-    // ---- Prize: every 5 in a row, pick 1 of 2 new items. Gold items join at 50+. ----
+    // ---- Prize: every 10 in a row, pick 1 of 2 new items. Gold items join at 50+. ----
+    const AV_PRIZE_EVERY = 10;
+    // A beat unlock can land on the same streak: wait for its burst / congrats popup to finish, then show the prize.
+    function avPrizeWhenClear(at, tries) {
+      if (state.phase !== "play" && state.phase !== "quiz") return;
+      const busy = performance.now() < (state.burstUntil || 0) || document.getElementById("beat-supernova") || document.getElementById("maze-congrats");
+      if (busy && tries < 200) { setTimeout(function () { avPrizeWhenClear(at, tries + 1); }, 400); return; }
+      avPrize(at);
+    }
     function avPrizeChoices(streak) {
       const free = AV_ITEMS.filter(function (i) { return avatar.owned.indexOf(i.id) < 0; });
       const gold = free.filter(function (i) { return i.gold; }), plain = free.filter(function (i) { return !i.gold; });
@@ -8668,7 +8676,7 @@
           }), "swatches"));
         }
       } else {
-        if (!avatar.owned.length) card.appendChild(el("p", { class: "closet-empty", text: "Get 5 right in a row to win clothes!" }));
+        if (!avatar.owned.length) card.appendChild(el("p", { class: "closet-empty", text: "Get 10 right in a row to win clothes!" }));
         AV_SLOTS.forEach(function (s) {
           const mine = AV_ITEMS.filter(function (i) { return i.slot === s[0] && avatar.owned.indexOf(i.id) >= 0; });
           if (!mine.length) return;
@@ -10376,7 +10384,7 @@
         state.streak += 1;
         state.lbOp = problem.operation || state.operation;
         lbPoint(true, problem.operation || state.operation);
-        if (state.streak % 5 === 0) { const prizeAt = state.streak; setTimeout(function () { avPrize(prizeAt); }, 650); }
+        if (state.streak % AV_PRIZE_EVERY === 0) { const prizeAt = state.streak; setTimeout(function () { avPrizeWhenClear(prizeAt, 0); }, 650); }
         state.bestStreak = Math.max(state.bestStreak, state.streak);
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;

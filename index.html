@@ -2935,7 +2935,6 @@
     .home-timed .challenge-sub { color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,0.85); }
     .home-allfacts { display: inline-flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem 1.2rem; min-height: 2.75rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.7); background: rgba(18,10,38,0.75); color: #fff; font-weight: 900; font-size: 1.05rem; cursor: pointer; }
     .home-allfacts-note { font-weight: 700; font-size: 0.85rem; opacity: 0.85; }
-    .home-unlock { margin: 0.3rem 0 -0.3rem; display: flex; justify-content: center; }
     .hit-counter.home-counter { margin: 0.9rem auto 0.4rem; transform: scale(0.85); transform-origin: center top; }
     .hit-strip {
       display: inline-flex; gap: 3px; padding: 5px; background: #050505; border-radius: 6px;
@@ -8976,7 +8975,6 @@
       ]));
       sec.appendChild(timed);
       // 5. Beats, Backgrounds, Mini Games, under the "Unlock beats and backgrounds" note
-      sec.appendChild(el("p", { class: "home-unlock" }, [hintPill()]));
       const grid = el("div", { class: "menu-grid" });
       [["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
         const btn = el("button", { type: "button", class: "menu-tile tile-" + t[0], onClick: function () { goPage(t[0]); } });

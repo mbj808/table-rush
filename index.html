@@ -2922,6 +2922,20 @@
       font-size: 2.15rem;
     }
     .hit-counter { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; margin: 1.6rem auto 0.8rem; }
+    .home-fc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: stretch; }
+    .home-fc-row .menu-closet { flex-direction: column; gap: 0.15rem; padding: 0.35rem 0.9rem; font-size: 1rem; min-width: 6.2rem; }
+    .home-fc-row .menu-av svg { display: block; }
+    .home-fc-row > .menu-fc { grid-column: auto; width: auto; min-width: 0; margin: 0; }
+    .home-fc-row > .menu-closet { grid-column: auto; width: auto; margin: 0; }
+    @media (max-width: 480px) { .home-fc-row .menu-fc-text { font-size: 1.15rem; } }
+    .home-lb { width: 100%; font-size: 1.15rem; }
+    .home-timed { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.4rem 0 0.2rem; }
+    .home-timed .start-challenge { width: 100%; max-width: 24rem; min-height: 4.6rem; font-size: 1.9rem; font-weight: 800; background: #1e7a4d; border: 3px solid #fffef6; box-shadow: 0 6px 0 #145537, 0 10px 24px rgba(0, 0, 0, 0.22); }
+    .home-timed .start-challenge:active { transform: translateY(3px); box-shadow: 0 3px 0 #145537; }
+    .home-timed .challenge-sub { color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,0.85); }
+    .home-allfacts { display: inline-flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem 1.2rem; min-height: 2.75rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.7); background: rgba(18,10,38,0.75); color: #fff; font-weight: 900; font-size: 1.05rem; cursor: pointer; }
+    .home-allfacts-note { font-weight: 700; font-size: 0.85rem; opacity: 0.85; }
+    .home-unlock { margin: 0.3rem 0 -0.3rem; display: flex; justify-content: center; }
     .hit-counter.home-counter { margin: 0.9rem auto 0.4rem; transform: scale(0.85); transform-origin: center top; }
     .hit-strip {
       display: inline-flex; gap: 3px; padding: 5px; background: #050505; border-radius: 6px;
@@ -8036,10 +8050,9 @@
         }
       }, [hintPill(), hintArrow()]));
       // Home and #menu: the first screen with the menu right below it. Other pages stand alone.
+      // Home and #menu, top to bottom: boom box, Fact Challenge + Closet, Leaderboard, Timed Challenge,
+      // Beats / Backgrounds / Mini Games, visitor counter. (The title is the page header above.)
       if (page === "home" || page === "menu") {
-        app.appendChild(hero);
-        const homeCounter = hitCounter();
-        if (homeCounter) { homeCounter.classList.add("home-counter"); app.appendChild(homeCounter); }
         app.appendChild(menuPage());
         return;
       }
@@ -8926,7 +8939,8 @@
       return head;
     }
     function menuPage() {
-      const sec = el("section", { class: "menu-page", id: "menu-page", "aria-label": "Menu" });
+      const sec = el("section", { class: "menu-page home-stack", id: "menu-page", "aria-label": "Menu" });
+      // 1. Boom box
       const playerCard = el("div", { class: "card beats-card menu-player" });
       const player = el("div", { class: "setup-player" });
       const box = makeBoombox("boombox-home", "home-box");
@@ -8934,15 +8948,37 @@
       playerCard.appendChild(player);
       sec.appendChild(playerCard);
       setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
+      // 2. Fact Challenge (all the games, incl. the regular times tables) + Closet with the kid's avatar
+      const fcRow = el("div", { class: "home-fc-row" + (avHas() ? " has-av" : "") });
+      const fc = el("button", { type: "button", class: "menu-fc", "aria-label": "Fact Challenge", onClick: function () { goPage("games"); } });
+      fc.appendChild(el("span", { class: "menu-fc-text", text: "FACT CHALLENGE" }));
+      fc.appendChild(el("span", { class: "menu-fc-play", "aria-hidden": "true", text: "\u25B6" }));
+      fcRow.appendChild(fc);
+      fcRow.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", "aria-label": "Closet", onClick: function () { goPage("closet"); } }, [
+        avHas() ? avNode(avatar, 44, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
+        el("span", { text: "Closet" })
+      ]));
+      sec.appendChild(fcRow);
+      // 3. Leaderboard
+      if (LEADERBOARD_URL) {
+        sec.appendChild(el("button", { type: "button", class: "menu-lb home-lb", onClick: function () { goPage("leaders"); } }, [
+          el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
+          el("span", { text: "Leaderboard" })
+        ]));
+      }
+      // 4. Timed Challenge: straight into the timed times-tables quiz. All Facts stays one tap away.
+      const timed = el("div", { class: "home-timed" });
+      timed.appendChild(el("button", { class: "start start-challenge", type: "button", text: "Timed Challenge", onClick: function () { startQuiz("timed"); } }));
+      timed.appendChild(el("p", { class: "challenge-sub", text: state.quizBest ? QUIZ_SECONDS + " seconds \u00B7 Best " + state.quizBest + " right" : QUIZ_SECONDS + " seconds of times tables" }));
+      timed.appendChild(el("button", { type: "button", class: "home-allfacts", onClick: function () { startQuiz("all"); } }, [
+        el("span", { text: "All Facts" }),
+        el("span", { class: "home-allfacts-note", text: state.quizBestAllMs ? "Fastest " + formatClock(state.quizBestAllMs) : "Every fact once" })
+      ]));
+      sec.appendChild(timed);
+      // 5. Beats, Backgrounds, Mini Games, under the "Unlock beats and backgrounds" note
+      sec.appendChild(el("p", { class: "home-unlock" }, [hintPill()]));
       const grid = el("div", { class: "menu-grid" });
-      [["games", "Fact Challenge", null], ["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
-        if (t[0] === "games") {
-          const fc = el("button", { type: "button", class: "menu-fc", "aria-label": "Fact Challenge", onClick: function () { goPage("games"); } });
-          fc.appendChild(el("span", { class: "menu-fc-text", text: "FACT CHALLENGE" }));
-          fc.appendChild(el("span", { class: "menu-fc-play", "aria-hidden": "true", text: "\u25B6" }));
-          grid.appendChild(fc);
-          return;
-        }
+      [["beats", "Beats", menuArtCassette], ["backgrounds", "Backgrounds", menuArtPolaroid], ["minigames", "Mini Games", menuArtCoin]].forEach(function (t) {
         const btn = el("button", { type: "button", class: "menu-tile tile-" + t[0], onClick: function () { goPage(t[0]); } });
         const art = el("span", { class: "menu-art", "aria-hidden": "true" });
         art.innerHTML = t[2]();
@@ -8950,19 +8986,10 @@
         btn.appendChild(el("span", { class: "menu-label", text: t[1] }));
         grid.appendChild(btn);
       });
-      const pills = el("div", { class: "menu-pills" + (LEADERBOARD_URL ? " two" : "") });
-      pills.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", onClick: function () { goPage("closet"); } }, [
-        avHas() ? avNode(avatar, 30, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
-        el("span", { text: "Closet" })
-      ]));
-      if (LEADERBOARD_URL) {
-        pills.appendChild(el("button", { type: "button", class: "menu-lb", onClick: function () { goPage("leaders"); } }, [
-          el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
-          el("span", { text: "Leaderboard" })
-        ]));
-      }
-      grid.appendChild(pills);
       sec.appendChild(grid);
+      // 6. Visitor counter at the bottom
+      const homeCounter = hitCounter();
+      if (homeCounter) { homeCounter.classList.add("home-counter"); sec.appendChild(homeCounter); }
       return sec;
     }
     function menuArtCassette() {

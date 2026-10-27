@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Mad Facts Challenge · Print Avatars</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif; background: #f4f1fb; color: #241a3a; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding: 0.9rem 1.2rem; background: #2a1d4a; color: #fff; }
+  .bar h1 { margin: 0 auto 0 0; font-size: 1.3rem; }
+  .bar button { font: inherit; font-weight: 700; font-size: 1rem; border: 0; border-radius: 0.7rem; padding: 0.55rem 1rem; cursor: pointer; background: #4d3a80; color: #fff; }
+  .bar button[aria-pressed="true"] { background: #ffd34e; color: #241a3a; }
+  .bar .print { background: #2fa35a; }
+  .msg { text-align: center; padding: 3rem 1rem; font-size: 1.2rem; }
+  .cards { padding: 1.2rem; }
+  .grid .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.9rem; max-width: 1100px; margin: 0 auto; }
+  .card { background: #fff; border: 2px solid #ddd3f0; border-radius: 1rem; padding: 0.6rem 0.4rem 0.7rem; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+  .card .pic svg { display: block; margin: 0 auto; width: 110px; height: auto; }
+  .card .name { margin-top: 0.3rem; font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .big .cards { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+  .big .card { width: min(100%, 560px); padding: 1.5rem 1rem 2rem; }
+  .big .card .pic svg { width: min(80vw, 420px); }
+  .big .card .name { font-size: 2.6rem; margin-top: 0.8rem; }
+  @page { margin: 0.5in; }
+  @media print {
+    body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .bar, .msg { display: none !important; }
+    .cards { padding: 0; }
+    .grid .cards { grid-template-columns: repeat(5, 1fr); gap: 0.12in; max-width: none; }
+    .grid .card { border: 1px solid #bbb; padding: 0.06in 0.04in 0.08in; border-radius: 0.12in; }
+    .grid .card .pic svg { width: 1.15in; }
+    .grid .card .name { font-size: 11pt; }
+    .big .cards { display: block; }
+    .big .card { border: 0; width: 100%; height: 9.6in; display: flex; flex-direction: column; align-items: center; justify-content: center; break-after: page; page-break-after: always; }
+    .big .card:last-child { break-after: auto; page-break-after: auto; }
+    .big .card .pic svg { width: 5.5in; }
+    .big .card .name { font-size: 44pt; }
+  }
+</style>
+</head>
+<body class="grid">
+<div class="bar">
+  <h1>Class Avatars</h1>
+  <button type="button" id="v-grid" aria-pressed="true">Whole class</button>
+  <button type="button" id="v-big" aria-pressed="false">One per page</button>
+  <button type="button" class="print" id="print">🖨️ Print</button>
+</div>
+<p class="msg" id="msg">Loading avatars…</p>
+<main class="cards" id="cards"></main>
+<script>
+  const LEADERBOARD_URL = "https://script.google.com/macros/s/AKfycbwWw6Nk_gqn1hiJ7f_eFGqkxiR17uQWBo8LJgLFkl6d_MBaVksRmqQ1oC-68dTinm4w2Q/exec";
+  function setView(v) {
+    document.body.className = v;
+    document.getElementById("v-grid").setAttribute("aria-pressed", v === "grid");
+    document.getElementById("v-big").setAttribute("aria-pressed", v === "big");
+  }
+  document.getElementById("v-grid").onclick = function () { setView("grid"); };
+  document.getElementById("v-big").onclick = function () { setView("big"); };
+  document.getElementById("print").onclick = function () { window.print(); };
+  const msg = document.getElementById("msg");
+  // Use the game's own avatar drawing code (the AVATAR-RENDER block in index.html).
+  Promise.all([
+    fetch("index.html", { cache: "no-cache" }).then(function (r) { return r.text(); }),
+    fetch(LEADERBOARD_URL + "?action=board").then(function (r) { return r.json(); })
+  ]).then(function (res) {
+    const src = res[0], a = src.indexOf("// AVATAR-RENDER-START"), b = src.indexOf("// AVATAR-RENDER-END");
+    if (a < 0 || b < 0) throw new Error("no renderer");
+    const avatarSVG = new Function(src.slice(a, b) + "; return avatarSVG;")();
+    const avs = (res[1] && res[1].avatars) || {};
+    const names = Object.keys(avs).sort(function (x, y) { return x.localeCompare(y); });
+    if (!names.length) { msg.textContent = "No avatars yet."; return; }
+    const box = document.getElementById("cards");
+    names.forEach(function (n) {
+      const card = document.createElement("div");
+      card.className = "card";
+      const pic = document.createElement("div");
+      pic.className = "pic";
+      pic.innerHTML = avatarSVG(avs[n], { size: 110 });
+      const nm = document.createElement("div");
+      nm.className = "name";
+      nm.textContent = n;
+      card.appendChild(pic); card.appendChild(nm); box.appendChild(card);
+    });
+    msg.remove();
+  }).catch(function () { msg.textContent = "Could not load avatars. Try again."; });
+</script>
+</body>
+</html>

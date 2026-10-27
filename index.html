@@ -8445,6 +8445,7 @@
       return card;
     }
     // ---- Avatar + Closet. Saved on this device (not cleared by Reset Challenge); synced to the class sheet when a leaderboard name is set. ----
+    // AVATAR-RENDER-START (print.html loads this block to draw avatars; keep it free of page code)
     const AV_KEY = "mad-facts-avatar";
     const AV_STYLES = [["buddy", "Buddy"], ["robot", "Robot"], ["animal", "Animal"], ["pixel", "Pixel"], ["alien", "Alien"], ["dino", "Dino"], ["monster", "Monster"]];
     const AV_ANIMALS = [["cat", "Cat"], ["dog", "Dog"], ["bunny", "Bunny"], ["panda", "Panda"], ["fox", "Fox"], ["owl", "Owl"], ["turtle", "Turtle"], ["bear", "Bear"], ["mouse", "Mouse"]];
@@ -8693,6 +8694,7 @@
       const size = opts.size || 96;
       return '<svg class="av-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + (pet ? "0 -8 104 114" : "0 -8 100 114") + '" width="' + size + '" height="' + Math.round(size * 1.14) + '"' + (pix ? ' shape-rendering="crispEdges"' : "") + ' aria-hidden="true">' + p.join("") + "</svg>";
     }
+    // AVATAR-RENDER-END
     function avNode(a, size, cls) {
       const span = el("span", { class: "av " + (cls || "") });
       span.innerHTML = avatarSVG(a, { size: size });

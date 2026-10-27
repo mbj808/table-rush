@@ -18,8 +18,8 @@
   .cards { padding: 1.2rem; }
   .grid .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.9rem; max-width: 1100px; margin: 0 auto; }
   .card { background: #fff; border: 2px solid #ddd3f0; border-radius: 1rem; padding: 0.6rem 0.4rem 0.7rem; text-align: center; break-inside: avoid; page-break-inside: avoid; }
-  .card .pic svg { display: block; margin: 0 auto; width: 110px; height: auto; }
-  .card .name { margin-top: 0.3rem; font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .card .pic svg { overflow: visible; display: block; margin: 0 auto; width: 110px; height: auto; }
+  .card .name { color: #000; margin-top: 0.3rem; font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; }
   .big .cards { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
   .big .card { width: min(100%, 560px); padding: 1.5rem 1rem 2rem; }
   .big .card .pic svg { width: min(80vw, 420px); }
@@ -61,6 +61,45 @@
   document.getElementById("v-big").onclick = function () { setView("big"); };
   document.getElementById("print").onclick = function () { window.print(); };
   const msg = document.getElementById("msg");
+  // Coloring-page look: every shape white with a black outline; dark bits (eyes, mouth) stay black.
+  let lineSeq = 0;
+  function dark(c) {
+    if (!c || c === "none" || c.indexOf("url(") === 0) return false;
+    const d = document.createElement("span"); d.style.color = c; document.body.appendChild(d);
+    const m = getComputedStyle(d).color.match(/\d+(\.\d+)?/g); d.remove();
+    if (!m) return false;
+    return (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) / 255 < 0.3;
+  }
+  // Only tiny dark bits (pupils, nostrils) stay black; big dark parts (hair, hats, suits) become white to color in.
+  function small(n) { try { const b = n.getBBox(); return b.width * b.height < (/^(circle|ellipse)$/.test(n.tagName) ? 200 : 80); } catch (e) { return false; } }
+  function lineArt(svg) {
+    if (!svg) return;
+    svg.removeAttribute("shape-rendering");
+    svg.querySelectorAll("defs, linearGradient, radialGradient, filter").forEach(function (n) { n.remove(); });
+    svg.querySelectorAll("*").forEach(function (n) {
+      const op = n.getAttribute("opacity") || n.getAttribute("fill-opacity");
+      if (op != null && Number(op) < 1 && n.tagName !== "g") { n.remove(); return; }
+      n.removeAttribute("filter");
+      n.removeAttribute("style");
+    });
+    const id = "ol" + (++lineSeq);
+    svg.insertAdjacentHTML("afterbegin", '<defs><filter id="' + id + '" x="-20%" y="-20%" width="140%" height="140%">' +
+      '<feMorphology in="SourceAlpha" operator="dilate" radius="1.1" result="big"/>' +
+      '<feComposite in="big" in2="SourceAlpha" operator="out" result="edge"/>' +
+      '<feFlood flood-color="#fff"/><feComposite in2="SourceAlpha" operator="in" result="inside"/>' +
+      '<feMerge><feMergeNode in="inside"/><feMergeNode in="edge"/></feMerge></filter></defs>');
+    svg.querySelectorAll("path, circle, ellipse, rect, polygon, polyline, line").forEach(function (n) {
+      const fill = n.getAttribute("fill"), stroke = n.getAttribute("stroke");
+      if (fill === "none") n.setAttribute("fill", "none");
+      else if (dark(fill || "#000") && small(n)) n.setAttribute("fill", "#000");
+      else n.setAttribute("fill", "#fff");
+      n.setAttribute("stroke", "#000");
+      n.setAttribute("stroke-width", stroke && stroke !== "none" ? "2.5" : "2");
+      n.setAttribute("stroke-linejoin", "round");
+      n.setAttribute("vector-effect", "non-scaling-stroke");
+    });
+    svg.querySelectorAll("text").forEach(function (n) { n.setAttribute("filter", "url(#" + id + ")"); n.setAttribute("fill", "#000"); });
+  }
   // Use the game's own avatar drawing code (the AVATAR-RENDER block in index.html).
   Promise.all([
     fetch("index.html", { cache: "no-cache" }).then(function (r) { return r.text(); }),
@@ -83,6 +122,7 @@
       nm.className = "name";
       nm.textContent = n;
       card.appendChild(pic); card.appendChild(nm); box.appendChild(card);
+      lineArt(pic.querySelector("svg"));
     });
     msg.remove();
   }).catch(function () { msg.textContent = "Could not load avatars. Try again."; });

@@ -2605,7 +2605,9 @@
     @media (min-width: 700px) { .pz-grid { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr)); overflow: auto; max-height: 52vh; } }
     .pz-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; padding: 0.35rem 0.2rem; min-height: 6.4rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.22); background: rgba(18,10,38,0.85); color: #fff; font-weight: 800; font-size: 0.8rem; scroll-snap-align: start; cursor: default; }
     .pz-item .av svg { display: block; }
-    .pz-item.can { cursor: pointer; border-color: #5ff2ff; }
+    .pz-item.can { cursor: pointer; border-color: rgba(95,242,255,0.5); }
+    .pz-item.goldlock > :not(.pz-badge) { opacity: 0.25; }
+    .pz-tip { margin: -0.5rem 0 0.5rem; font-size: 0.95rem; font-weight: 800; color: #ffe9a8; }
     .pz-item.gold { border-color: rgba(245,197,66,0.85); }
     .pz-item.have > :not(.pz-badge) { opacity: 0.8; }
     .pz-item.locked > :not(.pz-badge), .closet-opt.locked > :not(.pz-badge) { opacity: 0.4; }
@@ -8722,10 +8724,10 @@
         const kids = [pic, el("span", { class: "pz-name", text: it.name })];
         if (have) kids.push(el("span", { class: "pz-badge ok", text: "\u2713" }));
         const locked = goldLock || (!win && !have);
-        if (locked) kids.push(el("span", { class: "pz-badge lock", text: "\uD83D\uDD12" }));
+        if (!have) kids.push(el("span", { class: "pz-badge lock", text: "\uD83D\uDD12" }));
         const can = win && !have && !goldLock;
-        grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (locked ? " locked" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
-          "aria-label": it.name + (have ? ", yours" : goldLock ? ", locked, needs 50 in a row" : locked ? ", locked" : ", tap to get it"), "aria-disabled": String(!can),
+        grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (locked ? " locked" : "") + (goldLock ? " goldlock" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
+          "aria-label": it.name + (have ? ", yours" : goldLock ? ", locked, needs 50 in a row" : locked ? ", locked" : ", locked, tap to unlock it"), "aria-disabled": String(!can),
           onClick: function () { if (can) onWin(it); else if (goldLock) say("Gold needs 50 in a row."); else if (locked) say("Win it with 10 in a row!"); } }, kids));
       });
       wrap.appendChild(grid);
@@ -8744,7 +8746,8 @@
       const ov = el("div", { class: "prize-ov", role: "dialog", "aria-modal": "true", "aria-label": "Pick a prize" });
       const box = el("div", { class: "prize-box pz-box" });
       box.appendChild(el("p", { class: "prize-title", text: title || "Pick a prize!" }));
-      box.appendChild(el("p", { class: "prize-sub", text: title ? "Pick a prize!" : "Tap one to keep it." }));
+      box.appendChild(el("p", { class: "prize-sub", text: title ? "Pick a prize!" : "Pick one to keep." }));
+      box.appendChild(el("p", { class: "pz-tip", text: "Tap a \uD83D\uDD12 to unlock it!" }));
       const close = function () { ov.remove(); if (state.phase === "setup") render(); };
       box.appendChild(avGrid(true, function (it) {
         if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id);

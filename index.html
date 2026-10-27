@@ -2607,6 +2607,22 @@
     .pz-item .av svg { display: block; }
     .pz-item.can { cursor: pointer; border-color: rgba(95,242,255,0.5); }
     .pz-item.goldlock > :not(.pz-badge) { opacity: 0.25; }
+    .pz-busy .pz-item, .pz-busy .pz-tab, .pz-busy .pz-later { pointer-events: none; }
+    .pz-fx { position: fixed; width: 0; height: 0; z-index: 10001; pointer-events: none; }
+    .pz-ring { position: absolute; left: -40px; top: -40px; width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; opacity: 0; animation: pzRing 0.6s ease-out forwards; }
+    .pz-ring.gold { border-color: #ffd36a; }
+    .pz-bit { position: absolute; left: -4px; top: -6px; width: 8px; height: 12px; border-radius: 2px; opacity: 0; animation: pzBit 0.9s cubic-bezier(.15,.7,.3,1) forwards; }
+    .pz-bit.star { width: 10px; height: 10px; border-radius: 50%; }
+    @keyframes pzRing { 0% { transform: scale(0.3); opacity: 0.95; } 100% { transform: scale(2.3); opacity: 0; } }
+    @keyframes pzBit { 0% { transform: translate(0, 0) rotate(0) scale(0.6); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--x), calc(var(--y) + 26px)) rotate(var(--r)) scale(1); opacity: 0; } }
+    .pz-item.pz-got { animation: pzBounce 0.6s ease-out; border-color: #fff; }
+    @keyframes pzBounce { 0% { transform: scale(1); } 25% { transform: scale(0.88); } 55% { transform: scale(1.14); } 80% { transform: scale(0.97); } 100% { transform: scale(1); } }
+    .pz-item.pz-got > :not(.pz-badge) { opacity: 1; }
+    .pz-badge.pz-pop { animation: pzPop 0.45s ease-in forwards; }
+    @keyframes pzPop { 0% { transform: scale(1) rotate(0); } 30% { transform: scale(1.5) rotate(-15deg); } 100% { transform: translate(18px, -34px) scale(0.2) rotate(70deg); opacity: 0; } }
+    .pz-item.pz-got-quiet { border-color: #7ee07a; }
+    .pz-item.pz-got-quiet > :not(.pz-badge) { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { .pz-fx { display: none; } .pz-item.pz-got, .pz-badge.pz-pop { animation: none; } }
     .pz-tip { margin: -0.5rem 0 0.5rem; font-size: 0.95rem; font-weight: 800; color: #ffe9a8; }
     .pz-item.gold { border-color: rgba(245,197,66,0.85); }
     .pz-item.have > :not(.pz-badge) { opacity: 0.8; }
@@ -8728,10 +8744,35 @@
         const can = win && !have && !goldLock;
         grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (locked ? " locked" : "") + (goldLock ? " goldlock" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
           "aria-label": it.name + (have ? ", yours" : goldLock ? ", locked, needs 50 in a row" : locked ? ", locked" : ", locked, tap to unlock it"), "aria-disabled": String(!can),
-          onClick: function () { if (can) onWin(it); else if (goldLock) say("Gold needs 50 in a row."); else if (locked) say("Win it with 10 in a row!"); } }, kids));
+          onClick: function (ev) { if (can) onWin(it, ev.currentTarget); else if (goldLock) say("Gold needs 50 in a row."); else if (locked) say("Win it with 10 in a row!"); } }, kids));
       });
       wrap.appendChild(grid);
       return wrap;
+    }
+    // Unlock burst: the lock pops off, ~28 confetti bits fly out with a ring, and the tile bounces. Transforms + opacity only.
+    function avUnlockBurst(ov, tile, gold, quiet) {
+      const badge = tile.querySelector(".pz-badge");
+      const swap = function () { if (badge) { badge.classList.remove("lock", "pz-pop"); badge.classList.add("ok"); badge.textContent = "\u2713"; } };
+      if (quiet) { swap(); tile.classList.add("pz-got-quiet"); return; }
+      tile.classList.add("pz-got");
+      if (badge) badge.classList.add("pz-pop");
+      setTimeout(swap, 420);
+      const r = tile.getBoundingClientRect();
+      const fx = el("div", { class: "pz-fx", "aria-hidden": "true", style: "left:" + (r.left + r.width / 2) + "px;top:" + (r.top + r.height / 2) + "px" });
+      fx.appendChild(el("span", { class: "pz-ring" + (gold ? " gold" : "") }));
+      const cols = gold ? ["#ffd36a", "#f5c542", "#fff1b8", "#e0a91f"] : ["#ff5a5a", "#ffd34e", "#5fe07a", "#5ff2ff", "#b47cff", "#ff7ab8"];
+      for (let i = 0; i < 28; i++) {
+        const a = (i / 28) * Math.PI * 2 + Math.random() * 0.4, d = 55 + Math.random() * 65;
+        const bit = el("span", { class: "pz-bit" + (i % 3 === 0 ? " star" : "") });
+        bit.style.setProperty("--x", Math.round(Math.cos(a) * d) + "px");
+        bit.style.setProperty("--y", Math.round(Math.sin(a) * d) + "px");
+        bit.style.setProperty("--r", Math.round(Math.random() * 540 - 270) + "deg");
+        bit.style.background = cols[i % cols.length];
+        bit.style.animationDelay = Math.round(Math.random() * 60) + "ms";
+        fx.appendChild(bit);
+      }
+      ov.appendChild(fx);
+      setTimeout(function () { fx.remove(); }, 1100);
     }
     function avPrize(streak) {
       if (avPrizeOpen() || (state.phase !== "play" && state.phase !== "quiz")) return;
@@ -8749,14 +8790,20 @@
       box.appendChild(el("p", { class: "prize-sub", text: title ? "Pick a prize!" : "Pick one to keep." }));
       box.appendChild(el("p", { class: "pz-tip", text: "Tap a \uD83D\uDD12 to unlock it!" }));
       const close = function () { ov.remove(); if (state.phase === "setup") render(); };
-      box.appendChild(avGrid(true, function (it) {
+      let done = false;
+      box.appendChild(avGrid(true, function (it, tile) {
+        if (done) return;
+        done = true;
         if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id);
         avApply(it);
         avatar.made = true;
         avatar.pz = Math.max(0, avatar.pz - 1);
         avSave();
-        close();
         say("You got " + it.name + "!");
+        ov.classList.add("pz-busy");
+        const quiet = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (tile) avUnlockBurst(ov, tile, !!it.gold, quiet);
+        setTimeout(close, quiet ? 450 : 1050);
       }));
       box.appendChild(el("button", { type: "button", class: "pz-later", text: "Later", onClick: function () { close(); say("Your prize waits in the Closet."); } }));
       ov.appendChild(box);

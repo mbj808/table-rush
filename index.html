@@ -2940,6 +2940,26 @@
     .home-timed { padding-top: 0.9rem; }
     .home-timed .mode-pick { margin: 0 auto; }
     .home-timed .mode-cancel { color: #fff; }
+    /* Home buttons: clean, lighter type, icon on the left, soft depth */
+    .home-fc-row > button { position: relative; justify-content: flex-start; gap: 0.75rem; padding: 0 1rem 0 0.85rem; border-radius: 1.15rem;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 1.2rem; font-weight: 600; letter-spacing: 0.01em; text-transform: none; text-shadow: none; animation: none;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22), 0 8px 18px rgba(10, 4, 30, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease; }
+    .home-fc-row > button::before { content: ""; position: absolute; inset: 0 0 50% 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0)); pointer-events: none; left: 0; right: 0; top: 0; height: auto; }
+    .home-fc-row > .menu-fc { background: linear-gradient(135deg, #e0782a 0%, #b93a78 55%, #6a35b8 100%); color: #fff; }
+    .home-fc-row > .menu-closet { background: linear-gradient(135deg, #8fe9df 0%, #3bb3c9 100%); color: #06323a; }
+    .home-fc-row > .home-lb { background: linear-gradient(135deg, #ffe39a 0%, #f0b545 100%); color: #3a2400; }
+    .home-fc-row .menu-fc-text { font: inherit; letter-spacing: inherit; text-shadow: 0 1px 2px rgba(0,0,0,0.25); white-space: nowrap; }
+    .home-fc-row .hb-label { flex: 1 1 auto; text-align: left; position: relative; }
+    .home-fc-row .menu-lb-ico, .home-fc-row .menu-av { position: relative; flex: 0 0 auto; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 0.8rem; background: rgba(255, 255, 255, 0.28); font-size: 1.35rem; line-height: 1; }
+    .home-fc-row .menu-av { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.35); overflow: hidden; }
+    .home-fc-row .hb-go { position: relative; flex: 0 0 auto; font-size: 1.7rem; font-weight: 400; line-height: 1; opacity: 0.7; margin-top: -0.15rem; }
+    .home-fc-row > button:active { transform: translateY(2px) scale(0.99); filter: brightness(0.97); box-shadow: 0 1px 0 rgba(0,0,0,0.22), 0 3px 8px rgba(10,4,30,0.25), inset 0 1px 0 rgba(255,255,255,0.3); }
+    .home-fc-row > button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    @media (hover: hover) { .home-fc-row > button:hover { filter: brightness(1.05); } }
+    @media (prefers-reduced-motion: reduce) { .home-fc-row > button { transition: none; } .home-fc-row > button:active { transform: none; } }
     .lb-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0 0 0.7rem; }
     .lb-view { font: inherit; font-weight: 800; font-size: 1.05rem; padding: 0.6rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: inherit; cursor: pointer; }
     .lb-view.on { background: #ffd34e; color: #2a1d3a; border-color: #ffd34e; }
@@ -8894,7 +8914,7 @@
         if (tile) avUnlockBurst(ov, tile, !!it.gold, quiet);
         setTimeout(close, quiet ? 450 : 1050);
       }));
-      box.appendChild(el("button", { type: "button", class: "pz-later", text: "Later", onClick: function () { close(); say("Your prize waits in the Closet."); } }));
+      box.appendChild(el("button", { type: "button", class: "pz-later", text: "Later", onClick: function () { close(); say("Your prize waits in Avatar."); } }));
       ov.appendChild(box);
       document.body.appendChild(ov);
       say((title ? title + " " : "") + "Pick a prize!");
@@ -8983,7 +9003,7 @@
       return card;
     }
     const PAGES = ["menu", "beats", "backgrounds", "games", "minigames", "leaders", "closet"];
-    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games", leaders: "Leaders", closet: "Closet" };
+    const PAGE_TITLES = { beats: "Beats", backgrounds: "Backgrounds", games: "Fact Challenge", minigames: "Mini Games", leaders: "Leaders", closet: "Avatar" };
     let menuSmooth = false;
     function currentPage() {
       const h = (location.hash || "").replace(/^#/, "");
@@ -9027,18 +9047,21 @@
       // 2. Fact Challenge (all the games, incl. the regular times tables) + Closet with the kid's avatar
       const fcRow = el("div", { class: "home-fc-row" + (avHas() ? " has-av" : "") });
       const fc = el("button", { type: "button", class: "menu-fc", "aria-label": "Fact Challenge", onClick: function () { goPage("games"); } });
-      fc.appendChild(el("span", { class: "menu-fc-text", text: "FACT CHALLENGE" }));
-      fc.appendChild(el("span", { class: "menu-fc-play", "aria-hidden": "true", text: "\u25B6" }));
+      fc.appendChild(el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDD22" }));
+      fc.appendChild(el("span", { class: "menu-fc-text hb-label", text: "Fact Challenge" }));
+      fc.appendChild(el("span", { class: "hb-go", "aria-hidden": "true", text: "\u203A" }));
       fcRow.appendChild(fc);
-      fcRow.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", "aria-label": "Closet", onClick: function () { goPage("closet"); } }, [
+      fcRow.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", "aria-label": "Avatar", onClick: function () { goPage("closet"); } }, [
         avHas() ? avNode(avatar, 40, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
-        el("span", { text: "Closet" })
+        el("span", { class: "hb-label", text: "Avatar" }),
+        el("span", { class: "hb-go", "aria-hidden": "true", text: "\u203A" })
       ]));
       // 3. Leaderboard spans the full row under them
       if (LEADERBOARD_URL) {
         fcRow.appendChild(el("button", { type: "button", class: "menu-lb home-lb", onClick: function () { goPage("leaders"); } }, [
           el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
-          el("span", { text: "Leaderboard" })
+          el("span", { class: "hb-label", text: "Leaderboard" }),
+          el("span", { class: "hb-go", "aria-hidden": "true", text: "\u203A" })
         ]));
       }
       sec.appendChild(fcRow);

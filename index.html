@@ -9347,10 +9347,10 @@
       }
       return h.toString(36);
     }
-    // OAHU opens the tapped mini game; MAUI opens every beat and background (not mini games).
+    // OAHU opens the tapped mini game; MAUI opens every beat and background (not mini games) and Cartoon Characters.
     const GAME_CODE_HASH = "eu78od";
     const BEATS_CODE_HASH = "wzhywq";
-    // Games that stay locked until the OAHU teacher code is typed. Kept on this device until Reset Challenge.
+    // Games that stay locked until the MAUI teacher code is typed. Kept on this device until Reset Challenge.
     const CODE_OPS = { cartoon: true };
     const OPS_KEY = "mad-facts-ops";
     const opsUnlocked = (function () { try { const v = JSON.parse(localStorage.getItem(OPS_KEY) || "null"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; } })();
@@ -9368,7 +9368,7 @@
         return true;
       }
       if (kind === "op") {
-        if (hash !== GAME_CODE_HASH || !CODE_OPS[beatId]) return false;
+        if (hash !== BEATS_CODE_HASH || !CODE_OPS[beatId]) return false; // MAUI opens Cartoon Characters
         opsUnlocked[beatId] = true;
         try { localStorage.setItem(OPS_KEY, JSON.stringify(opsUnlocked)); } catch (e) {}
         render();

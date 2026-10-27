@@ -7112,6 +7112,8 @@
       state.beatsUnlocked = emptyBeatsUnlocked();
       state.gamesUnlocked = {};
       state.codeBeats = {};
+      Object.keys(opsUnlocked).forEach(function (k) { delete opsUnlocked[k]; });
+      try { localStorage.removeItem(OPS_KEY); } catch (e) {}
       state.bgChoice = -1;
       state.beatJustUnlocked = "";
       state.mazeCelebrate = false;
@@ -9348,7 +9350,7 @@
     // OAHU opens the tapped mini game; MAUI opens every beat and background (not mini games).
     const GAME_CODE_HASH = "eu78od";
     const BEATS_CODE_HASH = "wzhywq";
-    // Games that stay locked until the OAHU teacher code is typed. Kept on this device (Reset does not lock them again).
+    // Games that stay locked until the OAHU teacher code is typed. Kept on this device until Reset Challenge.
     const CODE_OPS = { cartoon: true };
     const OPS_KEY = "mad-facts-ops";
     const opsUnlocked = (function () { try { const v = JSON.parse(localStorage.getItem(OPS_KEY) || "null"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; } })();

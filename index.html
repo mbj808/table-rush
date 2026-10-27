@@ -2922,13 +2922,17 @@
       font-size: 2.15rem;
     }
     .hit-counter { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; margin: 1.6rem auto 0.8rem; }
-    .home-fc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: stretch; }
-    .home-fc-row .menu-closet { flex-direction: column; gap: 0.15rem; padding: 0.35rem 0.9rem; font-size: 1rem; min-width: 6.2rem; }
-    .home-fc-row .menu-av svg { display: block; }
-    .home-fc-row > .menu-fc { grid-column: auto; width: auto; min-width: 0; margin: 0; }
-    .home-fc-row > .menu-closet { grid-column: auto; width: auto; margin: 0; }
-    @media (max-width: 480px) { .home-fc-row .menu-fc-text { font-size: 1.15rem; } }
-    .home-lb { width: 100%; font-size: 1.15rem; }
+    .home-fc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .home-fc-row > button { grid-column: auto; width: 100%; min-width: 0; height: 4.4rem; min-height: 0; margin: 0; padding: 0 0.8rem; border-radius: 1.1rem;
+      display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.45rem; box-sizing: border-box;
+      font-family: "Titan One", "Arial Black", Impact, sans-serif; font-size: 1.15rem; font-weight: 900; letter-spacing: 0.03em; line-height: 1.05; text-align: center; }
+    .home-fc-row > .home-lb { grid-column: 1 / -1; }
+    .home-fc-row .menu-fc-text { font-size: inherit; letter-spacing: 0.02em; white-space: normal; max-width: 9ch; text-align: center; line-height: 1.05; }
+    .home-fc-row .menu-fc-play { display: none; }
+    .home-fc-row .menu-lb-ico { font-size: 1.3em; line-height: 1; }
+    .home-fc-row .menu-av { flex: 0 0 auto; width: 40px; height: 40px; }
+    .home-fc-row .menu-av svg { display: block; width: 40px; height: 40px; }
+    @media (min-width: 600px) { .home-fc-row > button { height: 4.8rem; font-size: 1.35rem; } }
     .home-timed { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.4rem 0 0.2rem; }
     .home-timed .start-challenge { width: 100%; max-width: 24rem; min-height: 4.6rem; font-size: 1.9rem; font-weight: 800; background: #1e7a4d; border: 3px solid #fffef6; box-shadow: 0 6px 0 #145537, 0 10px 24px rgba(0, 0, 0, 0.22); }
     .home-timed .start-challenge:active { transform: translateY(3px); box-shadow: 0 3px 0 #145537; }
@@ -8954,17 +8958,17 @@
       fc.appendChild(el("span", { class: "menu-fc-play", "aria-hidden": "true", text: "\u25B6" }));
       fcRow.appendChild(fc);
       fcRow.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", "aria-label": "Closet", onClick: function () { goPage("closet"); } }, [
-        avHas() ? avNode(avatar, 44, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
+        avHas() ? avNode(avatar, 40, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
         el("span", { text: "Closet" })
       ]));
-      sec.appendChild(fcRow);
-      // 3. Leaderboard
+      // 3. Leaderboard spans the full row under them
       if (LEADERBOARD_URL) {
-        sec.appendChild(el("button", { type: "button", class: "menu-lb home-lb", onClick: function () { goPage("leaders"); } }, [
+        fcRow.appendChild(el("button", { type: "button", class: "menu-lb home-lb", onClick: function () { goPage("leaders"); } }, [
           el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83C\uDFC6" }),
           el("span", { text: "Leaderboard" })
         ]));
       }
+      sec.appendChild(fcRow);
       // 4. Timed Challenge: straight into the timed times-tables quiz. All Facts stays one tap away.
       const timed = el("div", { class: "home-timed" });
       timed.appendChild(el("button", { class: "start start-challenge", type: "button", text: "Timed Challenge", onClick: function () { startQuiz("timed"); } }));

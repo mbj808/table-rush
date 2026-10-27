@@ -7976,7 +7976,7 @@
       // Order from the title down: Start, Games, game options, music player + beats, mini games.
       // First screen: only the title and Start Challenge. Everything else is below the fold.
       const hero = el("section", { class: "challenge-hero", "aria-label": "Timed challenge" });
-      if (avatar.made && !state.heroPick) {
+      if (avHas() && !state.heroPick) {
         hero.appendChild(el("button", { type: "button", class: "home-av", "aria-label": "My closet", onClick: function () { goPage("closet"); } }, [avNode(avatar, 64)]));
       }
       if (!state.heroPick) {
@@ -8307,7 +8307,8 @@
       });
     }
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") lbFlush(true); });
-    if (LEADERBOARD_URL) setTimeout(function () { if (lbMe()) lbCaps(); }, 1500);
+    // Load a named kid's avatar from the sheet right away, not only when the Leaders page opens.
+    if (LEADERBOARD_URL) setTimeout(function () { if (lbMe()) { lbCaps(); avPull(); } }, 1500);
     function lbGet(params) {
       return fetch(LEADERBOARD_URL + (LEADERBOARD_URL.indexOf("?") >= 0 ? "&" : "?") + params, { cache: "no-store" })
         .then(function (r) { if (!r.ok) throw new Error("lb " + r.status); return r.json(); });
@@ -8446,6 +8447,8 @@
     const AV_FREE = ["s.buddy", "a.cat", "c0", "c1", "c2", "c3", "f.smile", "f.grin", "h.spiky", "h.curly", "k0", "k1"];
     function avLook(id) { return AV_LOOK.find(function (i) { return i.id === id; }) || null; }
     function avLookId(key, val) { const it = AV_LOOK.find(function (i) { return i.key === key && i.val === val; }); return it ? it.id : ""; }
+    // An avatar exists once the kid has made one, won anything, or opened their look in the Closet.
+    function avHas() { return !!(avatar.made || avatar.owned.length); }
     function avOwns(id) { return !id || AV_FREE.indexOf(id) >= 0 || avatar.owned.indexOf(id) >= 0; }
     function avClean(a) {
       a = a && typeof a === "object" ? a : {};
@@ -8494,7 +8497,7 @@
         avatar.updated = Math.max(remote.updated, avatar.updated);
         try { localStorage.setItem(AV_KEY, JSON.stringify(avatar)); } catch (e) {}
         if (JSON.stringify(remote) !== JSON.stringify(avatar)) avPush();
-        if (before !== JSON.stringify(avatar) && state.phase === "setup") render();
+        if (before !== JSON.stringify(avatar) && (state.phase === "setup" || ((state.phase === "play" || state.phase === "quiz") && !avPrizeOpen()))) render();
       }).catch(function () { avPulled = ""; });
     }
     function avShade(hex, f) {
@@ -8751,7 +8754,7 @@
     let buddy = { mood: "", at: 0 };
     function buddyMood(m) { buddy = { mood: m, at: performance.now() }; }
     function withBuddy(node) {
-      if (!avatar.made) return node;
+      if (!avHas()) return node;
       const row = el("div", { class: "buddy-row" });
       row.appendChild(node);
       const fresh = performance.now() - buddy.at < 700;
@@ -8778,7 +8781,7 @@
       });
       if (avatar.pz > 0 && avAnyToWin()) card.insertBefore(el("button", { type: "button", class: "pz-claim", text: "\uD83C\uDF81 You have a prize! Pick it", onClick: function () { avPrizeShow(""); } }), card.firstChild.nextSibling);
       card.appendChild(tabs);
-      const set = function (k, v) { const id = avLookId(k, v); if (!avOwns(id)) { say("Win it with 10 in a row!"); return; } avatar[k] = v; avatar.made = true; avSave(); render(); };
+      const set = function (k, v) { const id = avLookId(k, v); if (!avOwns(id)) { if (!avatar.made) { avatar.made = true; avSave(); render(); } say("Win it with 10 in a row!"); return; } avatar[k] = v; avatar.made = true; avSave(); render(); };
       const sec = function (title, kids, cls) { return el("div", { class: "closet-sec" }, [el("p", { class: "closet-h", text: title }), el("div", { class: "closet-opts " + (cls || "") }, kids)]); };
       const lk = function (btn, key, val) { if (!avOwns(avLookId(key, val))) { btn.classList.add("locked"); btn.setAttribute("aria-label", "Locked"); btn.appendChild(el("span", { class: "pz-badge", text: "\uD83D\uDD12" })); } return btn; };
       if (closetTab === "all") {
@@ -8886,7 +8889,7 @@
       });
       const pills = el("div", { class: "menu-pills" + (LEADERBOARD_URL ? " two" : "") });
       pills.appendChild(el("button", { type: "button", class: "menu-lb menu-closet", onClick: function () { goPage("closet"); } }, [
-        avatar.made ? avNode(avatar, 30, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
+        avHas() ? avNode(avatar, 30, "menu-av") : el("span", { class: "menu-lb-ico", "aria-hidden": "true", text: "\uD83D\uDC55" }),
         el("span", { text: "Closet" })
       ]));
       if (LEADERBOARD_URL) {

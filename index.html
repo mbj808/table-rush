@@ -10049,7 +10049,8 @@
       return {
         operation: "evenodd", id: body.id, pictureOnly: true, ask: "Is this number even or odd?",
         answer: body.answer, key: "evenodd:" + body.id,
-        choices: shuffle(body.choices.slice())
+        // Fixed spots: Even on the left, Odd on the right.
+        choices: ["Even", "Odd"]
       };
     }
     function buildEvenodd() {

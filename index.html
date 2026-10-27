@@ -2940,6 +2940,10 @@
     .home-timed { padding-top: 0.9rem; }
     .home-timed .mode-pick { margin: 0 auto; }
     .home-timed .mode-cancel { color: #fff; }
+    .lb-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0 0 0.7rem; }
+    .lb-view { font: inherit; font-weight: 800; font-size: 1.05rem; padding: 0.6rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: inherit; cursor: pointer; }
+    .lb-view.on { background: #ffd34e; color: #2a1d3a; border-color: #ffd34e; }
+    .lb-timed-h { margin: 0.6rem 0 0.35rem; font-size: 1.05rem; }
     .hit-counter.home-counter { margin: 0.9rem auto 0.4rem; transform: scale(0.85); transform-origin: center top; }
     .hit-strip {
       display: inline-flex; gap: 3px; padding: 5px; background: #050505; border-radius: 6px;
@@ -3482,7 +3486,7 @@
     const QUIZ_SECONDS = 60;
     // Wrong-answer penalties: 60 Seconds loses time; All Facts adds time to the stopwatch.
     const QUIZ_WRONG_PENALTY_S = 2;
-    const QUIZ_ALL_PENALTY_S = 3;
+    const QUIZ_ALL_PENALTY_S = 5;
     const QUIZ_PENALTY_FLASH_MS = 1100;
     const QUIZ_MIN = 2;
     const QUIZ_MAX = 12;
@@ -7471,6 +7475,7 @@
         }
       }
       state.phase = "results";
+      lbTimed(q.mode === "all" ? "all" : "sixty", q.mode === "all" ? Math.round(q.elapsedMs) : Math.max(0, q.correct - q.mistakes));
       lbFlush();
       render();
     }
@@ -7485,7 +7490,7 @@
       if (!q || q.picked == null || quizSecondsLeft() <= 0) return;
       const right = q.picked === q.fact.a * q.fact.b;
       q.attempted += 1;
-      lbPoint(right, "multiply");
+      // Timed rounds have their own board and never change regular points.
       buddyMood(right ? "hop" : "shake");
       if (right) q.correct += 1;
       else {
@@ -8296,7 +8301,7 @@
     // ---- Class leaderboard (Google Apps Script web app). Empty URL = feature hidden. ----
     const LEADERBOARD_URL = "https://script.google.com/macros/s/AKfycbwWw6Nk_gqn1hiJ7f_eFGqkxiR17uQWBo8LJgLFkl6d_MBaVksRmqQ1oC-68dTinm4w2Q/exec";
     const LB_KEY = "mad-facts-lb";
-    const lb = { names: null, board: null, tab: "today", game: "__all", loading: false, failed: false, msg: "" };
+    const lb = { names: null, board: null, view: "points", tab: "today", game: "__all", loading: false, failed: false, msg: "" };
     function lbMe() {
       try { const v = JSON.parse(localStorage.getItem(LB_KEY) || "null"); return v && v.name && v.code ? v : null; } catch (e) { return null; }
     }
@@ -8307,11 +8312,46 @@
     const LB_BATCH = 10;
     function lbPtsRead() { try { const v = JSON.parse(localStorage.getItem(LB_PTS_KEY) || "null"); return v && v.games ? v : { games: {}, n: 0 }; } catch (e) { return { games: {}, n: 0 }; } }
     function lbPtsWrite(v) { try { localStorage.setItem(LB_PTS_KEY, JSON.stringify(v)); } catch (e) {} }
+    // ---- Timed board: 60 Seconds = right minus wrong (best kept); All Facts = time + 5s per wrong (fastest kept). ----
+    // Each kid's best waits on this device until the sheet script can take it (version 3), then it is sent.
+    const LB_TIMED_KEY = "mad-facts-timed";
+    function lbTimedRead() { try { const v = JSON.parse(localStorage.getItem(LB_TIMED_KEY) || "null"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; } }
+    function lbTimedWrite(v) { try { localStorage.setItem(LB_TIMED_KEY, JSON.stringify(v)); } catch (e) {} }
+    function lbTimed(mode, score) {
+      if (!LEADERBOARD_URL || !lbMe() || !(score >= 0)) return;
+      if (mode === "all" && !(score > 0)) return;
+      const v = lbTimedRead(), cur = v[mode];
+      if (cur == null || (mode === "all" ? score < cur : score > cur)) { v[mode] = score; lbTimedWrite(v); }
+      if (!lb.mode) lbCaps(); else lbTimedFlush();
+    }
+    function lbTimedFlush() {
+      if (!LEADERBOARD_URL || !lb.timedOk) return;
+      const me = lbMe();
+      if (!me) return;
+      const v = lbTimedRead();
+      ["sixty", "all"].forEach(function (mode) {
+        if (v[mode] == null) return;
+        const score = v[mode];
+        try {
+          fetch(LEADERBOARD_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, keepalive: true,
+            body: JSON.stringify({ type: "timed", name: me.name, code: me.code, mode: mode, score: score }) })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d && (d.ok || d.error === "score" || d.error === "code" || d.error === "name")) {
+                const cur = lbTimedRead();
+                if (cur[mode] === score) { delete cur[mode]; lbTimedWrite(cur); }
+              }
+            }).catch(function () {});
+        } catch (e) {}
+      });
+    }
     function lbCaps() {
       if (!LEADERBOARD_URL || lb.mode || lb.capsAsked) return;
       lb.capsAsked = true;
       lbGet("action=version").then(function (d) {
         lb.mode = d && d.version >= 2 ? "points" : "streak";
+        lb.timedOk = !!(d && d.version >= 3 && d.timed);
+        if (lb.timedOk) lbTimedFlush();
         if (lb.mode === "points") lbFlush(); else { try { localStorage.removeItem(LB_PTS_KEY); } catch (e) {} }
       }).catch(function () { lb.capsAsked = false; });
     }
@@ -8363,7 +8403,7 @@
       const me = lbMe();
       avPull();
       Promise.all([me ? Promise.resolve(lb.names) : lbGet("action=roster").then(function (d) { return (d && d.names) || []; }), lbGet("action=board")])
-        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; if (lb.board && lb.board.points && lb.mode !== "points") { lb.mode = "points"; lbFlush(); } })
+        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.failed = false; if (lb.board && lb.board.timed && !lb.timedOk) { lb.timedOk = true; lbTimedFlush(); } if (lb.board && lb.board.points && lb.mode !== "points") { lb.mode = "points"; lbFlush(); } })
         .catch(function () { lb.failed = true; })
         .then(function () { lb.loading = false; if (state.phase === "setup" && currentPage() === "leaders") render(); });
     }
@@ -8384,6 +8424,30 @@
       lbFlush(true);
       if (state.phase === "play" && state.streak > 0) { const s = state.streak; state.streak = 0; lbStreakEnded(s, state.lbOp || state.operation); }
     });
+    function lbTimedLists(me) {
+      const wrap = el("div", { class: "lb-timed" });
+      const t = lb.board && lb.board.timed;
+      [["sixty", "Best 60 Seconds", function (r) { return r.score + (r.score === 1 ? " point" : " points"); }],
+       ["all", "Fastest All Facts", function (r) { return formatClock(r.ms); }]].forEach(function (s) {
+        wrap.appendChild(el("h3", { class: "lb-timed-h", text: s[1] }));
+        const list = el("ol", { class: "lb-list" });
+        const rows = (t && t[s[0]]) || [];
+        if (!lb.board) list.appendChild(el("li", { class: "lb-empty", text: lb.failed ? "Can\u2019t load the board right now." : "Loading\u2026" }));
+        else if (!t) list.appendChild(el("li", { class: "lb-empty", text: "Coming soon!" }));
+        else if (!rows.length) list.appendChild(el("li", { class: "lb-empty", text: "No scores yet. Be the first!" }));
+        rows.slice(0, 10).forEach(function (r, i) {
+          const mine = me && r.name.toLowerCase() === me.name.toLowerCase();
+          list.appendChild(el("li", { class: "lb-row" + (mine ? " me" : "") + (i < 3 ? " top" + (i + 1) : "") }, [
+            el("span", { class: "lb-rank", text: i < 3 ? ["\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"][i] : String(i + 1) }),
+            el("span", { class: "lb-name" }, [avNode(mine ? avatar : (lb.board.avatars && lb.board.avatars[r.name]) || { color: "#c9c9d6" }, 30, "lb-av"), el("span", { text: r.name })]),
+            el("span", { class: "lb-streak", text: s[2](r) })
+          ]));
+        });
+        wrap.appendChild(list);
+      });
+      wrap.appendChild(el("p", { class: "lb-hint", text: "60 Seconds: right minus wrong. All Facts: time plus 5 seconds for each wrong one." }));
+      return wrap;
+    }
     function leaderboardCard() {
       const card = el("div", { class: "card lb-card" });
       if (!lb.board && !lb.loading && !lb.failed) lbRefresh();
@@ -8415,6 +8479,12 @@
           el("button", { type: "button", class: "lb-change", text: "Change", onClick: function () { lbForget(); lb.names = null; lb.board = null; render(); } })
         ]));
       }
+      const views = el("div", { class: "lb-views", role: "tablist", "aria-label": "Board" });
+      [["points", "\u2B50 Points"], ["timed", "\u23F1\uFE0F Timed"]].forEach(function (t) {
+        views.appendChild(el("button", { type: "button", role: "tab", class: "lb-view" + (lb.view === t[0] ? " on" : ""), "aria-selected": String(lb.view === t[0]), text: t[1], onClick: function () { lb.view = t[0]; render(); } }));
+      });
+      card.appendChild(views);
+      if (lb.view === "timed") { card.appendChild(lbTimedLists(me)); return card; }
       const tabs = el("div", { class: "lb-tabs", role: "tablist" });
       [["today", "Today"], ["week", "This Week"]].forEach(function (t) {
         tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (lb.tab === t[0] ? " on" : ""), "aria-selected": String(lb.tab === t[0]), text: t[1], onClick: function () { lb.tab = t[0]; render(); } }));

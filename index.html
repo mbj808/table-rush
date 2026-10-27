@@ -2596,9 +2596,10 @@
     @keyframes prizeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
     .pz-box { width: min(40rem, 100%); max-height: calc(100dvh - 2rem); display: flex; flex-direction: column; padding: 0.9rem; }
     .pz-wrap { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; flex: 1 1 auto; }
-    .pz-tabs { display: flex; gap: 0.35rem; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; padding-bottom: 0.3rem; scrollbar-width: none; }
+    .pz-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; padding-bottom: 0.2rem; }
     .pz-tabs::-webkit-scrollbar { display: none; }
-    .pz-tab { flex: 0 0 auto; padding: 0.45rem 0.8rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.3); background: #1a1233; color: #fff; font-weight: 900; font-size: 0.95rem; cursor: pointer; }
+    .pz-tab { min-width: 0; min-height: 2.6rem; padding: 0.3rem 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: clip; letter-spacing: -0.01em; border-radius: 999px; border: 2px solid rgba(255,255,255,0.3); background: #1a1233; color: #fff; font-weight: 900; font-size: 0.82rem; cursor: pointer; }
+    @media (min-width: 700px) { .pz-tab { font-size: 1rem; } }
     .pz-tab.on { background: #ffd36a; border-color: #ffd36a; color: #241944; }
     .pz-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); grid-auto-columns: 5.2rem; gap: 0.45rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding: 0.4rem 0.1rem 0.5rem; }
     @media (min-width: 700px) { .pz-grid { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr)); overflow: auto; max-height: 52vh; } }
@@ -2606,13 +2607,16 @@
     .pz-item .av svg { display: block; }
     .pz-item.can { cursor: pointer; border-color: #5ff2ff; }
     .pz-item.gold { border-color: rgba(245,197,66,0.85); }
-    .pz-item.have { opacity: 0.75; }
-    .pz-item.locked, .closet-opt.locked, .closet-swatch.locked { opacity: 0.45; }
+    .pz-item.have > :not(.pz-badge) { opacity: 0.8; }
+    .pz-item.locked > :not(.pz-badge), .closet-opt.locked > :not(.pz-badge) { opacity: 0.4; }
+    .closet-swatch.locked::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(10, 6, 24, 0.55); }
+    .pz-item.locked { border-style: dashed; }
     .closet-opt.locked, .closet-swatch.locked { position: relative; }
     .pz-name { text-align: center; line-height: 1.1; }
     .pz-swatch { width: 3rem; height: 3rem; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4); }
-    .pz-badge { position: absolute; top: 0.15rem; right: 0.2rem; font-size: 0.9rem; line-height: 1; }
-    .pz-badge.ok { color: #241944; background: #7ee07a; border-radius: 50%; width: 1.2rem; height: 1.2rem; display: grid; place-items: center; font-weight: 900; }
+    .pz-badge { position: absolute; z-index: 2; top: 0.15rem; right: 0.15rem; width: 1.45rem; height: 1.45rem; display: grid; place-items: center; border-radius: 50%; font-size: 0.85rem; line-height: 1; pointer-events: none; }
+    .pz-badge.lock { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.5); opacity: 1; }
+    .pz-badge.ok { color: #241944; background: #7ee07a; font-weight: 900; }
     .closet-swatch .pz-badge { top: -0.3rem; right: -0.3rem; }
     .pz-later { margin-top: 0.6rem; align-self: center; padding: 0.55rem 1.6rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.5); background: transparent; color: #fff; font-weight: 900; font-size: 1.05rem; cursor: pointer; }
     .pz-claim { padding: 0.7rem; border-radius: 1rem; border: 3px solid #ffd36a; background: #3a2a10; color: #ffd36a; font-weight: 900; font-size: 1.1rem; cursor: pointer; }
@@ -7679,6 +7683,10 @@
       if (muteBtn && headerActions && muteBtn.parentElement !== headerActions) headerActions.appendChild(muteBtn);
       document.body.classList.toggle("setup-screen", state.phase === "setup");
       document.body.dataset.page = state.phase === "setup" ? currentPage() : "play";
+      // Remember where each sideways item row was scrolled so a tap doesn't snap it back to the start.
+      const keepPage = document.body.dataset.page + "|" + state.phase;
+      const rowScroll = render.keep === keepPage ? Array.prototype.map.call(app.querySelectorAll(".closet-opts, .pz-grid"), function (r) { return r.scrollLeft; }) : [];
+      render.keep = (state.phase === "setup" ? currentPage() : "play") + "|" + state.phase;
       app.replaceChildren();
       updateMuteButton();
       const back = document.getElementById("back");
@@ -7694,6 +7702,7 @@
       syncWooferPulse();
       syncBoombox();
       if (state.phase === "setup") sizeChallengeHero();
+      if (rowScroll.length) app.querySelectorAll(".closet-opts, .pz-grid").forEach(function (r, i) { if (rowScroll[i]) r.scrollLeft = rowScroll[i]; });
     }
     function checklistCard(label, items, quick, hint, warn, twoCol) {
       const tables = el("div", { class: "card" });
@@ -8506,7 +8515,10 @@
       return "rgb(" + c.join(",") + ")";
     }
     // Returns an SVG string. Head centre (50,42); torso 30..70 x 64..92; feet y~98.
+    let avSvgSeq = 0;
     function avatarSVG(a, opts) {
+      // Each picture gets its own gradient id; shared ids make Safari paint the wrong (or no) rainbow when tiles redraw.
+      const rb = "avrb" + (++avSvgSeq);
       a = avClean(a);
       opts = opts || {};
       const c = a.color, dk = avShade(c, 0.7), ink = "#2a1d3a";
@@ -8515,10 +8527,10 @@
       const p = [];
       // feet
       const shoe = w.shoes;
-      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#avrb)" : shoe === "flippers" ? "#1fb5a8" : shoe === "skates" ? "#ff7ab8" : dk;
+      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#" + rb + ")" : shoe === "flippers" ? "#1fb5a8" : shoe === "skates" ? "#ff7ab8" : dk;
       if (st === "animal" && a.animal === "turtle") p.push('<ellipse cx="50" cy="78" rx="29" ry="21" fill="#3f8a3a"/><path d="M24 70 L30 62 M76 70 L70 62 M22 84 H30 M78 84 H70" stroke="#2f6a2a" stroke-width="2"/>');
       if (st === "dino") p.push('<path d="M31 84 Q14 86 8 70 Q18 80 31 76 Z" fill="' + c + '"/>');
-      if (shoe === "rainbow" || w.shirt === "rainbowtee") p.push('<defs><linearGradient id="avrb" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
+      if (shoe === "rainbow" || w.shirt === "rainbowtee") p.push('<defs><linearGradient id="' + rb + '" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
       [38, 62].forEach(function (x) {
         if (shoe === "boots") p.push('<rect x="' + (x - 8) + '" y="88" width="16" height="14" rx="4" fill="' + shoeFill + '"/>');
         else if (shoe === "flippers") p.push('<path d="M' + (x - 7) + ' 94 L' + (x - 12) + ' 104 L' + (x + 12) + ' 104 L' + (x + 7) + ' 94 Z" fill="' + shoeFill + '"/>');
@@ -8529,7 +8541,7 @@
       });
       // torso / shirt
       const sh = w.shirt;
-      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542", tux: "#22202c", rainbowtee: "url(#avrb)", goldsuit: "#f5c542", cape: "#e8414f" }[sh] || c;
+      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542", tux: "#22202c", rainbowtee: "url(#" + rb + ")", goldsuit: "#f5c542", cape: "#e8414f" }[sh] || c;
       if (sh === "cape") p.push('<path d="M30 64 L20 98 L80 98 L70 64 Z" fill="#b8202e"/>');
       const trx = pix ? 0 : st === "robot" ? 4 : 12;
       p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + shirtFill + '"/>');
@@ -8709,11 +8721,12 @@
         const pic = it.swatch ? el("span", { class: "pz-swatch", style: "background:" + it.swatch }) : avNode(avPreview(it), 56);
         const kids = [pic, el("span", { class: "pz-name", text: it.name })];
         if (have) kids.push(el("span", { class: "pz-badge ok", text: "\u2713" }));
-        else if (goldLock) kids.push(el("span", { class: "pz-badge", text: "\uD83D\uDD12" }));
+        const locked = goldLock || (!win && !have);
+        if (locked) kids.push(el("span", { class: "pz-badge lock", text: "\uD83D\uDD12" }));
         const can = win && !have && !goldLock;
-        grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (goldLock ? " locked" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
-          "aria-label": it.name + (have ? ", yours" : goldLock ? ", needs 50 in a row" : ""), "aria-disabled": String(!can),
-          onClick: function () { if (can) onWin(it); else if (goldLock) say("Gold needs 50 in a row."); } }, kids));
+        grid.appendChild(el("button", { type: "button", class: "pz-item" + (have ? " have" : "") + (locked ? " locked" : "") + (it.gold ? " gold" : "") + (can ? " can" : ""),
+          "aria-label": it.name + (have ? ", yours" : goldLock ? ", locked, needs 50 in a row" : locked ? ", locked" : ", tap to get it"), "aria-disabled": String(!can),
+          onClick: function () { if (can) onWin(it); else if (goldLock) say("Gold needs 50 in a row."); else if (locked) say("Win it with 10 in a row!"); } }, kids));
       });
       wrap.appendChild(grid);
       return wrap;
@@ -8783,7 +8796,7 @@
       card.appendChild(tabs);
       const set = function (k, v) { const id = avLookId(k, v); if (!avOwns(id)) { if (!avatar.made) { avatar.made = true; avSave(); render(); } say("Win it with 10 in a row!"); return; } avatar[k] = v; avatar.made = true; avSave(); render(); };
       const sec = function (title, kids, cls) { return el("div", { class: "closet-sec" }, [el("p", { class: "closet-h", text: title }), el("div", { class: "closet-opts " + (cls || "") }, kids)]); };
-      const lk = function (btn, key, val) { if (!avOwns(avLookId(key, val))) { btn.classList.add("locked"); btn.setAttribute("aria-label", "Locked"); btn.appendChild(el("span", { class: "pz-badge", text: "\uD83D\uDD12" })); } return btn; };
+      const lk = function (btn, key, val) { if (!avOwns(avLookId(key, val))) { btn.classList.add("locked"); btn.setAttribute("aria-label", "Locked"); btn.appendChild(el("span", { class: "pz-badge lock", text: "\uD83D\uDD12" })); } return btn; };
       if (closetTab === "all") {
         card.appendChild(avGrid(false));
         card.appendChild(el("p", { class: "lb-hint", text: "Get 10 in a row to pick one." }));

@@ -2546,8 +2546,8 @@
     .lb-note { margin: 0; min-height: 1.2em; text-align: center; font-weight: 800; color: #ffd36a; }
     .lb-me { margin: 0; text-align: center; font-size: 1.15rem; font-weight: 800; }
     .lb-change { margin-left: 0.4rem; border: 1px solid rgba(255,255,255,0.6); background: transparent; color: #fff; border-radius: 999px; padding: 0.2rem 0.7rem; font-weight: 800; cursor: pointer; }
-    .lb-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .lb-tab { min-height: 3rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.4); background: #1d1736; color: #fff; font-size: 1.15rem; font-weight: 900; cursor: pointer; }
+    .lb-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .lb-tab { min-height: 3rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.4); background: #1d1736; color: #fff; font-size: 1.05rem; padding: 0 0.3rem; font-weight: 900; cursor: pointer; }
     .lb-tab.on { background: linear-gradient(180deg, #ffe08a, #e0a43a); color: #2a1800; border-color: #fff6dc; }
     .lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
     .lb-row { display: grid; grid-template-columns: 2.6rem 1fr auto; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0 0.9rem; border-radius: 0.9rem; background: rgba(18, 10, 38, 0.82); border: 2px solid rgba(255,255,255,0.18); font-size: 1.15rem; font-weight: 800; }
@@ -8506,7 +8506,7 @@
       card.appendChild(views);
       if (lb.view === "timed") { card.appendChild(lbTimedLists(me)); return card; }
       const tabs = el("div", { class: "lb-tabs", role: "tablist" });
-      [["today", "Today"], ["week", "This Week"]].forEach(function (t) {
+      [["today", "Today"], ["week", "This Week"], ["all", "All Time"]].forEach(function (t) {
         tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (lb.tab === t[0] ? " on" : ""), "aria-selected": String(lb.tab === t[0]), text: t[1], onClick: function () { lb.tab = t[0]; render(); } }));
       });
       card.appendChild(tabs);

@@ -2960,6 +2960,7 @@
     .home-fc-row > button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
     @media (hover: hover) { .home-fc-row > button:hover { filter: brightness(1.05); } }
     @media (prefers-reduced-motion: reduce) { .home-fc-row > button { transition: none; } .home-fc-row > button:active { transform: none; } }
+    .game-name.game-locked { opacity: 0.7; }
     .lb-views { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0 0 0.7rem; }
     .lb-view { font: inherit; font-weight: 800; font-size: 1.05rem; padding: 0.6rem; border-radius: 0.9rem; border: 2px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: inherit; cursor: pointer; }
     .lb-view.on { background: #ffd34e; color: #2a1d3a; border-color: #ffd34e; }
@@ -9347,6 +9348,11 @@
     // OAHU opens the tapped mini game; MAUI opens every beat and background (not mini games).
     const GAME_CODE_HASH = "eu78od";
     const BEATS_CODE_HASH = "wzhywq";
+    // Games that stay locked until the OAHU teacher code is typed. Kept on this device (Reset does not lock them again).
+    const CODE_OPS = { cartoon: true };
+    const OPS_KEY = "mad-facts-ops";
+    const opsUnlocked = (function () { try { const v = JSON.parse(localStorage.getItem(OPS_KEY) || "null"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; } })();
+    function opLocked(id) { return !!CODE_OPS[id] && !opsUnlocked[id]; }
     function applyTeacherCode(kind, beatId, text) {
       const hash = codeHash(text);
       if (kind === "beats") {
@@ -9356,6 +9362,13 @@
           if (!state.beatsUnlocked[t.id]) { state.beatsUnlocked[t.id] = true; state.codeBeats[t.id] = true; }
         });
         writeSave();
+        render();
+        return true;
+      }
+      if (kind === "op") {
+        if (hash !== GAME_CODE_HASH || !CODE_OPS[beatId]) return false;
+        opsUnlocked[beatId] = true;
+        try { localStorage.setItem(OPS_KEY, JSON.stringify(opsUnlocked)); } catch (e) {}
         render();
         return true;
       }
@@ -9374,12 +9387,12 @@
       const old = document.getElementById("code-box");
       if (old) old.remove();
       const opener = opts && opts.opener;
-      const kind = opts && opts.kind === "beats" ? "beats" : "game";
-      if (!opts || (kind === "game" && !BEAT_REWARDS[opts.beatId])) return;
+      const kind = opts && (opts.kind === "beats" || opts.kind === "op") ? opts.kind : "game";
+      if (!opts || (kind === "game" && !BEAT_REWARDS[opts.beatId]) || (kind === "op" && !CODE_OPS[opts.beatId])) return;
       const reward = kind === "game" ? BEAT_REWARDS[opts.beatId] : null;
       const layer = el("div", { id: "code-box", class: "congrats-layer reset-confirm-layer code-box-layer" });
       const card = el("div", { class: "congrats-card reset-confirm-card code-box-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "code-box-title" });
-      card.appendChild(el("h2", { id: "code-box-title", text: kind === "beats" ? "Unlock beats" : "Unlock " + (reward.bar || "game") }));
+      card.appendChild(el("h2", { id: "code-box-title", text: kind === "beats" ? "Unlock beats" : kind === "op" ? "Unlock " + (opLabel(opts.beatId) || "game") : "Unlock " + (reward.bar || "game") }));
       const form = el("form", { class: "code-box-form", autocomplete: "off" });
       const input = el("input", { type: "text", class: "code-box-input", placeholder: "Teacher code", "aria-label": "Teacher code", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", enterkeyhint: "done" });
       const msg = el("p", { class: "code-box-msg", role: "status", "aria-live": "polite", text: "" });
@@ -9397,11 +9410,11 @@
         event.preventDefault();
         const value = input.value;
         if (!String(value).trim()) { input.focus(); return; }
-        if (applyTeacherCode(kind, kind === "game" ? opts.beatId : "", value)) {
+        if (applyTeacherCode(kind, kind !== "beats" ? opts.beatId : "", value)) {
           document.removeEventListener("keydown", onKey, true);
           clearTimeout(msgTimer);
           layer.remove();
-          const focusTarget = kind === "game" ? document.querySelector("a.maze-reward.reward-" + opts.beatId) : document.getElementById("boombox-home");
+          const focusTarget = kind === "op" ? document.querySelector(".game-name.op-" + opts.beatId) : kind === "game" ? document.querySelector("a.maze-reward.reward-" + opts.beatId) : document.getElementById("boombox-home");
           if (focusTarget) focusTarget.focus();
           return;
         }
@@ -9538,7 +9551,15 @@
       const row = el("div", { class: "ops" });
       OPS.forEach(function (op) {
         const open = !!state.gameOpen && state.operation === op.id;
-        const b = button(op.label, "choice game-name", open, function () {
+        if (opLocked(op.id)) {
+          const lb = button(op.label, "choice game-name game-locked op-" + op.id, false, function (event) { openCodeBox({ kind: "op", beatId: op.id, opener: event && event.currentTarget }); });
+          lb.setAttribute("aria-label", op.label + ", locked");
+          lb.classList.add("gcat-" + gameCategory(op.id));
+          lb.insertBefore(el("span", { class: "game-ico", "aria-hidden": "true", text: "\uD83D\uDD12" }), lb.firstChild);
+          row.appendChild(lb);
+          return;
+        }
+        const b = button(op.label, "choice game-name op-" + op.id, open, function () {
           if (state.operation === op.id && state.gameOpen) { state.gameOpen = false; render(); return; }
           state.gameOpen = true;
           if (state.operation === op.id && !isMathGame(op.id)) state.tables = defaultTablesFor(op.id);

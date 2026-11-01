@@ -3455,6 +3455,9 @@
     .av-status { margin: -0.2rem 0 0; min-height: 1.2rem; text-align: center; font: 700 0.95rem/1.2 var(--ui-font); color: rgba(255,255,255,0.75); }
     .av-status.saved { color: #8ff0a4; }
     .av-status.offline { color: #ffd34e; }
+    .av-print { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 1rem; border-radius: 999px; background: #fff7ea; color: #24306e; font: 800 1.05rem/1 var(--ui-font); text-decoration: none; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+    .av-print:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+    .av-print:focus-visible { outline: 3px solid #ffd84d; outline-offset: 2px; }
     .av-loading, .av-tip { margin: 0; text-align: center; font: 700 1.05rem/1.35 var(--ui-font); color: #fff; }
     .av-loading { padding: 2rem 0; font-size: 1.25rem; }
     .av-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.6rem; padding-top: 0.35rem; }
@@ -9170,13 +9173,26 @@
       return fetch(LEADERBOARD_URL + (LEADERBOARD_URL.indexOf("?") >= 0 ? "&" : "?") + params, { cache: "no-store" })
         .then(function (r) { if (!r.ok) throw new Error("lb " + r.status); return r.json(); });
     }
+    // Hybrid lite cache: lb.board stays in memory, so Leaders paints at once on every visit.
+    // lb.sig is the board minus clock fields; a poll redraws only when it changes.
+    function lbSig(d) {
+      if (!d) return "";
+      const o = {};
+      Object.keys(d).forEach(function (k) { if (!/^(now|ts|time|updated|served|at|stamp)$/i.test(k)) o[k] = d[k]; });
+      return JSON.stringify(o);
+    }
+    function lbStampUpdated() {
+      const u = document.querySelector(".lb-updated");
+      if (u && lb.updated) u.textContent = "Updated " + new Date(lb.updated).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+    function lbKick() { lbLastTick = Date.now(); setTimeout(lbPoll, 0); }
     function lbRefresh() {
       if (!LEADERBOARD_URL || lb.loading) return;
       lb.loading = true;
       const me = lbMe();
       avPull();
       Promise.all([me ? Promise.resolve(lb.names) : lbGet("action=roster").then(function (d) { return (d && d.names) || []; }), lbGet("action=board")])
-        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; if (lb.board) lb.updated = Date.now(); if (me && lb.board && lb.board.classOf) { const c = lbClassOf(me.name); if (me.cls !== c) { me.cls = c; try { localStorage.setItem(LB_KEY, JSON.stringify(me)); } catch (e) {} if (!lb.clsTouched) lb.cls = c; } } lb.failed = false; if (lb.board && lb.board.timed && !lb.timedOk) { lb.timedOk = true; lbTimedFlush(); } if (lb.board && lb.board.points && lb.mode !== "points") { lb.mode = "points"; lbFlush(); } })
+        .then(function (res) { lb.names = res[0]; lb.board = res[1] && res[1].ok ? res[1] : null; lb.sig = lbSig(lb.board); if (lb.board) lb.updated = Date.now(); if (me && lb.board && lb.board.classOf) { const c = lbClassOf(me.name); if (me.cls !== c) { me.cls = c; try { localStorage.setItem(LB_KEY, JSON.stringify(me)); } catch (e) {} if (!lb.clsTouched) lb.cls = c; } } lb.failed = false; if (lb.board && lb.board.timed && !lb.timedOk) { lb.timedOk = true; lbTimedFlush(); } if (lb.board && lb.board.points && lb.mode !== "points") { lb.mode = "points"; lbFlush(); } })
         .catch(function () { lb.failed = true; })
         .then(function () { lb.loading = false; if (state.phase === "setup" && currentPage() === "leaders") render(); });
     }
@@ -9202,7 +9218,10 @@
       lb.polling = true;
       lbGet("action=board").then(function (d) {
         if (!d || !d.ok || currentPage() !== "leaders" || state.phase !== "setup") return;
-        lb.board = d; lb.failed = false; lb.updated = Date.now();
+        lb.failed = false; lb.updated = Date.now();
+        const sig = lbSig(d);
+        if (sig === lb.sig && lb.board) { lbStampUpdated(); lb.polls = (lb.polls || 0) + 1; return; }
+        lb.board = d; lb.sig = sig; lb.redraws = (lb.redraws || 0) + 1;
         const a = document.activeElement;
         if (a && a.tagName === "SELECT") return;
         const before = {};
@@ -9225,6 +9244,9 @@
       }).catch(function () {}).then(function () { lb.polling = false; });
     }
     setInterval(lbPoll, 5000);
+    // Back on Leaders (or the screen wakes up): show the cached board now and fetch fresh right away.
+    window.addEventListener("hashchange", function () { if (currentPage() === "leaders" && lb.board) lbKick(); });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && state.phase === "setup" && currentPage() === "leaders" && lb.board) lbKick(); });
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") lbLastTick = Date.now(); });
     function lbGameLabel(op) { return opLabel(op) || String(op || ""); }
     function lbStreakEnded(streak, op) {
@@ -9986,6 +10008,7 @@
         tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (closetTab === t[0] ? " on" : ""), "aria-selected": String(closetTab === t[0]), text: t[1], onClick: function () { closetTab = t[0]; render(); window.scrollTo(0, 0); } }));
       });
       top.appendChild(tabs);
+      top.appendChild(el("a", { class: "av-print", href: "./print.html", target: "_blank", rel: "noopener", text: "\uD83D\uDDA8\uFE0F Print avatars" }));
       card.appendChild(top);
       setTimeout(function () { avShowStatus(avStatus); }, 0);
       const items = el("div", { class: "av-items" });

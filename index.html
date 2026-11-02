@@ -1917,6 +1917,7 @@
     body.play-screen[data-play-page="beats"] .brand-meta { margin-top: 0.1rem; }
     body.play-screen .eq .prompt.quiz-prompt,
     body.play-screen .eq .prompt.multiples-prompt { font-size: 1.25rem; line-height: 1.25; }
+    body.play-screen .eq .prompt.quiz-prompt.sci-prompt { font-size: clamp(1.85rem, 7.5vw, 2.5rem); line-height: 1.2; }
     .flag-svg, .piano-svg {
       display: block; width: 100%; height: auto; margin: 0.1rem auto 0.2rem;
     }
@@ -3199,7 +3200,7 @@
         0 0 64px rgba(255, 196, 60, 0.98),
         0 0 120px rgba(255, 120, 20, 0.85),
         0 2px 0 #3b1d6e;
-      animation: supernova-type 5s ease-out forwards;
+      animation: supernova-type 2.5s ease-out forwards;
     }
     @keyframes supernova-type {
       0% { opacity: 0; transform: translate(-50%, -46%) scale(0.72); }
@@ -3383,10 +3384,68 @@
     .si-ask { text-align: center; font-size: 1rem; opacity: 0.9; }
     .av-signnote { margin: 0.3rem 0 0; text-align: center; font: 700 1rem/1.2 var(--ui-font); color: #ffe39a; }
     /* Head to Head */
-    body.h2h-on header, body.h2h-on .page-head, body.h2h-on footer, body.h2h-on .boombox { display: none !important; }
+    body.h2h-on header, body.h2h-on .page-head, body.h2h-on footer, body.h2h-on .boombox, body.h2h-on .test-banner { display: none !important; }
     .h2h-full { position: fixed; inset: 0; z-index: 9000; max-width: none; margin: 0; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); gap: 0; background: #140f28; display: flex; flex-direction: column; }
+    /* In-game Back: lower on the screen, just above the boom box, away from Safari's top bar. */
+    body.play-screen #back { position: fixed; left: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); z-index: 60; margin: 0 !important;
+      min-width: 104px; min-height: 56px; padding: 0 1.1rem; border-radius: 999px; background: #fff; color: #2a1458; border: 3px solid #ffd23f;
+      font: 900 1.25rem/1 var(--ui-font); box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 14px rgba(255,210,63,.55); opacity: 1; }
+    body.play-screen #back::before { content: "\2039\00a0"; font-size: 1.5rem; }
+    body.play-screen #back:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+    .coin-bank { display: inline-flex; align-items: center; gap: .45rem; margin: .3rem auto .5rem; padding: .35rem 1rem .35rem .4rem; border-radius: 999px; background: #fff4c2; color: #4a3000; font: 900 1.25rem/1 var(--ui-font); border: 3px solid #e0a91f; box-shadow: 0 3px 0 rgba(0,0,0,.3); align-self: center; }
+    .beats-card .coin-bank { display: flex; width: max-content; }
+    .coin-ico { display: inline-grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6b0, #ffd23f 45%, #d99a10); color: #7a4a00; font: 900 1.2rem/1 var(--ui-font); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 2px #b8800a; }
+    .coin-ico.big { width: 3.4rem; height: 3.4rem; font-size: 2.1rem; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18), 0 0 0 4px #b8800a, 0 0 30px rgba(255,210,63,.9); }
+    .celeb-scene { position: fixed; inset: 0; z-index: 85; pointer-events: none; overflow: hidden; }
+    .cb-bit { position: absolute; width: 11px; height: 11px; border-radius: 50%; opacity: 0; animation: cbBit 1.1s ease-out forwards; }
+    .cb-bit.sq { border-radius: 2px; width: 10px; height: 14px; }
+    @keyframes cbBit { 0% { opacity: 1; transform: translate(0,0) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 90px)) rotate(var(--r)); } }
+    .cb-balloon { position: absolute; left: 50%; top: 62%; width: min(60vw, 260px); aspect-ratio: 160/130; animation: cbBalloon 1.35s ease-in-out forwards; }
+    @keyframes cbBalloon { 0% { transform: translate(-50%, 70vh) rotate(-6deg); } 55% { transform: translate(-50%, 0) rotate(5deg); } 75% { transform: translate(-50%, 0) rotate(-4deg) scale(1); } 92% { opacity: 1; transform: translate(-50%, 0) scale(1.25); } 100% { opacity: 0; transform: translate(-50%, 0) scale(1.5); } }
+    .cb-rainbow { position: absolute; left: 50%; top: 60%; width: min(92vw, 420px); aspect-ratio: 300/160; transform: translateX(-50%); animation: cbShatter 1.3s forwards; }
+    .cb-rainbow path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: cbDraw .8s ease-out forwards; }
+    @keyframes cbDraw { to { stroke-dashoffset: 0; } }
+    @keyframes cbShatter { 0%, 82% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(1.12); } }
+    .cb-volcano { position: absolute; left: 50%; bottom: 0; width: min(80vw, 360px); aspect-ratio: 200/120; transform: translateX(-50%); animation: cbVol 2.5s ease-out forwards; }
+    @keyframes cbVol { 0% { transform: translate(-50%, 100%); } 12%, 85% { transform: translate(-50%, 0); } 30% { transform: translate(-50%, 0) rotate(-2deg); } 35% { transform: translate(-50%, 0) rotate(2deg); } 40% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 100%); } }
+    .cb-glit { position: absolute; left: 50%; bottom: min(38vw, 170px); width: 9px; height: 9px; border-radius: 2px; transform: rotate(45deg); opacity: 0; animation: cbGlit 1.3s cubic-bezier(.2,.7,.4,1) forwards; box-shadow: 0 0 6px currentColor; }
+    @keyframes cbGlit { 0% { opacity: 1; transform: translate(0,0) rotate(45deg); } 50% { opacity: 1; transform: translate(calc(var(--x) * .7), calc(var(--h) * -1)) rotate(225deg); } 100% { opacity: 0; transform: translate(var(--x), calc(var(--h) * -0.4)) rotate(405deg); } }
+    .cb-volc2 { position: absolute; left: 50%; bottom: 4vh; width: min(84vw, 360px); aspect-ratio: 3/4; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.35); transform: translateX(-50%); animation: cbVol2 2.5s ease-out forwards; background: #4a2a5a; }
+    .cb-volc2 img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    @keyframes cbVol2 { 0% { opacity: 0; transform: translate(-50%, 30px) scale(.9); } 12%, 85% { opacity: 1; transform: translate(-50%, 0) scale(1); } 30% { transform: translate(-50%, 0) rotate(-1.5deg); } 35% { transform: translate(-50%, 0) rotate(1.5deg); } 40% { transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 20px) scale(.95); } }
+    .cb-v2-glow { position: absolute; left: 50%; top: 39%; width: 46%; aspect-ratio: 1; margin: -23% 0 0 -23%; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,140,.85), rgba(255,140,30,.35) 45%, rgba(255,100,0,0) 70%); opacity: 0; animation: cbV2Glow .5s ease-in-out 300ms 4 alternate; }
+    @keyframes cbV2Glow { from { opacity: .15; transform: scale(.8); } to { opacity: 1; transform: scale(1.15); } }
+    .cb-v2-glit { position: absolute; left: 50%; top: 39%; width: 8px; height: 8px; border-radius: 2px; opacity: 0; animation: cbGlit 1.3s cubic-bezier(.2,.7,.4,1) forwards; }
+    .cb-disco { position: absolute; left: 50%; top: 0; width: 0; height: 100%; animation: cbDiscoIn 2.5s ease-out forwards; }
+    @keyframes cbDiscoIn { 0% { transform: translateY(-40vh); } 15%, 85% { transform: translateY(0); } 100% { transform: translateY(-40vh); } }
+    .cb-string { position: absolute; left: -1px; top: 0; width: 2px; height: 58vh; background: #ccc; }
+    .cb-ball { position: absolute; left: -55px; top: 58vh; width: 110px; height: 110px; border-radius: 50%; background: repeating-linear-gradient(90deg, #e8ecf8 0 10px, #9aa4c8 10px 12px), #ccd; background-size: 24px 100%; box-shadow: inset -14px -14px 24px rgba(0,0,0,.45), inset 10px 10px 18px rgba(255,255,255,.7), 0 0 30px #fff; animation: cbSpin .5s linear infinite; }
+    .cb-ball::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: repeating-linear-gradient(0deg, transparent 0 10px, rgba(60,60,90,.55) 10px 12px); }
+    @keyframes cbSpin { to { background-position: 24px 0; } }
+    .cb-beams { position: absolute; left: -60vh; top: calc(58vh - 5vh); width: 120vh; height: 120vh; margin-top: -55vh; border-radius: 50%; background: repeating-conic-gradient(rgba(255,95,210,.55) 0 6deg, transparent 6deg 24deg, rgba(95,242,255,.55) 24deg 30deg, transparent 30deg 48deg, rgba(255,210,63,.55) 48deg 54deg, transparent 54deg 72deg); -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%); opacity: 0; animation: cbBeams 2.3s linear .3s forwards; }
+    @keyframes cbBeams { 0% { opacity: 0; transform: rotate(0); } 15%, 80% { opacity: 1; } 100% { opacity: 0; transform: rotate(160deg); } }
+    .cb-rocket { position: absolute; left: 8%; top: 82%; width: min(20vw, 90px); aspect-ratio: 60/120; animation: cbRocket 1.8s cubic-bezier(.5,0,.8,.6) forwards; }
+    @keyframes cbRocket { 0% { transform: translate(0,0) rotate(30deg); } 10% { transform: translate(-3px,0) rotate(30deg); } 15% { transform: translate(3px,0) rotate(30deg); } 100% { transform: translate(85vw, -100vh) rotate(30deg); } }
+    .cb-star { position: absolute; font-size: 1.8rem; opacity: 0; animation: cbStar 1.1s ease-out forwards; text-shadow: 0 0 8px currentColor; }
+    @keyframes cbStar { 0% { opacity: 0; transform: scale(.3); } 20% { opacity: 1; transform: scale(1.3) rotate(40deg); } 100% { opacity: 0; transform: scale(.6) translateY(30px) rotate(160deg); } }
+    .celeb-test { position: fixed; right: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 9500; min-height: 48px; padding: 0 1rem; border-radius: 999px; border: 2px solid #fff; background: #7c3aed; color: #fff; font: 800 1rem/1 var(--ui-font); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+    .coin-drop { position: fixed; right: 14px; top: calc(env(safe-area-inset-top, 0px) + 96px); z-index: 90; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: .3rem; animation: coinDrop 1.5s ease-out forwards; }
+    .coin-plus { font: 900 1.3rem/1 var(--ui-font); color: #fff; text-shadow: 0 2px 0 #7a4a00, 0 0 10px #ffb703; }
+    @keyframes coinDrop { 0% { opacity: 0; transform: translateY(24px) scale(.4); } 25% { opacity: 1; transform: translateY(-8px) scale(1.1) rotateY(360deg); } 40% { transform: translateY(0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+    .pill-cost, .av-cost { background: #ffd23f !important; color: #4a3000 !important; border-radius: 999px; padding: .1rem .45rem; font-weight: 900; }
     #my-pts { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); z-index: 50; pointer-events: none; padding: .3rem .85rem; border-radius: 999px; background: #ffe58a; color: #3a2400; font: 800 1.05rem/1.2 var(--ui-font); box-shadow: 0 2px 0 rgba(0,0,0,.3); white-space: nowrap; }
     #my-pts[hidden] { display: none; }
+    .game-start.gs-top { margin: 0 0 .3rem; }
+    .gs-or { margin: .2rem 0 .6rem; text-align: center; font-weight: 700; font-size: .95rem; color: #fff6dc; }
+    .np-ranges { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .2rem 0 .7rem; }
+    .np-range, .np-num { font: 800 1.35rem/1 var(--ui-font); color: #fff; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.35); cursor: pointer; transition: background-color .15s, transform .1s, border-color .15s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .np-range { min-height: 54px; border-radius: 16px; }
+    .np-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .55rem; }
+    .np-num { aspect-ratio: 1; min-height: 56px; border-radius: 50%; font-size: 1.55rem; }
+    .np-range.on, .np-num.on { background: #ffd23f; border-color: #fff3b0; color: #3a2400; box-shadow: 0 3px 0 #b8860b; }
+    .np-range:active, .np-num:active { transform: scale(.93); }
+    .np-tip { margin: .6rem 0 0; text-align: center; font-weight: 700; font-size: 1rem; color: #fff6dc; }
+    @media (prefers-reduced-motion: reduce) { .np-range, .np-num { transition: none; } .np-range:active, .np-num:active { transform: none; } }
     .plus1 { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; font: 900 3.8rem/1 var(--ui-font); color: #2fd15a; text-shadow: 0 3px 0 #0b4a1c, 0 0 3px #0b4a1c; opacity: 0; will-change: transform, opacity; }
     .plus1.go { animation: plus1Up 0.9s ease-out forwards; }
     .plus1.flip.go { animation-name: plus1Down; }
@@ -3510,7 +3569,13 @@
     @media (prefers-reduced-motion: reduce) { .av-big.bounce .av { animation: none; } }
     /* ===== Design-review fixes ===== */
     body.theme-tg .wave-bg { background: linear-gradient(180deg, var(--tg-a, #e98a3c) 0%, var(--tg-b, #c45a26) 50%, #8a3a18 100%); }
-    .tg-big { position: absolute; right: 4%; top: 2%; width: min(34vw, 260px); height: min(34vw, 260px); opacity: .9; }
+    .tg-big { position: absolute; right: 2%; top: 1%; width: min(46vw, 340px); height: min(46vw, 340px); padding: 3%; box-sizing: border-box; border-radius: 50%; background: radial-gradient(circle, rgba(255,246,214,.75) 0%, rgba(255,230,170,.35) 55%, rgba(255,230,170,0) 72%); }
+    .tg-scene .tg-stars { display: none; }
+    .tg-photo { position: absolute; inset: 0; z-index: 1; background: #c8783a center 70% / cover no-repeat; }
+    .tg-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(40,18,6,.45) 0%, rgba(40,18,6,0) 28%); }
+    .tg-scene > svg, .tg-scene .tg-big { display: none !important; }
+    .tg-scene .tg-leaf { z-index: 2; }
+    .tg-scene.tg-night .tg-stars { display: inline; }
     body.theme-tg .wave-bg > :not(.tg-scene), body.theme-tg .belfry-moon, body.theme-tg .belfry-scene { display: none !important; }
     .tg-scene { position: absolute; inset: 0; }
     body:not(.theme-tg) .tg-scene { display: none !important; }
@@ -3522,7 +3587,7 @@
     .tg-art { display: block; width: 100%; height: 100%; }
     .tg-tile-art { position: absolute; inset: 0; background: linear-gradient(180deg, #ffe2b0, #f2a65a); padding: 8% 22% 26%; box-sizing: border-box; }
     .beat-pill .pill-icon.tg-icon { background: #fff1dc; padding: 2px; box-sizing: border-box; }
-    body.theme-tg .bgs-card .hint, body.theme-tg .av-tip, body.theme-tg .lb-updated { color: #4a2410; text-shadow: none; }
+    body.theme-tg .bgs-card .hint, body.theme-tg .av-tip, body.theme-tg .lb-updated { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 8px rgba(0,0,0,.6); }
     .si-head2 { min-height: 0; }
     .si-who { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin: 0 auto; }
     .si-who .cls-art { width: 84px; height: 84px; padding: 6px; border-radius: 50%; background: var(--cbg); box-shadow: 0 3px 0 rgba(0,0,0,.25); }
@@ -4108,7 +4173,7 @@
     const BEAT_IDS = PLAY_TRACKS.map(function (track) { return track.id; });
     const QUICK = [
       ["2–5", [2, 3, 4, 5]],
-      ["6–9", [6, 7, 8, 9]],
+      ["6–10", [6, 7, 8, 9, 10]],
       ["2–12", [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
     ];
     // No 0 or 1 anywhere in math: they make trivial questions (kids picked them to rush).
@@ -5790,13 +5855,13 @@
       root.appendChild(canvas);
       var label = document.createElement("p");
       label.className = "supernova-label";
-      label.textContent = beatId + " unlocked";
+      label.textContent = "Good job!";
       root.appendChild(label);
       document.body.appendChild(root);
 
       var ctx = canvas.getContext("2d");
       if (!ctx) {
-        setTimeout(function () { if (root.parentNode) root.remove(); }, 5000);
+        setTimeout(function () { if (root.parentNode) root.remove(); }, 2500);
         return;
       }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -5820,11 +5885,11 @@
         });
       }
       var start = performance.now();
-      var duration = 5000;
-      state.burstUntil = start + 3600;
+      var duration = 2500; // half the old 5 s; the frame clock runs 2x so the whole burst plays faster
+      state.burstUntil = start + 1800;
       var raf = 0;
       function frame(now) {
-        var t = (now - start) / 1000;
+        var t = (now - start) / 500;
         var cw = canvas.width;
         var ch = canvas.height;
         var cx = cw / 2;
@@ -5929,6 +5994,9 @@
       if (state.phase !== "play") return "";
       // Unlock the next locked beat each time the natural streak hits a multiple of BEAT_UNLOCK_STEP.
       if (state.streak < BEAT_UNLOCK_STEP || state.streak % BEAT_UNLOCK_STEP !== 0) return "";
+      // Coin prototype: beats are bought with coins on the Beats page now; the streak just celebrates.
+      playCelebration();
+      return "";
       let unlockedNow = "";
       for (let i = 0; i < PLAY_TRACKS.length; i++) {
         const track = PLAY_TRACKS[i];
@@ -5938,9 +6006,10 @@
         if (state.codeBeats) delete state.codeBeats[track.id];
         state.beatsUnlocked[track.id] = true;
         unlockedNow = track.id;
-        playBeatSupernova(track.label);
         break;
       }
+      // Every streak of 10: the burst with "Good job!" only (the beat still unlocks quietly).
+      playBeatSupernova();
       if (!unlockedNow) return "";
       state.beatJustUnlocked = unlockedNow;
       // Make the newly unlocked beat the active choice immediately. setPlayMusicId
@@ -7483,6 +7552,7 @@
     const HOME_MUSIC_VOLUME = 0.55;
     // Broad first-gesture unlock: scroll/touch/wheel count, not only taps.
     const HOME_UNLOCK_EVENTS = ["pointerdown", "touchstart", "mousedown", "keydown", "click", "wheel"];
+    var pageAway = false, pageAwayWasPlaying = false;
     function homeMusicSrc() {
       try {
         return new URL("assets/audio/home.mp3", document.baseURI || window.location.href).href;
@@ -7570,7 +7640,7 @@
     }
     // Home BGM is always available on setup — never tied to the beat challenge lock.
     function homeMusicShouldPlay() {
-      return state.phase === "setup" && !state.muted && !musicPausedForGame && !state.homeBeat && !state.homeSilenced;
+      return !pageAway && state.phase === "setup" && !state.muted && !musicPausedForGame && !state.homeBeat && !state.homeSilenced;
     }
     // A beat picked on the home screen plays there (instead of the home music).
     function beatOnHome() { return state.phase === "setup" && !!state.homeBeat; }
@@ -7789,6 +7859,7 @@
       document.addEventListener("keydown", unlockPlayMusic, true);
     }
     function tryPlayPlayMusic() {
+      if (pageAway) return;
       const audio = ensurePlayMusic();
       if (!audio) return;
       const playAttempt = audio.play();
@@ -7813,7 +7884,7 @@
       }
       const audio = ensurePlayMusic();
       if (!audio) return;
-      const shouldPlay = beatMusicPhase() && !state.muted && !musicPausedForGame && !(state.beatStopped && state.phase !== "setup");
+      const shouldPlay = !pageAway && beatMusicPhase() && !state.muted && !musicPausedForGame && !(state.beatStopped && state.phase !== "setup");
       if (!shouldPlay) {
         unbindPlayMusicUnlock();
         if (!audio.paused) audio.pause();
@@ -7988,7 +8059,7 @@
     function hintPill() {
       return el("span", { class: "scroll-hint-pill" }, [
         el("span", { class: "scroll-hint-acc hint-note", "aria-hidden": "true", text: "\u266A" }),
-        el("span", { class: "scroll-hint-text", text: "Unlock beats and backgrounds" }),
+        el("span", { class: "scroll-hint-text", text: "Unlock beats and change backgrounds" }),
         el("span", { class: "scroll-hint-acc hint-spark", "aria-hidden": "true", text: "\u2726" })
       ]);
     }
@@ -8261,12 +8332,19 @@
     // A background picked on the home screen (if still unlocked), else the newest unlocked scene.
     function backgroundUnlocked(i) {
       const track = PLAY_TRACKS[i];
-      return !!track && (trackIsFree(track) || !!state.beatsUnlocked[track.id]);
+      return !!track; // Every background is open now; beats no longer unlock them.
     }
     function chosenBackgroundLevel() {
       const c = state.bgChoice;
       if (Number.isInteger(c) && c >= 0 && backgroundUnlocked(c)) return c;
-      return unlockedBackgroundLevel();
+      return 0;
+    }
+    // Every streak of BG_ROTATE_STEP in a row moves to the next background (wraps after the last one).
+    const BG_ROTATE_STEP = 10;
+    function rotateBackground() {
+      state.bgChoice = (chosenBackgroundLevel() + 1) % PLAY_TRACKS.length;
+      writeSave();
+      applyUnlockedBackground();
     }
     function unlockedBackgroundLevel() {
       let level = 0;
@@ -8557,10 +8635,32 @@
       document.documentElement.classList.toggle("scenes-paused", document.visibilityState === "hidden");
     }
     syncScenePause();
+    // Leaving the page (tab hidden, navigating away, closing): stop all audio; resume on return
+    // only if something was playing and the current screen still wants it.
+    function stopAudioForPageAway() {
+      if (pageAway) return;
+      pageAway = true;
+      var was = false;
+      try { if (homeMusic && !homeMusic.paused) { was = true; homeMusic.pause(); } } catch (_) {}
+      try { if (playMusic && !playMusic.paused) { was = true; playMusic.pause(); } } catch (_) {}
+      pageAwayWasPlaying = pageAwayWasPlaying || was;
+      try { if (audioCtx && audioCtx.state === "running") audioCtx.suspend(); } catch (_) {}
+    }
+    function resumeAudioAfterPageAway() {
+      if (!pageAway || document.visibilityState === "hidden") return;
+      pageAway = false;
+      var was = pageAwayWasPlaying;
+      pageAwayWasPlaying = false;
+      if (!was || musicPausedForGame || state.muted) return;
+      try { syncHomeMusic(); syncPlayMusic(); updateMuteButton(); } catch (_) {}
+    }
+    window.addEventListener("pagehide", stopAudioForPageAway);
+    window.addEventListener("beforeunload", stopAudioForPageAway);
+    window.addEventListener("pageshow", function () { if (document.visibilityState !== "hidden") resumeAudioAfterPageAway(); });
     document.addEventListener("visibilitychange", function () {
       syncScenePause();
-      if (document.visibilityState === "hidden") noteLeftForGame();
-      else if (returnedFromGame()) resumeMusicAfterGame();
+      if (document.visibilityState === "hidden") { noteLeftForGame(); stopAudioForPageAway(); }
+      else { resumeAudioAfterPageAway(); if (returnedFromGame()) resumeMusicAfterGame(); }
     });
     window.addEventListener("blur", noteLeftForGame);
     window.addEventListener("focus", function () {
@@ -8911,25 +9011,39 @@
         const tableLabel = isMultiples() ? "Bases" : isAdd() ? "+ Addends" : isSubtract() ? "− Numbers" : isDivide() ? "÷ Tables" : "× Tables";
         head.appendChild(el("p", { class: "label", text: tableLabel }));
           tables.appendChild(head);
-        const quick = el("div", { class: "row" });
+        // Number picker: big range buttons on top, then 2-12 as big round buttons.
+        // With a range on, tapping a number picks just that number; after that, taps add or remove.
+        // Taps update the buttons in place (no full redraw), so it feels instant.
         const quickSets = (isAdd() || isSubtract()) ? QUICK_ADD : QUICK;
+        const sameSet = function (a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) >= 0; }); };
+        const quick = el("div", { class: "np-ranges", role: "group", "aria-label": "Number ranges" });
+        const grid = el("div", { class: "np-grid", role: "group", "aria-label": "Single numbers" });
+        const tip = el("p", { class: "np-tip" });
+        const paint = function () {
+          const preset = quickSets.some(function (set) { return sameSet(state.tables, set[1]); });
+          quick.querySelectorAll(".np-range").forEach(function (b, k) { const on = sameSet(state.tables, quickSets[k][1]); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+          grid.querySelectorAll(".np-num").forEach(function (b) { const on = state.tables.indexOf(Number(b.dataset.n)) >= 0; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+          tip.textContent = preset ? "Or tap one number to practice just that one." : state.tables.length === 1 ? "Just " + state.tables[0] + "s. Tap more numbers to add them." : "Practicing " + state.tables.join(", ") + ".";
+          try { writeSave(); } catch (e) {}
+        };
         quickSets.forEach(function (set) {
-          quick.appendChild(button(set[0], "chip", false, function () { state.tables = set[1].slice(); render(); }));
+          quick.appendChild(el("button", { type: "button", class: "np-range", text: set[0], onClick: function () { state.tables = set[1].slice(); paint(); } }));
         });
         tables.appendChild(quick);
-        const grid = el("div", { class: "grid6" });
-        const startN = MIN_OPERAND;
-        for (let n = startN; n <= 12; n++) {
+        for (let n = MIN_OPERAND; n <= 12; n++) {
           const value = n;
-          grid.appendChild(button(String(value), "num", state.tables.indexOf(value) >= 0, function () {
+          grid.appendChild(el("button", { type: "button", class: "np-num", "data-n": String(value), text: String(value), "aria-label": "Number " + value, onClick: function () {
+            const preset = quickSets.some(function (set) { return sameSet(state.tables, set[1]); });
             const i = state.tables.indexOf(value);
-            if (i >= 0) state.tables.splice(i, 1);
-            else state.tables.push(value);
-            state.tables.sort(function (a, b) { return a - b; });
-            render();
-          }));
+            if (preset) state.tables = [value];
+            else if (i >= 0) { if (state.tables.length > 1) state.tables.splice(i, 1); }
+            else { state.tables.push(value); state.tables.sort(function (a, b) { return a - b; }); }
+            paint();
+          } }));
         }
         tables.appendChild(grid);
+        tables.appendChild(tip);
+        paint();
         if (!state.tables.length) tables.appendChild(el("p", { class: "warn", text: "Pick at least one number." }));
         if (isMultiples()) tables.appendChild(el("p", { class: "hint", text: "Bases 2–12, in order: 2× through 12×, then the next base." }));
         stack.appendChild(tables);
@@ -8956,14 +9070,17 @@
       if (state.gameOpen) {
         const panel = el("div", { class: "game-panel", id: "game-panel", role: "region", "aria-label": opLabel(state.operation) + " options" });
         const hint = opsCard.querySelector(".hint");
-        if (isMathGame(state.operation) || isKq()) {
+        // Science topics: just the name and Start (no number or level picker).
+        if ((isMathGame(state.operation) || isKq()) && state.operation.indexOf("sci-") !== 0) {
           if (hint) panel.appendChild(hint);
           optionNodes.forEach(function (node) { node.classList.add("in-panel"); panel.appendChild(node); });
         } else {
           if (hint) hint.remove();
           panel.classList.add("start-only");
         }
-        panel.appendChild(startBtn);
+        // Start goes first so kids can play right away with the default picks; settings sit below.
+        panel.insertBefore(startBtn, panel.firstChild);
+        if (panel.children.length > 1) { startBtn.classList.add("gs-top"); startBtn.after(el("p", { class: "gs-or", text: "Or change your picks below:" })); }
         const ops = opsCard.querySelector(".ops");
         const openBtn = ops.querySelector(".choice.op-" + state.operation);
         const buttons = Array.prototype.filter.call(ops.querySelectorAll(".choice"), function (b) { return b.className.indexOf("gcat-" + gameCategory(state.operation)) >= 0; });
@@ -10001,6 +10118,99 @@
       if (first) first.focus({ preventScroll: true });
     }
     function avPrizeOpen() { return !!document.querySelector(".prize-ov"); }
+    // ---- Streak celebrations: one scene per streak (the "Good job!" burst is scene #6, supernova). Add more by adding to CELEB_SCENES. ----
+    function celebBits(box, n, cols, x, y, spread, delay, cls) {
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, d = spread * (0.45 + Math.random() * 0.55);
+        const b = document.createElement("i");
+        b.className = "cb-bit " + (cls || "");
+        b.style.cssText = "left:" + x + "%;top:" + y + "%;background:" + cols[i % cols.length] + ";--x:" + Math.round(Math.cos(a) * d) + "px;--y:" + Math.round(Math.sin(a) * d - spread * 0.3) + "px;--r:" + Math.round(Math.random() * 720 - 360) + "deg;animation-delay:" + (delay + Math.random() * 120) + "ms";
+        box.appendChild(b);
+      }
+    }
+    const CB_RAINBOW = ["#ff4d4d", "#ff9f1c", "#ffe14d", "#4dd96b", "#4db8ff", "#9b6bff"];
+    const CELEB_SCENES = {
+      balloon: function (box) {
+        box.insertAdjacentHTML("beforeend", '<div class="cb-balloon"><svg viewBox="0 0 160 130" width="100%" height="100%"><g fill="#ff5fa8" stroke="#d93a85" stroke-width="2"><ellipse cx="40" cy="40" rx="22" ry="16"/><ellipse cx="80" cy="62" rx="36" ry="17"/><ellipse cx="122" cy="44" rx="16" ry="20"/><ellipse cx="136" cy="26" rx="8" ry="13"/><ellipse cx="54" cy="96" rx="8" ry="22"/><ellipse cx="106" cy="96" rx="8" ry="22"/><ellipse cx="34" cy="18" rx="7" ry="14"/></g><circle cx="126" cy="40" r="3" fill="#222"/><ellipse cx="72" cy="56" rx="12" ry="4" fill="#fff" opacity=".5"/></svg></div>');
+        celebBits(box, 26, ["#ff5fa8", "#ffd23f", "#fff", "#5ff2ff"], 50, 74, 170, 1250);
+      },
+      rainbow: function (box) {
+        let arcs = "";
+        CB_RAINBOW.forEach(function (c, i) { arcs += '<path d="M' + (20 + i * 12) + ' 150 A' + (130 - i * 12) + ' ' + (130 - i * 12) + ' 0 0 1 ' + (280 - i * 12) + ' 150" stroke="' + c + '" stroke-width="12" fill="none" pathLength="1"/>'; });
+        box.insertAdjacentHTML("beforeend", '<div class="cb-rainbow"><svg viewBox="0 0 300 160" width="100%" height="100%">' + arcs + '</svg></div>');
+        celebBits(box, 40, CB_RAINBOW, 50, 76, 190, 1150, "sq");
+      },
+      volcano: function (box) {
+        // Painted (Pixar-style) volcano card; the image only loads when this scene plays. Light transform/opacity animation only.
+        const card = document.createElement("div");
+        card.className = "cb-volc2";
+        card.innerHTML = '<img src="assets/celeb/volcano.webp" alt="" decoding="async" width="600" height="800"><i class="cb-v2-glow"></i>';
+        const g = ["#ffd23f", "#ff5fd2", "#5ff2ff", "#fff", "#b47cff", "#ff9f1c"];
+        for (let i = 0; i < 22; i++) {
+          const b = document.createElement("i");
+          b.className = "cb-v2-glit";
+          b.style.cssText = "background:" + g[i % g.length] + ";--x:" + Math.round(Math.random() * 200 - 100) + "px;--h:" + Math.round(90 + Math.random() * 130) + "px;animation-delay:" + (350 + Math.random() * 1100) + "ms";
+          card.appendChild(b);
+        }
+        box.appendChild(card);
+      },
+      disco: function (box) {
+        box.insertAdjacentHTML("beforeend", '<div class="cb-disco"><i class="cb-beams"></i><i class="cb-string"></i><i class="cb-ball"></i></div>');
+      },
+      rocket: function (box) {
+        box.insertAdjacentHTML("beforeend", '<div class="cb-rocket"><svg viewBox="0 0 60 120" width="100%" height="100%"><path d="M30 4 Q52 30 48 82 H12 Q8 30 30 4Z" fill="#f4f4f8" stroke="#8a90a8" stroke-width="2"/><circle cx="30" cy="44" r="9" fill="#5ff2ff" stroke="#3a6aa8" stroke-width="3"/><path d="M12 62 L0 92 H14Z M48 62 L60 92 H46Z" fill="#ff4d4d"/><path d="M18 82 Q30 118 42 82Z" fill="#ffb703"/><path d="M23 82 Q30 104 37 82Z" fill="#fff3b0"/></svg></div>');
+        for (let i = 0; i < 14; i++) {
+          const t = i / 14;
+          const b = document.createElement("i");
+          b.className = "cb-star";
+          b.textContent = "\u2605";
+          b.style.cssText = "left:" + (12 + t * 70) + "%;top:" + (88 - t * 80) + "%;animation-delay:" + Math.round(t * 1500) + "ms;color:" + ["#ffd23f", "#fff", "#ff9f1c", "#5ff2ff"][i % 4];
+          box.appendChild(b);
+        }
+      },
+      // #6: the original "Good job!" burst on its own.
+      supernova: function () { playBeatSupernova(); }
+    };
+    const CELEB_KINDS = Object.keys(CELEB_SCENES);
+    let celebNext = Math.floor(Math.random() * CELEB_KINDS.length);
+    function playCelebration(kind) {
+      if (!kind) { kind = CELEB_KINDS[celebNext % CELEB_KINDS.length]; celebNext++; }
+      if (kind === "supernova") { CELEB_SCENES.supernova(); return kind; }
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return kind;
+      const old = document.getElementById("celeb-scene"); if (old) old.remove();
+      const box = el("div", { id: "celeb-scene", class: "celeb-scene cb-" + kind + "-scene", "aria-hidden": "true" });
+      (CELEB_SCENES[kind] || CELEB_SCENES.balloon)(box);
+      document.body.appendChild(box);
+      setTimeout(function () { box.remove(); }, 2600);
+      return kind;
+    }
+    // Test preview: ?celeb=1 shows a small button that plays each celebration in turn (no coins saved).
+    if (/[?&]celeb=1\b/.test(location.search)) {
+      let pi = 0;
+      document.addEventListener("DOMContentLoaded", function () {});
+      setTimeout(function () {
+        const btn = el("button", { type: "button", id: "celeb-test", class: "celeb-test", text: "\uD83C\uDF89 Test", onClick: function () {
+          const k = CELEB_KINDS[pi % CELEB_KINDS.length]; pi++;
+          playCelebration(k); setTimeout(function () { coinDrop(true); }, 350);
+          btn.textContent = "\uD83C\uDF89 Test (" + k + ")";
+        } });
+        document.body.appendChild(btn);
+      }, 0);
+    }
+    // ---- Coins (prototype): 1 coin every streak of 10; spend 1 coin on a beat or an avatar piece. Saved on this device. ----
+    const COIN_KEY = "mf-coins";
+    function coinGet() { try { return Math.max(0, parseInt(localStorage.getItem(COIN_KEY) || "0", 10) || 0); } catch (e) { return 0; } }
+    function coinSet(n) { try { localStorage.setItem(COIN_KEY, String(Math.max(0, n))); } catch (e) {} }
+    function coinSpend() { const c = coinGet(); if (c < 1) { say("You need a coin. Get 10 in a row to earn one!"); return false; } coinSet(c - 1); return true; }
+    function coinPill() { const c = coinGet(); return el("p", { class: "coin-bank", role: "status", "aria-label": c + (c === 1 ? " coin" : " coins") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "\u00A2" }), el("span", { text: c + (c === 1 ? " coin" : " coins") })]); }
+    function coinDrop(preview) {
+      if (!preview) { coinSet(coinGet() + 1); say("You got a coin!"); }
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const old = document.getElementById("coin-drop"); if (old) old.remove();
+      const d = el("div", { id: "coin-drop", class: "coin-drop", "aria-hidden": "true" }, [el("span", { class: "coin-ico big", text: "\u00A2" }), el("span", { class: "coin-plus", text: "+1" })]);
+      document.body.appendChild(d);
+      setTimeout(function () { d.remove(); }, 1500);
+    }
     // ---- Game buddy: the kid's avatar next to the streak, gently animated. Nothing shows until an avatar is made. ----
     let buddy = { mood: "", at: 0 };
     function buddyMood(m) { buddy = { mood: m, at: performance.now() }; }
@@ -10051,9 +10261,10 @@
       if (LEADERBOARD_URL && !me) top.appendChild(el("button", { type: "button", class: "si-in av-signnote-btn", text: "\uD83D\uDC64 Sign in to save", onClick: siOpen }));
       const status = el("p", { class: "av-status " + avStatus, id: "av-status", role: "status" });
       top.appendChild(status);
+      top.appendChild(coinPill());
       if (avatar.pz > 0 && avAnyToWin()) top.appendChild(el("button", { type: "button", class: "pz-claim", text: "\uD83C\uDF81 Pick your prize!", onClick: function () { avPrizeShow(""); } }));
       const tabs = el("div", { class: "lb-tabs av-tabs", role: "tablist" });
-      [["mine", "My Stuff"], ["win", "Win More"]].forEach(function (t) {
+      [["mine", "My Stuff"], ["win", "Buy More"]].forEach(function (t) {
         tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (closetTab === t[0] ? " on" : ""), "aria-selected": String(closetTab === t[0]), text: t[1], onClick: function () { closetTab = t[0]; render(); window.scrollTo(0, 0); } }));
       });
       top.appendChild(tabs);
@@ -10104,7 +10315,7 @@
           })));
         });
       } else {
-        items.appendChild(el("p", { class: "av-tip", text: "Get 10 in a row in Fact Challenge to win a prize. Gold ones need 50 in a row." }));
+        items.appendChild(el("p", { class: "av-tip", text: "Each piece costs 1 coin. Tap one to buy it. Get 10 in a row to earn a coin." }));
         let any = false;
         AV_CATS.forEach(function (c) {
           const list = avAll(c[0]).filter(function (it) { return !avOwns(it.id); });
@@ -10112,8 +10323,12 @@
           any = true;
           items.appendChild(sec(c[1], list.map(function (it) {
             const pic = it.swatch ? el("span", { class: "av-tile-swatch", style: "background:" + it.swatch }) : avNode(avPreview(it), 72);
-            const btn = el("button", { type: "button", class: "av-tile locked" + (it.gold ? " gold" : ""), "aria-label": it.name + ", locked", onClick: function () { say(it.gold ? "Gold needs 50 in a row." : "Win it with 10 in a row!"); } },
-              [pic, el("span", { class: "av-tile-name", text: it.swatch ? "Color" : it.name }), el("span", { class: "av-tile-lock", "aria-hidden": "true", text: it.gold ? "\u2B50" : "\uD83D\uDD12" })]);
+            const btn = el("button", { type: "button", class: "av-tile locked" + (it.gold ? " gold" : ""), "aria-label": it.name + ", tap to buy for 1 coin", onClick: function () {
+              if (!coinSpend()) return;
+              if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id);
+              avApply(it); avBounce = true; say("You got " + it.name + "!"); refresh();
+            } },
+              [pic, el("span", { class: "av-tile-name", text: it.swatch ? "Color" : it.name }), el("span", { class: "av-tile-lock av-cost", "aria-hidden": "true", text: "\u00A2 1" })]);
             return btn;
           })));
         });
@@ -10370,44 +10585,102 @@
     function tgCorn(x, y, s) {
       return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M0 0 q-30 -60 -6 -150" stroke="#b9913b" stroke-width="8" fill="none"/><path d="M0 -20 q40 -40 30 -110 M0 -50 q-45 -30 -40 -90" stroke="#d1aa4c" stroke-width="7" fill="none" stroke-linecap="round"/><ellipse cx="6" cy="-95" rx="11" ry="30" fill="#f2c443"/></g>';
     }
+    function tgTree(x, y, s, c) {
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><rect x="-6" y="-10" width="12" height="40" rx="4" fill="#6a3d1a"/><circle cx="0" cy="-40" r="34" style="fill:var(' + c + ')"/><circle cx="-24" cy="-22" r="22" style="fill:var(' + c + ')"/><circle cx="24" cy="-24" r="24" style="fill:var(' + c + ')"/><circle cx="-10" cy="-52" r="12" fill="#fff" opacity=".18"/></g>';
+    }
+    function tgHay(x, y, s) {
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><rect x="-46" y="-40" width="92" height="44" rx="14" fill="#e8b84a"/><path d="M-36 -28h72M-38 -14h76" stroke="#c8952e" stroke-width="4" stroke-linecap="round"/><rect x="-46" y="-40" width="92" height="10" rx="5" fill="#f4d27a"/></g>';
+    }
+    function tgSunflower(x, y, s) {
+      let p = "";
+      for (let k = 0; k < 10; k++) p += '<ellipse cx="0" cy="-17" rx="7" ry="13" fill="#ffc531" transform="rotate(' + k * 36 + ')"/>';
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M0 0 V110" stroke="#5f8a2e" stroke-width="6"/><path d="M0 60 q-26 -6 -30 -24 q22 2 30 24z" fill="#6f9a35"/><g transform="translate(0 0)">' + p + '<circle r="12" fill="#7a4a22"/></g></g>';
+    }
+    function tgScarecrow(x, y, s) {
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M0 0 V150" stroke="#7a4a22" stroke-width="8"/><path d="M-70 40 H70" stroke="#7a4a22" stroke-width="7"/>'
+        + '<path d="M-44 34 h88 l-10 70 h-68z" fill="#4f7fb8"/><path d="M-44 34 h88 v16 h-88z" fill="#c8452a"/><path d="M-30 50 l10 10 M10 70 l12 -8" stroke="#3a5f8a" stroke-width="3"/>'
+        + '<circle cy="0" r="30" fill="#f2d49a"/><circle cx="-11" cy="-4" r="4" fill="#3a2a1a"/><circle cx="11" cy="-4" r="4" fill="#3a2a1a"/><path d="M-12 10 q12 12 24 0" stroke="#3a2a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="-18" cy="6" r="5" fill="#f2a08a"/><circle cx="18" cy="6" r="5" fill="#f2a08a"/>'
+        + '<path d="M-46 -20 h92 l-10 -6 l-10 -34 h-52 l-10 34z" fill="#b8742a"/><path d="M-26 -30 h52" stroke="#c8452a" stroke-width="7"/></g>';
+    }
+    function tgBasket(x, y, s) {
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><circle cx="-18" cy="-30" r="14" fill="#c8312a"/><circle cx="6" cy="-34" r="14" fill="#e8741f"/><circle cx="26" cy="-28" r="12" fill="#c8312a"/><circle cx="-4" cy="-22" r="12" fill="#f2c443"/><path d="M-44 -22 h88 l-10 40 h-68z" fill="#a8692e"/><path d="M-40 -10 h80 M-36 4 h72" stroke="#7a4a22" stroke-width="3"/><path d="M-30 -22 q30 -50 60 0" stroke="#7a4a22" stroke-width="5" fill="none"/></g>';
+    }
     function tgBuild() {
       const bg = document.querySelector(".wave-bg");
       if (!bg || bg.querySelector(".tg-scene")) return;
       const leafCols = ["#d9542b", "#e8a02f", "#b8452a", "#f0c24a"];
       let leaves = "";
       for (let i = 0; i < 4; i++) leaves += '<i class="tg-leaf" style="left:' + (10 + i * 24) + '%;--d:' + (9 + (i % 4) * 2) + 's;--w:-' + (i * 1.7).toFixed(1) + 's;background:' + leafCols[i % 4] + '"></i>';
+      let stars = "";
+      for (let k = 0; k < 18; k++) stars += '<circle cx="' + (80 + (k * 197) % 1300) + '" cy="' + (40 + (k * 83) % 300) + '" r="' + (k % 3 ? 2 : 3) + '" fill="#fff6d8"/>';
+      let fence = "";
+      for (let k = 0; k < 11; k++) fence += '<rect x="' + (260 + k * 100) + '" y="630" width="20" height="100" rx="5" fill="#8a5a2e"/>';
       const d = document.createElement("div");
       d.className = "tg-scene";
       d.innerHTML = '<svg class="night-art" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'
-        + '<path d="M0 640 Q360 540 720 620 T1440 590 V900 H0Z" fill="#c9782f"/>'
-        + '<path d="M0 720 Q400 640 820 710 T1440 690 V900 H0Z" fill="#a85a26"/>'
-        + '<path d="M0 800 Q480 750 960 800 T1440 790 V900 H0Z" fill="#7a3f1c"/>'
-        + tgCorn(140, 760, 1.2) + tgCorn(520, 780, 0.9) + tgCorn(1300, 760, 1.15)
-        + tgPumpkin(640, 830, 1.2) + tgPumpkin(800, 850, 0.85) + tgPumpkin(1050, 830, 1.15)
+        + '<defs><radialGradient id="tg-glow"><stop offset="0" stop-color="#fff3c4" stop-opacity=".95"/><stop offset=".35" style="stop-color:var(--tg-sun)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--tg-sun)" stop-opacity="0"/></radialGradient></defs>'
+        + '<g class="tg-stars">' + stars + '</g>'
+        + '<g class="tg-sun"><circle cx="0" cy="0" r="300" fill="url(#tg-glow)"/><circle cx="0" cy="0" r="110" style="fill:var(--tg-sun)"/></g>'
+        + '<g fill="#fff8ec" opacity=".75"><ellipse cx="300" cy="170" rx="110" ry="30"/><ellipse cx="360" cy="150" rx="70" ry="34"/><ellipse cx="1050" cy="120" rx="120" ry="28"/><ellipse cx="1000" cy="104" rx="64" ry="30"/></g>'
+        + '<path d="M0 560 Q240 470 520 540 T1000 520 T1440 500 V900 H0Z" style="fill:var(--tg-h1)"/>'
+        + tgTree(140, 560, 1.9, "--tg-t1") + tgTree(330, 548, 1.6, "--tg-t2") + tgTree(520, 552, 1.7, "--tg-t3") + tgTree(650, 540, 1.4, "--tg-t1") + tgTree(900, 545, 1.9, "--tg-t2") + tgTree(1080, 552, 1.5, "--tg-t3") + tgTree(1300, 525, 2, "--tg-t1")
+        + '<path d="M0 640 Q360 570 720 630 T1440 600 V900 H0Z" style="fill:var(--tg-h2)"/>'
+        + '<g opacity=".25" stroke="#3a1e0c" stroke-width="5" fill="none"><path d="M0 680 Q720 610 1440 660"/><path d="M0 710 Q720 650 1440 690"/></g>'
+        + fence + '<path d="M250 660 H1290 M250 700 H1290" stroke="#8a5a2e" stroke-width="14"/>'
+        + tgCorn(150, 780, 2.2) + tgCorn(545, 770, 2) + tgCorn(960, 775, 2.1) + tgCorn(1330, 780, 2.2)
+        + '<path d="M0 740 Q400 690 820 735 T1440 715 V900 H0Z" style="fill:var(--tg-h3)"/>'
+        + tgHay(330, 800, 2) + tgHay(1150, 790, 1.9) + tgScarecrow(800, 500, 1.7)
+        + tgSunflower(610, 600, 1.7) + tgSunflower(680, 650, 1.3) + tgSunflower(985, 620, 1.6)
+        + '<path d="M0 815 Q480 775 960 815 T1440 805 V900 H0Z" style="fill:var(--tg-h4)"/>'
+        + tgPumpkin(300, 845, 2) + tgPumpkin(625, 840, 2.2) + tgBasket(800, 860, 1.8) + tgPumpkin(930, 860, 1.5) + tgPumpkin(1150, 845, 2)
+        + '<g fill="#e8a02f"><path d="M700 880 l14 -10 4 14z"/><path d="M960 875 l12 -12 6 14z" fill="#d9542b"/><path d="M520 885 l14 -8 2 14z" fill="#c8452a"/></g>'
         + '</svg>' + leaves;
       bg.appendChild(d);
     }
-    // Each Thanksgiving background: its own sky colors plus a big copy of the beat's art.
-    const TG_SKIES = [["#e98a3c","#c45a26"],["#f6b26b","#d9762f"],["#e0703a","#a83f22"],["#d98a4a","#9a4a26"],["#e8b04a","#b8702a"],["#c8643a","#8a3420"],["#9fb8c8","#c87a3a"],["#d9763a","#7a3a1c"],["#b86a3a","#6a3418"],["#e8a05a","#b05a2a"],["#f0c07a","#c8783a"],["#c87a4a","#7a3a20"],["#8ab0d0","#d08a4a"],["#4a3a6a","#c0602a"],["#f0c45a","#c88a2a"],["#c84a4a","#7a2a24"]];
+    // Each Thanksgiving background: sky top, sky bottom, sun, far hills, middle field, front field, ground, three tree colors, sun x/y, night.
+    const TG_LOOKS = [
+      ["#ffd9a0","#f29a4a","#ffd25a","#d9924a","#c47a34","#a85f28","#7a4220","#e8741f","#f2c443","#d9542b",560,230,0],
+      ["#ffe7b8","#f7b15c","#ffe07a","#e2a456","#c98a3c","#b06a2c","#804a22","#f2c443","#e8741f","#c8452a",720,330,0],
+      ["#ffc98a","#e8743a","#ffb347","#c8784a","#b0602e","#8f4a24","#6a3418","#d9302b","#e8a02f","#f0c24a",620,260,0],
+      ["#fbe3c2","#e9b07a","#fff0b0","#c9a46a","#a8883e","#8a6a2a","#5f4a1e","#e8741f","#c8452a","#b8922e",520,180,0],
+      ["#fff0c8","#f4c46a","#fff2a0","#b8b45a","#a49440","#8a7a2e","#5f5a20","#f2c443","#e8a02f","#c8762a",660,200,0],
+      ["#ffd8b0","#f08a5a","#ffcf8a","#d98a5a","#b8683a","#94502a","#6a3a1e","#e86a4a","#f2b04a","#d9542b",600,240,0],
+      ["#cfe4ef","#f2c48a","#fff4c4","#9fb87a","#8aa45a","#a8803a","#6a5226","#e8741f","#f2c443","#9a6a2a",780,220,0],
+      ["#ffcf9a","#e0803a","#ffd06a","#c47a40","#a8602e","#844624","#5a3018","#c8452a","#e8741f","#f2c443",540,290,0],
+      ["#f6c8a0","#c8784a","#ffcf8a","#b07a52","#946038","#744628","#50301c","#d9542b","#b8452a","#e8a02f",640,270,0],
+      ["#ffe2b0","#f2a65a","#ffe28a","#d0a060","#b8843e","#94662c","#6a4620","#b8742a","#e8741f","#f2c443",560,200,0],
+      ["#e0ecf2","#f6c890","#fff6d0","#b8c48a","#a0a860","#8a8a3a","#5a5a24","#f2c443","#e8a02f","#d9762f",700,180,0],
+      ["#ffd0b8","#e88a6a","#ffc89a","#c88a6a","#a86a48","#86502e","#5e381e","#c8312a","#e8741f","#f0c24a",600,250,0],
+      ["#bfe0f0","#f8d6a0","#fff8d8","#a8c47a","#8aaa52","#a07a3a","#6a4e24","#e8741f","#d9542b","#f2c443",520,170,0],
+      ["#3a3a6a","#c0602a","#ffe7a8","#5a4a5a","#6a4a3a","#5a3a24","#3a2414","#a8452a","#c8762a","#8a3a20",700,230,1],
+      ["#fff2c8","#f2c45a","#fff0a0","#d8b04a","#c8a03a","#a8802a","#7a5a1e","#f2c443","#e8a02f","#c8762a",620,210,0],
+      ["#ffd0c8","#d8607a","#ffd0a0","#b8706a","#a0504a","#7a3a34","#54241e","#b8203a","#e8741f","#f2c443",580,260,0]
+    ];
     function tgSetBeat(level) {
       tgBuild();
       const bg = document.querySelector(".wave-bg");
       const scene = bg && bg.querySelector(".tg-scene");
       if (!scene || scene.dataset.beat === String(level)) return;
       scene.dataset.beat = String(level);
-      const sky = TG_SKIES[level] || TG_SKIES[0];
-      bg.style.setProperty("--tg-a", sky[0]);
-      bg.style.setProperty("--tg-b", sky[1]);
+      const L = TG_LOOKS[level] || TG_LOOKS[0];
+      ["--tg-a", "--tg-b", "--tg-sun", "--tg-h1", "--tg-h2", "--tg-h3", "--tg-h4", "--tg-t1", "--tg-t2", "--tg-t3"].forEach(function (k, n) { bg.style.setProperty(k, L[n]); });
+      const sun = scene.querySelector(".tg-sun");
+      if (sun) sun.setAttribute("transform", "translate(" + L[10] + " " + L[11] + ")");
+      scene.classList.toggle("tg-night", !!L[12]);
       const track = PLAY_TRACKS[level] || PLAY_TRACKS[0];
       let big = scene.querySelector(".tg-big");
       if (!big) { big = document.createElement("div"); big.className = "tg-big"; scene.insertBefore(big, scene.firstChild); }
       const art = tgBeatArt(track.id); art.querySelector("svg").setAttribute("class", "night-art"); big.replaceChildren(art);
+      // Painted harvest scene for this background (one ~100 KB picture, loaded only when shown).
+      let photo = scene.querySelector(".tg-photo");
+      if (!photo) { photo = document.createElement("div"); photo.className = "tg-photo"; scene.insertBefore(photo, scene.firstChild); }
+      photo.style.backgroundImage = "url(assets/tg/" + track.id + ".webp)";
     }
     function applyTheme() {
       const tg = siteTheme === "thanksgiving";
       document.body.classList.toggle("theme-tg", tg);
       if (tg) tgSetBeat(chosenBackgroundLevel());
-      else { const bg = document.querySelector(".wave-bg"); if (bg) { bg.style.removeProperty("--tg-a"); bg.style.removeProperty("--tg-b"); } }
+      else { const bg = document.querySelector(".wave-bg"); if (bg) ["--tg-a", "--tg-b", "--tg-sun", "--tg-h1", "--tg-h2", "--tg-h3", "--tg-h4", "--tg-t1", "--tg-t2", "--tg-t3"].forEach(function (k) { bg.style.removeProperty(k); }); }
     }
     // Thanksgiving art for each beat (names stay the same). Tiny inline SVG, built only in the Thanksgiving theme.
     const TG_BEAT_ART = {
@@ -10454,28 +10727,28 @@
       PLAY_TRACKS.forEach(function (track, i) {
         const open = backgroundUnlocked(i);
         const tile = el("button", { type: "button", class: "bg-tile" + (open ? "" : " locked") + (open && current === i ? " on" : ""), "data-bg": String(i) });
-        if (siteTheme === "thanksgiving") tile.appendChild(tgBeatArt(track.id, "tg-tile-art"));
+        if (siteTheme === "thanksgiving") tile.appendChild(el("img", { src: "assets/tg/" + track.id + "-t.webp", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
         else tile.appendChild(el("img", { src: "assets/backgrounds/" + track.id + ".jpg", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
         const cap = el("span", { class: "bg-cap" });
         if (!open) cap.appendChild(lockIcon());
-        cap.appendChild(document.createTextNode(open ? track.label : String(i * BEAT_UNLOCK_STEP)));
+        cap.appendChild(document.createTextNode(open ? String(i + 1) : String(i * BEAT_UNLOCK_STEP)));
         tile.appendChild(cap);
         if (open) {
-          tile.setAttribute("aria-label", track.label + " background" + (current === i ? ", showing" : ""));
+          tile.setAttribute("aria-label", "Background " + (i + 1) + (current === i ? ", showing" : ""));
           tile.setAttribute("aria-pressed", String(current === i));
           tile.addEventListener("click", function () {
-            state.bgChoice = state.bgChoice === i ? -1 : i;
+            state.bgChoice = i;
             writeSave();
             render();
           });
         } else {
-          tile.setAttribute("aria-label", track.label + " background, locked until a streak of " + i * BEAT_UNLOCK_STEP + ". Tap to enter a teacher code");
+          tile.setAttribute("aria-label", "Background " + (i + 1) + ", locked until a streak of " + i * BEAT_UNLOCK_STEP + ". Tap to enter a teacher code");
           tile.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
         }
         grid.appendChild(tile);
       });
       card.appendChild(grid);
-      card.appendChild(el("p", { class: "hint", text: "Each background unlocks with its beat. Tap one to use it; tap it again to go back to the newest." }));
+      card.appendChild(el("p", { class: "hint", text: "Tap a background to use it. Every streak of 10 moves to the next one." }));
       return card;
     }
     function musicCard(includeReset, noPlayer) {
@@ -10489,7 +10762,8 @@
         setTimeout(function () { if (box.isConnected) fillBoombox(box); }, 0);
       }
       card.appendChild(beatsTitle());
-      card.appendChild(el("p", { class: "beat-unlock-note", text: "A new beat unlocks every streak of " + BEAT_UNLOCK_STEP + "." }));
+      card.appendChild(coinPill());
+      card.appendChild(el("p", { class: "beat-unlock-note", text: "Each beat costs 1 coin. Get " + BEAT_UNLOCK_STEP + " in a row to earn a coin." }));
       if (includeReset) {
         const list = el("div", { class: "beat-pills" });
         PLAY_TRACKS.forEach(function (track, i) {
@@ -10502,9 +10776,12 @@
           pill.appendChild(icon);
           pill.appendChild(el("span", { class: "pill-name", text: track.label }));
           if (locked) {
-            pill.appendChild(el("span", { class: "pill-streak", text: String(i * BEAT_UNLOCK_STEP) }));
-            pill.setAttribute("aria-label", track.label + ", locked until a streak of " + i * BEAT_UNLOCK_STEP + ". Tap to enter a teacher code");
-            pill.addEventListener("click", function (event) { openCodeBox({ kind: "beats", opener: event.currentTarget }); });
+            pill.appendChild(el("span", { class: "pill-streak pill-cost", text: "\u00A2 1" }));
+            pill.setAttribute("aria-label", track.label + ", locked. Tap to buy for 1 coin");
+            pill.addEventListener("click", function () {
+              if (!coinSpend()) return;
+              state.beatsUnlocked[track.id] = true; writeSave(); say(track.label + " is yours!"); render(); setTimeout(function () { tapHomeBeat(track.id); }, 0);
+            });
           } else {
             pill.setAttribute("aria-label", "Play " + track.label);
             pill.setAttribute("aria-pressed", String(selected));
@@ -11771,7 +12048,7 @@
       if (isKq()) {
         banner.appendChild(el("p", { class: "streak-next soft", text: "Practice game \u00B7 no beats here" }));
       } else if (moreUnlocks) {
-        const next = remain === 1 ? "1 more for the next beat" : remain + " more for the next beat";
+        const next = remain === 1 ? "1 more for a coin" : remain + " more for a coin";
         banner.appendChild(el("p", { class: "streak-next", text: next }));
         const meter = el("div", { class: "streak-meter" });
         meter.setAttribute("role", "progressbar");
@@ -12549,7 +12826,6 @@
       hud.appendChild(score);
       app.appendChild(hud);
       app.appendChild(withBuddy(streakBanner()));
-      if (state.beatJustUnlocked) app.appendChild(el("p", { class: "fact", text: "Beat " + beatLabel(state.beatJustUnlocked) + " unlocked" }));
       const eq = el("div", { class: "card eq" });
       if (isMultiples()) {
         eq.appendChild(el("p", { class: "label", text: "Multiples" }));
@@ -12591,7 +12867,7 @@
           });
           eq.appendChild(img);
         }
-        if (problem.ask && !problem.pictureOnly) eq.appendChild(el("p", { class: "prompt quiz-prompt", text: problem.ask }));
+        if (problem.ask && !problem.pictureOnly) eq.appendChild(el("p", { class: "prompt quiz-prompt" + (String(state.operation).indexOf("sci-") === 0 ? " sci-prompt" : ""), text: problem.ask }));
       } else {
         let askLabel = "What is the product?";
         if (isDivide()) askLabel = state.mode === "quotient" ? "What is the quotient?" : "What number is missing?";
@@ -12817,8 +13093,9 @@
         state.lbOp = problem.operation || state.operation;
         lbPoint(true, problem.operation || state.operation);
         const kqNoPrize = isKq(problem.operation);
-        if (!kqNoPrize && state.streak % AV_PRIZE_EVERY === 0) { const prizeAt = state.streak; setTimeout(function () { avPrizeWhenClear(prizeAt, 0); }, 650); }
+        if (!kqNoPrize && state.streak % AV_PRIZE_EVERY === 0) setTimeout(coinDrop, 350);
         state.bestStreak = Math.max(state.bestStreak, state.streak);
+        if (state.streak % BG_ROTATE_STEP === 0) rotateBackground();
         state.gain = 10 + Math.min(state.streak, 8) * 2;
         state.score += state.gain;
         state.correct += 1;

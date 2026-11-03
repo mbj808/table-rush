@@ -1987,12 +1987,12 @@
     .gx-bar i.on { background: #5ff2ff; }
     .gx-clock { width: min(15rem, 62vw); height: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)); }
     .gx-coins { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; max-width: 20rem; }
-    .gx-coin { border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #1b1300; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25), inset 0 3px 0 rgba(255,255,255,0.45), 0 3px 6px rgba(0,0,0,0.45); text-align: center; line-height: 1.05; }
-    .gx-coin small { display: block; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.02em; }
-    .gx-coin.c1 { width: 3.4rem; height: 3.4rem; background: radial-gradient(circle at 35% 30%, #f3b98a, #b8692e 70%); font-size: 1rem; }
-    .gx-coin.c5 { width: 3.9rem; height: 3.9rem; background: radial-gradient(circle at 35% 30%, #f4f4f4, #9a9fa6 70%); font-size: 1.05rem; }
-    .gx-coin.c10 { width: 3.2rem; height: 3.2rem; background: radial-gradient(circle at 35% 30%, #fbfbfb, #a9aeb5 70%); font-size: 0.95rem; }
-    .gx-coin.c25 { width: 4.4rem; height: 4.4rem; background: radial-gradient(circle at 35% 30%, #ffffff, #8f949b 70%); font-size: 1.15rem; }
+    .gx-coin { border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #1b1300; border: 3px solid rgba(0,0,0,.55); box-shadow: inset 0 0 0 3px rgba(255,255,255,.35), inset 0 -4px 0 rgba(0,0,0,0.25), 0 4px 0 rgba(0,0,0,.45); text-align: center; line-height: 1.05; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+    .gx-coin small { display: block; font-size: 0.62rem; font-weight: 900; letter-spacing: 0.02em; }
+    .gx-coin.c1 { width: 4.2rem; height: 4.2rem; background: radial-gradient(circle at 35% 30%, #f3b98a, #b8692e 70%); font-size: 1rem; }
+    .gx-coin.c5 { width: 4.6rem; height: 4.6rem; background: radial-gradient(circle at 35% 30%, #f4f4f4, #9a9fa6 70%); font-size: 1.05rem; }
+    .gx-coin.c10 { width: 4rem; height: 4rem; background: radial-gradient(circle at 35% 30%, #fbfbfb, #a9aeb5 70%); font-size: 0.95rem; }
+    .gx-coin.c25 { width: 5rem; height: 5rem; background: radial-gradient(circle at 35% 30%, #ffffff, #8f949b 70%); font-size: 1.15rem; }
     .gx-state { width: min(15rem, 66vw); height: 11rem; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
     .gx-emoji { font-size: clamp(4.5rem, 20vw, 6rem); line-height: 1; }
     .gx-name { margin: 0; font-size: 1.8rem; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -3392,10 +3392,10 @@
       font: 900 1.25rem/1 var(--ui-font); box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 14px rgba(255,210,63,.55); opacity: 1; }
     body.play-screen #back::before { content: "\2039\00a0"; font-size: 1.5rem; }
     body.play-screen #back:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
-    .coin-bank { display: inline-flex; align-items: center; gap: .45rem; margin: .3rem auto .5rem; padding: .35rem 1rem .35rem .4rem; border-radius: 999px; background: #fff4c2; color: #4a3000; font: 900 1.25rem/1 var(--ui-font); border: 3px solid #e0a91f; box-shadow: 0 3px 0 rgba(0,0,0,.3); align-self: center; }
+    .coin-bank { display: inline-flex; align-items: center; gap: .55rem; margin: .4rem auto .6rem; padding: .4rem 1.2rem .4rem .4rem; border-radius: 999px; background: linear-gradient(#fff7cf, #ffe27a); color: #3a2400; font: 900 1.6rem/1 var(--ui-font); border: 4px solid #b8780a; box-shadow: 0 4px 0 #7a4a00, 0 6px 10px rgba(0,0,0,.3); align-self: center; }
     .beats-card .coin-bank { display: flex; width: max-content; }
-    .coin-ico { display: inline-grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6b0, #ffd23f 45%, #d99a10); color: #7a4a00; font: 900 1.2rem/1 var(--ui-font); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 2px #b8800a; }
-    .coin-ico.big { width: 3.4rem; height: 3.4rem; font-size: 2.1rem; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18), 0 0 0 4px #b8800a, 0 0 30px rgba(255,210,63,.9); }
+    .coin-ico { display: inline-grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fffbe0 0 12%, #ffe066 30%, #ffc21a 60%, #c98a00); color: #6b3d00; font: 900 1.85rem/1 var(--ui-font); text-shadow: 0 2px 0 #fff3a0, 0 -1px 0 #8a5200; border: 3px solid #8a5200; box-shadow: inset 0 0 0 3px #ffd84d, inset 0 -4px 0 rgba(0,0,0,.2), 0 3px 0 #6b3d00; }
+    .coin-ico.big { width: 5rem; height: 5rem; font-size: 3.4rem; border-width: 5px; box-shadow: inset 0 0 0 5px #ffd84d, inset 0 -7px 0 rgba(0,0,0,.2), 0 5px 0 #6b3d00, 0 0 34px rgba(255,210,63,.95); }
     .celeb-scene { position: fixed; inset: 0; z-index: 85; pointer-events: none; overflow: hidden; }
     .cb-bit { position: absolute; width: 11px; height: 11px; border-radius: 50%; opacity: 0; animation: cbBit 1.1s ease-out forwards; }
     .cb-bit.sq { border-radius: 2px; width: 10px; height: 14px; }
@@ -3430,9 +3430,9 @@
     @keyframes cbStar { 0% { opacity: 0; transform: scale(.3); } 20% { opacity: 1; transform: scale(1.3) rotate(40deg); } 100% { opacity: 0; transform: scale(.6) translateY(30px) rotate(160deg); } }
     .celeb-test { position: fixed; right: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); z-index: 9500; min-height: 48px; padding: 0 1rem; border-radius: 999px; border: 2px solid #fff; background: #7c3aed; color: #fff; font: 800 1rem/1 var(--ui-font); box-shadow: 0 3px 0 rgba(0,0,0,.35); }
     .coin-drop { position: fixed; right: 14px; top: calc(env(safe-area-inset-top, 0px) + 96px); z-index: 90; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: .3rem; animation: coinDrop 1.5s ease-out forwards; }
-    .coin-plus { font: 900 1.3rem/1 var(--ui-font); color: #fff; text-shadow: 0 2px 0 #7a4a00, 0 0 10px #ffb703; }
+    .coin-plus { font: 900 2rem/1 var(--ui-font); color: #fff; -webkit-text-stroke: 1px #7a4a00; text-shadow: 0 3px 0 #7a4a00, 0 0 12px #ffb703; }
     @keyframes coinDrop { 0% { opacity: 0; transform: translateY(24px) scale(.4); } 25% { opacity: 1; transform: translateY(-8px) scale(1.1) rotateY(360deg); } 40% { transform: translateY(0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
-    .pill-cost, .av-cost { background: #ffd23f !important; color: #4a3000 !important; border-radius: 999px; padding: .1rem .45rem; font-weight: 900; }
+    .pill-cost, .av-cost { background: linear-gradient(#ffe66b, #ffc21a) !important; color: #3a2400 !important; border: 2px solid #8a5200; border-radius: 999px; padding: .12rem .55rem; font-weight: 900; font-size: 1.05em; box-shadow: 0 2px 0 #6b3d00; }
     #my-pts { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); z-index: 50; pointer-events: none; padding: .3rem .85rem; border-radius: 999px; background: #ffe58a; color: #3a2400; font: 800 1.05rem/1.2 var(--ui-font); box-shadow: 0 2px 0 rgba(0,0,0,.3); white-space: nowrap; }
     #my-pts[hidden] { display: none; }
     .game-start.gs-top { margin: 0 0 .3rem; }
@@ -3539,6 +3539,122 @@
     .av-tile-on { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; background: #ffd34e; color: #2a1d00; font: 900 0.95rem/26px var(--ui-font); }
     .av-tile-lock { position: absolute; top: 6px; right: 6px; font-size: 1rem; }
     @media (prefers-reduced-motion: reduce) { .av-tile { transition: none; } .av-tile:active { transform: none; } }
+    /* ===== Avatar Shop ===== */
+    .closet-card.shp { display: block; max-width: 68rem; width: 100%; margin: 0 auto; padding: 0 0 5rem; color: #fff; gap: 0; }
+    .shp-bar { position: relative; display: flex; align-items: center; gap: .5rem; min-height: 56px; padding: .3rem 0 .5rem; }
+    .shp-back, .shp-more { flex: none; width: 46px; height: 46px; border-radius: 14px; border: 0; background: rgba(255,255,255,.14); color: #fff; font: 900 1.7rem/1 var(--ui-font); }
+    .shp-more { font-size: 1.4rem; }
+    .shp-ttl { flex: 1; min-width: 0; font: 900 1.35rem/1 var(--ui-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .closet-card .shp-coins { margin: 0; padding: .25rem .9rem .25rem .25rem; font-size: 1.35rem; flex: none; }
+    .shp-coins .coin-ico { width: 2.2rem; height: 2.2rem; font-size: 1.5rem; }
+    .shp-menu { position: absolute; right: 0; top: 58px; z-index: 30; display: flex; flex-direction: column; gap: .5rem; min-width: 14rem; padding: .8rem; border-radius: 1rem; background: #241252; border: 2px solid rgba(255,255,255,.25); box-shadow: 0 8px 20px rgba(0,0,0,.45); }
+    .shp-menu[hidden] { display: none; }
+    .shp-menu-name { margin: 0; font: 900 1.1rem/1.2 var(--ui-font); }
+    .shp-menu .av-status { margin: 0; text-align: left; }
+    .shp-menu-btn { display: flex; align-items: center; min-height: 46px; padding: 0 .9rem; border-radius: 999px; border: 0; background: #fff7ea; color: #24306e; font: 800 1rem/1 var(--ui-font); text-decoration: none; }
+    .shp-prize { width: 100%; margin: 0 0 .6rem; }
+    .shp-wrap { display: grid; gap: .8rem; }
+    .shp-main { min-width: 0; }
+    @media (min-width: 720px) { .shp-wrap { grid-template-columns: 300px minmax(0, 1fr); align-items: start; } .shp-stage { position: sticky; top: .6rem; } }
+    @media (min-width: 1000px) { .shp-wrap { grid-template-columns: 340px minmax(0, 1fr); } }
+    .shp-stage { position: relative; height: 330px; border-radius: 24px; overflow: hidden; background: radial-gradient(60% 70% at 50% 0%, rgba(255,240,170,.5), rgba(255,240,170,0) 70%), linear-gradient(#2c1670, #4a2a9a); box-shadow: inset 0 0 0 3px rgba(255,255,255,.12); --pb: 20px; }
+    .shp-stage.trying { --pb: 80px; }
+    @media (min-width: 720px) { .shp-stage { height: 470px; } }
+    @media (max-height: 700px) and (max-width: 719px) { .shp-stage { height: 290px; } }
+    .shp-beam { position: absolute; left: 50%; top: -20px; width: 240px; height: 110%; transform: translateX(-50%); background: linear-gradient(rgba(255,245,190,.35), rgba(255,245,190,0)); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); pointer-events: none; }
+    .shp-ped { position: absolute; left: 50%; bottom: var(--pb); width: 200px; height: 40px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(#ffe27a, #c98a00 70%); box-shadow: 0 9px 0 #7a4a00, 0 0 40px rgba(255,210,63,.5); }
+    .shp-hero { position: absolute; left: 50%; bottom: calc(var(--pb) + 16px); transform: translateX(-50%); filter: drop-shadow(0 8px 6px rgba(0,0,0,.35)); }
+    .shp-hero .av svg { display: block; }
+    .shp-hero.bounce .av { display: block; animation: av-bounce .45s ease-out; transform-origin: 50% 100%; }
+    @media (max-height: 700px) and (max-width: 719px) { .shp-hero .av svg { width: 190px; height: auto; } }
+    .shp-try { position: absolute; left: 8px; right: 8px; bottom: 8px; display: flex; align-items: center; gap: .4rem; padding: .4rem .4rem .4rem .8rem; border-radius: 16px; background: rgba(20,8,50,.9); border: 2px solid #5ff2ff; }
+    .shp-try[hidden] { display: none; }
+    .shp-try-txt { flex: 1; min-width: 0; font: 800 .98rem/1.15 var(--ui-font); }
+    .shp-no { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.15); color: #fff; font: 900 1rem/1 var(--ui-font); }
+    .shp-buy { flex: none; display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; min-height: 46px; padding: .25rem .9rem .25rem .3rem; border-radius: 999px; border: 3px solid #8a5200; background: linear-gradient(#fff3a0, #ffc21a); color: #3a2400; font: 900 1.1rem/1 var(--ui-font); box-shadow: 0 3px 0 #6b3d00; cursor: pointer; }
+    .shp-buy .coin-ico { width: 1.8rem; height: 1.8rem; font-size: 1.15rem; border-width: 2px; }
+    .shp-buy.poor, .shp-st.price.poor { filter: grayscale(1); opacity: .6; }
+    .shp-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 0 0 8px; }
+    @media (min-width: 1000px) { .shp-tabs { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+    .shp-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 64px; padding: 6px 2px; border-radius: 16px; border: 0; background: rgba(255,255,255,.09); color: #e2d8ff; font: 800 .8rem/1.05 var(--ui-font); text-align: center; cursor: pointer; }
+    .shp-tab i { font-style: normal; font-size: 1.6rem; line-height: 1; }
+    .shp-tab.on { background: #ffd34e; color: #3a2400; box-shadow: 0 3px 0 #a87412; }
+    .shp-tab.pk { background: linear-gradient(#ff7ab8, #b47cff); color: #fff; }
+    .shp-tab.pk.on { box-shadow: 0 0 0 3px #fff; }
+    .shp-seg { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin: 2px 0 12px; padding: 6px; border-radius: 22px; background: rgba(0,0,0,.3); }
+    .shp-seg[hidden] { display: none; }
+    .shp-segb { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; min-height: 60px; padding: 0 6px; white-space: nowrap; border-radius: 18px; border: 3px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #cbbcff; font: 900 clamp(1rem, 4.6vw, 1.25rem)/1 var(--ui-font); opacity: .8; cursor: pointer; }
+    .shp-segb i { font-style: normal; font-size: 1.4rem; }
+    .shp-segb .n { min-width: 28px; height: 28px; padding: 0 7px; border-radius: 999px; display: inline-grid; place-items: center; background: rgba(255,255,255,.18); font-size: .95rem; }
+    .shp-segb.shop.on { opacity: 1; color: #3a2400; background: linear-gradient(#ffe066, #ff9a1f); border-color: #fff3a0; box-shadow: 0 5px 0 #a0520a, 0 0 22px rgba(255,170,40,.7); }
+    .shp-segb.closet.on { opacity: 1; color: #fff; background: linear-gradient(#2fd1c0, #8a4dff); border-color: #b9fff6; box-shadow: 0 5px 0 #4a2a9a, 0 0 22px rgba(95,242,255,.65); }
+    .shp-segb.on .n { background: #fff; color: #2a1650; }
+    .shp-body { display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+    .shp-h { margin: .3rem 0 0; font: 900 1rem/1 var(--ui-font); letter-spacing: .04em; text-transform: uppercase; color: #ffe58a; }
+    .shp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    @media (min-width: 720px) { .shp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .shp-card { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; min-width: 0; padding: 8px 4px 10px; border-radius: 18px; background: linear-gradient(#2e1a66, #22124d); border: 3px solid #6f8cff; color: #fff; cursor: pointer; }
+    .shp-card .av svg, .shp-card svg { display: block; max-width: 100%; height: auto; }
+    .shp-card.gold { border-color: #ffd34e; box-shadow: 0 0 14px rgba(255,211,78,.7); background: linear-gradient(#5a3a0a, #2e1a66); }
+    .shp-card.wearing { border-color: #7ee07a; }
+    .shp-card.sel { outline: 4px solid #5ff2ff; outline-offset: 2px; }
+    .shp-card:active { transform: scale(.97); }
+    .shp-piece { display: grid; place-items: center; height: 96px; }
+    .shp-piece svg { display: block; filter: drop-shadow(0 3px 3px rgba(0,0,0,.35)); }
+    .shp-hdthumb { display: grid; place-items: center; width: 100%; height: 96px; }
+    .shp-hdthumb img { max-width: 92%; max-height: 96px; object-fit: contain; filter: drop-shadow(0 3px 3px rgba(0,0,0,.35)); }
+    .shp-handpic { display: grid; place-items: center; height: 96px; }
+    .shp-swatch { width: 64px; height: 64px; margin: 14px 0; border-radius: 50%; border: 4px solid rgba(255,255,255,.8); }
+    .shp-nm { font: 800 .82rem/1.1 var(--ui-font); text-align: center; min-height: 2.1em; display: flex; align-items: center; }
+    .shp-rib { position: absolute; top: -7px; left: -6px; z-index: 1; padding: 3px 8px; border-radius: 8px; background: #ffd34e; color: #3a2400; font: 900 .65rem/1 var(--ui-font); }
+    .shp-st { margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; font: 900 .88rem/1 var(--ui-font); white-space: nowrap; }
+    .shp-st.price { padding: 3px 10px 3px 3px; background: linear-gradient(#ffe66b, #ffc21a); color: #3a2400; border: 2px solid #8a5200; }
+    .shp-st .coin-ico { width: 1.4rem; height: 1.4rem; font-size: .9rem; border-width: 2px; box-shadow: inset 0 0 0 1px #ffd84d; }
+    .shp-st.own { background: #3fa34d; color: #fff; }
+    .shp-st.wear { background: #fff; color: #2a1650; }
+    .shp-st.lock { background: rgba(255,255,255,.15); }
+    .shp-chip { align-self: flex-start; min-height: 42px; padding: 0 1rem; border-radius: 999px; border: 0; background: rgba(255,255,255,.14); color: #fff; font: 800 1rem/1 var(--ui-font); }
+    .shp-packs { display: grid; gap: 12px; }
+    @media (min-width: 1000px) { .shp-packs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+    .shp-pack { position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; align-items: center; width: 100%; min-height: 128px; padding: 12px; border-radius: 22px; border: 0; color: #fff; text-align: left; box-shadow: 0 5px 0 rgba(0,0,0,.35); cursor: pointer; }
+    .shp-pack.big { grid-template-columns: 64px minmax(0, 1fr) auto; min-height: 0; cursor: default; }
+    .shp-pack-art { font-size: 3.2rem; text-align: center; filter: drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
+    .shp-pack-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+    .shp-pack-txt b { font: 900 1.25rem/1.05 var(--ui-font); text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+    .shp-pack-txt small { font: 700 .85rem/1.3 var(--ui-font); opacity: .95; }
+    @media (prefers-reduced-motion: reduce) { .shp-hero.bounce .av, .shp-card:active { animation: none; transform: none; } }
+    .hd-av { position: relative; display: inline-block; }
+    .hd-pic-box, .hd-pic-wait { display: inline-block; line-height: 0; } .hd-pic { display: block; object-fit: contain; }
+    .lb-av .hd-pic { height: 30px; width: 30px; border-radius: 50%; }
+    .hd-av img, .hd-av .hd-shoe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; user-select: none; }
+    .hd-av .hd-shoe { background-size: 200% 100%; background-repeat: no-repeat; }
+    .shp-hero .hd-av { display: block; }
+    .shp-stage.hd .shp-hero { bottom: calc(var(--pb) + 4px); }
+    .shp-mode { position: absolute; top: 10px; right: 10px; z-index: 2; min-height: 44px; padding: 0 .9rem; border-radius: 999px; border: 3px solid #fff3a0; background: linear-gradient(#ff7ab8, #8a4dff); color: #fff; font: 900 .95rem/1 var(--ui-font); box-shadow: 0 3px 0 #4a2a9a; cursor: pointer; }
+    .shp-mode[hidden] { display: none; }
+    .shp-pack.hdpk { background: linear-gradient(135deg, #12c2e9, #c471ed 55%, #f64f59); box-shadow: 0 5px 0 rgba(0,0,0,.35), 0 0 18px rgba(196,113,237,.7); }
+    .shp-card .hd-av { margin: 0 auto; }
+    .av-shake { animation: avShake .4s ease; }
+    @keyframes avShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .coin-bump { animation: coinBump .35s ease-out; }
+    @keyframes coinBump { 0% { transform: scale(1); } 40% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .av-tile.poor .av-cost, .pack-buy.poor { filter: grayscale(1); opacity: .55; }
+    .av-tile.bought { border-color: #7ee07a; }
+    .av-tile.preview { cursor: default; }
+    .av-tile .av-cost { top: 4px; right: 4px; font-size: .95rem; }
+    .pack { display: flex; flex-direction: column; gap: .5rem; padding: .7rem; border-radius: 1.1rem; border: 3px solid #e0a91f; background: rgba(60,36,6,.55); }
+    .pack.shut { border-style: dashed; }
+    .pack-head { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .6rem; align-items: center; }
+    .pack-art { grid-row: span 2; }
+    .pack-title { font: 900 1.3rem/1.1 var(--ui-font); color: #fff; }
+    .pack-sub { font: 700 .95rem/1.2 var(--ui-font); color: #ffe58a; }
+    .pack-buy { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; align-self: center; min-height: 52px; padding: .35rem 1.2rem .35rem .4rem; border-radius: 999px; border: 4px solid #8a5200; background: linear-gradient(#fff3a0, #ffc21a); color: #3a2400; font: 900 1.35rem/1 var(--ui-font); box-shadow: 0 4px 0 #6b3d00; cursor: pointer; }
+    .pack-buy:active { transform: translateY(2px); box-shadow: 0 2px 0 #6b3d00; }
+    .pack-yn { display: flex; gap: .7rem; justify-content: center; margin-top: .8rem; }
+    .pack-yn button { min-height: 52px; padding: 0 1.2rem; border-radius: 999px; font: 900 1.1rem/1 var(--ui-font); border: 3px solid #fff; }
+    .pack-yes { background: #ffc21a; color: #3a2400; border-color: #8a5200 !important; }
+    .pack-no { background: rgba(255,255,255,.15); color: #fff; }
+    @media (prefers-reduced-motion: reduce) { .av-shake, .coin-bump { animation: none; } }
     .av-items { display: flex; flex-direction: column; gap: 1rem; padding: 0.9rem 0.2rem 1.5rem; }
     .closet-h { font: 700 1.05rem/1.2 var(--ui-font); letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.9; }
     .closet-card .closet-opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr)); gap: 0.55rem; overflow: visible; padding: 0.2rem 0; scroll-snap-type: none; }
@@ -4895,46 +5011,46 @@
     const US_STATES_BY_ID = US_STATES.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     // Counting Money: fixed pool, each item once per pass; two choices.
     const MONEY_COINS = [
-      {"id": "m0", "coins": [25, 5, 1], "answer": "31¢", "choices": ["31¢", "26¢"], "why": "25 + 5 + 1 = 31¢."},
-      {"id": "m1", "coins": [25, 25], "answer": "50¢", "choices": ["50¢", "49¢"], "why": "25 + 25 = 50¢."},
-      {"id": "m2", "coins": [25, 5, 5], "answer": "35¢", "choices": ["35¢", "45¢"], "why": "25 + 5 + 5 = 35¢."},
-      {"id": "m3", "coins": [25, 10, 5], "answer": "40¢", "choices": ["40¢", "50¢"], "why": "25 + 10 + 5 = 40¢."},
-      {"id": "m4", "coins": [25, 10, 10, 1, 1], "answer": "47¢", "choices": ["47¢", "42¢"], "why": "25 + 10 + 10 + 1 + 1 = 47¢."},
-      {"id": "m5", "coins": [25, 10, 10, 5], "answer": "50¢", "choices": ["50¢", "60¢"], "why": "25 + 10 + 10 + 5 = 50¢."},
-      {"id": "m6", "coins": [25, 1], "answer": "26¢", "choices": ["26¢", "27¢"], "why": "25 + 1 = 26¢."},
-      {"id": "m7", "coins": [25, 25, 25], "answer": "75¢", "choices": ["75¢", "74¢"], "why": "25 + 25 + 25 = 75¢."},
-      {"id": "m8", "coins": [25, 25, 10, 5, 5], "answer": "70¢", "choices": ["70¢", "80¢"], "why": "25 + 25 + 10 + 5 + 5 = 70¢."},
-      {"id": "m9", "coins": [10, 10, 5, 1], "answer": "26¢", "choices": ["26¢", "31¢"], "why": "10 + 10 + 5 + 1 = 26¢."},
-      {"id": "m10", "coins": [25, 25, 10], "answer": "60¢", "choices": ["60¢", "70¢"], "why": "25 + 25 + 10 = 60¢."},
-      {"id": "m11", "coins": [25, 5, 5, 1, 1], "answer": "37¢", "choices": ["37¢", "27¢"], "why": "25 + 5 + 5 + 1 + 1 = 37¢."},
-      {"id": "m12", "coins": [10, 10, 5], "answer": "25¢", "choices": ["25¢", "30¢"], "why": "10 + 10 + 5 = 25¢."},
-      {"id": "m13", "coins": [25, 25, 5], "answer": "55¢", "choices": ["55¢", "60¢"], "why": "25 + 25 + 5 = 55¢."},
-      {"id": "m14", "coins": [10, 5, 5, 5, 5], "answer": "30¢", "choices": ["30¢", "31¢"], "why": "10 + 5 + 5 + 5 + 5 = 30¢."},
-      {"id": "m15", "coins": [25, 10, 10, 5, 5], "answer": "55¢", "choices": ["55¢", "60¢"], "why": "25 + 10 + 10 + 5 + 5 = 55¢."},
-      {"id": "m16", "coins": [10, 5], "answer": "15¢", "choices": ["15¢", "25¢"], "why": "10 + 5 = 15¢."},
-      {"id": "m17", "coins": [5, 5, 1], "answer": "11¢", "choices": ["11¢", "12¢"], "why": "5 + 5 + 1 = 11¢."},
-      {"id": "m18", "coins": [25, 10, 10, 10], "answer": "55¢", "choices": ["55¢", "54¢"], "why": "25 + 10 + 10 + 10 = 55¢."},
-      {"id": "m19", "coins": [5, 1, 1], "answer": "7¢", "choices": ["7¢", "8¢"], "why": "5 + 1 + 1 = 7¢."},
-      {"id": "m20", "coins": [25, 10, 1, 1], "answer": "37¢", "choices": ["37¢", "38¢"], "why": "25 + 10 + 1 + 1 = 37¢."},
-      {"id": "m21", "coins": [25, 5, 5, 5], "answer": "40¢", "choices": ["40¢", "39¢"], "why": "25 + 5 + 5 + 5 = 40¢."},
-      {"id": "m22", "coins": [10, 10, 10], "answer": "30¢", "choices": ["30¢", "25¢"], "why": "10 + 10 + 10 = 30¢."},
-      {"id": "m23", "coins": [25, 25, 10, 1, 1], "answer": "62¢", "choices": ["62¢", "67¢"], "why": "25 + 25 + 10 + 1 + 1 = 62¢."},
-      {"id": "m24", "coins": [25, 10, 5, 1], "answer": "41¢", "choices": ["41¢", "42¢"], "why": "25 + 10 + 5 + 1 = 41¢."},
-      {"id": "m25", "coins": [25, 10, 5, 5, 1], "answer": "46¢", "choices": ["46¢", "45¢"], "why": "25 + 10 + 5 + 5 + 1 = 46¢."},
-      {"id": "m26", "coins": [25, 10, 10, 10, 10], "answer": "65¢", "choices": ["65¢", "66¢"], "why": "25 + 10 + 10 + 10 + 10 = 65¢."},
-      {"id": "m27", "coins": [1, 1, 1], "answer": "3¢", "choices": ["3¢", "13¢"], "why": "1 + 1 + 1 = 3¢."},
-      {"id": "m28", "coins": [25, 25, 10, 1], "answer": "61¢", "choices": ["61¢", "71¢"], "why": "25 + 25 + 10 + 1 = 61¢."},
-      {"id": "m29", "coins": [10, 1, 1, 1, 1], "answer": "14¢", "choices": ["14¢", "4¢"], "why": "10 + 1 + 1 + 1 + 1 = 14¢."},
-      {"id": "m30", "coins": [5, 5, 1, 1], "answer": "12¢", "choices": ["12¢", "22¢"], "why": "5 + 5 + 1 + 1 = 12¢."},
-      {"id": "m31", "coins": [25, 10], "answer": "35¢", "choices": ["35¢", "34¢"], "why": "25 + 10 = 35¢."},
-      {"id": "m32", "coins": [5, 5, 5], "answer": "15¢", "choices": ["15¢", "16¢"], "why": "5 + 5 + 5 = 15¢."},
-      {"id": "m33", "coins": [10, 5, 5], "answer": "20¢", "choices": ["20¢", "15¢"], "why": "10 + 5 + 5 = 20¢."},
-      {"id": "m34", "coins": [5, 5, 5, 1], "answer": "16¢", "choices": ["16¢", "21¢"], "why": "5 + 5 + 5 + 1 = 16¢."},
-      {"id": "m35", "coins": [25, 10, 5, 5, 5], "answer": "50¢", "choices": ["50¢", "55¢"], "why": "25 + 10 + 5 + 5 + 5 = 50¢."},
-      {"id": "m36", "coins": [25, 25, 10, 5], "answer": "65¢", "choices": ["65¢", "60¢"], "why": "25 + 25 + 10 + 5 = 65¢."},
-      {"id": "m37", "coins": [25, 5], "answer": "30¢", "choices": ["30¢", "29¢"], "why": "25 + 5 = 30¢."},
-      {"id": "m38", "coins": [25, 25, 5, 5, 5], "answer": "65¢", "choices": ["65¢", "66¢"], "why": "25 + 25 + 5 + 5 + 5 = 65¢."},
-      {"id": "m39", "coins": [25, 25, 25, 5, 1], "answer": "81¢", "choices": ["81¢", "82¢"], "why": "25 + 25 + 25 + 5 + 1 = 81¢."}
+      {"id": "m0", "coins": [25, 5, 1], "answer": "$0.31", "choices": ["$0.31", "$0.26"], "why": "25 + 5 + 1 = $0.31."},
+      {"id": "m1", "coins": [25, 25], "answer": "$0.50", "choices": ["$0.50", "$0.49"], "why": "25 + 25 = $0.50."},
+      {"id": "m2", "coins": [25, 5, 5], "answer": "$0.35", "choices": ["$0.35", "$0.45"], "why": "25 + 5 + 5 = $0.35."},
+      {"id": "m3", "coins": [25, 10, 5], "answer": "$0.40", "choices": ["$0.40", "$0.50"], "why": "25 + 10 + 5 = $0.40."},
+      {"id": "m4", "coins": [25, 10, 10, 1, 1], "answer": "$0.47", "choices": ["$0.47", "$0.42"], "why": "25 + 10 + 10 + 1 + 1 = $0.47."},
+      {"id": "m5", "coins": [25, 10, 10, 5], "answer": "$0.50", "choices": ["$0.50", "$0.60"], "why": "25 + 10 + 10 + 5 = $0.50."},
+      {"id": "m6", "coins": [25, 1], "answer": "$0.26", "choices": ["$0.26", "$0.27"], "why": "25 + 1 = $0.26."},
+      {"id": "m7", "coins": [25, 25, 25], "answer": "$0.75", "choices": ["$0.75", "$0.74"], "why": "25 + 25 + 25 = $0.75."},
+      {"id": "m8", "coins": [25, 25, 10, 5, 5], "answer": "$0.70", "choices": ["$0.70", "$0.80"], "why": "25 + 25 + 10 + 5 + 5 = $0.70."},
+      {"id": "m9", "coins": [10, 10, 5, 1], "answer": "$0.26", "choices": ["$0.26", "$0.31"], "why": "10 + 10 + 5 + 1 = $0.26."},
+      {"id": "m10", "coins": [25, 25, 10], "answer": "$0.60", "choices": ["$0.60", "$0.70"], "why": "25 + 25 + 10 = $0.60."},
+      {"id": "m11", "coins": [25, 5, 5, 1, 1], "answer": "$0.37", "choices": ["$0.37", "$0.27"], "why": "25 + 5 + 5 + 1 + 1 = $0.37."},
+      {"id": "m12", "coins": [10, 10, 5], "answer": "$0.25", "choices": ["$0.25", "$0.30"], "why": "10 + 10 + 5 = $0.25."},
+      {"id": "m13", "coins": [25, 25, 5], "answer": "$0.55", "choices": ["$0.55", "$0.60"], "why": "25 + 25 + 5 = $0.55."},
+      {"id": "m14", "coins": [10, 5, 5, 5, 5], "answer": "$0.30", "choices": ["$0.30", "$0.31"], "why": "10 + 5 + 5 + 5 + 5 = $0.30."},
+      {"id": "m15", "coins": [25, 10, 10, 5, 5], "answer": "$0.55", "choices": ["$0.55", "$0.60"], "why": "25 + 10 + 10 + 5 + 5 = $0.55."},
+      {"id": "m16", "coins": [10, 5], "answer": "$0.15", "choices": ["$0.15", "$0.25"], "why": "10 + 5 = $0.15."},
+      {"id": "m17", "coins": [5, 5, 1], "answer": "$0.11", "choices": ["$0.11", "$0.12"], "why": "5 + 5 + 1 = $0.11."},
+      {"id": "m18", "coins": [25, 10, 10, 10], "answer": "$0.55", "choices": ["$0.55", "$0.54"], "why": "25 + 10 + 10 + 10 = $0.55."},
+      {"id": "m19", "coins": [5, 1, 1], "answer": "$0.07", "choices": ["$0.07", "$0.08"], "why": "5 + 1 + 1 = $0.07."},
+      {"id": "m20", "coins": [25, 10, 1, 1], "answer": "$0.37", "choices": ["$0.37", "$0.38"], "why": "25 + 10 + 1 + 1 = $0.37."},
+      {"id": "m21", "coins": [25, 5, 5, 5], "answer": "$0.40", "choices": ["$0.40", "$0.39"], "why": "25 + 5 + 5 + 5 = $0.40."},
+      {"id": "m22", "coins": [10, 10, 10], "answer": "$0.30", "choices": ["$0.30", "$0.25"], "why": "10 + 10 + 10 = $0.30."},
+      {"id": "m23", "coins": [25, 25, 10, 1, 1], "answer": "$0.62", "choices": ["$0.62", "$0.67"], "why": "25 + 25 + 10 + 1 + 1 = $0.62."},
+      {"id": "m24", "coins": [25, 10, 5, 1], "answer": "$0.41", "choices": ["$0.41", "$0.42"], "why": "25 + 10 + 5 + 1 = $0.41."},
+      {"id": "m25", "coins": [25, 10, 5, 5, 1], "answer": "$0.46", "choices": ["$0.46", "$0.45"], "why": "25 + 10 + 5 + 5 + 1 = $0.46."},
+      {"id": "m26", "coins": [25, 10, 10, 10, 10], "answer": "$0.65", "choices": ["$0.65", "$0.66"], "why": "25 + 10 + 10 + 10 + 10 = $0.65."},
+      {"id": "m27", "coins": [1, 1, 1], "answer": "$0.03", "choices": ["$0.03", "$0.13"], "why": "1 + 1 + 1 = $0.03."},
+      {"id": "m28", "coins": [25, 25, 10, 1], "answer": "$0.61", "choices": ["$0.61", "$0.71"], "why": "25 + 25 + 10 + 1 = $0.61."},
+      {"id": "m29", "coins": [10, 1, 1, 1, 1], "answer": "$0.14", "choices": ["$0.14", "$0.04"], "why": "10 + 1 + 1 + 1 + 1 = $0.14."},
+      {"id": "m30", "coins": [5, 5, 1, 1], "answer": "$0.12", "choices": ["$0.12", "$0.22"], "why": "5 + 5 + 1 + 1 = $0.12."},
+      {"id": "m31", "coins": [25, 10], "answer": "$0.35", "choices": ["$0.35", "$0.34"], "why": "25 + 10 = $0.35."},
+      {"id": "m32", "coins": [5, 5, 5], "answer": "$0.15", "choices": ["$0.15", "$0.16"], "why": "5 + 5 + 5 = $0.15."},
+      {"id": "m33", "coins": [10, 5, 5], "answer": "$0.20", "choices": ["$0.20", "$0.15"], "why": "10 + 5 + 5 = $0.20."},
+      {"id": "m34", "coins": [5, 5, 5, 1], "answer": "$0.16", "choices": ["$0.16", "$0.21"], "why": "5 + 5 + 5 + 1 = $0.16."},
+      {"id": "m35", "coins": [25, 10, 5, 5, 5], "answer": "$0.50", "choices": ["$0.50", "$0.55"], "why": "25 + 10 + 5 + 5 + 5 = $0.50."},
+      {"id": "m36", "coins": [25, 25, 10, 5], "answer": "$0.65", "choices": ["$0.65", "$0.60"], "why": "25 + 25 + 10 + 5 = $0.65."},
+      {"id": "m37", "coins": [25, 5], "answer": "$0.30", "choices": ["$0.30", "$0.29"], "why": "25 + 5 = $0.30."},
+      {"id": "m38", "coins": [25, 25, 5, 5, 5], "answer": "$0.65", "choices": ["$0.65", "$0.66"], "why": "25 + 25 + 5 + 5 + 5 = $0.65."},
+      {"id": "m39", "coins": [25, 25, 25, 5, 1], "answer": "$0.81", "choices": ["$0.81", "$0.82"], "why": "25 + 25 + 25 + 5 + 1 = $0.81."}
     ];
     const MONEY_COINS_BY_ID = MONEY_COINS.reduce(function (m, x) { m[x.id] = x; return m; }, {});
     // Telling Time: fixed pool, each item once per pass; two choices.
@@ -8828,7 +8944,7 @@
       // First screen: only the title and Start Challenge. Everything else is below the fold.
       const hero = el("section", { class: "challenge-hero", "aria-label": "Timed challenge" });
       if (avHas() && !state.heroPick) {
-        hero.appendChild(el("button", { type: "button", class: "home-av", "aria-label": "My closet", onClick: function () { goPage("closet"); } }, [avNode(avatar, 64)]));
+        hero.appendChild(el("button", { type: "button", class: "home-av", "aria-label": "My closet", onClick: function () { goPage("closet"); } }, [hdOn() ? hdPicNode(avatar, 64, null, true) : avNode(avatar, 64)]));
       }
       if (!state.heroPick) {
         hero.appendChild(el("button", { class: "start start-challenge", type: "button", text: "Start Challenge", onClick: function () {
@@ -9554,6 +9670,7 @@
     const lbAvCache = new Map();
     function lbEsc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function lbAvHTML(a) {
+      if (hdIsOn(a)) { let c = ""; try { c = avatarSVG(a, { size: 30 }); } catch (e) {} return hdPicOr(a, 30, c, false, true); }
       const k = JSON.stringify(a);
       let h = lbAvCache.get(k);
       if (h === undefined) { try { h = avatarSVG(a, { size: 30 }); } catch (e) { h = ""; } if (lbAvCache.size > 300) lbAvCache.clear(); lbAvCache.set(k, h); }
@@ -9804,7 +9921,7 @@
     const AV_HAIRS = [["none", "None"], ["spiky", "Spiky"], ["curly", "Curly"], ["long", "Long"], ["bun", "Bun"], ["pony", "Ponytail"], ["mohawk", "Mohawk"], ["bob", "Bob"], ["afro", "Puffy"]];
     const AV_HAIR_COLORS = ["#2a1d1a", "#6b3e1f", "#e8c25a", "#d2552a", "#ff7ab8", "#4f8cff", "#9b5cff", "#f4f4f8"];
     function avHasHair(a) { return a.style === "buddy" || a.style === "pixel" || a.style === "alien" || a.style === "monster"; }
-    const AV_SLOTS = [["hat", "Hats"], ["shirt", "Shirts"], ["glasses", "Glasses"], ["shoes", "Shoes"], ["pet", "Pets"]];
+    const AV_SLOTS = [["hat", "Hats"], ["shirt", "Shirts"], ["glasses", "Glasses"], ["shoes", "Shoes"], ["pet", "Pets"], ["hand", "Hand items"]];
     const AV_ITEMS = [
       { id: "cap", slot: "hat", name: "Red cap" }, { id: "beanie", slot: "hat", name: "Beanie" }, { id: "party", slot: "hat", name: "Party hat" },
       { id: "tophat", slot: "hat", name: "Top hat" }, { id: "wizard", slot: "hat", name: "Wizard hat" }, { id: "cowboy", slot: "hat", name: "Cowboy hat" },
@@ -9826,8 +9943,63 @@
       { id: "flippers", slot: "shoes", name: "Flippers" }, { id: "skates", slot: "shoes", name: "Roller skates" },
       { id: "pbunny", slot: "pet", name: "Bunny", emoji: "\uD83D\uDC30" }, { id: "ppenguin", slot: "pet", name: "Penguin", emoji: "\uD83D\uDC27" },
       { id: "phamster", slot: "pet", name: "Hamster", emoji: "\uD83D\uDC39" }, { id: "plion", slot: "pet", name: "Gold lion", emoji: "\uD83E\uDD81", gold: true },
-      { id: "pdragon", slot: "pet", name: "Gold dragon", emoji: "\uD83D\uDC09", gold: true }, { id: "punicorn", slot: "pet", name: "Unicorn", emoji: "\uD83E\uDD84", gold: true }
+      { id: "pdragon", slot: "pet", name: "Gold dragon", emoji: "\uD83D\uDC09", gold: true }, { id: "punicorn", slot: "pet", name: "Unicorn", emoji: "\uD83E\uDD84", gold: true },
+      // Theme packs: $75 opens the pack, then each piece is bought on its own ($1, gold $50).
+      { id: "witch", slot: "hat", name: "Witch hat", pack: "hw" }, { id: "pumpkin", slot: "hat", name: "Pumpkin head", pack: "hw" },
+      { id: "ncape", slot: "shirt", name: "Night cape", pack: "hw" }, { id: "wboots", slot: "shoes", name: "Witch boots", pack: "hw" },
+      { id: "pbat", slot: "pet", name: "Bat", emoji: "\uD83E\uDD87", pack: "hw" }, { id: "gpump", slot: "hat", name: "Gold pumpkin", pack: "hw", gold: true },
+      { id: "saloha", slot: "shirt", name: "Sunset aloha", pack: "bh" }, { id: "plei", slot: "hat", name: "Haku lei", pack: "bh" },
+      { id: "snorkel", slot: "glasses", name: "Snorkel mask", pack: "bh" }, { id: "slippers", slot: "shoes", name: "Slippers", pack: "bh" },
+      { id: "phonu", slot: "pet", name: "Honu", emoji: "\uD83D\uDC22", pack: "bh" },
+      { id: "helmet", slot: "hat", name: "Space helmet", pack: "sp" }, { id: "jetpack", slot: "shirt", name: "Jetpack suit", pack: "sp" },
+      { id: "visor", slot: "glasses", name: "Star visor", pack: "sp" }, { id: "moonboots", slot: "shoes", name: "Moon boots", pack: "sp" },
+      { id: "probot", slot: "pet", name: "Robot pal", emoji: "\uD83E\uDD16", pack: "sp" }, { id: "palien", slot: "pet", name: "Gold alien", emoji: "\uD83D\uDC7D", pack: "sp", gold: true },
+      { id: "jersey", slot: "shirt", name: "Team jersey", pack: "sw" }, { id: "tcap", slot: "hat", name: "Team cap", pack: "sw" },
+      { id: "cleats", slot: "shoes", name: "Cleats", pack: "sw" }, { id: "eyeblack", slot: "glasses", name: "Eye black", pack: "sw" },
+      { id: "pball", slot: "pet", name: "Soccer ball", emoji: "\u26BD", pack: "sw" }, { id: "ptrophy", slot: "pet", name: "Gold trophy", emoji: "\uD83C\uDFC6", pack: "sw", gold: true },
+      { id: "pilgrim", slot: "hat", name: "Pilgrim hat", pack: "tg" }, { id: "sweater", slot: "shirt", name: "Harvest sweater", pack: "tg" },
+      { id: "buckle", slot: "shoes", name: "Buckle shoes", pack: "tg" }, { id: "pturkey", slot: "pet", name: "Turkey", emoji: "\uD83E\uDD83", pack: "tg" },
+      // Hand items: held in the avatar's hand (wear.hand).
+      { id: "icecream", slot: "hand", name: "Ice cream" }, { id: "balloon", slot: "hand", name: "Balloon" }, { id: "book", slot: "hand", name: "Story book" },
+      { id: "guitar", slot: "hand", name: "Guitar" }, { id: "wwand", slot: "hand", name: "Wizard wand" }, { id: "starwand", slot: "hand", name: "Magic star wand" },
+      { id: "hball", slot: "hand", name: "Soccer ball" }, { id: "htrophy", slot: "hand", name: "Gold trophy", gold: true },
+      // More packs (original designs).
+      { id: "robe", slot: "shirt", name: "Wizard robe", pack: "wz" }, { id: "specs", slot: "glasses", name: "Round specs", pack: "wz" },
+      { id: "spellwand", slot: "hand", name: "Spell wand", pack: "wz" }, { id: "powl", slot: "pet", name: "Owl", emoji: "\uD83E\uDD89", pack: "wz" },
+      { id: "scarf", slot: "shirt", name: "Striped scarf", pack: "wz" }, { id: "wingball", slot: "pet", name: "Golden Wingball", pack: "wz", gold: true },
+      { id: "brickhead", slot: "hat", name: "Brick head", pack: "bb" }, { id: "brickhat", slot: "hat", name: "Brick hat", pack: "bb" },
+      { id: "brickarmor", slot: "shirt", name: "Brick armor", pack: "bb" }, { id: "pbrick", slot: "pet", name: "Brick pup", pack: "bb" },
+      { id: "tiara", slot: "hat", name: "Tiara", pack: "ft" }, { id: "rcape", slot: "shirt", name: "Royal cape", pack: "ft" },
+      { id: "fwand", slot: "hand", name: "Fairy wand", pack: "ft" }, { id: "gslipper", slot: "shoes", name: "Glass slippers", pack: "ft" },
+      { id: "pmouse", slot: "pet", name: "Mouse", emoji: "\uD83D\uDC2D", pack: "ft" },
+      { id: "explorer", slot: "hat", name: "Explorer hat", pack: "jg" }, { id: "leafvest", slot: "shirt", name: "Leaf vest", pack: "jg" },
+      { id: "binocs", slot: "glasses", name: "Binoculars", pack: "jg" }, { id: "pmonkey", slot: "pet", name: "Monkey", emoji: "\uD83D\uDC12", pack: "jg" },
+      { id: "pjparrot", slot: "pet", name: "Jungle parrot", emoji: "\uD83E\uDD9C", pack: "jg" }, { id: "ptiger", slot: "pet", name: "Gold tiger", emoji: "\uD83D\uDC2F", pack: "jg", gold: true }
     ];
+    const AV_PACKS = [["hw", "Halloween", "\uD83C\uDF83"], ["bh", "Beach & Hawai\u02BBi", "\uD83C\uDF3A"], ["sp", "Space", "\uD83D\uDE80"], ["sw", "Sports", "\uD83C\uDFC5"], ["tg", "Thanksgiving", "\uD83E\uDD83"],
+      ["wz", "Wizard School", "\uD83E\uDE84"], ["bb", "Brick Builders", "\uD83E\uDDF1"], ["ft", "Fairy Tale Kingdom", "\uD83C\uDFF0"], ["jg", "Jungle", "\uD83C\uDF34"]];
+    // Hand art is drawn for a hand at (76,82), then mirrored to the avatar's left hand.
+    const AV_HAND_ART = {
+      icecream: '<path d="M70 66 L76 84 L82 66 Z" fill="#e0a95a" stroke="#a8702a"/><path d="M72 70 L80 76 M80 70 L73 77" stroke="#a8702a" stroke-width=".8"/><circle cx="76" cy="61" r="7.5" fill="#ff9ec4"/><circle cx="73" cy="56" r="2" fill="#fff" opacity=".7"/><circle cx="77" cy="52" r="2.2" fill="#e8414f"/>',
+      balloon: '<path d="M78 80 Q74 60 80 44" stroke="#fff" stroke-width="1.2" fill="none"/><ellipse cx="80" cy="33" rx="10" ry="12" fill="#ff5a5a"/><path d="M78 45 L80 49 L82 45 Z" fill="#c8202e"/><ellipse cx="76" cy="28" rx="2.5" ry="4" fill="#fff" opacity=".6"/>',
+      book: '<rect x="65" y="64" width="22" height="17" rx="2" fill="#3550c8" stroke="#22308a" stroke-width="1.5"/><rect x="67" y="66" width="8" height="13" fill="#fff"/><rect x="77" y="66" width="8" height="13" fill="#fff"/><path d="M68.5 69 H73.5 M68.5 72 H73.5 M78.5 69 H83.5 M78.5 72 H83.5" stroke="#9aa4c8"/>',
+      guitar: '<rect x="78" y="38" width="4" height="32" fill="#7a4a22"/><rect x="76" y="33" width="8" height="7" rx="1" fill="#5a3410"/><path d="M80 66 Q91 68 89 78 Q93 91 80 93 Q67 91 71 78 Q69 68 80 66 Z" fill="#f2a65a" stroke="#a0602a" stroke-width="1.5"/><circle cx="80" cy="80" r="3" fill="#5a3410"/>',
+      wwand: '<path d="M76 82 L87 50" stroke="#5a3410" stroke-width="3.2" stroke-linecap="round"/><path d="M86 53 L88 47" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="89" cy="44" r="2.2" fill="#bff4ff"/>',
+      starwand: '<path d="M76 82 L84 54" stroke="#ff7ab8" stroke-width="3" stroke-linecap="round"/><path d="M85 39 L88 46 L95 46 L89 50 L92 57 L85 53 L78 57 L81 50 L75 46 L82 46 Z" fill="#ffd34e" stroke="#b07a00" stroke-width="1"/>',
+      hball: '<circle cx="80" cy="69" r="9.5" fill="#fff" stroke="#22202c" stroke-width="1.5"/><path d="M80 64 L84.5 67 L83 72.5 L77 72.5 L75.5 67 Z" fill="#22202c"/><path d="M80 64 V60 M84.5 67 L89 65 M83 72.5 L86 77 M77 72.5 L74 77 M75.5 67 L71 65" stroke="#22202c" stroke-width="1.2"/>',
+      htrophy: '<circle cx="80" cy="64" r="15" fill="#f5c542" opacity=".25"/><path d="M71 55 H89 V61 Q89 72 80 73 Q71 72 71 61 Z" fill="#f5c542" stroke="#a87412" stroke-width="1.5"/><path d="M71 58 Q65 58 66 63 Q67 66 71 65 M89 58 Q95 58 94 63 Q93 66 89 65" stroke="#a87412" stroke-width="1.5" fill="none"/><rect x="78" y="73" width="4" height="5" fill="#a87412"/><rect x="73" y="78" width="14" height="4" rx="1" fill="#a87412"/><text x="80" y="66" font-size="8" text-anchor="middle" fill="#fff6b0">\u2605</text>',
+      spellwand: '<path d="M76 82 L88 50" stroke="#3a2210" stroke-width="3.2" stroke-linecap="round"/><circle cx="89" cy="47" r="2.4" fill="#fff6b0"/><path d="M93 38 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5z M84 36 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1z" fill="#ffd34e"/>',
+      fwand: '<path d="M76 82 L84 56" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M85 57 C77 50 79 41 85 45 C91 41 93 50 85 57 Z" fill="#ff7ab8" stroke="#d02a6a" stroke-width="1"/><circle cx="83" cy="47" r="1.3" fill="#fff"/><circle cx="92" cy="40" r="1.2" fill="#ffd34e"/><circle cx="78" cy="42" r="1" fill="#ffd34e"/>'
+    };
+    const AV_PET_ART = {
+      wingball: '<circle cx="88" cy="94" r="12" fill="#f5c542" opacity=".3"/><path d="M82 92 Q74 84 72 92 Q77 90 82 95 Z M94 92 Q102 84 104 92 Q99 90 94 95 Z" fill="#fff" stroke="#c9c9d6" stroke-width=".8"/><circle cx="88" cy="94" r="6" fill="#f5c542" stroke="#a87412" stroke-width="1.2"/><path d="M84 92 Q88 90 92 92" stroke="#fff6b0" stroke-width="1.2" fill="none"/>',
+      pbrick: '<rect x="78" y="90" width="20" height="10" rx="1.5" fill="#f2a65a" stroke="#a0602a"/><rect x="91" y="82" width="11" height="10" rx="1.5" fill="#f2a65a" stroke="#a0602a"/><rect x="80" y="100" width="4" height="4" fill="#a0602a"/><rect x="92" y="100" width="4" height="4" fill="#a0602a"/><rect x="74" y="88" width="5" height="3" fill="#a0602a"/><circle cx="98" cy="86" r="1.3" fill="#22202c"/><rect x="92" y="79" width="3" height="3" fill="#a0602a"/><rect x="83" y="87" width="4" height="3" fill="#f2a65a" stroke="#a0602a" stroke-width=".8"/>'
+    };
+    function avHandSVG(id, size) {
+      const art = AV_HAND_ART[id]; if (!art) return "";
+      return '<svg class="av-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 26 44 70" width="' + Math.round(size * 0.63) + '" height="' + size + '" aria-hidden="true"><g transform="matrix(-1 0 0 1 98 0)">' + art + '</g><circle cx="22" cy="82" r="5" fill="#ffd9b8" stroke="rgba(0,0,0,.25)"/></svg>';
+    }
+    const AV_PACK_COST = 75, AV_PIECE_COST = 1, AV_GOLD_COST = 50;
     const AV_GOLD_AT = 50;
     function avItem(id) { return AV_ITEMS.find(function (i) { return i.id === id; }) || null; }
     // Look parts are unlockable too. Short ids keep the saved data small: s.robot, a.fox, c5, f.wow, h.bun, k3.
@@ -9844,6 +10016,114 @@
     // An avatar exists once the kid has made one, won anything, or opened their look in the Closet.
     function avHas() { return !!(avatar.made || avatar.owned.length); }
     function avOwns(id) { return !id || AV_FREE.indexOf(id) >= 0 || avatar.owned.indexOf(id) >= 0; }
+    // ---- HD avatar (test site starter set). Saved as avatar.hd = { o: owned ids, w: {slot: id}, b: body id, on: 1 when shown }.
+    const HD_PACK_COST = 250, HD_PIECE_COST = 5, HD_CHAR_COST = 100, HD_DIR = "./assets/hd/";
+    const HD_ITEMS = [
+      {"id":"xbA","slot":"look","name":"Wizard","f":"c_wizard","ch":"wizard","free":1},
+      {"id":"xbB","slot":"look","name":"Space explorer","soon":1,"f":"c_space","ch":"space"},
+      {"id":"xrob","slot":"look","name":"Robot","soon":1,"f":"c_robot","ch":"robot"},
+      {"id":"xpir","slot":"look","name":"Pirate","soon":1,"f":"c_pirate","ch":"pirate"},
+      {"id":"xfai","slot":"look","name":"Fairy","soon":1,"f":"c_fairy","ch":"fairy"},
+      {"id":"xkni","slot":"look","name":"Knight","soon":1,"f":"c_knight","ch":"knight"},
+      {"id":"wh1","slot":"hat","name":"Blue star hat","f":"w_h1","ch":"wizard","L":[26.95,10.74,45.31,26.09]},
+      {"id":"wh2","slot":"hat","name":"Moon hat + gold specs","f":"w_h2","ch":"wizard","L":[26.37,10.49,46.29,23.72]},
+      {"id":"wh3","slot":"hat","name":"Rainbow feather hat","f":"w_h3","ch":"wizard","L":[24.8,9.74,49.41,25.47]},
+      {"id":"wh4","slot":"hat","name":"Flame hat + goggles","f":"w_h4","ch":"wizard","L":[24.61,10.36,49.8,26.59]},
+      {"id":"wh5","slot":"hat","name":"Snow crystal hat + star specs","f":"w_h5","ch":"wizard","L":[30.86,9.11,36.52,27.34]},
+      {"id":"wo1","slot":"shirt","name":"Midnight star robe","f":"w_o1","ch":"wizard"},
+      {"id":"wo2","slot":"shirt","name":"Emerald forest robe","f":"w_o2","ch":"wizard"},
+      {"id":"wo3","slot":"shirt","name":"Phoenix fire robe","f":"w_o3","ch":"wizard"},
+      {"id":"wo4","slot":"shirt","name":"Frost crystal robe","f":"w_o4","ch":"wizard"},
+      {"id":"wo5","slot":"shirt","name":"Royal sun robe","f":"w_o5","ch":"wizard"},
+      {"id":"ws1","slot":"shoes","name":"Curly purple slippers","f":"w_s1","ch":"wizard","L":[22.85,80.27,47.07,14.86]},
+      {"id":"ws2","slot":"shoes","name":"Star boots","f":"w_s2","ch":"wizard","L":[27.15,80.27,41.02,14.61]},
+      {"id":"ws3","slot":"shoes","name":"Cloud slippers","f":"w_s3","ch":"wizard","L":[25.2,80.27,44.73,14.23]},
+      {"id":"ws4","slot":"shoes","name":"Dragon scale boots","f":"w_s4","ch":"wizard","L":[27.15,81.52,40.82,13.36]},
+      {"id":"ws5","slot":"shoes","name":"Rune boots","f":"w_s5","ch":"wizard","L":[27.34,80.27,40.43,14.86]},
+      {"id":"wp1","slot":"pet","name":"Owl buddy","f":"w_p1","ch":"wizard","L":[66.02,72.16,24.02,21.85]},
+      {"id":"wp2","slot":"pet","name":"Star kitten","f":"w_p2","ch":"wizard","L":[61.91,70.41,29.69,23.85]},
+      {"id":"wp3","slot":"pet","name":"Baby dragon","f":"w_p3","ch":"wizard","L":[66.8,69.04,28.71,24.72]},
+      {"id":"wp4","slot":"pet","name":"Crowned toad","f":"w_p4","ch":"wizard","L":[71.29,79.4,21.48,15.73]},
+      {"id":"wp5","slot":"pet","name":"Phoenix chick","f":"w_p5","ch":"wizard","L":[61.91,69.41,30.27,24.84]}
+    ];
+    function hdItem(id) { return HD_ITEMS.find(function (i) { return i.id === id; }) || null; }
+    function hdClean(h) {
+      h = h && typeof h === "object" ? h : {};
+      const o = Array.isArray(h.o) ? h.o.filter(function (id, i, arr) { const it = hdItem(id); return it && !it.free && arr.indexOf(id) === i; }) : [];
+      const w = {};
+      Object.keys(h.w || {}).forEach(function (k) { const it = hdItem(h.w[k]); if (it && it.slot === k && k !== "look" && o.indexOf(it.id) >= 0) w[k] = it.id; });
+      const b = hdItem(h.b) && !hdItem(h.b).soon && (hdItem(h.b).free || o.indexOf(h.b) >= 0) ? h.b : "xbA";
+      return { o: o, w: w, b: b, on: h.on ? 1 : 0 };
+    }
+    function hdHas(id) { const it = hdItem(id); return !!it && (it.free || avatar.hd.o.indexOf(id) >= 0); }
+    function hdOn() { return avatar.pk.indexOf("hd") >= 0 && avatar.hd.on === 1; }
+    // One body per character on a 512x750 frame; each item is placed from that character's anchors
+    // (h: hat [x, brim y, width], g: glasses [x, y, width], t: torso [x, top, w, h], f: feet [left x, right x, width], k: fist [x, y]).
+    // Images load only when this is called.
+    // Wizard: one 512x801 body per outfit (base robe is free); hat, shoes, pet and hand item are layers cut from
+    // renders of this exact wizard, so they sit at fixed spots (L = left, top, width, height in %). Other characters: body only.
+    // Images load only when this is called, and only for the selected character.
+    const HD_LAYER_ORDER = ["shoes", "pet", "hat"];
+    function hdLayers(h) {
+      const c = hdItem(h.b) || HD_ITEMS[0], wiz = c.ch === "wizard";
+      const it = function (k) { const i = h.w && h.w[k] ? hdItem(h.w[k]) : null; return i && i.ch === c.ch ? i : null; };
+      if (!wiz) return { r: 0.683, l: [{ f: c.f }] };
+      const o = it("shirt"), l = [{ f: o ? o.f : "w_base" }];
+      HD_LAYER_ORDER.forEach(function (k) { const i = it(k); if (i) l.push({ f: i.f, L: i.L }); });
+      return { r: 0.639, l: l };
+    }
+    function hdNode(h, size) {
+      const g = hdLayers(h), box = el("span", { class: "hd-av", style: "width:" + Math.round(size * g.r) + "px;height:" + size + "px" });
+      g.l.forEach(function (x) { const L = x.L; box.appendChild(el("img", { src: HD_DIR + x.f + ".webp", alt: "", decoding: "async", draggable: "false",
+        style: L ? "left:" + L[0] + "%;top:" + L[1] + "%;width:" + L[2] + "%;height:" + L[3] + "%" : "" })); });
+      return box;
+    }
+    // Small flat HD picture for play screens and the leaderboard: the layers are drawn once onto a canvas at display size
+    // and kept as a data URL (memory, plus localStorage for the kid's own look), so gameplay shows one small image.
+    const hdPicMem = new Map(), hdPicWait = {};
+    const HD_PIC_KEY = "mf-hd-pic";
+    function hdIsOn(a) { return !!(a && Array.isArray(a.pk) && a.pk.indexOf("hd") >= 0 && a.hd && a.hd.on); }
+    function hdPicKey(h, px, head) { const g = hdLayers(h); return (head ? "h" : "") + px + ":" + g.l.map(function (x) { return x.f; }).join(","); }
+    function hdPicGet(k) {
+      if (hdPicMem.has(k)) return hdPicMem.get(k);
+      try { const o = JSON.parse(localStorage.getItem(HD_PIC_KEY) || "null"); if (o && o.k === k) { hdPicMem.set(k, o.u); return o.u; } } catch (e) {}
+      return null;
+    }
+    function hdPicMake(h, px, keep, head) {
+      const k = hdPicKey(h, px, head);
+      if (hdPicGet(k) || hdPicWait[k]) return;
+      hdPicWait[k] = 1;
+      const g = hdLayers(h), dpr = Math.min(2, window.devicePixelRatio || 1);
+      // Head-and-shoulders: the top band of the body frame, drawn square so it reads at leaderboard size.
+      const C = head ? (g.r < 0.66 ? [0.18, 0.13, 0.64, 0.30] : [0.18, 0.04, 0.64, 0.33]) : [0, 0, 1, 1];
+      const H = Math.round(px * dpr), W = head ? H : Math.round(H * g.r), FH = H / (head ? C[3] : 1), FW = FH * g.r, OX = -C[0] * FW, OY = -C[1] * FH;
+      Promise.all(g.l.map(function (x) { return new Promise(function (ok) { const im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); }; im.src = HD_DIR + x.f + ".webp"; }); }))
+        .then(function (ims) {
+          const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+          const cx = cv.getContext("2d");
+          ims.forEach(function (im, i) { if (!im) return; const L = g.l[i].L; if (L) cx.drawImage(im, OX + L[0] / 100 * FW, OY + L[1] / 100 * FH, L[2] / 100 * FW, L[3] / 100 * FH); else cx.drawImage(im, OX, OY, FW, FH); });
+          let u = ""; try { u = cv.toDataURL("image/webp", 0.85); if (u.indexOf("image/webp") < 0) u = cv.toDataURL("image/png"); } catch (e) { u = ""; }
+          delete hdPicWait[k];
+          if (!u) return;
+          hdPicMem.set(k, u); if (hdPicMem.size > 80) hdPicMem.delete(hdPicMem.keys().next().value);
+          if (keep) { try { localStorage.setItem(HD_PIC_KEY, JSON.stringify({ k: k, u: u })); } catch (e) {} }
+          document.querySelectorAll('[data-hdk="' + k + '"]').forEach(function (n) { n.innerHTML = hdPicHTML(u, px, head ? 1 : g.r); n.removeAttribute("data-hdk"); });
+        });
+    }
+    function hdPicHTML(u, px, r) { return '<img class="hd-pic" src="' + u + '" alt="" draggable="false" style="height:' + px + 'px;width:' + Math.round(px * r) + 'px">'; }
+    // Returns HTML: the cached HD picture, or the classic avatar until the picture is ready (then it swaps in place).
+    function hdPicOr(a, px, classic, keep, head) {
+      const h = hdClean(a.hd), k = hdPicKey(h, px, head), u = hdPicGet(k), r = head ? 1 : hdLayers(h).r;
+      if (u) return hdPicHTML(u, px, r);
+      hdPicMake(h, px, keep && !head, head);
+      return '<span class="hd-pic-wait" data-hdk="' + k + '">' + classic + "</span>";
+    }
+    function hdPicNode(a, px, fallback, keep) {
+      const box = el("span", { class: "hd-pic-box" });
+      box.innerHTML = hdPicOr(a, px, "", keep);
+      const w = box.querySelector(".hd-pic-wait"); if (w && fallback) w.appendChild(fallback);
+      return box;
+    }
     function avClean(a) {
       a = a && typeof a === "object" ? a : {};
       const ok = function (list, v, d) { return list.some(function (x) { return x[0] === v; }) ? v : d; };
@@ -9859,7 +10139,10 @@
       return { v: 2, made: !!a.made, style: ok(AV_STYLES, a.style, "buddy"), animal: ok(AV_ANIMALS, a.animal, "cat"),
         color: AV_COLORS.indexOf(a.color) >= 0 ? a.color : AV_COLORS[3], face: ok(AV_FACES, a.face, "smile"),
         hair: ok(AV_HAIRS, a.hair, "none"), hairColor: AV_HAIR_COLORS.indexOf(a.hairColor) >= 0 ? a.hairColor : AV_HAIR_COLORS[1], wear: wear, owned: owned,
-        pz: Math.max(0, Math.min(99, Number(a.pz) || 0)), pg: a.pg ? 1 : 0, updated: Number(a.updated) || 0 };
+        pz: Math.max(0, Math.min(99, Number(a.pz) || 0)), pg: a.pg ? 1 : 0,
+        pk: Array.isArray(a.pk) ? a.pk.filter(function (k, i, arr) { return (k === "hd" || AV_PACKS.some(function (x) { return x[0] === k; })) && arr.indexOf(k) === i; }) : [],
+        hd: hdClean(a.hd),
+        updated: Number(a.updated) || 0 };
     }
     let avatar = (function () { try { return avClean(JSON.parse(localStorage.getItem(AV_KEY) || "null")); } catch (e) { return avClean(null); } })();
     // ---- Saving: every change is saved on this device at once, then sent to the sheet with retries.
@@ -9942,7 +10225,8 @@
         const localNewer = avatar.updated !== startedAt || avPending() || avatar.updated >= remote.updated;
         const base = localNewer ? avatar : remote;
         const upd = Math.max(remote.updated, avatar.updated);
-        avatar = avClean(Object.assign({}, base, { owned: owned, made: avatar.made || remote.made }));
+        avatar = avClean(Object.assign({}, base, { owned: owned, made: avatar.made || remote.made, pk: (avatar.pk || []).concat(remote.pk || []),
+          hd: Object.assign({}, base.hd, { o: (avatar.hd.o || []).concat(remote.hd.o || []) }) }));
         avatar.updated = upd;
         try { localStorage.setItem(AV_KEY, JSON.stringify(avatar)); } catch (e) {}
         if (JSON.stringify(Object.assign({}, remote, { updated: 0 })) !== JSON.stringify(Object.assign({}, avatar, { updated: 0 }))) avSetPending(true);
@@ -9974,25 +10258,37 @@
       const c = a.color, dk = avShade(c, 0.7), ink = "#2a1d3a";
       const st = a.style, pix = st === "pixel";
       const w = a.wear;
-      const p = [];
+      const p = [], M = {};
       // feet
       const shoe = w.shoes;
-      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#" + rb + ")" : shoe === "flippers" ? "#1fb5a8" : shoe === "skates" ? "#ff7ab8" : dk;
+      const shoeFill = shoe === "sneakers" ? "#e8414f" : shoe === "boots" ? "#7a4a22" : shoe === "goldshoes" ? "#f5c542" : shoe === "rainbow" ? "url(#" + rb + ")" : shoe === "flippers" ? "#1fb5a8" : shoe === "skates" ? "#ff7ab8" : shoe === "wboots" ? "#2a1d3a" : shoe === "moonboots" ? "#dfe6f0" : shoe === "cleats" ? "#22202c" : shoe === "slippers" ? "#ffd34e" : shoe === "buckle" ? "#3a2a1a" : shoe === "gslipper" ? "#bff4ff" : dk;
       if (st === "animal" && a.animal === "turtle") p.push('<ellipse cx="50" cy="78" rx="29" ry="21" fill="#3f8a3a"/><path d="M24 70 L30 62 M76 70 L70 62 M22 84 H30 M78 84 H70" stroke="#2f6a2a" stroke-width="2"/>');
       if (st === "dino") p.push('<path d="M31 84 Q14 86 8 70 Q18 80 31 76 Z" fill="' + c + '"/>');
       if (shoe === "rainbow" || w.shirt === "rainbowtee") p.push('<defs><linearGradient id="' + rb + '" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd34e"/><stop offset=".66" stop-color="#5fe07a"/><stop offset="1" stop-color="#5f8cff"/></linearGradient></defs>');
+      M.sh = p.length;
       [38, 62].forEach(function (x) {
-        if (shoe === "boots") p.push('<rect x="' + (x - 8) + '" y="88" width="16" height="14" rx="4" fill="' + shoeFill + '"/>');
+        if (shoe === "boots" || shoe === "wboots" || shoe === "moonboots") p.push('<rect x="' + (x - 8) + '" y="88" width="16" height="14" rx="4" fill="' + shoeFill + '"/>');
         else if (shoe === "flippers") p.push('<path d="M' + (x - 7) + ' 94 L' + (x - 12) + ' 104 L' + (x + 12) + ' 104 L' + (x + 7) + ' 94 Z" fill="' + shoeFill + '"/>');
         else if (pix) p.push('<rect x="' + (x - 9) + '" y="94" width="18" height="8" fill="' + shoeFill + '"/>');
         else p.push('<ellipse cx="' + x + '" cy="98" rx="10" ry="6" fill="' + shoeFill + '"/>');
         if (shoe === "skates") p.push('<circle cx="' + (x - 6) + '" cy="105" r="2.6" fill="#ffd34e"/><circle cx="' + (x + 6) + '" cy="105" r="2.6" fill="#ffd34e"/>');
+        if (shoe === "wboots") p.push('<path d="M' + (x + 6) + ' 98 Q' + (x + 14) + ' 98 ' + (x + 13) + ' 92" stroke="#2a1d3a" stroke-width="3" fill="none"/>');
+        if (shoe === "moonboots") p.push('<rect x="' + (x - 8) + '" y="92" width="16" height="3" fill="#8aa0c8"/>');
+        if (shoe === "cleats") p.push('<path d="M' + (x - 6) + ' 104 v2 M' + x + ' 104 v2 M' + (x + 6) + ' 104 v2" stroke="#fff" stroke-width="2"/><path d="M' + (x - 6) + ' 96 H' + (x + 6) + '" stroke="#ffd34e" stroke-width="1.5"/>');
+        if (shoe === "slippers") p.push('<path d="M' + (x - 4) + ' 93 L' + x + ' 98 L' + (x + 4) + ' 93" stroke="#1fb5a8" stroke-width="2" fill="none"/>');
+        if (shoe === "gslipper") p.push('<path d="M' + (x + 3) + ' 94 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1z" fill="#fff"/><ellipse cx="' + (x - 3) + '" cy="96" rx="3" ry="1.5" fill="#fff" opacity=".7"/>');
+        if (shoe === "buckle") p.push('<rect x="' + (x - 3.5) + '" y="93" width="7" height="5" fill="none" stroke="#f5c542" stroke-width="1.6"/>');
         if (shoe === "sneakers") p.push('<rect x="' + (x - 10) + '" y="100" width="20" height="3" rx="1.5" fill="#fff"/>');
       });
       // torso / shirt
+      M.sr = p.length;
       const sh = w.shirt;
-      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542", tux: "#22202c", rainbowtee: "url(#" + rb + ")", goldsuit: "#f5c542", cape: "#e8414f" }[sh] || c;
+      const shirtFill = { tee: "#e8414f", stripes: "#fff", stars: "#3550c8", aloha: "#1fb5a8", hoodie: "#3fa34d", goldjersey: "#f5c542", tux: "#22202c", rainbowtee: "url(#" + rb + ")", goldsuit: "#f5c542", cape: "#e8414f", ncape: "#2a1d3a", saloha: "#ff8a3d", jetpack: "#dfe6f0", jersey: "#3550c8", sweater: "#d2691e", robe: "#3a2a5a", brickarmor: "#3550c8", rcape: "#6f3cc4", leafvest: "#c9a66b" }[sh] || c;
       if (sh === "cape") p.push('<path d="M30 64 L20 98 L80 98 L70 64 Z" fill="#b8202e"/>');
+      if (sh === "robe") p.push('<path d="M29 62 L20 102 L80 102 L71 62 Z" fill="#2a1d4a"/>');
+      if (sh === "rcape") p.push('<path d="M28 62 L16 102 L84 102 L72 62 Z" fill="#b8202e"/><path d="M16 102 L84 102 L83 98 L17 98 Z" fill="#fff"/>');
+      if (sh === "ncape") p.push('<path d="M30 62 L16 100 L84 100 L70 62 Z" fill="#5b2a8a"/><path d="M26 64 L22 54 L36 62 M74 64 L78 54 L64 62" fill="#5b2a8a"/>');
+      if (sh === "jetpack") p.push('<rect x="17" y="62" width="12" height="26" rx="5" fill="#9aa3b5" stroke="#5a6478" stroke-width="1.5"/><rect x="71" y="62" width="12" height="26" rx="5" fill="#9aa3b5" stroke="#5a6478" stroke-width="1.5"/><path d="M19 88 L23 100 L27 88 Z M73 88 L77 100 L81 88 Z" fill="#ff8a3d"/><path d="M21 88 L23 95 L25 88 Z M75 88 L77 95 L79 88 Z" fill="#ffd34e"/>');
       const trx = pix ? 0 : st === "robot" ? 4 : 12;
       p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + shirtFill + '"/>');
       if (sh === "stripes") [68, 76, 84].forEach(function (y) { p.push('<rect x="29" y="' + y + '" width="42" height="4" fill="#e8414f"/>'); });
@@ -10003,9 +10299,20 @@
       if (sh === "cape") p.push('<rect x="29" y="62" width="42" height="32" rx="' + trx + '" fill="' + c + '"/><path d="M42 64 L50 72 L58 64" fill="#e8414f"/><text x="50" y="86" font-size="11" font-weight="900" fill="#ffd34e" text-anchor="middle">\u2605</text>');
       if (sh === "tux") p.push('<path d="M44 62 L50 80 L56 62 Z" fill="#fff"/><path d="M45 65 L50 68 L55 65 L55 69 L50 66 L45 69 Z" fill="#e8414f"/><circle cx="50" cy="76" r="1.2" fill="#22202c"/><circle cx="50" cy="82" r="1.2" fill="#fff"/>');
       if (sh === "goldsuit") p.push('<path d="M44 62 L50 78 L56 62 Z" fill="#fff6d8"/><path d="M29 66 H71" stroke="#a87412" stroke-width="1.5"/><circle cx="50" cy="84" r="2" fill="#a87412"/>');
+      if (sh === "ncape") p.push('<path d="M38 62 L50 74 L62 62" fill="#e8414f"/><circle cx="50" cy="66" r="2.2" fill="#ffd34e"/>');
+      if (sh === "saloha") p.push('<path d="M42 62 L50 70 L58 62" fill="#fff"/>' + [[37, 74], [60, 72], [48, 86], [64, 87]].map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4" fill="#e8414f"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.4" fill="#ffd34e"/>'; }).join("") + '<path d="M31 80 Q38 76 42 80" stroke="#3fa34d" stroke-width="2" fill="none"/>');
+      if (sh === "jetpack") p.push('<rect x="40" y="70" width="20" height="12" rx="3" fill="#6f8cff"/><circle cx="45" cy="76" r="2" fill="#ff5a5a"/><circle cx="55" cy="76" r="2" fill="#5fe07a"/><path d="M29 66 H71" stroke="#8aa0c8" stroke-width="2"/>');
+      if (sh === "jersey") p.push('<path d="M29 66 H71 M29 90 H71" stroke="#fff" stroke-width="3"/><text x="50" y="86" font-size="16" font-weight="900" font-family="Arial Black,Arial" fill="#fff" text-anchor="middle">10</text>');
+      if (sh === "sweater") p.push('<path d="M29 70 H71 M29 86 H71" stroke="#ffd34e" stroke-width="2" stroke-dasharray="3 2"/><path d="M50 72 L46 78 L50 77 L54 78 Z" fill="#b8202e"/><path d="M44 80 L48 76 M56 80 L52 76" stroke="#7a3a10" stroke-width="1.5"/>');
+      if (sh === "robe") p.push('<path d="M50 62 V94" stroke="#c9a24a" stroke-width="3"/><path d="M42 62 L50 72 L58 62" fill="#e8e8f0"/><path d="M48 66 L50 74 L52 66 Z" fill="#8a1f2a"/><circle cx="62" cy="72" r="3" fill="#8a1f2a" stroke="#c9a24a"/>');
+      if (sh === "scarf") p.push('<rect x="30" y="60" width="40" height="7" rx="3" fill="#8a1f2a"/><path d="M38 60 V67 M46 60 V67 M54 60 V67 M62 60 V67" stroke="#c9a24a" stroke-width="3"/><rect x="56" y="64" width="8" height="22" rx="2" fill="#8a1f2a"/><path d="M56 70 H64 M56 76 H64 M56 82 H64" stroke="#c9a24a" stroke-width="2.5"/>');
+      if (sh === "brickarmor") p.push('<path d="M29 72 H71 M29 82 H71 M50 62 V72 M40 72 V82 M60 72 V82 M50 82 V94" stroke="#22308a" stroke-width="1.5"/><circle cx="37" cy="67" r="2.5" fill="#6f8cff"/><circle cx="63" cy="67" r="2.5" fill="#6f8cff"/>');
+      if (sh === "rcape") p.push('<path d="M36 62 Q50 70 64 62 L64 66 Q50 74 36 66 Z" fill="#fff"/><circle cx="42" cy="66" r="1" fill="#22202c"/><circle cx="58" cy="66" r="1" fill="#22202c"/><circle cx="50" cy="78" r="2" fill="#f5c542"/><circle cx="50" cy="86" r="2" fill="#f5c542"/>');
+      if (sh === "leafvest") p.push('<path d="M29 62 L42 62 L44 94 L29 94 Z M71 62 L58 62 L56 94 L71 94 Z" fill="#3f8a3a"/><path d="M33 70 Q37 66 40 70 Q37 74 33 70 Z M60 80 Q64 76 67 80 Q64 84 60 80 Z" fill="#7ee07a"/><circle cx="50" cy="80" r="1.5" fill="#5a3410"/>');
       if (sh === "lei") [[33, 64, "#ff7ab8"], [39, 69, "#ffd34e"], [45, 72, "#ff5a5a"], [51, 73, "#b47cff"], [57, 71, "#ff7ab8"], [63, 68, "#ffd34e"], [68, 64, "#ff5a5a"]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.6" fill="' + q[2] + '"/>'); });
       if (st === "robot" && !sh) p.push('<rect x="42" y="70" width="16" height="10" rx="2" fill="' + dk + '"/><circle cx="46" cy="75" r="1.6" fill="#7ef"/><circle cx="54" cy="75" r="1.6" fill="#f7a"/>');
       // head
+      M.hd = p.length;
       if (st === "robot") {
         p.push('<line x1="50" y1="20" x2="50" y2="11" stroke="' + dk + '" stroke-width="3"/><circle cx="50" cy="9" r="4" fill="#ff5a6e"/>');
         p.push('<rect x="25" y="20" width="50" height="42" rx="9" fill="' + c + '"/><rect x="20" y="34" width="6" height="14" rx="2" fill="' + dk + '"/><rect x="74" y="34" width="6" height="14" rx="2" fill="' + dk + '"/>');
@@ -10078,6 +10385,7 @@
       if (mouth === "o") p.push(pix ? '<rect x="47" y="' + my + '" width="5" height="4" fill="' + ink + '"/>' : '<ellipse cx="50" cy="' + (my + 1) + '" rx="2.6" ry="2.2" fill="' + ink + '"/>');
       if (st === "monster" || st === "dino") p.push('<path d="M44 ' + (my + 1) + ' L46 ' + (my + 5) + ' L48 ' + (my + 2) + ' Z M52 ' + (my + 2) + ' L54 ' + (my + 5) + ' L56 ' + (my + 1) + ' Z" fill="#fff"/>');
       // glasses
+      M.gl = p.length;
       const g = w.glasses;
       if (g === "round") p.push('<circle cx="41" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><circle cx="59" cy="41" r="7" fill="none" stroke="#3a2a1a" stroke-width="2"/><path d="M48 41 H52" stroke="#3a2a1a" stroke-width="2"/>');
       if (g === "shades" || g === "goldshades") { const f = g === "shades" ? "#1a1a24" : "#f5c542", e2 = g === "shades" ? "#000" : "#a87412"; p.push('<rect x="32" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><rect x="52" y="35" width="16" height="11" rx="4" fill="' + f + '" stroke="' + e2 + '" stroke-width="1.5"/><path d="M48 39 H52" stroke="' + e2 + '" stroke-width="2"/><path d="M35 37.5 H41" stroke="#fff" stroke-width="1.5" opacity=".6"/>'); }
@@ -10086,6 +10394,12 @@
       if (g === "goggles") p.push('<path d="M22 40 H78" stroke="#1fb5a8" stroke-width="3"/><circle cx="41" cy="41" r="8" fill="#9ff0e4" fill-opacity=".55" stroke="#1fb5a8" stroke-width="3"/><circle cx="59" cy="41" r="8" fill="#9ff0e4" fill-opacity=".55" stroke="#1fb5a8" stroke-width="3"/>');
       if (g === "mask") p.push('<path d="M28 36 Q50 31 72 36 Q74 46 62 47 Q55 46 50 42 Q45 46 38 47 Q26 46 28 36 Z" fill="#e8414f"/><ellipse cx="41" cy="40.5" rx="4" ry="3" fill="#fff"/><ellipse cx="59" cy="40.5" rx="4" ry="3" fill="#fff"/><circle cx="41" cy="40.5" r="1.8" fill="' + ink + '"/><circle cx="59" cy="40.5" r="1.8" fill="' + ink + '"/>');
       if (g === "diamond") p.push('<path d="M33 41 L41 33 L49 41 L41 49 Z M51 41 L59 33 L67 41 L59 49 Z" fill="#bff4ff" fill-opacity=".85" stroke="#f5c542" stroke-width="2"/><path d="M49 41 H51" stroke="#f5c542" stroke-width="2"/>');
+      if (g === "snorkel") p.push('<rect x="30" y="33" width="40" height="15" rx="7" fill="#9ff0e4" fill-opacity=".5" stroke="#ff8a3d" stroke-width="3"/><path d="M22 40 H30 M70 40 H78" stroke="#ff8a3d" stroke-width="3"/><path d="M74 46 V22 Q74 18 78 18" stroke="#ffd34e" stroke-width="3.5" fill="none" stroke-linecap="round"/>');
+      if (g === "visor") p.push('<path d="M27 34 Q50 28 73 34 L71 47 Q50 52 29 47 Z" fill="#6f8cff" fill-opacity=".7" stroke="#dfe6f0" stroke-width="2.5"/><text x="60" y="44" font-size="7" fill="#ffd34e" text-anchor="middle">\u2605</text><path d="M34 37 H44" stroke="#fff" stroke-width="1.5" opacity=".7"/>');
+      if (g === "specs") p.push('<circle cx="41" cy="41" r="8.5" fill="#fff" fill-opacity=".15" stroke="#22202c" stroke-width="2.5"/><circle cx="59" cy="41" r="8.5" fill="#fff" fill-opacity=".15" stroke="#22202c" stroke-width="2.5"/><path d="M49.5 40 Q50 38 50.5 40" stroke="#22202c" stroke-width="2.5" fill="none"/><path d="M32.5 40 H26 M67.5 40 H74" stroke="#22202c" stroke-width="2"/>');
+      if (g === "binocs") p.push('<rect x="31" y="34" width="16" height="15" rx="4" fill="#3a3a44"/><rect x="53" y="34" width="16" height="15" rx="4" fill="#3a3a44"/><rect x="46" y="38" width="8" height="6" fill="#22202c"/><circle cx="39" cy="44" r="4.5" fill="#6f8cff" stroke="#22202c" stroke-width="1.5"/><circle cx="61" cy="44" r="4.5" fill="#6f8cff" stroke="#22202c" stroke-width="1.5"/><circle cx="37.5" cy="42.5" r="1.3" fill="#fff"/><circle cx="59.5" cy="42.5" r="1.3" fill="#fff"/>');
+      if (g === "eyeblack") p.push('<rect x="35" y="47" width="11" height="3" rx="1.5" fill="#22202c"/><rect x="54" y="47" width="11" height="3" rx="1.5" fill="#22202c"/>');
+      M.ht = p.length;
       // hats (head top ~ y18-20)
       const h = w.hat;
       if (h === "cap") p.push('<path d="M27 26 Q28 10 50 9 Q72 10 73 26 Z" fill="#e8414f"/><path d="M60 24 Q78 22 86 27 Q74 30 60 28 Z" fill="#b8202e"/><circle cx="50" cy="9.5" r="2" fill="#b8202e"/>');
@@ -10101,10 +10415,33 @@
       if (h === "viking") p.push('<path d="M30 22 Q22 14 22 2 Q28 12 36 14 Z M70 22 Q78 14 78 2 Q72 12 64 14 Z" fill="#fff3d6" stroke="#b8a070"/><path d="M27 24 Q27 6 50 6 Q73 6 73 24 Z" fill="#9aa3b5"/><rect x="26" y="20" width="48" height="5" rx="2" fill="#6b7385"/>');
       if (h === "bow") p.push('<path d="M50 16 L34 6 L34 26 Z M50 16 L66 6 L66 26 Z" fill="#ff4f8b"/><circle cx="50" cy="16" r="4" fill="#d02a6a"/>');
       if (h === "headphones") p.push('<path d="M24 40 Q24 12 50 12 Q76 12 76 40" stroke="#22202c" stroke-width="4" fill="none"/><rect x="18" y="34" width="10" height="16" rx="4" fill="#e8414f"/><rect x="72" y="34" width="10" height="16" rx="4" fill="#e8414f"/>');
+      if (h === "brickhead") p.push('<rect x="25" y="14" width="50" height="50" rx="5" fill="#ffd34e" stroke="#c9a000" stroke-width="2"/><rect x="40" y="6" width="20" height="9" rx="2" fill="#ffd34e" stroke="#c9a000" stroke-width="2"/><circle cx="41" cy="37" r="4" fill="#22202c"/><circle cx="59" cy="37" r="4" fill="#22202c"/><path d="M39 49 Q50 58 61 49" stroke="#22202c" stroke-width="3" fill="none" stroke-linecap="round"/>');
+      if (h === "brickhat") p.push('<rect x="30" y="8" width="40" height="16" rx="2" fill="#e8414f" stroke="#b8202e" stroke-width="1.5"/><rect x="35" y="2" width="11" height="7" rx="1.5" fill="#e8414f" stroke="#b8202e" stroke-width="1.5"/><rect x="54" y="2" width="11" height="7" rx="1.5" fill="#e8414f" stroke="#b8202e" stroke-width="1.5"/>');
+      if (h === "tiara") p.push('<path d="M34 22 L36 12 L42 18 L50 6 L58 18 L64 12 L66 22 Z" fill="#e8ecf8" stroke="#9aa4c8" stroke-width="1.5"/><circle cx="50" cy="14" r="2.8" fill="#ff7ab8"/><circle cx="40" cy="19" r="1.6" fill="#6f8cff"/><circle cx="60" cy="19" r="1.6" fill="#6f8cff"/>');
+      if (h === "explorer") p.push('<path d="M28 24 Q28 4 50 4 Q72 4 72 24 Z" fill="#e8d5a0" stroke="#b8a070" stroke-width="1.5"/><rect x="28" y="18" width="44" height="5" fill="#7a4a22"/><ellipse cx="50" cy="25" rx="30" ry="5" fill="#d8c08a" stroke="#b8a070" stroke-width="1.2"/>');
+      if (h === "witch") p.push('<path d="M34 20 L56 -8 L52 6 L66 20 Z" fill="#2a1d3a"/><rect x="36" y="14" width="28" height="4" fill="#7ee07a"/><ellipse cx="50" cy="20" rx="27" ry="4.5" fill="#22162e"/>');
+      if (h === "pumpkin" || h === "gpump") { const pf = h === "gpump" ? "#f5c542" : "#ff8a1f", pe = h === "gpump" ? "#a87412" : "#c85a00"; p.push('<path d="M50 14 Q54 6 58 8" stroke="#3f8a3a" stroke-width="4" fill="none"/><ellipse cx="50" cy="40" rx="31" ry="27" fill="' + pf + '" stroke="' + pe + '" stroke-width="2"/><path d="M36 15 Q30 40 36 66 M64 15 Q70 40 64 66 M50 13 V67" stroke="' + pe + '" stroke-width="1.5" fill="none" opacity=".6"/><path d="M34 40 L41 32 L48 40 Z M52 40 L59 32 L66 40 Z M36 50 L42 55 L46 51 L50 56 L54 51 L58 55 L64 50 Q50 64 36 50 Z" fill="#3a1d00"/>'); }
+      if (h === "plei") [[28, 26, "#fff"], [35, 20, "#ffd34e"], [43, 17, "#fff"], [50, 16, "#ff7ab8"], [57, 17, "#fff"], [65, 20, "#ffd34e"], [72, 26, "#fff"]].forEach(function (q) { p.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4.6" fill="' + q[2] + '" stroke="#3fa34d" stroke-width="1"/><circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.6" fill="#ffb703"/>'); });
+      if (h === "helmet") p.push('<circle cx="50" cy="40" r="33" fill="#bfe8ff" fill-opacity=".28" stroke="#dfe6f0" stroke-width="4"/><path d="M30 24 Q36 14 46 12" stroke="#fff" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/><path d="M50 7 V-3" stroke="#9aa3b5" stroke-width="2"/><circle cx="50" cy="-4" r="3" fill="#ff5a5a"/>');
+      if (h === "tcap") p.push('<path d="M27 26 Q28 10 50 9 Q72 10 73 26 Z" fill="#3550c8"/><path d="M27 26 Q14 26 12 30 Q24 31 40 28 Z" fill="#22308a"/><text x="54" y="23" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">\u2605</text>');
+      if (h === "pilgrim") p.push('<path d="M36 20 L38 -2 L62 -2 L64 20 Z" fill="#22202c"/><rect x="37" y="10" width="26" height="5" fill="#7a4a22"/><rect x="45" y="9" width="10" height="7" fill="none" stroke="#f5c542" stroke-width="2"/><rect x="24" y="18" width="52" height="5" rx="2.5" fill="#22202c"/>');
       if (h === "halo") p.push('<ellipse cx="50" cy="6" rx="16" ry="4.5" fill="none" stroke="#f5c542" stroke-width="3.5"/>');
       // pet
+      M.pt = p.length;
       const pet = w.pet && avItem(w.pet);
-      if (pet) p.push((pet.gold ? '<circle cx="88" cy="96" r="12" fill="#f5c542" opacity=".35"/>' : "") + '<text x="88" y="103" font-size="20" text-anchor="middle">' + pet.emoji + '</text>');
+      if (pet && AV_PET_ART[pet.id]) p.push(AV_PET_ART[pet.id]);
+      else if (pet) p.push((pet.gold ? '<circle cx="88" cy="96" r="12" fill="#f5c542" opacity=".35"/>' : "") + '<text x="88" y="103" font-size="20" text-anchor="middle">' + pet.emoji + '</text>');
+      // hand item: held in the left hand
+      M.hn = p.length;
+      const hd = w.hand && AV_HAND_ART[w.hand];
+      if (hd) p.push('<g transform="matrix(-1 0 0 1 98 0)">' + hd + '</g><circle cx="22" cy="82" r="5" fill="' + c + '" stroke="rgba(0,0,0,.25)"/>');
+      // opts.only: just one piece (shop cards). Returns the inner markup in a <g>; the page measures and crops it.
+      if (opts.only) {
+        const rg = { shoes: [M.sh, M.sr], shirt: [M.sr, M.hd], head: [M.hd, M.gl], glasses: [M.gl, M.ht], hat: [M.ht, M.pt], pet: [M.pt, M.hn] }[opts.only];
+        const defs = p.filter(function (x) { return x.indexOf("<defs>") === 0; }).join("");
+        const inner = opts.only === "hand" ? (AV_HAND_ART[w.hand] || "") : rg ? p.slice(rg[0], rg[1]).join("") : "";
+        return defs + "<g>" + inner + "</g>";
+      }
       const size = opts.size || 96;
       return '<svg class="av-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + (pet ? "0 -8 104 114" : "0 -8 100 114") + '" width="' + size + '" height="' + Math.round(size * 1.14) + '"' + (pix ? ' shape-rendering="crispEdges"' : "") + ' aria-hidden="true">' + p.join("") + "</svg>";
     }
@@ -10112,6 +10449,25 @@
     function avNode(a, size, cls) {
       const span = el("span", { class: "av " + (cls || "") });
       span.innerHTML = avatarSVG(a, { size: size });
+      return span;
+    }
+    // One piece alone, cropped to its own size (measured once, then cached).
+    const avPieceBox = {};
+    let avMeasure = null;
+    function avPieceNode(a, only, key, size) {
+      const inner = avatarSVG(a, { only: only });
+      let vb = avPieceBox[key];
+      if (!vb) {
+        if (!avMeasure) { avMeasure = document.createElementNS("http://www.w3.org/2000/svg", "svg"); avMeasure.setAttribute("style", "position:absolute;left:-9999px;top:0;width:200px;height:200px;visibility:hidden"); avMeasure.setAttribute("viewBox", "-20 -20 160 160"); document.body.appendChild(avMeasure); }
+        avMeasure.innerHTML = inner;
+        let bb = null; try { const g = avMeasure.querySelector("g"); bb = g && g.getBBox(); } catch (e) {}
+        if (!bb || !bb.width) bb = { x: 0, y: -8, width: 104, height: 114 };
+        const side = Math.max(bb.width, bb.height) * 1.1 + 2;
+        vb = [bb.x + bb.width / 2 - side / 2, bb.y + bb.height / 2 - side / 2, side, side].map(function (n) { return Math.round(n * 10) / 10; }).join(" ");
+        avPieceBox[key] = vb;
+      }
+      const span = el("span", { class: "av shp-piece" });
+      span.innerHTML = '<svg class="av-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + vb + '" width="' + size + '" height="' + size + '" aria-hidden="true">' + inner + "</svg>";
       return span;
     }
     function avWith(itemId) {
@@ -10131,9 +10487,9 @@
       if (busy && tries < 200) { setTimeout(function () { avPrizeWhenClear(at, tries + 1); }, 400); return; }
       avPrize(at);
     }
-    const AV_CATS = [["style", "Styles"], ["animal", "Animals"], ["color", "Colors"], ["face", "Faces"], ["hair", "Hair"]].concat(AV_SLOTS);
+    const AV_CATS = [["style", "Styles"], ["animal", "Animals"], ["color", "Colors"], ["face", "Faces"], ["hair", "Hair"]].concat(AV_SLOTS.filter(function (c) { return c[0] !== "hand"; })); // hand items are shop-only
     function avAll(cat) {
-      return AV_LOOK.filter(function (i) { return i.cat === cat; }).concat(AV_ITEMS.filter(function (i) { return i.slot === cat; }));
+      return AV_LOOK.filter(function (i) { return i.cat === cat; }).concat(AV_ITEMS.filter(function (i) { return i.slot === cat && !i.pack; }));
     }
     function avCanWin(it) { return !avOwns(it.id) && (!it.gold || avatar.pg); }
     function avAnyToWin() { return AV_CATS.some(function (c) { return avAll(c[0]).some(avCanWin); }); }
@@ -10329,13 +10685,14 @@
     const COIN_KEY = "mf-coins";
     function coinGet() { try { return Math.max(0, parseInt(localStorage.getItem(COIN_KEY) || "0", 10) || 0); } catch (e) { return 0; } }
     function coinSet(n) { try { localStorage.setItem(COIN_KEY, String(Math.max(0, n))); } catch (e) {} }
-    function coinSpend() { const c = coinGet(); if (c < 1) { say("You need a coin. Get 10 in a row to earn one!"); return false; } coinSet(c - 1); return true; }
-    function coinPill() { const c = coinGet(); return el("p", { class: "coin-bank", role: "status", "aria-label": c + (c === 1 ? " coin" : " coins") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "\u00A2" }), el("span", { text: c + (c === 1 ? " coin" : " coins") })]); }
+    function coinSpend(amount) { const n = Math.max(1, Math.floor(Number(amount) || 1)), c = coinGet(); if (c < n) { say(n === 1 ? "You need a coin. Get 10 in a row to earn one!" : "You need " + n + " coins. You have " + c + "."); return false; } coinSet(c - n); coinPillUpdate(); return true; }
+    function coinPillUpdate() { const c = coinGet(), t = c + (c === 1 ? " coin" : " coins"); document.querySelectorAll(".coin-bank").forEach(function (b) { b.setAttribute("aria-label", t); const s = b.lastChild; if (s) s.textContent = b.getAttribute("data-short") ? String(c) : t; b.classList.remove("coin-bump"); void b.offsetWidth; b.classList.add("coin-bump"); }); }
+    function coinPill() { const c = coinGet(); return el("p", { class: "coin-bank", role: "status", "aria-label": c + (c === 1 ? " coin" : " coins") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: c + (c === 1 ? " coin" : " coins") })]); }
     function coinDrop(preview) {
       if (!preview) { coinSet(coinGet() + 1); say("You got a coin!"); }
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const old = document.getElementById("coin-drop"); if (old) old.remove();
-      const d = el("div", { id: "coin-drop", class: "coin-drop", "aria-hidden": "true" }, [el("span", { class: "coin-ico big", text: "\u00A2" }), el("span", { class: "coin-plus", text: "+1" })]);
+      const d = el("div", { id: "coin-drop", class: "coin-drop", "aria-hidden": "true" }, [el("span", { class: "coin-ico big", text: "$" }), el("span", { class: "coin-plus", text: "+1" })]);
       document.body.appendChild(d);
       setTimeout(function () { d.remove(); }, 1500);
     }
@@ -10353,7 +10710,7 @@
       const bob = el("div", { class: "gb-bob" });
       // A right answer shows the big smile for a moment.
       const look = mood === "hop" || mood === "cheer" ? Object.assign({}, avatar, { face: "grin" }) : avatar;
-      bob.appendChild(avNode(look, 190));
+      bob.appendChild(hdOn() ? hdPicNode(avatar, 190, null, true) : avNode(look, 190));
       wrap.appendChild(bob);
       if (mood === "cheer") ["s1", "s2", "s3"].forEach(function (k) { wrap.appendChild(el("span", { class: "gb-spark " + k, text: "\u2728" })); });
       row.appendChild(wrap);
@@ -10372,96 +10729,235 @@
         return true;
       });
     }
+    let avSoonTimer = 0;
+    function avSaveSoon() { try { localStorage.setItem(AV_KEY, JSON.stringify(avatar)); } catch (e) {} clearTimeout(avSoonTimer); avSoonTimer = setTimeout(function () { avSave(); }, 700); }
+    window.addEventListener("pagehide", function () { if (avSoonTimer) { clearTimeout(avSoonTimer); avSoonTimer = 0; avSave(); } });
+    function avConfirm(title, sub, yes, yesText) {
+      const ov = el("div", { class: "prize-ov", role: "dialog", "aria-modal": "true", "aria-label": title });
+      const close = function () { ov.remove(); };
+      ov.appendChild(el("div", { class: "prize-box pack-confirm" }, [el("p", { class: "prize-title", text: title }), el("p", { class: "prize-sub", text: sub }),
+        el("div", { class: "pack-yn" }, [el("button", { type: "button", class: "pack-no", text: "Not now", onClick: close }),
+          el("button", { type: "button", class: "pack-yes", text: yesText || "Yes, open it!", onClick: function () { close(); yes(); } })])]));
+      document.body.appendChild(ov);
+      const f = ov.querySelector(".pack-yes"); if (f) f.focus({ preventScroll: true });
+    }
+    // ---- Avatar Shop page: stage + 8 tabs + Shop / My Closet. Buying updates in place (no page jump). ----
+    let shopTab = "hat", shopMode = "shop", shopTry = "", shopPack = "", shopBought = [];
+    const SHOP_TABS = [["pack", "\u2B50", "Packs"], ["hat", "\uD83C\uDFA9", "Hats"], ["shirt", "\uD83D\uDC55", "Shirts"], ["glasses", "\uD83D\uDD76\uFE0F", "Glasses"],
+      ["shoes", "\uD83D\uDC5F", "Shoes"], ["pet", "\uD83D\uDC36", "Pets"], ["look", "\uD83C\uDFA8", "Looks"], ["hand", "\u270B", "Hand items"]];
+    const SHOP_PACK_BG = { hw: "#ff8a1f,#5b2a8a", bh: "#1fb5a8,#ff8a3d", sp: "#22308a,#6f8cff", sw: "#3550c8,#e8414f", tg: "#a0522d,#f2a65a",
+      wz: "#5a1020,#c9a24a", bb: "#e8414f,#ffb703", ft: "#ff7ab8,#6f8cff", jg: "#2f7d3a,#9ccc3a" };
+    function shopFind(id) { return avItem(id) || avLook(id); }
+    function shopCost(it) { return it.f ? (it.slot === "look" ? HD_CHAR_COST : HD_PIECE_COST) : it.gold ? AV_GOLD_COST : AV_PIECE_COST; }
+    function shopHas(it) { return it.f ? hdHas(it.id) : avOwns(it.id); }
+    function shopPackOpen(k) { return avatar.pk.indexOf(k) >= 0; }
+    function shopPackName(k) { const x = AV_PACKS.find(function (q) { return q[0] === k; }); return x ? x[1] : ""; }
+    function shopWearing(it) { if (it.f) return it.slot === "look" ? avatar.hd.b === it.id : avatar.hd.w[it.slot] === it.id; return it.slot ? avatar.wear[it.slot] === it.id : avatar[it.key] === it.val && (it.cat !== "animal" || avatar.style === "animal"); }
+    function shopLook(it) {
+      const a = JSON.parse(JSON.stringify(avatar));
+      if (!it) return a;
+      if (it.slot) { a.wear[it.slot] = it.id; if (a.owned.indexOf(it.id) < 0) a.owned.push(it.id); return a; }
+      const pv = avPreview(it); pv.wear = a.wear; pv.owned = a.owned; return pv;
+    }
+    function shopItems(tab) {
+      if (hdOn()) { const ch = (hdItem(avatar.hd.b) || HD_ITEMS[0]).ch; return HD_ITEMS.filter(function (i) { return i.slot === tab && (tab === "look" || i.ch === ch); }); }
+      if (tab === "look") return AV_LOOK.slice();
+      return AV_ITEMS.filter(function (i) { return i.slot === tab && (!i.pack || shopPackOpen(i.pack) || avOwns(i.id)); });
+    }
     function closetCard() {
-      const card = el("div", { class: "card closet-card" });
+      const card = el("div", { class: "card closet-card shp" });
       const me = LEADERBOARD_URL ? lbMe() : null;
       if (me && avLoadedFor !== me.name && !avLoading && Date.now() - avPullAt > 3000) setTimeout(function () { avPull(true); }, 0);
       else if (me && avLoadedFor === me.name && Date.now() - avPullAt > 30000) setTimeout(function () { avPull(true); }, 0);
-      // Sticky top: Back, name, big avatar, save note, tabs.
-      const top = el("div", { class: "av-top" });
-      top.appendChild(el("div", { class: "av-top-row" }, [
-        el("button", { type: "button", class: "page-back av-back", text: "\u2039 Back", onClick: function () { goPage("menu"); } }),
-        el("span", { class: "av-name", text: me ? me.name : "My Avatar" })
-      ]));
-      const big = el("div", { class: "closet-preview av-big" + (avBounce ? " bounce" : "") }, [avNode(avatar, 260)]);
-      avBounce = false;
-      top.appendChild(big);
-      if (LEADERBOARD_URL && !me) top.appendChild(el("button", { type: "button", class: "si-in av-signnote-btn", text: "\uD83D\uDC64 Sign in to save", onClick: siOpen }));
-      const status = el("p", { class: "av-status " + avStatus, id: "av-status", role: "status" });
-      top.appendChild(status);
-      top.appendChild(coinPill());
-      if (avatar.pz > 0 && avAnyToWin()) top.appendChild(el("button", { type: "button", class: "pz-claim", text: "\uD83C\uDF81 Pick your prize!", onClick: function () { avPrizeShow(""); } }));
-      const tabs = el("div", { class: "lb-tabs av-tabs", role: "tablist" });
-      [["mine", "My Stuff"], ["win", "Buy More"]].forEach(function (t) {
-        tabs.appendChild(el("button", { type: "button", role: "tab", class: "lb-tab" + (closetTab === t[0] ? " on" : ""), "aria-selected": String(closetTab === t[0]), text: t[1], onClick: function () { closetTab = t[0]; render(); window.scrollTo(0, 0); } }));
-      });
-      top.appendChild(tabs);
-      top.appendChild(el("a", { class: "av-print", href: "./print.html", target: "_blank", rel: "noopener", text: "\uD83D\uDDA8\uFE0F Print avatars" }));
-      card.appendChild(top);
+      const wide = window.matchMedia && window.matchMedia("(min-width: 720px)").matches;
+      // Header: back, title, menu, coins.
+      const menu = el("div", { class: "shp-menu", hidden: "" });
+      menu.appendChild(el("p", { class: "shp-menu-name", text: me ? me.name : "My Avatar" }));
+      menu.appendChild(el("p", { class: "av-status " + avStatus, id: "av-status", role: "status" }));
+      if (LEADERBOARD_URL && !me) menu.appendChild(el("button", { type: "button", class: "shp-menu-btn", text: "\uD83D\uDC64 Sign in to save", onClick: siOpen }));
+      menu.appendChild(el("a", { class: "shp-menu-btn", href: "./print.html", target: "_blank", rel: "noopener", text: "\uD83D\uDDA8\uFE0F Print avatars" }));
+      const coins = el("p", { class: "coin-bank shp-coins", "data-short": "1", role: "status", "aria-label": coinGet() + " coins" }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: String(coinGet()) })]);
+      card.appendChild(el("div", { class: "shp-bar" }, [
+        el("button", { type: "button", class: "shp-back", "aria-label": "Back", text: "\u2039", onClick: function () { goPage("menu"); } }),
+        el("span", { class: "shp-ttl", text: "Avatar Shop" }),
+        el("button", { type: "button", class: "shp-more", "aria-label": "More", text: "\u22EF", onClick: function () { if (menu.hasAttribute("hidden")) menu.removeAttribute("hidden"); else menu.setAttribute("hidden", ""); } }),
+        coins, menu]));
       setTimeout(function () { avShowStatus(avStatus); }, 0);
-      const items = el("div", { class: "av-items" });
-      card.appendChild(items);
-      if (me && avLoading && avLoadedFor !== me.name) {
-        items.appendChild(el("p", { class: "av-loading", text: "Loading your stuff\u2026" }));
-        return card;
-      }
-      // Wearing changes the big avatar right away; the rest of the page stays put.
-      const refresh = function () {
+      if (avatar.pz > 0 && avAnyToWin()) card.appendChild(el("button", { type: "button", class: "pz-claim shp-prize", text: "\uD83C\uDF81 Pick your prize!", onClick: function () { avPrizeShow(""); } }));
+      // Stage.
+      const hero = el("div", { class: "shp-hero" });
+      const tryTxt = el("b", { class: "shp-try-txt" });
+      const tryBuy = el("button", { type: "button", class: "shp-buy" });
+      const tryBar = el("div", { class: "shp-try", hidden: "" }, [tryTxt,
+        el("button", { type: "button", class: "shp-no", "aria-label": "Stop trying on", text: "\u2715", onClick: function () { shopTry = ""; paintAll(); } }), tryBuy]);
+      const modeBtn = el("button", { type: "button", class: "shp-mode", hidden: "", onClick: function () { avatar.hd.on = hdOn() ? 0 : 1; avSaveSoon(); say(hdOn() ? "HD avatar on!" : "Classic avatar on!"); paintAll(true); } });
+      const stage = el("div", { class: "shp-stage" }, [el("div", { class: "shp-beam" }), el("div", { class: "shp-ped" }), hero, modeBtn]);
+      const tabs = el("div", { class: "shp-tabs", role: "tablist" });
+      const seg = el("div", { class: "shp-seg" });
+      const body = el("div", { class: "shp-body" });
+      card.appendChild(el("div", { class: "shp-wrap" }, [stage, el("div", { class: "shp-main" }, [tabs, seg, body])]));
+      const shake = function (n) { n.classList.remove("av-shake"); void n.offsetWidth; n.classList.add("av-shake"); };
+      const paintHero = function (bounce) {
+        hero.innerHTML = "";
+        hero.appendChild(hdOn() ? hdNode(avatar.hd, wide ? 330 : 250) : avNode(shopLook(shopTry ? shopFind(shopTry) : null), wide ? 300 : 230));
+        modeBtn.hidden = avatar.pk.indexOf("hd") < 0;
+        modeBtn.textContent = hdOn() ? "\u21BA Classic avatar" : "\u2728 HD avatar";
+        stage.classList.toggle("hd", hdOn());
+        if (bounce) { hero.classList.remove("bounce"); void hero.offsetWidth; hero.classList.add("bounce"); }
+      };
+      const packOpen = function (k, btn) {
+        if (coinGet() < AV_PACK_COST) { if (btn) shake(btn); say("You need $" + AV_PACK_COST + " to open this pack. You have $" + coinGet() + "."); return; }
+        avConfirm("Open the " + shopPackName(k) + " pack for $" + AV_PACK_COST + "?", "Then each piece costs $1 (gold $50).", function () {
+          if (!coinSpend(AV_PACK_COST)) return;
+          if (avatar.pk.indexOf(k) < 0) avatar.pk.push(k);
+          avatar.made = true; avSaveSoon(); say(shopPackName(k) + " pack is open!");
+          shopPack = k; paintAll();
+        });
+      };
+      const buy = function (it, node, ok) {
+        if (it.soon) { shake(node); say(it.name + " is coming soon!"); return; }
+        const cost = shopCost(it);
+        if (coinGet() < cost) { shake(node); say("You need $" + cost + ". You have $" + coinGet() + "."); return; }
+        if (it.f && it.slot === "look" && !ok) { avConfirm("Get the " + it.name + " for $" + cost + "?", "HD characters cost $" + cost + ". You have $" + coinGet() + ".", function () { buy(it, node, true); }, "Yes, get it!"); return; }
+        if (!coinSpend(cost)) return;
+        if (it.f) { if (avatar.hd.o.indexOf(it.id) < 0) avatar.hd.o.push(it.id); if (it.slot === "look") avatar.hd.b = it.id; else avatar.hd.w[it.slot] = it.id; }
+        else { if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id); avApply(it); }
         avatar.made = true;
-        avSave();
-        const keepY = window.scrollY;
-        render();
-        window.scrollTo(0, keepY);
+        if (shopBought.indexOf(it.id) < 0) shopBought.push(it.id);
+        shopTry = ""; avSaveSoon(); say("You got " + it.name + "!");
+        paintAll(true);
       };
-      const tile = function (it, on, pic, tap) {
-        const btn = el("button", { type: "button", class: "av-tile" + (on ? " on" : "") + (it.gold ? " gold" : ""), "aria-pressed": String(on), "aria-label": it.name + (on ? ", wearing" : ""), onClick: tap }, [pic, el("span", { class: "av-tile-name", text: it.name })]);
-        if (on) btn.appendChild(el("span", { class: "av-tile-on", "aria-hidden": "true", text: "\u2713" }));
-        return btn;
+      const paintTry = function () { return;
+        const it = shopTry && shopFind(shopTry);
+        if (!it) { tryBar.setAttribute("hidden", ""); stage.classList.remove("trying"); return; }
+        tryBar.removeAttribute("hidden"); stage.classList.add("trying");
+        tryTxt.textContent = "Trying on: " + (it.swatch ? (it.key === "hairColor" ? "Hair color" : "Color") : it.name);
+        tryBuy.innerHTML = "";
+        const locked = it.pack && !shopPackOpen(it.pack);
+        const cost = locked ? AV_PACK_COST : shopCost(it);
+        tryBuy.appendChild(el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }));
+        tryBuy.appendChild(el("span", { text: cost + (locked ? " Open pack" : " Buy") }));
+        tryBuy.classList.toggle("poor", coinGet() < cost);
+        tryBuy.onclick = function () { if (locked) packOpen(it.pack, tryBuy); else buy(it); };
       };
-      const sec = function (title, kids) { return el("div", { class: "closet-sec" }, [el("p", { class: "closet-h", text: title }), el("div", { class: "av-tiles" }, kids)]); };
-      if (closetTab === "mine") {
-        items.appendChild(el("p", { class: "av-tip", text: "Tap to wear it." }));
-        // Clothes and pets first: the things kids win most.
-        AV_SLOTS.forEach(function (sl) {
-          const mine = AV_ITEMS.filter(function (i) { return i.slot === sl[0] && avatar.owned.indexOf(i.id) >= 0; });
-          if (!mine.length) return;
-          items.appendChild(sec(sl[1], mine.map(function (it) {
-            const on = avatar.wear[sl[0]] === it.id;
-            const prev = Object.assign({}, avatar, { wear: (function () { const o = {}; o[sl[0]] = it.id; return o; })() });
-            return tile(it, on, avNode(prev, 72), function () { if (on) delete avatar.wear[sl[0]]; else avatar.wear[sl[0]] = it.id; refresh(); });
-          })));
+      const cardFor = function (it) {
+        const have = shopHas(it), on = have && shopWearing(it), hand = it.slot === "hand" && !it.f;
+        const locked = !have && it.pack && !shopPackOpen(it.pack);
+        let pic;
+        if (it.swatch) pic = el("span", { class: "shp-swatch", style: "background:" + it.swatch });
+        else if (it.f) pic = el("span", { class: "shp-hdthumb" }, [el("img", { src: HD_DIR + "thumbs/" + it.f + ".webp", alt: "", decoding: "async", draggable: "false" })]);
+        else if (it.slot) { const a = { owned: [it.id], wear: {}, color: avatar.color, style: "buddy" }; a.wear[it.slot] = it.id; pic = avPieceNode(a, it.slot, it.id, 88); }
+        else { const pv = avPreview(it); pv.wear = {}; pv.owned = avatar.owned.concat([it.id]); pic = avPieceNode(pv, "head", "look:" + it.id, 88); }
+        const tag = it.soon && !have ? el("span", { class: "shp-st lock", text: "Soon" })
+          : on ? el("span", { class: "shp-st wear", text: hand ? "Holding" : "Wearing" })
+          : have ? el("span", { class: "shp-st own", text: hand ? "\u2713 Hold" : "\u2713 Wear" })
+          : locked ? el("span", { class: "shp-st lock", text: "\uD83D\uDD12" })
+          : el("span", { class: "shp-st price" + (coinGet() < shopCost(it) ? " poor" : "") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: String(shopCost(it)) })]);
+        const name = it.swatch ? (it.key === "hairColor" ? "Hair color" : "Color") : it.name;
+        return el("button", { type: "button", class: "shp-card" + (it.gold ? " gold" : "") + (on ? " wearing" : "") + (shopTry === it.id ? " sel" : ""),
+          "aria-label": name + (it.soon && !have ? ", coming soon" : on ? ", wearing" : have ? ", yours" : locked ? ", pack locked" : ", $" + shopCost(it)),
+          onClick: function () {
+            if (have && it.f) {
+              if (it.slot === "look") avatar.hd.b = it.id; else if (on) delete avatar.hd.w[it.slot]; else avatar.hd.w[it.slot] = it.id;
+              avatar.made = true; avSaveSoon(); paintAll(true); return;
+            }
+            if (have) {
+              if (on && it.slot) delete avatar.wear[it.slot]; else avApply(it);
+              avatar.made = true; shopTry = ""; avSaveSoon(); paintAll(true); return;
+            }
+            if (it.pack && !shopPackOpen(it.pack)) packOpen(it.pack, this); else buy(it, this);
+          } }, [it.gold ? el("span", { class: "shp-rib", text: "GOLD" }) : null, pic, el("span", { class: "shp-nm", text: name }), tag].filter(Boolean));
+      };
+      const grid = function (list) { return el("div", { class: "shp-grid" }, list.map(cardFor)); };
+      const paintTabs = function () {
+        tabs.innerHTML = "";
+        const hd = hdOn();
+        if (hd && (shopTab === "glasses" || shopTab === "hand")) shopTab = "hat";
+        SHOP_TABS.forEach(function (t) {
+          if (hd && (t[0] === "glasses" || t[0] === "hand")) return;
+          if (hd && t[0] === "shirt") t = ["shirt", "\uD83E\uDDE5", "Outfits"];
+          if (hd && t[0] === "look") t = ["look", "\uD83E\uDDD9", "Characters"];
+          tabs.appendChild(el("button", { type: "button", role: "tab", class: "shp-tab" + (t[0] === "pack" ? " pk" : "") + (shopTab === t[0] ? " on" : ""), "aria-selected": String(shopTab === t[0]),
+            onClick: function () { shopTab = t[0]; shopPack = ""; shopTry = ""; shopBought = []; paintAll(); } }, [el("i", { "aria-hidden": "true", text: t[1] }), el("span", { text: t[2] })]));
         });
-        const looks = avMineLooks();
-        [["style", "Styles"], ["animal", "Animals"], ["color", "Colors"], ["face", "Faces"], ["hair", "Hair"]].forEach(function (c) {
-          const list = looks.filter(function (it) { return it.cat === c[0]; });
-          if (!list.length) return;
-          items.appendChild(sec(c[1], list.map(function (it) {
-            const on = avatar[it.key] === it.val;
-            const pic = it.swatch ? el("span", { class: "av-tile-swatch", style: "background:" + it.swatch }) : avNode(avPreview(Object.assign({}, it)), 72);
-            if (it.swatch) it = Object.assign({}, it, { name: it.key === "hairColor" ? "Hair color" : "Color" });
-            return tile(it, on, pic, function () { avApply(it); refresh(); });
-          })));
+      };
+      const paintBody = function () {
+        body.innerHTML = ""; seg.innerHTML = "";
+        if (me && avLoading && avLoadedFor !== me.name) { body.appendChild(el("p", { class: "av-loading", text: "Loading your stuff\u2026" })); return; }
+        if (shopTab === "pack") {
+          seg.setAttribute("hidden", "");
+          if (shopPack) {
+            const k = shopPack, open = shopPackOpen(k), pk = AV_PACKS.find(function (q) { return q[0] === k; });
+            body.appendChild(el("button", { type: "button", class: "shp-chip", text: "\u2039 All packs", onClick: function () { shopPack = ""; shopTry = ""; paintAll(); } }));
+            const ban = el("div", { class: "shp-pack big", style: "background:linear-gradient(135deg," + SHOP_PACK_BG[k] + ")" }, [el("span", { class: "shp-pack-art", text: pk[2] }),
+              el("span", { class: "shp-pack-txt" }, [el("b", { text: pk[1] }), el("small", { text: open ? "Open! Tap a piece to buy it." : "Open the pack to buy its pieces." })])]);
+            if (!open) { const ob = el("button", { type: "button", class: "shp-buy" + (coinGet() < AV_PACK_COST ? " poor" : "") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: AV_PACK_COST + " Open" })]); ob.onclick = function () { packOpen(k, ob); }; ban.appendChild(ob); }
+            body.appendChild(ban);
+            body.appendChild(grid(AV_ITEMS.filter(function (i) { return i.pack === k; })));
+            return;
+          }
+          const list = el("div", { class: "shp-packs" });
+          const hdOpen = avatar.pk.indexOf("hd") >= 0;
+          list.appendChild(el("button", { type: "button", class: "shp-pack hdpk", "aria-label": "HD avatar pack" + (hdOpen ? ", open" : ", $" + HD_PACK_COST + " to open"),
+            onClick: function () {
+              if (hdOpen) { avatar.hd.on = 1; avSaveSoon(); shopTab = "hat"; shopMode = "shop"; paintAll(true); return; }
+              const me2 = this;
+              if (coinGet() < HD_PACK_COST) { shake(me2); say("You need $" + HD_PACK_COST + " to open the HD pack. You have $" + coinGet() + "."); return; }
+              avConfirm("Open the HD avatar pack for $" + HD_PACK_COST + "?", "You get the Wizard free, and each HD item is $" + HD_PIECE_COST + ". More characters coming soon!", function () {
+                if (!coinSpend(HD_PACK_COST)) return;
+                if (avatar.pk.indexOf("hd") < 0) avatar.pk.push("hd");
+                avatar.hd.on = 1; avatar.made = true; avSaveSoon(); say("HD avatar pack is open!");
+                shopTab = "hat"; shopMode = "shop"; paintAll(true);
+              });
+            } }, [el("span", { class: "shp-pack-art", text: "\u2728" }), el("span", { class: "shp-pack-txt" }, [el("b", { text: "HD Avatar \u00B7 NEW" }),
+              el("small", { text: "Movie-style 3D Wizard, free! 20 Wizard items, $" + HD_PIECE_COST + " each. More characters coming soon." }),
+              hdOpen ? el("span", { class: "shp-st own", text: "\u2713 Open \u00B7 Shop HD" }) : el("span", { class: "shp-buy" + (coinGet() < HD_PACK_COST ? " poor" : "") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: HD_PACK_COST + " Open" })])])]));
+          AV_PACKS.forEach(function (pk) {
+            const k = pk[0], open = shopPackOpen(k);
+            const names = AV_ITEMS.filter(function (i) { return i.pack === k; }).map(function (i) { return i.name; }).join(" \u00B7 ");
+            const btn = open ? el("span", { class: "shp-st own", text: "\u2713 Open \u00B7 Shop it" })
+              : el("span", { class: "shp-buy" + (coinGet() < AV_PACK_COST ? " poor" : "") }, [el("span", { class: "coin-ico", "aria-hidden": "true", text: "$" }), el("span", { text: AV_PACK_COST + " Open" })]);
+            list.appendChild(el("button", { type: "button", class: "shp-pack", style: "background:linear-gradient(135deg," + SHOP_PACK_BG[k] + ")", "aria-label": pk[1] + (open ? ", open" : ", $" + AV_PACK_COST + " to open"),
+              onClick: function () { shopPack = k; shopTry = ""; paintAll(); window.scrollTo(0, Math.min(window.scrollY, card.offsetTop)); } },
+              [el("span", { class: "shp-pack-art", text: pk[2] }), el("span", { class: "shp-pack-txt" }, [el("b", { text: pk[1] }), el("small", { text: names }), btn])]));
+          });
+          body.appendChild(list);
+          return;
+        }
+        seg.removeAttribute("hidden");
+        if (hdOn() && shopTab !== "look") {
+          const c = hdItem(avatar.hd.b) || HD_ITEMS[0];
+          if (!HD_ITEMS.some(function (i) { return i.ch === c.ch && i.slot !== "look"; })) {
+            seg.setAttribute("hidden", "");
+            body.appendChild(el("p", { class: "av-tip hd-soon", text: c.name + " items: Coming soon! \uD83D\uDEA7 Pick the Wizard in Characters to dress him now." }));
+            return;
+          }
+        }
+        const all = shopItems(shopTab);
+        const toBuy = all.filter(function (i) { return !shopHas(i); }), mine = all.filter(function (i) { return shopHas(i); });
+        [["shop", "\uD83D\uDED2", "Shop", toBuy.length], ["closet", "\uD83C\uDF92", "My Closet", mine.length]].forEach(function (m) {
+          seg.appendChild(el("button", { type: "button", class: "shp-segb " + m[0] + (shopMode === m[0] ? " on" : ""), "aria-pressed": String(shopMode === m[0]),
+            onClick: function () { shopMode = m[0]; shopTry = ""; shopBought = []; paintAll(); } }, [el("i", { "aria-hidden": "true", text: m[1] }), el("span", { text: m[2] }), el("span", { class: "n", text: String(m[3]) })]));
         });
-      } else {
-        items.appendChild(el("p", { class: "av-tip", text: "Each piece costs 1 coin. Tap one to buy it. Get 10 in a row to earn a coin." }));
-        let any = false;
-        AV_CATS.forEach(function (c) {
-          const list = avAll(c[0]).filter(function (it) { return !avOwns(it.id); });
-          if (!list.length) return;
-          any = true;
-          items.appendChild(sec(c[1], list.map(function (it) {
-            const pic = it.swatch ? el("span", { class: "av-tile-swatch", style: "background:" + it.swatch }) : avNode(avPreview(it), 72);
-            const btn = el("button", { type: "button", class: "av-tile locked" + (it.gold ? " gold" : ""), "aria-label": it.name + ", tap to buy for 1 coin", onClick: function () {
-              if (!coinSpend()) return;
-              if (avatar.owned.indexOf(it.id) < 0) avatar.owned.push(it.id);
-              avApply(it); avBounce = true; say("You got " + it.name + "!"); refresh();
-            } },
-              [pic, el("span", { class: "av-tile-name", text: it.swatch ? "Color" : it.name }), el("span", { class: "av-tile-lock av-cost", "aria-hidden": "true", text: "\u00A2 1" })]);
-            return btn;
-          })));
-        });
-        if (!any) items.appendChild(el("p", { class: "av-tip", text: "You won everything! \uD83C\uDF89" }));
-      }
+        const show = shopMode === "shop" ? all.filter(function (i) { return !shopHas(i) || shopBought.indexOf(i.id) >= 0; }) : mine;
+        if (!show.length) { body.appendChild(el("p", { class: "av-tip", text: shopMode === "shop" ? "You have them all! \uD83C\uDF89" : "Nothing here yet. Tap Shop!" })); return; }
+        if (shopTab === "look" && !hdOn()) {
+          [["style", "Styles"], ["animal", "Animals"], ["color", "Colors"], ["face", "Faces"], ["hair", "Hair"]].forEach(function (c) {
+            const l = show.filter(function (i) { return i.cat === c[0]; });
+            if (!l.length) return;
+            body.appendChild(el("p", { class: "shp-h", text: c[1] }));
+            body.appendChild(grid(l));
+          });
+          return;
+        }
+        body.appendChild(grid(show));
+      };
+      const paintAll = function (bounce) {
+        const y = window.scrollY;
+        paintTabs(); paintBody(); paintHero(bounce); paintTry();
+        window.scrollTo(0, y);
+      };
+      paintAll();
       return card;
     }
     const PAGES = ["menu", "beats", "backgrounds", "games", "minigames", "leaders", "closet", "bricks", "h2h", "grammar", "signin"];
@@ -10920,7 +11416,7 @@
           pill.appendChild(icon);
           pill.appendChild(el("span", { class: "pill-name", text: track.label }));
           if (locked) {
-            pill.appendChild(el("span", { class: "pill-streak pill-cost", text: "\u00A2 1" }));
+            pill.appendChild(el("span", { class: "pill-streak pill-cost", text: "$1" }));
             pill.setAttribute("aria-label", track.label + ", locked. Tap to buy for 1 coin");
             pill.addEventListener("click", function () {
               if (!coinSpend()) return;
@@ -12003,7 +12499,7 @@
       oceanmap: "\uD83D\uDDFA\uFE0F", ocean: "\uD83C\uDF0A", sport: "\u26BD", hawaii: "\uD83C\uDF3A", capital: "\uD83C\uDFDB\uFE0F", state: "\uD83D\uDCCD", element: "\u2697\uFE0F", flag: "\uD83C\uDFF3\uFE0F", flagtrivia: "\uD83D\uDEA9",
       rhyme: "\uD83C\uDFA4", synonym: "\uD83D\uDD04", piano: "\uD83C\uDFB9", instrument: "\uD83C\uDFB8", vehicle: "\uD83D\uDE97", vehicletrivia: "\uD83D\uDE80", wonder: "\uD83D\uDDFF", athlete: "\uD83C\uDFC6",
       nfl: "\uD83C\uDFC8", mlb: "\u26BE", bor: "\uD83D\uDCDC", nounverb: "\uD83C\uDFC3", punct: "\u2757", fragrun: "\u270F\uFE0F", propcom: "\uD83D\uDD24", concab: "\uD83D\uDCA1", cartoon: "\uD83D\uDC2D",
-      fraction: "\uD83C\uDF55", placevalue: "\uD83D\uDCAF", evenodd: "\u2696\uFE0F", prime: "\uD83D\uDD0D", clock: "\u23F0", money: "\uD83E\uDE99", usstate: "\uD83C\uDDFA\uD83C\uDDF8", habitat: "\uD83D\uDC33", measure: "\uD83D\uDCCF", vocabfill: "\uD83D\uDCD6", analogy: "\uD83D\uDD17" };
+      fraction: "\uD83C\uDF55", placevalue: "\uD83D\uDCAF", evenodd: "\u2696\uFE0F", prime: "\uD83D\uDD0D", clock: "\u23F0", money: "\uD83D\uDCB5", usstate: "\uD83C\uDDFA\uD83C\uDDF8", habitat: "\uD83D\uDC33", measure: "\uD83D\uDCCF", vocabfill: "\uD83D\uDCD6", analogy: "\uD83D\uDD17" };
     SCI_OPS.forEach(function (o) { GAME_ICONS[o.id] = SCI_ICONS[o.id.slice(4)] || "\uD83D\uDD2C"; });
     function gameCategory(id) {
       if (id.indexOf("sci-") === 0) return "science";
@@ -12090,7 +12586,7 @@
       if (isEvenodd()) hint = "See a number. Is it even or odd? Even numbers end in 0, 2, 4, 6, or 8.";
       if (isPrime()) hint = "Prime = only 1 and itself go into it. Composite = other numbers go into it too.";
       if (isClock()) hint = "Look at the clock. The short hand is the hour. The long red hand is the minutes.";
-      if (isMoney()) hint = "Add up the coins. Penny 1\u00a2, nickel 5\u00a2, dime 10\u00a2, quarter 25\u00a2.";
+      if (isMoney()) hint = "Add up the coins. Penny $0.01, nickel $0.05, dime $0.10, quarter $0.25.";
       if (isUsstate()) hint = "See a state shape. Which state is it?";
       if (isHabitat()) hint = "See an animal. Does it live on land or in the ocean?";
       if (isAthlete()) hint = "See a photo of a famous player and choose their name. Soccer, football, baseball, basketball and golf.";
@@ -12859,7 +13355,7 @@
       if (b) {
         const row = el("div", { class: "gx-coins" });
         const NAMES = { 1: "penny", 5: "nickel", 10: "dime", 25: "quarter" };
-        b.coins.forEach(function (c) { row.appendChild(el("span", { class: "gx-coin c" + c, "aria-label": NAMES[c] }, [document.createTextNode(c + "\u00a2"), el("small", { text: NAMES[c] })])); });
+        b.coins.forEach(function (c) { row.appendChild(el("span", { class: "gx-coin c" + c, "aria-label": NAMES[c] }, [document.createTextNode(c < 10 ? "$0.0" + c : "$0." + c), el("small", { text: NAMES[c] })])); });
         box.appendChild(row);
       }
       return box;

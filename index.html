@@ -684,6 +684,13 @@
         radial-gradient(ellipse at 74% 16%, rgba(46, 96, 188, 0.30) 0%, rgba(18, 36, 96, 0.12) 24%, transparent 48%),
         radial-gradient(circle at 50% 42%, #141022 0%, #090712 48%, #030308 100%);
     }
+    /* Brass (level 17): dark night with a warm gold/amber horn glow. Gradient only. */
+    .wave-bg.scene-brass {
+      background:
+        radial-gradient(ellipse at 50% 78%, rgba(212, 148, 42, 0.42) 0%, rgba(120, 64, 16, 0.18) 30%, transparent 60%),
+        radial-gradient(ellipse at 22% 18%, rgba(255, 196, 90, 0.22) 0%, rgba(90, 48, 12, 0.08) 22%, transparent 46%),
+        radial-gradient(circle at 50% 40%, #1a1208 0%, #0c0906 48%, #040302 100%);
+    }
     /* Graveyard (level 14): a cemetery on a hill, built in depth from public-domain
        silhouettes. Each layer is recoloured flat by an SVG filter: far hills pale, blue and
        hazy, then darker and sharper toward the foreground crest. Fog bands drift between. */
@@ -4294,7 +4301,8 @@
       { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "graveyard", label: "Graveyard", file: "assets/audio/graveyard.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "meglo", label: "Meglo", file: "assets/audio/meglo.mp3", unlockAt: BEAT_UNLOCK_STEP },
-      { id: "dark-bass", label: "Dark Bass", file: "assets/audio/dark-bass.mp3", unlockAt: BEAT_UNLOCK_STEP }
+      { id: "dark-bass", label: "Dark Bass", file: "assets/audio/dark-bass.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "brass", label: "Brass", file: "assets/audio/brass.mp3", unlockAt: BEAT_UNLOCK_STEP }
     ];
     // Mini games: one unlocks every streak of MINI_UNLOCK_STEP (20, 40 ... 160), separate from beats.
     // Keys stay as before (bitwave/bat/graveyard for the first three) so saved unlocks keep working.
@@ -5913,7 +5921,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false, "graveyard": false, "meglo": false, "dark-bass": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false, "graveyard": false, "meglo": false, "dark-bass": false, "brass": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -8666,6 +8674,7 @@
       bg.classList.toggle("scene-graveyard", level === 14);
       bg.classList.toggle("scene-meglo", level === 15);
       bg.classList.toggle("scene-dark-bass", level === 16);
+      bg.classList.toggle("scene-brass", level === 17);
       if (siteTheme === "thanksgiving") tgSetBeat(level);
       else if (siteTheme === "halloween2") hw2SetBeat(level);
       sceneWake(siteTheme + level);

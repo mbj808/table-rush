@@ -676,6 +676,14 @@
       .wave-bg .lt-lamp, .wave-bg .lt-fly { animation: none !important; }
       .wave-bg .lt-fly { opacity: 0.7; }
     }
+    /* Dark Bass (level 16): nearly-black night with a soft purple/blue bass glow.
+       Gradient only — no extra layers, filters, or animation. */
+    .wave-bg.scene-dark-bass {
+      background:
+        radial-gradient(ellipse at 50% 82%, rgba(92, 42, 176, 0.46) 0%, rgba(42, 22, 96, 0.22) 32%, transparent 62%),
+        radial-gradient(ellipse at 74% 16%, rgba(46, 96, 188, 0.30) 0%, rgba(18, 36, 96, 0.12) 24%, transparent 48%),
+        radial-gradient(circle at 50% 42%, #141022 0%, #090712 48%, #030308 100%);
+    }
     /* Graveyard (level 14): a cemetery on a hill, built in depth from public-domain
        silhouettes. Each layer is recoloured flat by an SVG filter: far hills pale, blue and
        hazy, then darker and sharper toward the foreground crest. Fog bands drift between. */
@@ -4285,7 +4293,8 @@
       { id: "belfry", label: "Belfry", file: "assets/audio/belfry.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "moonwalk", label: "Moon Walk", file: "assets/audio/moonwalk.mp3", unlockAt: BEAT_UNLOCK_STEP },
       { id: "graveyard", label: "Graveyard", file: "assets/audio/graveyard.mp3", unlockAt: BEAT_UNLOCK_STEP },
-      { id: "meglo", label: "Meglo", file: "assets/audio/meglo.mp3", unlockAt: BEAT_UNLOCK_STEP }
+      { id: "meglo", label: "Meglo", file: "assets/audio/meglo.mp3", unlockAt: BEAT_UNLOCK_STEP },
+      { id: "dark-bass", label: "Dark Bass", file: "assets/audio/dark-bass.mp3", unlockAt: BEAT_UNLOCK_STEP }
     ];
     // Mini games: one unlocks every streak of MINI_UNLOCK_STEP (20, 40 ... 160), separate from beats.
     // Keys stay as before (bitwave/bat/graveyard for the first three) so saved unlocks keep working.
@@ -5904,7 +5913,7 @@
       best: 0,
       muted: false,
       playMusicId: "replay",
-      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false, "graveyard": false, "meglo": false },
+      beatsUnlocked: { "replay": true, "rise": false, "spark": false, "square": false, "bitwave": false, "cry": false, "thunder": false, "howl": false, "cauldron": false, "bat": false, "bats": false, "spooked": false, "belfry": false, "moonwalk": false, "graveyard": false, "meglo": false, "dark-bass": false },
       beatJustUnlocked: "",
       newBest: false,
       drill: null,
@@ -8656,6 +8665,7 @@
       bg.classList.toggle("scene-moonwalk", level === 13);
       bg.classList.toggle("scene-graveyard", level === 14);
       bg.classList.toggle("scene-meglo", level === 15);
+      bg.classList.toggle("scene-dark-bass", level === 16);
       if (siteTheme === "thanksgiving") tgSetBeat(level);
       else if (siteTheme === "halloween2") hw2SetBeat(level);
       sceneWake(siteTheme + level);
@@ -11356,18 +11366,27 @@
       ["#fff2c8","#f2c45a","#fff0a0","#d8b04a","#c8a03a","#a8802a","#7a5a1e","#f2c443","#e8a02f","#c8762a",620,210,0],
       ["#ffd0c8","#d8607a","#ffd0a0","#b8706a","#a0504a","#7a3a34","#54241e","#b8203a","#e8741f","#f2c443",580,260,0]
     ];
+    // Painted Thanksgiving and Halloween 2 pictures exist for the first TG_LOOKS.length beats
+    // (through Meglo). A newer beat reuses that last theme so a missing webp doesn't blank the scene.
+    function themeLevelFor(level) {
+      var last = TG_LOOKS.length - 1;
+      if (last < 0) return 0;
+      if (level >= 0 && level <= last && PLAY_TRACKS[level]) return level;
+      return last;
+    }
     function tgSetBeat(level) {
       tgBuild();
       const bg = document.querySelector(".wave-bg");
       const scene = bg && bg.querySelector(".tg-scene");
       if (!scene || scene.dataset.beat === String(level)) return;
       scene.dataset.beat = String(level);
-      const L = TG_LOOKS[level] || TG_LOOKS[0];
+      const themeLevel = themeLevelFor(level);
+      const L = TG_LOOKS[themeLevel] || TG_LOOKS[0];
       ["--tg-a", "--tg-b", "--tg-sun", "--tg-h1", "--tg-h2", "--tg-h3", "--tg-h4", "--tg-t1", "--tg-t2", "--tg-t3"].forEach(function (k, n) { bg.style.setProperty(k, L[n]); });
       const sun = scene.querySelector(".tg-sun");
       if (sun) sun.setAttribute("transform", "translate(" + L[10] + " " + L[11] + ")");
       scene.classList.toggle("tg-night", !!L[12]);
-      const track = PLAY_TRACKS[level] || PLAY_TRACKS[0];
+      const track = PLAY_TRACKS[themeLevel] || PLAY_TRACKS[0];
       let big = scene.querySelector(".tg-big");
       if (!big) { big = document.createElement("div"); big.className = "tg-big"; scene.insertBefore(big, scene.firstChild); }
       const art = tgBeatArt(track.id); art.querySelector("svg").setAttribute("class", "night-art"); big.replaceChildren(art);
@@ -11384,7 +11403,7 @@
       if (!scene) { scene = document.createElement("div"); scene.className = "hw2-scene"; scene.setAttribute("aria-hidden", "true"); scene.appendChild(document.createElement("div")).className = "hw2-photo"; bg.appendChild(scene); }
       if (scene.dataset.beat === String(level)) return;
       scene.dataset.beat = String(level);
-      const track = PLAY_TRACKS[level] || PLAY_TRACKS[0];
+      const track = PLAY_TRACKS[themeLevelFor(level)] || PLAY_TRACKS[0];
       scene.firstChild.style.backgroundImage = "url(assets/hw2/" + track.id + ".webp)";
     }
     function applyTheme() {
@@ -11442,8 +11461,9 @@
       PLAY_TRACKS.forEach(function (track, i) {
         const open = backgroundUnlocked(i);
         const tile = el("button", { type: "button", class: "bg-tile" + (open ? "" : " locked") + (open && current === i ? " on" : ""), "data-bg": String(i) });
-        if (siteTheme === "thanksgiving") tile.appendChild(el("img", { src: "assets/tg/" + track.id + "-t.webp", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
-        else if (siteTheme === "halloween2") tile.appendChild(el("img", { src: "assets/hw2/" + track.id + "-t.webp", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
+        var themeId = (PLAY_TRACKS[themeLevelFor(i)] || track).id;
+        if (siteTheme === "thanksgiving") tile.appendChild(el("img", { src: "assets/tg/" + themeId + "-t.webp", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
+        else if (siteTheme === "halloween2") tile.appendChild(el("img", { src: "assets/hw2/" + themeId + "-t.webp", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
         else tile.appendChild(el("img", { src: "assets/backgrounds/" + track.id + ".jpg", alt: "", loading: "lazy", decoding: "async", width: "160", height: "107" }));
         const cap = el("span", { class: "bg-cap" });
         if (!open) cap.appendChild(lockIcon());
@@ -11488,7 +11508,7 @@
           const pill = el("button", { type: "button", class: "beat-pill" + (locked ? " locked" : "") + (selected ? " on" : ""), "data-beat-id": track.id });
           const icon = el("span", { class: "pill-icon", "aria-hidden": "true" });
           if (locked) icon.appendChild(lockIcon());
-          else if (siteTheme === "thanksgiving") { icon.classList.add("tg-icon"); icon.appendChild(tgBeatArt(track.id)); }
+          else if (siteTheme === "thanksgiving") { icon.classList.add("tg-icon"); icon.appendChild(tgBeatArt((PLAY_TRACKS[themeLevelFor(i)] || track).id)); }
           pill.appendChild(icon);
           pill.appendChild(el("span", { class: "pill-name", text: track.label }));
           if (locked) {
